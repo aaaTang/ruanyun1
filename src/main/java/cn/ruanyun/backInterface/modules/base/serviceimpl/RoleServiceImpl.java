@@ -1,9 +1,9 @@
 package cn.ruanyun.backInterface.modules.base.serviceimpl;
 
 
-import cn.ruanyun.backInterface.modules.base.dao.RoleDao;
-import cn.ruanyun.backInterface.modules.base.entity.Role;
-import cn.ruanyun.backInterface.modules.base.entity.UserRole;
+import cn.ruanyun.backInterface.modules.base.mapper.RoleDao;
+import cn.ruanyun.backInterface.modules.base.pojo.Role;
+import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
 import cn.ruanyun.backInterface.modules.base.service.RoleService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;

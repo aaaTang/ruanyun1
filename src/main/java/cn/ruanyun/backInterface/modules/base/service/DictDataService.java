@@ -2,7 +2,7 @@ package cn.ruanyun.backInterface.modules.base.service;
 
 
 import cn.ruanyun.backInterface.base.RuanyunBaseService;
-import cn.ruanyun.backInterface.modules.base.entity.DictData;
+import cn.ruanyun.backInterface.modules.base.pojo.DictData;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

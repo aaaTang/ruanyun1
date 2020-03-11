@@ -5,8 +5,8 @@ import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.modules.base.entity.Dict;
-import cn.ruanyun.backInterface.modules.base.entity.DictData;
+import cn.ruanyun.backInterface.modules.base.pojo.Dict;
+import cn.ruanyun.backInterface.modules.base.pojo.DictData;
 import cn.ruanyun.backInterface.modules.base.service.DictDataService;
 import cn.ruanyun.backInterface.modules.base.service.DictService;
 

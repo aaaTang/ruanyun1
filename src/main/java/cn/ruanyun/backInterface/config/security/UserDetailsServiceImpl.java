@@ -3,7 +3,7 @@ package cn.ruanyun.backInterface.config.security;
 
 import cn.hutool.core.util.StrUtil;
 import cn.ruanyun.backInterface.common.exception.LoginFailLimitException;
-import cn.ruanyun.backInterface.modules.base.entity.User;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

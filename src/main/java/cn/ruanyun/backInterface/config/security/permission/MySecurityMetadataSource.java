@@ -2,7 +2,7 @@ package cn.ruanyun.backInterface.config.security.permission;
 
 import cn.hutool.core.util.StrUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
-import cn.ruanyun.backInterface.modules.base.entity.Permission;
+import cn.ruanyun.backInterface.modules.base.pojo.Permission;
 import cn.ruanyun.backInterface.modules.base.service.PermissionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -3,7 +3,7 @@ package cn.ruanyun.backInterface.modules.base.controller.manage;
 
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.modules.base.entity.Dict;
+import cn.ruanyun.backInterface.modules.base.pojo.Dict;
 import cn.ruanyun.backInterface.modules.base.service.DictDataService;
 import cn.ruanyun.backInterface.modules.base.service.DictService;
 import lombok.extern.slf4j.Slf4j;

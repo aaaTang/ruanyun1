@@ -4,8 +4,8 @@ package cn.ruanyun.backInterface.modules.base.service;
 
 
 import cn.ruanyun.backInterface.base.RuanyunBaseService;
-import cn.ruanyun.backInterface.modules.base.entity.User;
-import cn.ruanyun.backInterface.modules.base.entity.UserRole;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
+import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
 
 import java.util.List;
 

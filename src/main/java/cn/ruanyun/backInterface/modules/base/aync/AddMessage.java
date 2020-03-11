@@ -1,8 +1,8 @@
 package cn.ruanyun.backInterface.modules.base.aync;
 
 
-import cn.ruanyun.backInterface.modules.base.entity.Message;
-import cn.ruanyun.backInterface.modules.base.entity.MessageSend;
+import cn.ruanyun.backInterface.modules.base.pojo.Message;
+import cn.ruanyun.backInterface.modules.base.pojo.MessageSend;
 import cn.ruanyun.backInterface.modules.base.service.MessageSendService;
 import cn.ruanyun.backInterface.modules.base.service.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;

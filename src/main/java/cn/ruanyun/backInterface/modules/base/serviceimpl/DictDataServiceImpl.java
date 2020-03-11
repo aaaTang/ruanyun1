@@ -3,8 +3,8 @@ package cn.ruanyun.backInterface.modules.base.serviceimpl;
 
 import cn.hutool.core.util.StrUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
-import cn.ruanyun.backInterface.modules.base.dao.DictDataDao;
-import cn.ruanyun.backInterface.modules.base.entity.DictData;
+import cn.ruanyun.backInterface.modules.base.mapper.DictDataDao;
+import cn.ruanyun.backInterface.modules.base.pojo.DictData;
 import cn.ruanyun.backInterface.modules.base.service.DictDataService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

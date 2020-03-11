@@ -1,8 +1,8 @@
 package cn.ruanyun.backInterface.modules.base.serviceimpl;
 
 
-import cn.ruanyun.backInterface.modules.base.dao.RolePermissionDao;
-import cn.ruanyun.backInterface.modules.base.entity.RolePermission;
+import cn.ruanyun.backInterface.modules.base.mapper.RolePermissionDao;
+import cn.ruanyun.backInterface.modules.base.pojo.RolePermission;
 import cn.ruanyun.backInterface.modules.base.service.RolePermissionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

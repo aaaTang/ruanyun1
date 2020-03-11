@@ -1,8 +1,8 @@
 package cn.ruanyun.backInterface.modules.base.serviceimpl;
 
 
-import cn.ruanyun.backInterface.modules.base.dao.PermissionDao;
-import cn.ruanyun.backInterface.modules.base.entity.Permission;
+import cn.ruanyun.backInterface.modules.base.mapper.PermissionDao;
+import cn.ruanyun.backInterface.modules.base.pojo.Permission;
 import cn.ruanyun.backInterface.modules.base.service.PermissionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

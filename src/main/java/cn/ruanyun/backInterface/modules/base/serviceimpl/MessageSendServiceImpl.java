@@ -2,8 +2,8 @@ package cn.ruanyun.backInterface.modules.base.serviceimpl;
 
 
 import cn.hutool.core.util.StrUtil;
-import cn.ruanyun.backInterface.modules.base.dao.MessageSendDao;
-import cn.ruanyun.backInterface.modules.base.entity.MessageSend;
+import cn.ruanyun.backInterface.modules.base.mapper.MessageSendDao;
+import cn.ruanyun.backInterface.modules.base.pojo.MessageSend;
 import cn.ruanyun.backInterface.modules.base.service.MessageSendService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

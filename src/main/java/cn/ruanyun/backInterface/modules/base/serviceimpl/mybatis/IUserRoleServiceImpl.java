@@ -1,15 +1,19 @@
 package cn.ruanyun.backInterface.modules.base.serviceimpl.mybatis;
 
 
-import cn.ruanyun.backInterface.modules.base.dao.mapper.UserRoleMapper;
-import cn.ruanyun.backInterface.modules.base.entity.Role;
-import cn.ruanyun.backInterface.modules.base.entity.UserRole;
+import cn.ruanyun.backInterface.common.utils.ToolUtil;
+import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserRoleMapper;
+import cn.ruanyun.backInterface.modules.base.pojo.Role;
+import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * @author fei
@@ -17,18 +21,15 @@ import java.util.List;
 @Service
 public class IUserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> implements IUserRoleService {
 
-    @Autowired
-    private UserRoleMapper userRoleMapper;
 
     @Override
-    public List<Role> findByUserId(String userId) {
+    public String getRoleIdsByUserId(String userId) {
 
-        return userRoleMapper.findByUserId(userId);
-    }
-
-    @Override
-    public List<String> findDepIdsByUserId(String userId) {
-
-        return userRoleMapper.findDepIdsByUserId(userId);
+        return Optional.ofNullable(ToolUtil.setListToNul(super.list(Wrappers.<UserRole>lambdaQuery()
+                .eq(UserRole::getUserId, userId)
+                .orderByDesc(UserRole::getCreateTime))))
+                .map(userRoles -> userRoles.parallelStream().map(UserRole::getRoleId)
+                .collect(Collectors.joining()))
+                .orElse(null);
     }
 }

@@ -5,7 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.constant.SettingConstant;
 import cn.ruanyun.backInterface.common.exception.RuanyunException;
-import cn.ruanyun.backInterface.modules.base.entity.Setting;
+import cn.ruanyun.backInterface.modules.base.pojo.Setting;
 import cn.ruanyun.backInterface.modules.base.service.SettingService;
 import cn.ruanyun.backInterface.modules.file.manage.impl.*;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,7 @@
 package cn.ruanyun.backInterface.modules.base.service;
 
 
-import cn.ruanyun.backInterface.modules.base.entity.Setting;
+import cn.ruanyun.backInterface.modules.base.pojo.Setting;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;

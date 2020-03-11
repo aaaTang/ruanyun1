@@ -2,10 +2,10 @@ package cn.ruanyun.backInterface.modules.base.serviceimpl;
 
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
-import cn.ruanyun.backInterface.modules.base.dao.UserDao;
-import cn.ruanyun.backInterface.modules.base.dao.UserRoleDao;
-import cn.ruanyun.backInterface.modules.base.entity.User;
-import cn.ruanyun.backInterface.modules.base.entity.UserRole;
+import cn.ruanyun.backInterface.modules.base.mapper.UserDao;
+import cn.ruanyun.backInterface.modules.base.mapper.UserRoleDao;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
+import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
 import cn.ruanyun.backInterface.modules.base.service.UserRoleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

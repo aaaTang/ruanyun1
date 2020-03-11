@@ -4,7 +4,7 @@ package cn.ruanyun.backInterface.modules.base.service;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseService;
 import cn.ruanyun.backInterface.common.vo.SearchVo;
-import cn.ruanyun.backInterface.modules.base.entity.Log;
+import cn.ruanyun.backInterface.modules.base.pojo.Log;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

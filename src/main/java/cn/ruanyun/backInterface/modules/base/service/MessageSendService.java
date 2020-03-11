@@ -2,7 +2,7 @@ package cn.ruanyun.backInterface.modules.base.service;
 
 
 import cn.ruanyun.backInterface.base.RuanyunBaseService;
-import cn.ruanyun.backInterface.modules.base.entity.MessageSend;
+import cn.ruanyun.backInterface.modules.base.pojo.MessageSend;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

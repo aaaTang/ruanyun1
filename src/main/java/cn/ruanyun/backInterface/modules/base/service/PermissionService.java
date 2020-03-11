@@ -3,7 +3,7 @@ package cn.ruanyun.backInterface.modules.base.service;
 
 
 import cn.ruanyun.backInterface.base.RuanyunBaseService;
-import cn.ruanyun.backInterface.modules.base.entity.Permission;
+import cn.ruanyun.backInterface.modules.base.pojo.Permission;
 
 import java.util.List;
 

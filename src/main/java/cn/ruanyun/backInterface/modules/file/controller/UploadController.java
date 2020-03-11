@@ -10,7 +10,7 @@ import cn.ruanyun.backInterface.common.utils.CommonUtil;
 import cn.ruanyun.backInterface.common.utils.IpInfoUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.modules.base.entity.Setting;
+import cn.ruanyun.backInterface.modules.base.pojo.Setting;
 import cn.ruanyun.backInterface.modules.base.service.SettingService;
 import cn.ruanyun.backInterface.modules.base.vo.OssSetting;
 import cn.ruanyun.backInterface.modules.file.entity.File;

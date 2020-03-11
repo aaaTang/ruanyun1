@@ -2,7 +2,7 @@ package cn.ruanyun.backInterface.modules.base.service.elasticsearch;
 
 
 import cn.ruanyun.backInterface.common.vo.SearchVo;
-import cn.ruanyun.backInterface.modules.base.entity.elasticsearch.EsLog;
+import cn.ruanyun.backInterface.modules.base.pojo.elasticsearch.EsLog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

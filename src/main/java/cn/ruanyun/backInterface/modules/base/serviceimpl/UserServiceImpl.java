@@ -5,14 +5,8 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.vo.SearchVo;
-import cn.ruanyun.backInterface.modules.base.dao.DepartmentDao;
-import cn.ruanyun.backInterface.modules.base.dao.UserDao;
-import cn.ruanyun.backInterface.modules.base.dao.mapper.PermissionMapper;
-import cn.ruanyun.backInterface.modules.base.dao.mapper.UserRoleMapper;
-import cn.ruanyun.backInterface.modules.base.entity.Department;
-import cn.ruanyun.backInterface.modules.base.entity.Permission;
-import cn.ruanyun.backInterface.modules.base.entity.Role;
-import cn.ruanyun.backInterface.modules.base.entity.User;
+import cn.ruanyun.backInterface.modules.base.mapper.UserDao;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,14 +34,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserDao userDao;
 
-    @Autowired
-    private UserRoleMapper userRoleMapper;
-
-    @Autowired
-    private PermissionMapper permissionMapper;
-
-    @Autowired
-    private DepartmentDao departmentDao;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -60,24 +46,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByUsername(String username) {
 
-        User user = userDao.findByUsername(username);
-        if(user==null){
-            return null;
-        }
-        // 关联部门
-        if(StrUtil.isNotBlank(user.getDepartmentId())){
-            Department department = departmentDao.findById(user.getDepartmentId()).orElse(null);
-            if(department!=null){
-                user.setDepartmentTitle(department.getTitle());
-            }
-        }
-        // 关联角色
-        List<Role> roleList = userRoleMapper.findByUserId(user.getId());
-        user.setRoles(roleList);
-        // 关联权限菜单
-        List<Permission> permissionList = permissionMapper.findByUserId(user.getId());
-        user.setPermissions(permissionList);
-        return user;
+        return userDao.findByUsername(username);
     }
 
     @Override
@@ -86,11 +55,6 @@ public class UserServiceImpl implements UserService {
         return userDao.findByMobile(mobile);
     }
 
-    @Override
-    public User findByEmail(String email) {
-
-        return userDao.findByEmail(email);
-    }
 
     @Override
     public Page<User> findByCondition(User user, SearchVo searchVo, Pageable pageable) {
@@ -118,14 +82,6 @@ public class UserServiceImpl implements UserService {
                 if(StrUtil.isNotBlank(user.getMobile())){
                     list.add(cb.like(mobileField,'%'+user.getMobile()+'%'));
                 }
-                if(StrUtil.isNotBlank(user.getEmail())){
-                    list.add(cb.like(emailField,'%'+user.getEmail()+'%'));
-                }
-
-                //部门
-                if(StrUtil.isNotBlank(user.getDepartmentId())){
-                    list.add(cb.equal(departmentIdField, user.getDepartmentId()));
-                }
 
                 //性别
                 if(StrUtil.isNotBlank(user.getSex())){
@@ -146,12 +102,6 @@ public class UserServiceImpl implements UserService {
                     list.add(cb.between(createTimeField, start, DateUtil.endOfDay(end)));
                 }
 
-                //数据权限
-                List<String> depIds = securityUtil.getDeparmentIds();
-                if(depIds!=null&&depIds.size()>0){
-                    list.add(departmentIdField.in(depIds));
-                }
-
                 Predicate[] arr = new Predicate[list.size()];
                 cq.where(list.toArray(arr));
                 return null;
@@ -159,11 +109,6 @@ public class UserServiceImpl implements UserService {
         }, pageable);
     }
 
-    @Override
-    public List<User> findByDepartmentId(String departmentId) {
-
-        return userDao.findByDepartmentId(departmentId);
-    }
 
     @Override
     public List<User> findByUsernameLikeAndStatus(String username, Integer status) {

@@ -7,7 +7,7 @@ import cn.ruanyun.backInterface.common.constant.SettingConstant;
 import cn.ruanyun.backInterface.common.utils.IpInfoUtil;
 import cn.ruanyun.backInterface.common.utils.ResponseUtil;
 import cn.ruanyun.backInterface.config.properties.CaptchaProperties;
-import cn.ruanyun.backInterface.modules.base.entity.Setting;
+import cn.ruanyun.backInterface.modules.base.pojo.Setting;
 import cn.ruanyun.backInterface.modules.base.service.SettingService;
 import cn.ruanyun.backInterface.modules.base.vo.VaptchaSetting;
 import com.google.gson.Gson;

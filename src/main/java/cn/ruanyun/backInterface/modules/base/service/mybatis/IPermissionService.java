@@ -1,7 +1,7 @@
 package cn.ruanyun.backInterface.modules.base.service.mybatis;
 
 
-import cn.ruanyun.backInterface.modules.base.entity.Permission;
+import cn.ruanyun.backInterface.modules.base.pojo.Permission;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;

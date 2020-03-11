@@ -1,8 +1,8 @@
 package cn.ruanyun.backInterface.modules.base.serviceimpl;
 
 
-import cn.ruanyun.backInterface.modules.base.dao.DictDao;
-import cn.ruanyun.backInterface.modules.base.entity.Dict;
+import cn.ruanyun.backInterface.modules.base.mapper.DictDao;
+import cn.ruanyun.backInterface.modules.base.pojo.Dict;
 import cn.ruanyun.backInterface.modules.base.service.DictService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

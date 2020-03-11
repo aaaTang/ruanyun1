@@ -1,8 +1,8 @@
 package cn.ruanyun.backInterface.modules.base.serviceimpl;
 
 
-import cn.ruanyun.backInterface.modules.base.dao.RoleDepartmentDao;
-import cn.ruanyun.backInterface.modules.base.entity.RoleDepartment;
+import cn.ruanyun.backInterface.modules.base.mapper.RoleDepartmentDao;
+import cn.ruanyun.backInterface.modules.base.pojo.RoleDepartment;
 import cn.ruanyun.backInterface.modules.base.service.RoleDepartmentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

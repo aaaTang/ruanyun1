@@ -3,10 +3,16 @@ package cn.ruanyun.backInterface.config.security;
 
 import cn.hutool.core.util.StrUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
-import cn.ruanyun.backInterface.modules.base.entity.Permission;
-import cn.ruanyun.backInterface.modules.base.entity.Role;
-import cn.ruanyun.backInterface.modules.base.entity.User;
+import cn.ruanyun.backInterface.modules.base.pojo.Permission;
+import cn.ruanyun.backInterface.modules.base.pojo.Role;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IRolePermissionService;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IRoleService;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import io.netty.util.internal.UnstableApi;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,26 +29,36 @@ public class SecurityUserDetails extends User implements UserDetails {
 
     private static final long serialVersionUID = 1L;
 
+    @Autowired
+    private IUserRoleService userRoleService;
+
+    @Autowired
+    private IRolePermissionService rolePermissionService;
+
+    @Autowired
+    private IRoleService roleService;
+
+    @Autowired
+    private IUserService userService;
+
     public SecurityUserDetails(User user) {
 
         if(user!=null) {
             this.setUsername(user.getUsername());
             this.setPassword(user.getPassword());
             this.setStatus(user.getStatus());
-            this.setRoles(user.getRoles());
-            this.setPermissions(user.getPermissions());
         }
     }
 
-    /**
+   /* *//**
      * 添加用户拥有的权限和角色
      * @return
-     */
+     *//*
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
         List<GrantedAuthority> authorityList = new ArrayList<>();
-        List<Permission> permissions = this.getPermissions();
+        List<Permission> permissions = rolePermissionService.getPermissionByRoles(userRoleService.getRoleIdsByUserId())
         // 添加请求权限
         if(permissions!=null&&permissions.size()>0){
             for (Permission permission : permissions) {
@@ -65,6 +81,11 @@ public class SecurityUserDetails extends User implements UserDetails {
             });
         }
         return authorityList;
+    }*/
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
     }
 
     /**

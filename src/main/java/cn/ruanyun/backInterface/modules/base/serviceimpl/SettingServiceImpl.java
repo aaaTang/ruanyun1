@@ -1,8 +1,8 @@
 package cn.ruanyun.backInterface.modules.base.serviceimpl;
 
 
-import cn.ruanyun.backInterface.modules.base.dao.SettingDao;
-import cn.ruanyun.backInterface.modules.base.entity.Setting;
+import cn.ruanyun.backInterface.modules.base.mapper.SettingDao;
+import cn.ruanyun.backInterface.modules.base.pojo.Setting;
 import cn.ruanyun.backInterface.modules.base.service.SettingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -10,7 +10,7 @@ import cn.ruanyun.backInterface.common.limit.RedisRaterLimiter;
 import cn.ruanyun.backInterface.common.utils.IpInfoUtil;
 import cn.ruanyun.backInterface.config.properties.RuanyunIpLimitProperties;
 import cn.ruanyun.backInterface.config.properties.RuanyunLimitProperties;
-import cn.ruanyun.backInterface.modules.base.entity.Setting;
+import cn.ruanyun.backInterface.modules.base.pojo.Setting;
 import cn.ruanyun.backInterface.modules.base.service.SettingService;
 import cn.ruanyun.backInterface.modules.base.vo.OtherSetting;
 import com.google.gson.Gson;

@@ -2,12 +2,19 @@ package cn.ruanyun.backInterface.config.security.jwt;
 
 import cn.hutool.core.util.StrUtil;
 import cn.ruanyun.backInterface.common.annotation.SystemLog;
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.constant.SecurityConstant;
 import cn.ruanyun.backInterface.common.enums.LogType;
 import cn.ruanyun.backInterface.common.utils.IpInfoUtil;
 import cn.ruanyun.backInterface.common.utils.ResponseUtil;
+import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 import cn.ruanyun.backInterface.common.vo.TokenUser;
 import cn.ruanyun.backInterface.config.properties.RuanyunTokenProperties;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IRolePermissionService;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IRoleService;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -24,10 +31,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -42,10 +47,19 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
     private RuanyunTokenProperties tokenProperties;
 
     @Autowired
-    private IpInfoUtil ipInfoUtil;
+    private StringRedisTemplate redisTemplate;
 
     @Autowired
-    private StringRedisTemplate redisTemplate;
+    private IUserService userService;
+
+    @Autowired
+    private IRolePermissionService rolePermissionService;
+
+    @Autowired
+    private IRoleService roleService;
+
+    @Autowired
+    private IUserRoleService userRoleService;
 
     @Override
     @SystemLog(description = "登录系统", type = LogType.LOGIN)
@@ -61,21 +75,35 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
             }
         }
         String username = ((UserDetails)authentication.getPrincipal()).getUsername();
-        List<GrantedAuthority> authorities = (List<GrantedAuthority>) ((UserDetails)authentication.getPrincipal()).getAuthorities();
-        List<String> list = new ArrayList<>();
-        for(GrantedAuthority g : authorities){
-            list.add(g.getAuthority());
-        }
+
+        List<String> permissionList = Lists.newArrayList();
+        //添加权限
+        ThreadPoolUtil.getPool().execute(() ->
+                Optional.ofNullable(rolePermissionService.getPermissionByRoles(userRoleService
+                .getRoleIdsByUserId(userService.getUserIdByName(username))))
+                .ifPresent(permissions -> permissions.parallelStream().forEach(permission -> {
+
+                    if(CommonConstant.PERMISSION_OPERATION.equals(permission.getType())
+                            && StrUtil.isNotBlank(permission.getTitle())
+                            && StrUtil.isNotBlank(permission.getPath())) {
+                        permissionList.add(permission.getTitle());
+                    }
+                })));
+
+        //添加角色
+        ThreadPoolUtil.getPool().execute(() ->
+                Optional.ofNullable(roleService.getRolesByRoleIds(userRoleService.getRoleIdsByUserId(userService
+                .getUserIdByName(username))))
+                .ifPresent(roles -> roles.parallelStream().forEach(role ->
+                        permissionList.add(role.getName()))));
+
         // 登陆成功生成token
         String token;
         if(tokenProperties.getRedis()){
             // redis
             token = UUID.randomUUID().toString().replace("-", "");
-            TokenUser user = new TokenUser(username, list, saved);
-            // 不缓存权限
-            if(!tokenProperties.getStorePerms()){
-                user.setPermissions(null);
-            }
+            TokenUser user = new TokenUser(username, permissionList, saved);
+
             // 单设备登录 之前的token失效
             if(tokenProperties.getSdl()){
                 String oldToken = redisTemplate.opsForValue().get(SecurityConstant.USER_TOKEN + username);
@@ -91,16 +119,12 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
                 redisTemplate.opsForValue().set(SecurityConstant.TOKEN_PRE + token, new Gson().toJson(user), tokenProperties.getTokenExpireTime(), TimeUnit.MINUTES);
             }
         }else{
-            // 不缓存权限
-            if(!tokenProperties.getStorePerms()){
-                list = null;
-            }
             // jwt
             token = SecurityConstant.TOKEN_SPLIT + Jwts.builder()
                     //主题 放入用户名
                     .setSubject(username)
                     //自定义属性 放入用户拥有请求权限
-                    .claim(SecurityConstant.AUTHORITIES, new Gson().toJson(list))
+                    .claim(SecurityConstant.AUTHORITIES, new Gson().toJson(permissionList))
                     //失效时间
                     .setExpiration(new Date(System.currentTimeMillis() + tokenProperties.getTokenExpireTime() * 60 * 1000))
                     //签名算法和密钥

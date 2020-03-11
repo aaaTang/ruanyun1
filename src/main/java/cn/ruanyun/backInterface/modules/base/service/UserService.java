@@ -4,7 +4,7 @@ package cn.ruanyun.backInterface.modules.base.service;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseService;
 import cn.ruanyun.backInterface.common.vo.SearchVo;
-import cn.ruanyun.backInterface.modules.base.entity.User;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -34,12 +34,6 @@ public interface UserService extends RuanyunBaseService<User,String> {
      */
     User findByMobile(String mobile);
 
-    /**
-     * 通过邮件和状态获取用户
-     * @param email
-     * @return
-     */
-    User findByEmail(String email);
 
     /**
      * 多条件分页获取用户
@@ -50,12 +44,6 @@ public interface UserService extends RuanyunBaseService<User,String> {
      */
     Page<User> findByCondition(User user, SearchVo searchVo, Pageable pageable);
 
-    /**
-     * 通过部门id获取
-     * @param departmentId
-     * @return
-     */
-    List<User> findByDepartmentId(String departmentId);
 
     /**
      * 通过用户名模糊搜索
