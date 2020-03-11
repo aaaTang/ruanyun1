@@ -1,0 +1,81 @@
+package cn.ruanyun.backInterface.config.security.validate;
+
+
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
+import cn.ruanyun.backInterface.common.constant.SettingConstant;
+import cn.ruanyun.backInterface.common.utils.IpInfoUtil;
+import cn.ruanyun.backInterface.common.utils.ResponseUtil;
+import cn.ruanyun.backInterface.config.properties.CaptchaProperties;
+import cn.ruanyun.backInterface.modules.base.entity.Setting;
+import cn.ruanyun.backInterface.modules.base.service.SettingService;
+import cn.ruanyun.backInterface.modules.base.vo.VaptchaSetting;
+import com.google.gson.Gson;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.util.AntPathMatcher;
+import org.springframework.util.PathMatcher;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+/**
+ * 图形验证码过滤器
+ * @author fei
+ */
+@Slf4j
+@Configuration
+public class VaptchaValidateFilter extends OncePerRequestFilter {
+
+    @Autowired
+    private CaptchaProperties captchaProperties;
+
+    @Autowired
+    private SettingService settingService;
+
+    @Autowired
+    private IpInfoUtil ipInfoUtil;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+
+        // 判断URL是否需要验证
+        boolean flag = false;
+        String requestUrl = request.getRequestURI();
+        PathMatcher pathMatcher = new AntPathMatcher();
+        for(String url : captchaProperties.getVaptcha()){
+            if(pathMatcher.match(url, requestUrl)){
+                flag = true;
+                break;
+            }
+        }
+        if(flag){
+            String token = request.getParameter("token");
+
+            Setting setting = settingService.get(SettingConstant.VAPTCHA_SETTING);
+            if(StrUtil.isBlank(setting.getValue())){
+                ResponseUtil.out(response, ResponseUtil.resultMap(false,500,"系统还未配置Vaptcha验证码，请联系管理员"));
+                return;
+            }
+            VaptchaSetting vs = new Gson().fromJson(setting.getValue(), VaptchaSetting.class);
+            // 验证vaptcha验证码
+            String params = "id=" + vs.getVid() + "&secretkey=" + vs.getSecretKey() + "&token=" + token
+                    + "&ip=" + ipInfoUtil.getIpAddr(request);
+            String result = HttpUtil.post(SettingConstant.VAPTCHA_URL, params);
+            if(!result.contains("\"success\":1")){
+                ResponseUtil.out(response, ResponseUtil.resultMap(false,500,"Vaptcha验证码验证失败"));
+                return;
+            }
+            // 验证成功 放行
+            chain.doFilter(request, response);
+            return;
+        }
+        // 无需验证 放行
+        chain.doFilter(request, response);
+    }
+}

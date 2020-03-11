@@ -1,0 +1,54 @@
+package ${entity.serviceImplPackage};
+
+import ${entity.daoPackage}.${entity.className}Mapper;
+import ${entity.entityPackage}.${entity.className};
+import ${entity.servicePackage}.I${entity.className}Service;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.concurrent.CompletableFuture;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+import cn.ruanyun.backInterface.common.utils.ToolUtil;
+import cn.ruanyun.backInterface.common.utils.SecurityUtil;
+import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
+
+
+/**
+ * ${entity.description}接口实现
+ * @author ${entity.author}
+ */
+@Slf4j
+@Service
+@Transactional
+public class I${entity.className}ServiceImpl extends ServiceImpl<${entity.className}Mapper, ${entity.className}> implements I${entity.className}Service {
+
+
+       @Autowired
+       private SecurityUtil securityUtil;
+
+       @Override
+       public void insertOrderUpdate${entity.className}(${entity.className} ${entity.classNameLowerCase}) {
+
+           if (ToolUtil.isEmpty(${entity.classNameLowerCase}.getCreateBy())) {
+
+                       ${entity.classNameLowerCase}.setCreateBy(securityUtil.getCurrUser().getId());
+                   }else {
+
+                       ${entity.classNameLowerCase}.setUpdateBy(securityUtil.getCurrUser().getId());
+                   }
+
+
+                   Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(${entity.classNameLowerCase})))
+                           .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
+                           .toFuture().join();
+       }
+
+      @Override
+      public void remove${entity.className}(String ids) {
+
+          CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
+      }
+}

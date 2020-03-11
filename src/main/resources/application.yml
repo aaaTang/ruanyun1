@@ -1,0 +1,282 @@
+# 配置文件加密key 生产环境中可通过环境变量、命令行等形式进行设置
+jasypt:
+  encryptor:
+    password: xboot
+
+server:
+  port: 8083
+  servlet:
+    context-path: /
+  tomcat:
+    uri-encoding: UTF-8
+    max-threads: 1000
+    min-spare-threads: 30
+
+spring:
+  #输出彩色
+  output:
+    ansi:
+      enabled: always
+  # 数据源
+  datasource:
+    url: jdbc:mysql://47.98.123.232/fanfusha?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    username: root
+    # Jasypt加密 可到common-utils中找到JasyptUtil加解密工具类生成加密结果 格式为ENC(加密结果)
+    password: 123456
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.jdbc.Driver
+    #logSlowSql: true
+    # Druid StatViewServlet配置
+    druid:
+      stat-view-servlet:
+        # 默认true 内置监控页面首页/druid/index.html
+        enabled: true
+        url-pattern: /druid/*
+        # 允许清空统计数据
+        reset-enable: true
+        login-username: root
+        login-password: ENC(F4B0s6u9xcDw3V+P0qC4CA==)
+        # IP白名单 多个逗号分隔
+        allow:
+        # IP黑名单
+        deny:
+      filter:
+        stat:
+          # 显示慢sql 默认当超过3秒显示
+          log-slow-sql: true
+    #driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+  jpa:
+    # 显示sql
+    show-sql: true
+    # 自动生成表结构
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+  # Redis
+
+  mybatis:
+    # spring boot集成mybatis的方式打印sql
+    configuration:
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+  redis:
+    host: 47.99.50.236
+    password:
+    # 数据库索引 默认0
+    database: 0
+    port: 6379
+    # 超时时间 Duration类型 3秒
+    timeout: 3S
+
+  #rabbitmq
+  rabbitmq:
+    host: 47.98.123.232
+    port: 5672
+    password: guest
+    username: guest
+
+  # Elasticsearch
+  data:
+    elasticsearch:
+      cluster-nodes: 47.99.75.146:9300
+      # 暂未使用ES 关闭其持久化存储
+      repositories:
+        enabled: true
+      cluster-name: docker-cluster
+  # 定时任务
+  quartz:
+    # 任务信息存储至数据库
+    job-store-type: jdbc
+    properties:
+      org:
+        quartz:
+          jobStore:
+            misfireThreshold: 100
+
+  # 文件大小上传配置
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+  jackson:
+    time-zone: GMT+8
+    serialization:
+      fail-on-empty-beans: false
+  boot:
+    admin:
+      # 修改上下文路径
+      context-path: /ruanyun/admin
+      client:
+        url: http://127.0.0.1:${server.port}/ruanyun/admin
+
+ruanyun:
+  # 全局限流
+  ratelimit:
+    enable: true
+    # 每1秒内
+    timeout: 1000
+    # 总限制100个请求
+    limit: 100
+  # IP限流
+  iplimit:
+    enable: true
+    # 每1秒内
+    timeout: 1000
+    # 每个ip限制15个请求
+    limit: 15
+  # token交互方式
+  token:
+    # 设置为true后，token将存入redis，并具有单点登录功能 默认false使用JWT交互
+    redis: true
+    # 是否开启单设备登陆 仅当token交互方式为redis时生效
+    sdl: true
+    # token中存储用户权限数据 设为true开启后可避免每次请求再获取用户权限，但有可能导致编辑权限菜单后无法读取到最新权限数据（需用户重新登录）
+    storePerms: true
+    # token过期时间（分钟）
+    tokenExpireTime: 60
+    # 用户选择保存登录状态对应token过期时间（天）
+    saveLoginTime: 7
+    # 限制用户登陆错误次数（次）
+    loginTimeLimit: 10
+    # 错误超过次数后多少分钟后才能继续登录（分钟）
+    loginAfterTime: 10
+  # 日志记录方式 true使用Elasticsearch记录 false记录至数据库中
+  logRecord:
+    es: false
+  # mob api配置 mob官网注册申请即可
+  mob:
+    appKey: 你的appKey
+  # 第三方社交登录配置
+  social:
+    # 前端回调登录地址
+    callbackFeUrl: http://127.0.0.1:9999/login
+    # 前端绑定账号回调地址
+    callbackFeRelateUrl: http://127.0.0.1:9999/relate
+    # github
+    github:
+      clientId: 你的clientId
+      clientSecret: 你的clientSecret
+      callbackUrl: http://127.0.0.1:8888/ruanyun/social/github/callback
+    # qq
+    qq:
+      appId: 你的appId
+      appKey: 你的appKey
+      callbackUrl: http://127.0.0.1:8888/ruanyun/social/qq/callback
+    # weibo
+    weibo:
+      appKey: 你的appKey
+      appSecret: 你的appSecret
+      callbackUrl: http://127.0.0.1:8888/ruanyun/social/weibo/callback
+    weixin:
+      appId: wxc2315b482934ac76
+      secret: d3c5ca7e98438de5c1eb4d53e6b1d63a
+
+# 需要验证码校验的接口路径 支持通配符 自动过滤拦截校验 无需开发人员再次校验
+captcha:
+  # 图片验证码验证
+  image:
+    #- /ruanyun/login # 登录接口
+  # 短信验证码验证
+  sms:
+    - /ruanyun/user/regist # 注册接口
+    - /ruanyun/user/smsLogin # 短信登录接口
+    - /ruanyun/user/resetByMobile # 手机重置密码
+    - /ruanyun/user/changeMobile # 更换绑定手机
+
+  # Vaptcha验证码验证
+  vaptcha:
+    - /ruanyun/common/captcha/sendResetSms/** # 发送重置密码短信
+    - /ruanyun/email/sendResetCode/** # 发送重置密码邮件
+    - /ruanyun/social/relate # 绑定第三方账号
+  # Email验证码验证
+  email:
+    - /ruanyun/email/resetByEmail # 邮件重置密码
+    - /ruanyun/email/editEmail # 修改绑定邮箱
+
+# 忽略鉴权url
+ignored:
+  urls:
+    - /ruanyun/actuator/**
+    - /ruanyun/admin/**
+    - /editor-app/**
+    - /ruanyun/act/**
+    - /ruanyun/dictData/getByType/**
+    - /ruanyun/email/sendResetCode
+    - /ruanyun/email/resetByEmail
+    - /ruanyun/file/view/**
+    - /ruanyun/social/**
+    - /ruanyun/ws/**
+    - /ruanyun/user/regist
+    - /ruanyun/user/smsLogin
+    - /ruanyun/user/resetByMobile
+    - /ruanyun/common/**
+    - /druid/**
+    - /swagger-ui.html
+    - /swagger-resources/**
+    - /swagger/**
+    - /**/v2/api-docs
+    - /**/*.js
+    - /**/*.css
+    - /**/*.png
+    - /**/*.ico
+    - /ruanyun/test/**
+    - /ruanyun/weChat/loginByOpenId #微信小程序授权登录
+    - /ruanyun/user/loginByPhoneAndPassword #通过手机号和密码登录
+    - /ruanyun/user/registerByPhoneAndPassword #通过手机验证码注册用户
+    - /ruanyun/common/captcha/sendRegistSmsCode #发送注册短信验证码
+    - /ruanyun/weChat/**
+
+# Actuator
+management:
+  health:
+    status:
+      http-mapping:
+        DOWN: 200
+        OUT_OF_SERVICE: 200
+        FATAL: 200
+        UNKNOWN: 200
+    # 暂未用到ES 关闭其健康检查
+    elasticsearch:
+      enabled: false
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      base-path: /ruanyun/actuator/
+      exposure:
+        include: '*'
+
+# Swagger界面内容配置
+swagger:
+  title: Ruanyun API接口文档
+  description: Ruanyun Api Documentation
+  version: 1.0.0
+  termsOfServiceUrl: http://blog.exrick.cn
+  contact:
+    name: Exrick
+    url: http://blog.exrick.cn
+    email: 1012139570@qq.com
+
+# Mybatis-plus
+mybatis-plus:
+  mapper-locations: classpath*:mapper/*.xml
+  typeEnumsPackage: cn.ruanyun.backInterface.common.enums
+  global-config:
+    db-config:
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
+
+
+# 日志
+logging:
+  # 输出级别
+  level:
+    root: info
+  # 指定路径
+  path: ruanyun-logs
+  file:
+    # 最大保存天数
+    max-history: 7
+    # 每个文件最大大小
+    max-size: 5MB
