@@ -13,6 +13,34 @@ server:
     min-spare-threads: 30
 
 spring:
+  #kafka配置
+  kafka:
+    bootstrap-servers: 47.99.50.236:9092
+
+    #=============== provider  =======================
+    producer:
+      retries: 0
+      #每次批量发送消息的数量
+      batch-size: 16384
+      buffer-memory: 33554432
+
+
+      # 指定消息key和消息体的编解码方式
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+    #=============== consumer  =======================
+    consumer:
+      group-id: ruanyun-group
+
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+      auto-commit-interval: 100
+
+      # 指定消息key和消息体的编解码方式
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
   #输出彩色
   output:
     ansi:
@@ -52,13 +80,14 @@ spring:
     generate-ddl: true
     hibernate:
       ddl-auto: update
-  # Redis
+
 
   mybatis:
     # spring boot集成mybatis的方式打印sql
     configuration:
       log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
+  # Redis
   redis:
     host: 47.99.50.236
     password:
@@ -167,9 +196,14 @@ ruanyun:
       appKey: 你的appKey
       appSecret: 你的appSecret
       callbackUrl: http://127.0.0.1:8888/ruanyun/social/weibo/callback
+    #微信
     weixin:
-      appId: wxc2315b482934ac76
-      secret: d3c5ca7e98438de5c1eb4d53e6b1d63a
+      appId: 微信appId
+      secret: 微信secret
+    #极光
+    jpush:
+      appkey: 极光appkey
+      secret: 极光secret
 
 # 需要验证码校验的接口路径 支持通配符 自动过滤拦截校验 无需开发人员再次校验
 captcha:
@@ -252,10 +286,10 @@ swagger:
   title: Ruanyun API接口文档
   description: Ruanyun Api Documentation
   version: 1.0.0
-  termsOfServiceUrl: http://blog.exrick.cn
+  termsOfServiceUrl: http://blog.ruanyun.cn
   contact:
-    name: Exrick
-    url: http://blog.exrick.cn
+    name: fei
+    url: http://blog.fei.cn
     email: 1012139570@qq.com
 
 # Mybatis-plus

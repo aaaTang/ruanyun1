@@ -19,9 +19,6 @@ import cn.ruanyun.backInterface.modules.base.entity.User;
 import cn.ruanyun.backInterface.modules.base.entity.UserRole;
 import cn.ruanyun.backInterface.modules.base.service.*;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
-import cn.ruanyun.backInterface.modules.social.service.GithubService;
-import cn.ruanyun.backInterface.modules.social.service.QQService;
-import cn.ruanyun.backInterface.modules.social.service.WeiboService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -75,15 +72,6 @@ public class UserController {
 
     @Autowired
     private AddMessage addMessage;
-
-    @Autowired
-    private QQService qqService;
-
-    @Autowired
-    private WeiboService weiboService;
-
-    @Autowired
-    private GithubService githubService;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -422,11 +410,6 @@ public class UserController {
             Set<String> keys = redisTemplate.keys("department::*");
             assert keys != null;
             redisTemplate.delete(keys);
-
-            // 删除关联社交账号
-            qqService.deleteByUsername(u.getUsername());
-            weiboService.deleteByUsername(u.getUsername());
-            githubService.deleteByUsername(u.getUsername());
 
             userService.delete(id);
 

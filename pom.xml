@@ -191,6 +191,14 @@
             <artifactId>beetl</artifactId>
             <version>2.9.10</version>
         </dependency>
+
+        <!--极光推送-->
+        <dependency>
+            <groupId>cn.pushBean.api</groupId>
+            <artifactId>pushBean-client</artifactId>
+            <version>3.2.9</version>
+        </dependency>
+
         <!-- Minio -->
         <dependency>
             <groupId>io.minio</groupId>
@@ -255,6 +263,19 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <!--kafka-->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>2.4.0</version>
+        </dependency>
+
         <!-- 热更新 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -262,10 +283,26 @@
             <optional>true</optional>
         </dependency>
 
+        <!--极光推送-->
+        <dependency>
+            <groupId>cn.jpush.api</groupId>
+            <artifactId>jpush-client</artifactId>
+            <version>3.2.9</version>
+        </dependency>
+
+        <!--reactor响应式编程-->
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
         </dependency>
+
+        <!--sping - config-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
     </dependencies>
 
 

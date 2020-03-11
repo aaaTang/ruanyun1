@@ -25,13 +25,13 @@ public class RuanyunMPGenerator {
      * 实体类名
      * 建议仅需修改
      */
-    private static final String className = "Demo";
+    private static final String className = "DataReport";
 
     /**
      * 类说明描述
      * 建议仅需修改
      */
-    private static final String description = "线下商品";
+    private static final String description = "数据上报";
 
     /**
      * 作者名
@@ -54,31 +54,31 @@ public class RuanyunMPGenerator {
      * 实体类对应包
      * (文件自动生成至该包下)
      */
-    private static final String entityPackage = "cn.ruanyun.backInterface.modules.business.demo.entity";
+    private static final String entityPackage = "cn.ruanyun.backInterface.modules.elasticsearch.dataReport.pojo";
 
     /**
      * dao对应包
      * (文件自动生成至该包下)
      */
-    private static final String daoPackage = "cn.ruanyun.backInterface.modules.business.demo.mapper";
+    private static final String daoPackage = "cn.ruanyun.backInterface.modules.elasticsearch.dataReport.mapper";
 
     /**
      * service对应包
      * (文件自动生成至该包下)
      */
-    private static final String servicePackage = "cn.ruanyun.backInterface.modules.business.demo.service";
+    private static final String servicePackage = "cn.ruanyun.backInterface.modules.elasticsearch.dataReport.service";
 
     /**
      * serviceImpl对应包
      * (文件自动生成至该包下)
      */
-    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.business.demo.serviceimpl";
+    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.elasticsearch.dataReport.serviceimpl";
 
     /**
      * controller对应包
      * (文件自动生成至该包下)
      */
-    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.business.demo.controller";
+    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.elasticsearch.dataReport.controller";
 
     /**
      * 运行该主函数即可生成代码
