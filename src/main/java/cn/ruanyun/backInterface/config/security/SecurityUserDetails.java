@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,7 +30,7 @@ public class SecurityUserDetails extends User implements UserDetails {
 
     private static final long serialVersionUID = 1L;
 
-    @Autowired
+    /*@Autowired
     private IUserRoleService userRoleService;
 
     @Autowired
@@ -39,7 +40,7 @@ public class SecurityUserDetails extends User implements UserDetails {
     private IRoleService roleService;
 
     @Autowired
-    private IUserService userService;
+    private IUserService userService;*/
 
     public SecurityUserDetails(User user) {
 
@@ -50,15 +51,15 @@ public class SecurityUserDetails extends User implements UserDetails {
         }
     }
 
-   /* *//**
+
+    /**
      * 添加用户拥有的权限和角色
      * @return
-     *//*
+     */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
-        List<GrantedAuthority> authorityList = new ArrayList<>();
-        List<Permission> permissions = rolePermissionService.getPermissionByRoles(userRoleService.getRoleIdsByUserId())
+        /*List<Permission> permissions = rolePermissionService.getPermissionByRoles(userRoleService.getRoleIdsByUserId(userService.getUserIdByName(this.getUsername())));
         // 添加请求权限
         if(permissions!=null&&permissions.size()>0){
             for (Permission permission : permissions) {
@@ -71,7 +72,7 @@ public class SecurityUserDetails extends User implements UserDetails {
             }
         }
         // 添加角色
-        List<Role> roles = this.getRoles();
+        List<Role> roles = roleService.getRolesByRoleIds(userRoleService.getRoleIdsByUserId(userService.getUserIdByName(this.getUsername())));
         if(roles!=null&&roles.size()>0){
             // lambda表达式
             roles.forEach(item -> {
@@ -79,14 +80,10 @@ public class SecurityUserDetails extends User implements UserDetails {
                     authorityList.add(new SimpleGrantedAuthority(item.getName()));
                 }
             });
-        }
-        return authorityList;
-    }*/
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        }*/
+        return new ArrayList<>();
     }
+
 
     /**
      * 账户是否过期

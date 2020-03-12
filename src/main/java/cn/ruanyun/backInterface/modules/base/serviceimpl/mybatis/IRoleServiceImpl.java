@@ -23,7 +23,12 @@ public class IRoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements I
     @Override
     public List<Role> getRolesByRoleIds(String roleIds) {
 
-        return Optional.ofNullable(ToolUtil.setListToNul(super.listByIds(ToolUtil.splitterStr(roleIds))))
-                .orElse(null);
+        if (ToolUtil.isNotEmpty(roleIds)) {
+
+            return Optional.ofNullable(ToolUtil.setListToNul(super.listByIds(ToolUtil.splitterStr(roleIds))))
+                    .orElse(null);
+        }
+
+        return null;
     }
 }

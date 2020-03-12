@@ -30,6 +30,10 @@ public class IRolePermissionServiceImpl extends ServiceImpl<RolePermissionMapper
     @Override
     public List<Permission> getPermissionByRoles(String roleIds) {
 
+        if (ToolUtil.isEmpty(roleIds)) {
+
+            return null;
+        }
         return Optional.ofNullable(ToolUtil.setListToNul(ToolUtil.splitterStr(roleIds)))
                 .flatMap(rIds -> Optional.ofNullable(ToolUtil.setListToNul(super.list(Wrappers.<RolePermission>lambdaQuery()
                         .in(RolePermission::getRoleId,rIds)
