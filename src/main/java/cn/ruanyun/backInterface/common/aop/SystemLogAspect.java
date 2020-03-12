@@ -147,13 +147,13 @@ public class SystemLogAspect {
                 //请求IP
                 log.setIp(ipInfoUtil.getIpAddr(request));
                 //IP地址
-                log.setIpInfo(ipInfoUtil.getIpCity(ipInfoUtil.getIpAddr(request)));
+                //log.setIpInfo(ipInfoUtil.getIpCity(ipInfoUtil.getIpAddr(request)));
                 //请求开始时间
                 long beginTime = beginTimeThreadLocal.get().getTime();
                 long endTime = System.currentTimeMillis();
                 //请求耗时
-                Long logElapsedTime = endTime - beginTime;
-                log.setCostTime(logElapsedTime.intValue());
+                long logElapsedTime = endTime - beginTime;
+                log.setCostTime((int) logElapsedTime);
 
                 //调用线程保存至ES
                 ThreadPoolUtil.getPool().execute(new SaveSystemLogThread(log, logService));

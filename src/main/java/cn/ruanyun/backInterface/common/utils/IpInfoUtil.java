@@ -6,6 +6,8 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
 import cn.ruanyun.backInterface.common.vo.IpInfo;
 import cn.ruanyun.backInterface.common.vo.IpLocate;
+import cn.ruanyun.backInterface.modules.base.pojo.Log;
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +27,7 @@ public class IpInfoUtil {
 
     @Value("${ruanyun.mob.appKey}")
     private String appKey;
+
 
     /**
      * 获取客户端IP地址
@@ -110,6 +113,14 @@ public class IpInfoUtil {
         return null;
     }
 
+    public static void main(String[] args) {
+        String GET_IP_LOCATE = "http://apicloud.mob.com/ip/query?key="+ "2e5729d9e0678" +"&ip= 192.168.1.193";
+
+        String jsonObject = HttpUtil.get(GET_IP_LOCATE);
+
+        System.out.println(jsonObject);
+
+    }
     public void getUrl(HttpServletRequest request){
 
         try {

@@ -175,7 +175,7 @@ ruanyun:
     es: false
   # mob api配置 mob官网注册申请即可
   mob:
-    appKey: 你的appKey
+    appKey: 2e5729d9e0678
   # 第三方社交登录配置
   social:
     # 前端回调登录地址
