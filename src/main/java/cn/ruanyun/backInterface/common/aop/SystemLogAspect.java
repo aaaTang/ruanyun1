@@ -124,8 +124,8 @@ public class SystemLogAspect {
                 long beginTime = beginTimeThreadLocal.get().getTime();
                 long endTime = System.currentTimeMillis();
                 //请求耗时
-                Long logElapsedTime = endTime - beginTime;
-                esLog.setCostTime(logElapsedTime.intValue());
+                long logElapsedTime = endTime - beginTime;
+                esLog.setCostTime((int) logElapsedTime);
 
                 //调用线程保存至ES
                 ThreadPoolUtil.getPool().execute(new SaveEsSystemLogThread(esLog, esLogService));
