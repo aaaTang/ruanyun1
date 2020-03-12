@@ -101,8 +101,9 @@ spring:
   rabbitmq:
     host: 47.98.123.232
     port: 5672
-    password: guest
-    username: guest
+    virtual-host: my_vhost
+    password: admin
+    username: admin
 
   # Elasticsearch
   data:
