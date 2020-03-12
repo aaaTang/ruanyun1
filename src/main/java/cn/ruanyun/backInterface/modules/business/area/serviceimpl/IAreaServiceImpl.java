@@ -33,14 +33,10 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
        public void insertOrderUpdateArea(Area area) {
 
            if (ToolUtil.isEmpty(area.getCreateBy())) {
-
                        area.setCreateBy(securityUtil.getCurrUser().getId());
                    }else {
-
                        area.setUpdateBy(securityUtil.getCurrUser().getId());
                    }
-
-
                    Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(area)))
                            .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
                            .toFuture().join();
@@ -51,4 +47,7 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
 
           CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
       }
+
+
+
 }

@@ -4,7 +4,7 @@ import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.AreaIndexEnum;
 import com.baomidou.mybatisplus.annotation.TableName;
-import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -20,7 +20,8 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "t_area")
 @TableName("t_area")
-public class Area extends RuanyunBaseEntity {
+@Builder
+public class Area extends RuanyunBaseEntity{
 
     private static final long serialVersionUID = 1L;
 
@@ -60,5 +61,8 @@ public class Area extends RuanyunBaseEntity {
      * 是否启用 0开放 -1未开放
      */
     private Integer status = CommonConstant.STATUS_NORMAL;
+
+
+
 
 }
