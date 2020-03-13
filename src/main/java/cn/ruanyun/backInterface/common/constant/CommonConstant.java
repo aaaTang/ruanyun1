@@ -176,6 +176,13 @@ public interface CommonConstant {
      */
     Integer HEADER_TYPE_VICE = 1;
 
+
+
+    /*---------------用户角色-----------------------*/
+
+    String DEFAULT_ROLE = "普通用户";
+
+
 }
 
 

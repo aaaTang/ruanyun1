@@ -8,6 +8,7 @@ import cn.ruanyun.backInterface.modules.base.pojo.Role;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IRoleService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
@@ -30,5 +31,15 @@ public class IRoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements I
         }
 
         return null;
+    }
+
+    @Override
+    public String getIdByRoleName(String roleName) {
+
+        return Optional.ofNullable(super.getOne(Wrappers.<Role>lambdaQuery()
+                .eq(Role::getName, roleName)))
+                .map(Role::getId)
+                .orElse(null);
+
     }
 }

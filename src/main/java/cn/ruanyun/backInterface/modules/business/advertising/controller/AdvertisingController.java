@@ -62,19 +62,5 @@ public class AdvertisingController {
         }
     }
 
-    /**
-     * 查询全部
-     * @return
-     */
-    @PostMapping(value = "/queryAdvertising")
-    public Result<List<Advertising>> getAll(Integer type ,Integer jump){
-        List<Advertising> list =  iAdvertisingService.list(new QueryWrapper<Advertising>().lambda()
-                .eq(type!= null,Advertising::getAdvertisingType,type)
-                .eq(jump!= null,Advertising::getAdvertisingJumpType,jump)
-        );
-        return new ResultUtil<List<Advertising>>().setData(list);
-    }
-
-
 
 }

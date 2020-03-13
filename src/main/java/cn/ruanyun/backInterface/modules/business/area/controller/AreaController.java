@@ -1,12 +1,15 @@
 package cn.ruanyun.backInterface.modules.business.area.controller;
 
 import cn.ruanyun.backInterface.common.utils.EmptyUtil;
+import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.area.pojo.Area;
 import cn.ruanyun.backInterface.modules.business.area.service.IAreaService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 
 /**
@@ -60,21 +65,46 @@ public class AreaController {
         }
     }
 
+
     /**
-     * 查询全部及模糊查询
+     * 获取后台管理系统城市列表
+     * @param pid
+     * @param pageVo
      * @return
      */
-    @PostMapping(value = "/queryArea")
-    public Result<List<Area>> getAll(String title){
-        List<Area> list = null;
-        if(EmptyUtil.isEmpty(title)){
-           list = iAreaService.list(new QueryWrapper<Area>().lambda().orderByDesc(Area::getAreaIndex));
-        }else {
-           list = iAreaService.list(Wrappers. <Area>lambdaQuery().like(Area::getTitle,title));
-        }
-        return new ResultUtil<List<Area>>().setData(list);
+    @PostMapping("/getBackAreaList")
+    public Result<Object> getBackAreaList(String pid, PageVo pageVo) {
+
+        return Optional.ofNullable(iAreaService.getBackAreaList(pid))
+                .map(backAreaVOS -> {
+
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("size", backAreaVOS.size());
+                    result.put("data", PageUtil.listToPage(pageVo, backAreaVOS));
+
+                    return new ResultUtil<>().setData(result, "获取区域数据成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
     }
 
+
+    /**
+     * 获取app区域数据
+     * @param pageVo
+     * @return
+     */
+    @PostMapping("/getAppAreaList")
+    public Result<Object> getAppAreaList(PageVo pageVo) {
+
+        return Optional.ofNullable(iAreaService.getAppAreaList())
+                .map(appAreaList -> {
+
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("size", appAreaList.size());
+                    result.put("data", PageUtil.listToPage(pageVo, appAreaList));
+
+                    return new ResultUtil<>().setData(result, "获取app区域数据成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+    }
 
 
 

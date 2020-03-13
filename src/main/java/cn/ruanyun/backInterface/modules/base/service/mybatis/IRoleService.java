@@ -19,4 +19,12 @@ public interface IRoleService extends IService<Role> {
      * @return
      */
     List<Role> getRolesByRoleIds(String roleIds);
+
+
+    /**
+     * 通过角色名获取角色id
+     * @param roleName
+     * @return
+     */
+    String getIdByRoleName(String roleName);
 }

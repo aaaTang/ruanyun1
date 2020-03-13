@@ -1,7 +1,12 @@
 package cn.ruanyun.backInterface.modules.business.area.service;
 
+import cn.ruanyun.backInterface.modules.business.area.VO.AppAreaListVO;
+import cn.ruanyun.backInterface.modules.business.area.VO.AppAreaVO;
+import cn.ruanyun.backInterface.modules.business.area.VO.BackAreaVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.area.pojo.Area;
+
+import java.util.List;
 
 
 /**
@@ -18,7 +23,6 @@ public interface IAreaService extends IService<Area> {
      void insertOrderUpdateArea(Area area);
 
 
-
       /**
        * 移除area
        * @param ids
@@ -26,4 +30,24 @@ public interface IAreaService extends IService<Area> {
      void removeArea(String ids);
 
 
+    /**
+     * 获取后台管理系统城市列表
+     * @param pid
+     * @return
+     */
+     List<BackAreaVO> getBackAreaList(String pid);
+
+
+    /**
+     * 获取app区域列表
+     * @return
+     */
+     List<AppAreaListVO> getAppAreaList();
+
+
+    /**
+     * 获取app热门区域列表
+     * @return
+     */
+     List<AppAreaVO> getAppHotAreaList();
 }

@@ -7,15 +7,18 @@ import cn.ruanyun.backInterface.common.utils.CommonUtil;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.math.BigDecimal;
 
 /**
  * @author fei
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
 @Table(name = "t_user")
@@ -62,6 +65,12 @@ public class User extends RuanyunBaseEntity {
      */
     @Column(length = 500)
     private String individualResume;
+
+
+    /**
+     * 个人余额
+     */
+    private BigDecimal Balance;
 
     /**
      * 密码强度
