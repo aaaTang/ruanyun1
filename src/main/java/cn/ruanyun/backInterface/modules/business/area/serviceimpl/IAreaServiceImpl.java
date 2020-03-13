@@ -124,6 +124,7 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
       return Mono.fromCompletionStage(CompletableFuture.supplyAsync(() -> Optional.ofNullable(ToolUtil.setListToNul(super
                 .list(Wrappers.<Area>lambdaQuery()
                 .isNotNull(Area::getAreaIndex)
+                .eq(Area::getStatus, CommonConstant.STATUS_NORMAL)
                 .orderByAsc(Area::getSortOrder)
                 .orderByDesc(Area::getAreaIndex)))))
 
