@@ -26,6 +26,12 @@ public class BackAreaVO {
 
 
     /**
+     * 是否为父节点(含子节点) 默认false
+     */
+    private Boolean isParent = false;
+
+
+    /**
      * 父id
      */
     private String parentId;
@@ -35,12 +41,6 @@ public class BackAreaVO {
      * 城市索引
      */
     private AreaIndexEnum areaIndex;
-
-
-    /**
-     * 是否为父节点(含子节点) 默认false
-     */
-    private Boolean isParent = false;
 
 
     /**

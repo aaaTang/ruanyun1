@@ -20,7 +20,6 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "t_area")
 @TableName("t_area")
-@Builder
 public class Area extends RuanyunBaseEntity{
 
     private static final long serialVersionUID = 1L;
@@ -45,16 +44,9 @@ public class Area extends RuanyunBaseEntity{
 
 
     /**
-     * 是否为父节点(含子节点) 默认false
-     */
-    private Boolean isParent = false;
-
-
-    /**
      * 排序值
      */
-    @Column(precision = 10, scale = 2)
-    private BigDecimal sortOrder;
+    private Integer sortOrder;
 
 
     /**

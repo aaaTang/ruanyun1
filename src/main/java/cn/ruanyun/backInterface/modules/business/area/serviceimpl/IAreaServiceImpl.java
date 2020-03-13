@@ -57,6 +57,10 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
                 area.setParentId(CommonConstant.PARENT_ID);
             }
 
+            if (ToolUtil.isNotEmpty(area.getAreaIndex())) {
+
+                area.setSortOrder(area.getAreaIndex().getCode());
+            }
             super.saveOrUpdate(area);
 
         })).publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool())).toFuture().join();
@@ -86,6 +90,12 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
 
                     BackAreaVO backAreaVO = new BackAreaVO();
                     ToolUtil.copyProperties(area,backAreaVO);
+
+                    if (ToolUtil.isNotEmpty(super.list(Wrappers.<Area>lambdaQuery()
+                        .eq(Area::getParentId, area.getId())))) {
+
+                        backAreaVO.setIsParent(true);
+                    }
                     return Stream.of(backAreaVO);
                 }).collect(Collectors.toList())).orElse(null),ThreadPoolUtil.getPool());
 
@@ -113,6 +123,8 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
 
       return Mono.fromCompletionStage(CompletableFuture.supplyAsync(() -> Optional.ofNullable(ToolUtil.setListToNul(super
                 .list(Wrappers.<Area>lambdaQuery()
+                .isNotNull(Area::getAreaIndex)
+                .orderByAsc(Area::getSortOrder)
                 .orderByDesc(Area::getAreaIndex)))))
 
         .thenApplyAsync(areas -> areas.map(areaList -> areaList.parallelStream().collect(Collectors.groupingBy(Area::getAreaIndex))))
@@ -120,7 +132,7 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
 
             List<AppAreaListVO> appAreaListVOS = Lists.newArrayList();
 
-            areaIndexEnumList.forEach((k ,v) -> {
+            areaIndexEnumList.forEach((k, v) -> {
 
                 AppAreaListVO appAreaListVO = new AppAreaListVO();
                 appAreaListVO.setAreaIndex(k)
