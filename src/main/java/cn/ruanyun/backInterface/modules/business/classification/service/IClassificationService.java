@@ -1,5 +1,8 @@
 package cn.ruanyun.backInterface.modules.business.classification.service;
 
+import cn.ruanyun.backInterface.modules.business.classification.VO.AppCategoryListVO;
+import cn.ruanyun.backInterface.modules.business.classification.VO.AppCategoryVO;
+import cn.ruanyun.backInterface.modules.business.classification.VO.BackAreaListVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.classification.pojo.Classification;
 
@@ -25,4 +28,21 @@ public interface IClassificationService extends IService<Classification> {
        * @param ids
        */
      void removeClassification(String ids);
+
+
+    /**
+     * 获取APP分类集合一级加二级
+     */
+     List<AppCategoryListVO> getAppCategoryList();
+
+    /**
+     * 按一级分类ID查询二级分类
+     */
+     List<AppCategoryVO> getSecondLevelCategory(String ids);
+
+
+    /**
+     * 后端查询一级及二级
+     */
+     List<BackAreaListVO> getCategoryList();
 }

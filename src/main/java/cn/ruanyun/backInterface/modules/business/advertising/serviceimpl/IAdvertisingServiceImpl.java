@@ -1,14 +1,20 @@
 package cn.ruanyun.backInterface.modules.business.advertising.serviceimpl;
 
+import cn.ruanyun.backInterface.modules.business.advertising.VO.AppAdvertisingListVO;
 import cn.ruanyun.backInterface.modules.business.advertising.mapper.AdvertisingMapper;
 import cn.ruanyun.backInterface.modules.business.advertising.pojo.Advertising;
 import cn.ruanyun.backInterface.modules.business.advertising.service.IAdvertisingService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
@@ -51,4 +57,40 @@ public class IAdvertisingServiceImpl extends ServiceImpl<AdvertisingMapper, Adve
 
           CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
       }
+
+
+    /**
+     * pp查询广告数据列表
+     * @param advertisingType 1.开屏,  2.轮播
+     * @param advertisingJumpType  1.编辑详情页  2.H5网页链接  3.活动页面  4.商家店铺首页
+     * @return
+     */
+      @Override
+      public List<AppAdvertisingListVO> APPgetAdvertisingList(Integer advertisingType, Integer advertisingJumpType){
+
+           List<Advertising> list=this.list(new QueryWrapper<Advertising>().lambda().eq(Advertising::getAdvertisingType,advertisingType)
+           .eq(Advertising::getAdvertisingJumpType,advertisingJumpType));
+
+          List<AppAdvertisingListVO> appAdvertisingListVOS =list.parallelStream().map(advertising -> {
+              AppAdvertisingListVO advertisingListVO = new AppAdvertisingListVO();
+              ToolUtil.copyProperties(advertising,advertisingListVO);
+              return advertisingListVO;
+          }).collect(Collectors.toList());
+
+        return appAdvertisingListVOS;
+
+      }
+
+    /**
+     * 后端查询广告数据列表
+     * @param advertisingType 1.开屏,  2.轮播
+     * @param advertisingJumpType  1.编辑详情页  2.H5网页链接  3.活动页面  4.商家店铺首页
+     * @return
+     */
+    @Override
+    public List<Advertising> BackGetAdvertisingList(Integer advertisingType, Integer advertisingJumpType){
+
+    return  this.list(new QueryWrapper<Advertising>().lambda().eq(Advertising::getAdvertisingType ,advertisingType)
+            .eq(Advertising::getAdvertisingJumpType, advertisingJumpType));
+    }
 }

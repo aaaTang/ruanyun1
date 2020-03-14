@@ -2,18 +2,23 @@ package cn.ruanyun.backInterface.modules.business.advertising.controller;
 
 import cn.ruanyun.backInterface.common.utils.EmailUtil;
 import cn.ruanyun.backInterface.common.utils.EmptyUtil;
+import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.advertising.pojo.Advertising;
 import cn.ruanyun.backInterface.modules.business.advertising.service.IAdvertisingService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author fei
@@ -62,5 +67,43 @@ public class AdvertisingController {
         }
     }
 
+    /**
+     * App查询广告数据列表
+     * @param advertisingType 1.开屏,  2.轮播
+     * @param advertisingJumpType  1.编辑详情页  2.H5网页链接  3.活动页面  4.商家店铺首页
+     * @return
+     */
+    @PostMapping(value = "/APPgetAdvertisingList")
+    public Result<Object> APPgetAdvertisingList(PageVo pageVo ,Integer advertisingType, Integer advertisingJumpType){
+
+        return Optional.ofNullable(iAdvertisingService.APPgetAdvertisingList(advertisingType,advertisingJumpType))
+                .map(advertisingList -> {
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("size", advertisingList.size());
+                    result.put("data",  PageUtil.listToPage(pageVo, advertisingList));
+
+                    return new ResultUtil<>().setData(result, "获取APP广告数据成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+    }
+
+
+    /**
+     * 后端查询广告数据列表
+     * @param advertisingType 1.开屏,  2.轮播
+     * @param advertisingJumpType  1.编辑详情页  2.H5网页链接  3.活动页面  4.商家店铺首页
+     * @return
+     */
+    @PostMapping(value = "/BackGetAdvertisingList")
+    public Result<Object> BackGetAdvertisingList(PageVo pageVo ,Integer advertisingType, Integer advertisingJumpType){
+
+        return Optional.ofNullable(iAdvertisingService.BackGetAdvertisingList(advertisingType,advertisingJumpType))
+                .map(iAdvertisingService -> {
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("size", iAdvertisingService.size());
+                    result.put("data",  PageUtil.listToPage(pageVo, iAdvertisingService));
+
+                    return new ResultUtil<>().setData(result, "获取后端广告数据成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+    }
 
 }
