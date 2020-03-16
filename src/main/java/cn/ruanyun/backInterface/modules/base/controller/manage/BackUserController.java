@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.*;
 
 
 /**
+ * 后台管理用户接口
  * @author fei
  */
 @Slf4j
 @RestController
-@Api(description = "用户接口")
 @RequestMapping("/ruanyun/user")
 @Transactional
 public class BackUserController {
