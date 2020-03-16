@@ -4,6 +4,7 @@ package cn.ruanyun.backInterface.modules.base.controller.manage;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,13 +61,22 @@ public class AppUserController {
 
         try {
 
-            return new ResultUtil<>().setData(userService.getAppUserInfo(), "获取个人消息成功！");
+            return new ResultUtil<>().setData(userService.getAppUserInfo(), "获取个人信息成功！");
         }catch (Exception e) {
 
             return new ResultUtil<>().setErrorMsg(201, e.getMessage());
         }
     }
 
+    /**
+     * 更新个人信息
+     * @param user
+     * @return
+     */
+    @PostMapping("/updateAppUserInfo")
+    public Result<Object> updateAppUserInfo(User user){
 
+        return userService.updateAppUserInfo(user);
+    }
 
 }

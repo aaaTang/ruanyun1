@@ -19,6 +19,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.Optional;
@@ -154,5 +156,16 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
         return appUserVO;
 
+    }
+
+    public Result<Object> updateAppUserInfo(User user){
+
+        user.setId(securityUtil.getCurrUser().getId());
+        user.setUpdateBy(securityUtil.getCurrUser().getId());
+
+        Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(user)))
+                .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
+                .toFuture().join();
+        return new ResultUtil<>().setSuccessMsg("更新个人信息成功！");
     }
 }

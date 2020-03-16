@@ -42,7 +42,6 @@ public interface IUserService extends IService<User> {
      */
     AppUserVO getAppUserInfo();
 
-
-
+    Result<Object> updateAppUserInfo(User user);
 
 }

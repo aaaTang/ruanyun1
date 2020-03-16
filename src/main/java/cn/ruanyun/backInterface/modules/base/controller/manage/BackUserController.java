@@ -1,6 +1,5 @@
 package cn.ruanyun.backInterface.modules.base.controller.manage;
 
-
 import cn.hutool.core.util.StrUtil;
 import cn.ruanyun.backInterface.common.annotation.SystemLog;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
@@ -39,7 +38,6 @@ import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
 
 /**
  * @author fei
