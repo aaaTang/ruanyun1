@@ -24,19 +24,19 @@ public class RuanyunGenerator {
      * 实体类名
      * 建议仅需修改
      */
-    private static final String className = "Student";
+    private static final String className = "SelectedStore";
 
     /**
      * 类说明描述
      * 建议仅需修改
      */
-    private static final String description = "测试";
+    private static final String description = "严选商家";
 
     /**
      * 作者名
      * 建议仅需修改
      */
-    private static final String author = "Exrick";
+    private static final String author = "fei";
 
     /**
      * 是否生成关联工作流相关接口
@@ -59,31 +59,31 @@ public class RuanyunGenerator {
      * 实体类对应包
      * (文件自动生成至该包下)
      */
-    private static final String entityPackage = "";
+    private static final String entityPackage = "cn.ruanyun.backInterface.modules.business.selectedStore";
 
     /**
      * dao对应包
      * (文件自动生成至该包下)
      */
-    private static final String daoPackage = "";
+    private static final String daoPackage = "cn.ruanyun.backInterface.modules.business.selectedStore";
 
     /**
      * service对应包
      * (文件自动生成至该包下)
      */
-    private static final String servicePackage = "";
+    private static final String servicePackage = "cn.ruanyun.backInterface.modules.business.selectedStore";
 
     /**
      * serviceImpl对应包
      * (文件自动生成至该包下)
      */
-    private static final String serviceImplPackage = "";
+    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.business.selectedStore";
 
     /**
      * controller对应包
      * (文件自动生成至该包下)
      */
-    private static final String controllerPackage = "";
+    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.business.selectedStore";
 
     /**
      * 运行该主函数即可生成代码
