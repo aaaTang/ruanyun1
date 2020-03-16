@@ -76,8 +76,7 @@ public class AppUserController {
     @PostMapping("/updateAppUserInfo")
     public Result<Object> updateAppUserInfo(User user){
 
-        // TODO: 2020/3/16 重新写下
-        return null;
+        return userService.updateAppUserInfo(user);
     }
 
 }

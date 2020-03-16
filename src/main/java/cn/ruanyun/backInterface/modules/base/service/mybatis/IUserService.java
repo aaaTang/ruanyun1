@@ -1,14 +1,17 @@
 package cn.ruanyun.backInterface.modules.base.service.mybatis;
 
 
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.common.vo.SearchVo;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.vo.AppUserVO;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.data.domain.Page;
+
+
 
 /**
  * @author fei
@@ -44,7 +47,12 @@ public interface IUserService extends IService<User> {
      */
     AppUserVO getAppUserInfo();
 
-
+    /**
+     * 更新app用户信息
+     * @param user
+     * @return
+     */
+    Result<Object> updateAppUserInfo(User user);
 
     /*-----------------------后台管理系统模块---------------------------*/
 
@@ -56,6 +64,11 @@ public interface IUserService extends IService<User> {
      * @return
      */
     Result<Object> addUser(User user, String roleIds);
+
+    /**
+     *
+     */
+    Result<Page<User>> getByCondition(User user, SearchVo searchVo, PageVo pageVo);
 
     /**
      * 重置密码
@@ -88,6 +101,5 @@ public interface IUserService extends IService<User> {
      * @return
      */
     BackUserInfo getBackUserInfo(String username);
-
 
 }
