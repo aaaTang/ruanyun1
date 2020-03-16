@@ -11,6 +11,7 @@ import cn.ruanyun.backInterface.common.vo.SearchVo;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.mapper.UserDao;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
+import cn.ruanyun.backInterface.modules.base.pojo.Role;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
 import cn.ruanyun.backInterface.modules.base.service.UserService;
@@ -25,12 +26,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import javax.persistence.EntityManager;
 
 /**
  * @author fei
@@ -59,6 +63,8 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     @Autowired
     private IRolePermissionService rolePermissionService;
 
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     public String getUserIdByName(String userName) {
@@ -267,7 +273,15 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                 return null;
             }
         }, pageable);
-        return null;
+        for(User u: userPage.getContent()){
+
+            // 关联角色
+            List<Role> list = roleService.getRolesByRoleIds(userRoleService.getRoleIdsByUserId(u.getId()));
+            // 清除持久上下文环境 避免后面语句导致持久化
+            entityManager.clear();
+            u.setPassword(null);
+        }
+        return new ResultUtil<Page<User>>().setData(userPage);
     }
 
     @Override

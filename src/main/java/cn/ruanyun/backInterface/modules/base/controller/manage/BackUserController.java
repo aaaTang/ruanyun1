@@ -46,7 +46,14 @@ public class BackUserController {
     }
 
 
-    @RequestMapping(value = "/getByCondition", method = RequestMethod.GET)
+    /**
+     * 根据条件获取用户列表
+     * @param user
+     * @param searchVo
+     * @param pageVo
+     * @return
+     */
+    @GetMapping("/getByCondition")
     public Result<Page<User>> getByCondition(@ModelAttribute User user,
                                              @ModelAttribute SearchVo searchVo,
                                              @ModelAttribute PageVo pageVo){
