@@ -3,11 +3,14 @@ package cn.ruanyun.backInterface.modules.base.controller.manage;
 
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.common.vo.SearchVo;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/ruanyun/user")
 @Transactional
 public class BackUserController {
-
 
     private SecurityUtil securityUtil;
 
@@ -44,7 +46,19 @@ public class BackUserController {
     }
 
 
-    // TODO: 2020/3/16 分条件获取用户列表信息 
+    /**
+     * 根据条件获取用户列表
+     * @param user
+     * @param searchVo
+     * @param pageVo
+     * @return
+     */
+    @GetMapping("/getByCondition")
+    public Result<Page<User>> getByCondition(@ModelAttribute User user,
+                                             @ModelAttribute SearchVo searchVo,
+                                             @ModelAttribute PageVo pageVo){
+        return iUserService.getByCondition(user,searchVo,pageVo);
+    }
 
     /**
      * 重置密码
