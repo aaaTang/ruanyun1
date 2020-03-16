@@ -20,6 +20,16 @@ public class StoreAuditDTO {
      */
     private CheckEnum checkEnum;
 
+    /**
+     * 用户名
+     */
+    private String username;
+
+    /**
+     * 用户手机号
+     */
+    private String mobile;
+
 
     /**
      * 审核意见

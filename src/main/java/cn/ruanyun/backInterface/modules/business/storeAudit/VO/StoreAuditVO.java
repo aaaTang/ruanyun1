@@ -2,8 +2,16 @@ package cn.ruanyun.backInterface.modules.business.storeAudit.VO;
 
 import cn.ruanyun.backInterface.common.enums.CheckEnum;
 import cn.ruanyun.backInterface.common.enums.StoreTypeEnum;
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 
 /**
@@ -12,6 +20,13 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class StoreAuditVO {
+
+    private String id;
+
+
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date createTime;
 
     /**
      * 商家类型
@@ -64,6 +79,11 @@ public class StoreAuditVO {
     /**
      * 审核状态
      */
-    private CheckEnum checkEnum = CheckEnum.PRE_CHECK;
+    private CheckEnum checkEnum;
+
+    /**
+     * 审核意见
+     */
+    private String checkAdvice;
 
 }

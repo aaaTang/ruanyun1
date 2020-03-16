@@ -45,4 +45,7 @@ public interface IClassificationService extends IService<Classification> {
      * 后端查询一级及二级
      */
      List<BackAreaListVO> getCategoryList();
+
+    //向上查询分类
+    String getClassificationName(String id);
 }

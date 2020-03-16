@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.classification.serviceimpl;
 
+import cn.ruanyun.backInterface.modules.business.area.pojo.Area;
 import cn.ruanyun.backInterface.modules.business.classification.VO.AppCategoryListVO;
 import cn.ruanyun.backInterface.modules.business.classification.VO.AppCategoryVO;
 import cn.ruanyun.backInterface.modules.business.classification.VO.BackAreaListVO;
@@ -29,6 +30,7 @@ import javax.annotation.Resource;
 
 /**
  * 分类管理接口实现
+ *
  * @author fei
  */
 @Slf4j
@@ -36,32 +38,32 @@ import javax.annotation.Resource;
 @Transactional
 public class IClassificationServiceImpl extends ServiceImpl<ClassificationMapper, Classification> implements IClassificationService {
 
-       @Autowired
-       private SecurityUtil securityUtil;
+    @Autowired
+    private SecurityUtil securityUtil;
 
-       @Resource
-       private ClassificationMapper classificationMapper;
+    @Resource
+    private ClassificationMapper classificationMapper;
 
     @Override
-       public void insertOrderUpdateClassification(Classification classification) {
+    public void insertOrderUpdateClassification(Classification classification) {
 
-           if (ToolUtil.isEmpty(classification.getCreateBy())) {
+        if (ToolUtil.isEmpty(classification.getCreateBy())) {
 
-               classification.setCreateBy(securityUtil.getCurrUser().getId());
-           }else {
+            classification.setCreateBy(securityUtil.getCurrUser().getId());
+        } else {
 
-               classification.setUpdateBy(securityUtil.getCurrUser().getId());
-           }
-                   Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(classification)))
-                           .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
-                           .toFuture().join();
-       }
+            classification.setUpdateBy(securityUtil.getCurrUser().getId());
+        }
+        Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(classification)))
+                .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
+                .toFuture().join();
+    }
 
-      @Override
-      public void removeClassification(String ids) {
+    @Override
+    public void removeClassification(String ids) {
 
-          CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
-      }
+        CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
+    }
 
     /**
      * 获取APP分类集合一级加二级
@@ -76,16 +78,16 @@ public class IClassificationServiceImpl extends ServiceImpl<ClassificationMapper
             return appCategoryListVO;
         }).collect(Collectors.toList());*/
 
-        List<Classification> list = this.list(new QueryWrapper<Classification>().lambda().eq(Classification::getIsParent,true));
-        List<AppCategoryListVO> appCategoryListVOList  =new ArrayList<>();
+        List<Classification> list = this.list(new QueryWrapper<Classification>().lambda().eq(Classification::getIsParent, true));
+        List<AppCategoryListVO> appCategoryListVOList = new ArrayList<>();
         for (Classification classification : list) {
 
             List<AppCategoryVO> categoryVOS = classificationMapper.getAppCategoryList(classification.getId());//获取二级分类
 
-            AppCategoryListVO appCategoryVO =new AppCategoryListVO();
+            AppCategoryListVO appCategoryVO = new AppCategoryListVO();
             appCategoryVO.setId(classification.getId())
-                        .setTitle(classification.getTitle())
-                        .setCategoryVOS(categoryVOS);
+                    .setTitle(classification.getTitle())
+                    .setCategoryVOS(categoryVOS);
 
             appCategoryListVOList.add(appCategoryVO);
         }
@@ -98,7 +100,7 @@ public class IClassificationServiceImpl extends ServiceImpl<ClassificationMapper
      * 按一级分类ID查询二级分类
      */
     @Override
-    public List<AppCategoryVO> getSecondLevelCategory(String ids){
+    public List<AppCategoryVO> getSecondLevelCategory(String ids) {
         List<AppCategoryVO> categoryVOS = classificationMapper.getAppCategoryList(ids);//获取二级分类
         return categoryVOS;
     }
@@ -107,15 +109,15 @@ public class IClassificationServiceImpl extends ServiceImpl<ClassificationMapper
      * 后端查询一级及二级
      */
     @Override
-    public  List<BackAreaListVO> getCategoryList(){
+    public List<BackAreaListVO> getCategoryList() {
 
-        List<Classification> list = this.list(new QueryWrapper<Classification>().lambda().eq(Classification::getIsParent,true));
-        List<BackAreaListVO> backAreaListVOS  =new ArrayList<>();
+        List<Classification> list = this.list(new QueryWrapper<Classification>().lambda().eq(Classification::getIsParent, true));
+        List<BackAreaListVO> backAreaListVOS = new ArrayList<>();
         for (Classification classification : list) {
 
             List<BackAreaVO> backAreaVOS = classificationMapper.getCategoryList(classification.getId());//获取二级分类
 
-            BackAreaListVO backAreaListVO =new BackAreaListVO();
+            BackAreaListVO backAreaListVO = new BackAreaListVO();
             backAreaListVO.setTitle(classification.getTitle()).setPic(classification.getPic())
                     .setIsParent(classification.getIsParent()).setSortOrder(classification.getSortOrder())
                     .setStatus(classification.getStatus()).setParentId(classification.getParentId())
@@ -127,4 +129,29 @@ public class IClassificationServiceImpl extends ServiceImpl<ClassificationMapper
 
     }
 
+    @Override
+    public String getClassificationName(String id) {
+        String name = "";
+        Classification classification = super.getById(id);
+        if (ToolUtil.isNotEmpty(classification)) {
+            if (ToolUtil.isNotEmpty(classification.getParentId()) && !"0".equals(classification.getParentId()) && !"1".equals(classification.getParentId())) {
+                name = spliceName(name, id);
+            } else {
+                name = name.concat(classification.getTitle());
+            }
+        }
+        return name;
+    }
+
+    //拼接详细地址
+    public String spliceName(String name, String id) {
+        Classification classification = super.getById(id);
+        if (ToolUtil.isNotEmpty(classification.getParentId()) && !"0".equals(classification.getParentId()) && !"1".equals(classification.getParentId())) {
+            name = classification.getTitle() + name;
+            name = spliceName(name, classification.getParentId());
+        } else {
+            name = (classification.getTitle()).concat(name);
+        }
+        return name;
+    }
 }

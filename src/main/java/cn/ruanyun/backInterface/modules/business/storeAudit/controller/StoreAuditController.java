@@ -1,7 +1,12 @@
 package cn.ruanyun.backInterface.modules.business.storeAudit.controller;
 
+import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
+import cn.ruanyun.backInterface.modules.business.storeAudit.DTO.StoreAuditDTO;
+import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditVO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
 import cn.ruanyun.backInterface.modules.business.storeAudit.service.IStoreAuditService;
 import lombok.extern.slf4j.Slf4j;
@@ -61,5 +66,31 @@ public class StoreAuditController {
             return new ResultUtil<>().setErrorMsg(201, e.getMessage());
         }
     }
+
+    /**
+     * 获取申请记录列表
+     */
+    @PostMapping("/getList")
+    public Result<Object> getList(StoreAuditDTO storeAuditDTO, PageVo pageVo){
+        List<StoreAuditVO> list = iStoreAuditService.getStoreAuditList(storeAuditDTO);
+        DataVo<StoreAuditVO> result = new DataVo<>();
+        result.setTotalNumber(list.size())
+                .setDataResult(PageUtil.listToPage(pageVo,list));
+        return new ResultUtil<>().setData(result);
+    }
+
+    /**
+     * 审核申请记录
+     */
+    @PostMapping("/checkStoreAudit")
+    public Result<Object> checkStoreAudit(StoreAuditDTO storeAuditDTO){return iStoreAuditService.checkStoreAudit(storeAuditDTO);}
+
+    /**
+     * 插入申请
+     */
+    @PostMapping("/addApply")
+    public Result<Object> addApply(StoreAudit storeAudit){return iStoreAuditService.addApply(storeAudit);}
+
+
 
 }
