@@ -256,7 +256,7 @@ ignored:
     - /**/*.ico
     - /ruanyun/test/**
     - /ruanyun/weChat/loginByOpenId #微信小程序授权登录
-    - /ruanyun/user/loginByPhoneAndPassword #通过手机号和密码登录
+    - /ruanyun/appUser/loginByPhoneAndPassword #通过手机号和密码登录
     - /ruanyun/user/registerByPhoneAndPassword #通过手机验证码注册用户
     - /ruanyun/common/captcha/sendRegistSmsCode #发送注册短信验证码
     - /ruanyun/weChat/**
