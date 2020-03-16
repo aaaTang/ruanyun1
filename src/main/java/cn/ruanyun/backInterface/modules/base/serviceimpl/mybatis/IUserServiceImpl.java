@@ -19,7 +19,6 @@ import cn.ruanyun.backInterface.modules.base.vo.AppUserVO;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import jdk.internal.jline.internal.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
@@ -222,7 +221,6 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
         Pageable pageable=PageUtil.initPage(pageVo);
         Page<User> userPage=userDao.findAll(new Specification<User>() {
-            @Nullable
             @Override
             public Predicate toPredicate(Root<User> root, CriteriaQuery<?> cq, CriteriaBuilder cb) {
 
