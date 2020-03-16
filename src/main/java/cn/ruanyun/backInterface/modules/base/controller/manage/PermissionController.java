@@ -14,6 +14,7 @@ import cn.ruanyun.backInterface.modules.base.service.PermissionService;
 import cn.ruanyun.backInterface.modules.base.service.RolePermissionService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IPermissionService;
 import cn.ruanyun.backInterface.modules.base.utils.VoUtil;
+import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
 import cn.ruanyun.backInterface.modules.base.vo.MenuVo;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -65,8 +66,8 @@ public class PermissionController {
 
         List<MenuVo> menuList = new ArrayList<>();
         // 读取缓存
-        User u = securityUtil.getCurrUser();
-        String key = "permission::userMenuList:" + u.getId();
+        BackUserInfo backUserInfo = securityUtil.getCurrUser();
+        String key = "permission::userMenuList:" + backUserInfo.getId();
         String v = redisTemplate.opsForValue().get(key);
         if(StrUtil.isNotBlank(v)){
             menuList = new Gson().fromJson(v, new TypeToken<List<MenuVo>>(){}.getType());
@@ -74,7 +75,7 @@ public class PermissionController {
         }
 
         // 用户所有权限 已排序去重
-        List<Permission> list = iPermissionService.findByUserId(u.getId());
+        List<Permission> list = iPermissionService.findByUserId(backUserInfo.getId());
 
         // 筛选0级页面
         for(Permission p : list){
@@ -222,7 +223,7 @@ public class PermissionController {
         for(String id:ids){
             List<RolePermission> list = rolePermissionService.findByPermissionId(id);
             if(list!=null&&list.size()>0){
-                return new ResultUtil<Object>().setErrorMsg("删除失败，包含正被角色使用关联的菜单或权限");
+                return new ResultUtil<>().setErrorMsg("删除失败，包含正被角色使用关联的菜单或权限");
             }
         }
         for(String id:ids){
@@ -232,7 +233,7 @@ public class PermissionController {
         mySecurityMetadataSource.loadResourceDefine();
         //手动删除缓存
         redisTemplate.delete("permission::allList");
-        return new ResultUtil<Object>().setSuccessMsg("批量通过id删除数据成功");
+        return new ResultUtil<>().setSuccessMsg("批量通过id删除数据成功");
     }
 
     @RequestMapping(value = "/search", method = RequestMethod.GET)

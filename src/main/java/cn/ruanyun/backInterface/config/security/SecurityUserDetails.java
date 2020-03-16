@@ -10,6 +10,7 @@ import cn.ruanyun.backInterface.modules.base.service.mybatis.IRolePermissionServ
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IRoleService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
 import io.netty.util.internal.UnstableApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,28 +27,18 @@ import java.util.List;
  * @author fei
  */
 @Slf4j
-public class SecurityUserDetails extends User implements UserDetails {
+public class SecurityUserDetails extends BackUserInfo implements UserDetails {
 
     private static final long serialVersionUID = 1L;
 
-    /*@Autowired
-    private IUserRoleService userRoleService;
-
-    @Autowired
-    private IRolePermissionService rolePermissionService;
-
-    @Autowired
-    private IRoleService roleService;
-
-    @Autowired
-    private IUserService userService;*/
-
-    public SecurityUserDetails(User user) {
+    public SecurityUserDetails(BackUserInfo user) {
 
         if(user!=null) {
             this.setUsername(user.getUsername());
             this.setPassword(user.getPassword());
             this.setStatus(user.getStatus());
+            this.setRoles(user.getRoles());
+            this.setPermissions(user.getPermissions());
         }
     }
 
@@ -59,7 +50,8 @@ public class SecurityUserDetails extends User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
 
-        /*List<Permission> permissions = rolePermissionService.getPermissionByRoles(userRoleService.getRoleIdsByUserId(userService.getUserIdByName(this.getUsername())));
+        List<GrantedAuthority> authorityList = new ArrayList<>();
+        List<Permission> permissions = this.getPermissions();
         // 添加请求权限
         if(permissions!=null&&permissions.size()>0){
             for (Permission permission : permissions) {
@@ -72,7 +64,7 @@ public class SecurityUserDetails extends User implements UserDetails {
             }
         }
         // 添加角色
-        List<Role> roles = roleService.getRolesByRoleIds(userRoleService.getRoleIdsByUserId(userService.getUserIdByName(this.getUsername())));
+        List<Role> roles = this.getRoles();
         if(roles!=null&&roles.size()>0){
             // lambda表达式
             roles.forEach(item -> {
@@ -80,10 +72,9 @@ public class SecurityUserDetails extends User implements UserDetails {
                     authorityList.add(new SimpleGrantedAuthority(item.getName()));
                 }
             });
-        }*/
-        return new ArrayList<>();
+        }
+        return authorityList;
     }
-
 
     /**
      * 账户是否过期

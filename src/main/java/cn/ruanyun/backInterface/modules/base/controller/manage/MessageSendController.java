@@ -50,7 +50,7 @@ public class MessageSendController extends RuanyunBaseController<MessageSend, St
         return messageSendService;
     }
 
-    @RequestMapping(value = "/getByCondition", method = RequestMethod.POST)
+    @RequestMapping(value = "/getByCondition", method = RequestMethod.GET)
     public Result<Page<MessageSend>> getByCondition(@ModelAttribute MessageSend ms,
                                                     @ModelAttribute PageVo pv){
 

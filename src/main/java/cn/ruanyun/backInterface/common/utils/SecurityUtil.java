@@ -15,6 +15,7 @@ import cn.ruanyun.backInterface.modules.base.service.mybatis.IRolePermissionServ
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IRoleService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
 import com.google.gson.Gson;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -39,7 +40,7 @@ public class SecurityUtil {
     private RuanyunTokenProperties tokenProperties;
 
     @Autowired
-    private IUserService userService;
+    private IUserService iuserService;
 
     @Autowired
     private IUserRoleService userRoleService;
@@ -53,11 +54,17 @@ public class SecurityUtil {
     @Autowired
     private IRoleService roleService;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private IUserService iUserService;
+
     public String getToken(String username, Boolean saveLogin){
 
         boolean saved = false;
 
-        User user = userService.getById(userService.getUserIdByName(username));
+        User user = iuserService.getById(iuserService.getUserIdByName(username));
 
         //token是否缓存在redis中
         if(saveLogin==null||saveLogin){
@@ -75,7 +82,7 @@ public class SecurityUtil {
             ThreadPoolUtil.getPool().execute(() ->
 
                     Optional.ofNullable(rolePermissionService.getPermissionByRoles(userRoleService
-                    .getRoleIdsByUserId(userService.getUserIdByName(username))))
+                    .getRoleIdsByUserId(iuserService.getUserIdByName(username))))
                     .ifPresent(permissions -> permissions.parallelStream().forEach(permission -> {
 
                         if(CommonConstant.PERMISSION_OPERATION.equals(permission.getType())
@@ -88,7 +95,7 @@ public class SecurityUtil {
             //添加角色
             ThreadPoolUtil.getPool().execute(() ->
 
-                    Optional.ofNullable(roleService.getRolesByRoleIds(userRoleService.getRoleIdsByUserId(userService
+                    Optional.ofNullable(roleService.getRolesByRoleIds(userRoleService.getRoleIdsByUserId(iuserService
                     .getUserIdByName(username))))
                     .ifPresent(roles -> roles.parallelStream().forEach(role ->
                             permissionList.add(role.getName()))));
@@ -136,10 +143,10 @@ public class SecurityUtil {
      * 获取当前登录用户
      * @return
      */
-    public User getCurrUser(){
+    public BackUserInfo getCurrUser(){
 
         UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userService.getById(userService.getUserIdByName(user.getUsername()));
+        return iuserService.getBackUserInfo(user.getUsername());
     }
 
 
@@ -151,7 +158,7 @@ public class SecurityUtil {
 
         List<GrantedAuthority> authorities = new ArrayList<>();
 
-        Optional.ofNullable(rolePermissionService.getPermissionByRoles(userRoleService.getRoleIdsByUserId(userService
+        Optional.ofNullable(rolePermissionService.getPermissionByRoles(userRoleService.getRoleIdsByUserId(iuserService
                 .getUserIdByName(username))))
                 .ifPresent(permissions -> permissions.parallelStream().forEach(permission -> {
 

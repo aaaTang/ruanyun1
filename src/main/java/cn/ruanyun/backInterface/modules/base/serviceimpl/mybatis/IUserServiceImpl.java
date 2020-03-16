@@ -1,6 +1,8 @@
 package cn.ruanyun.backInterface.modules.base.serviceimpl.mybatis;
 
 
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
@@ -8,12 +10,12 @@ import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
+import cn.ruanyun.backInterface.modules.base.service.PermissionService;
 import cn.ruanyun.backInterface.modules.base.service.UserRoleService;
 import cn.ruanyun.backInterface.modules.base.service.UserService;
-import cn.ruanyun.backInterface.modules.base.service.mybatis.IRoleService;
-import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
-import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.*;
 import cn.ruanyun.backInterface.modules.base.vo.AppUserVO;
+import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,12 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
     @Autowired
     private IRoleService roleService;
+
+    @Autowired
+    private IPermissionService permissionService;
+
+    @Autowired
+    private IRolePermissionService rolePermissionService;
 
 
     @Override
@@ -154,5 +162,113 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
         return appUserVO;
 
+    }
+
+    @Override
+    public Result<Object> addUser(User user, String roleIds) {
+
+        if(ToolUtil.isEmpty(user.getUsername()) || ToolUtil.isEmpty(user.getPassword())){
+            return new ResultUtil<>().setErrorMsg("缺少必需表单字段");
+        }
+
+
+        if (ToolUtil.isNotEmpty(super.getOne(Wrappers.<User>lambdaQuery()
+            .eq(User::getUsername, user.getUsername())))) {
+
+            return new ResultUtil<>().setErrorMsg("名字重复！");
+        }
+
+        String encryptPass = new BCryptPasswordEncoder().encode(user.getPassword());
+        user.setPassword(encryptPass);
+
+      return Optional.ofNullable(userService.save(user)).map(userInsert -> {
+
+            //添加默认角色
+            Optional.ofNullable(ToolUtil.setListToNul(ToolUtil.splitterStr(roleIds)))
+                    .ifPresent(ids -> ids.parallelStream().forEach(id -> {
+
+                        UserRole userRole = new UserRole();
+                        userRole.setUserId(user.getId());
+                        userRole.setRoleId(id);
+                        userRoleService.save(userRole);
+                    }));
+
+            return new ResultUtil<>().setSuccessMsg("添加成功！");
+
+        }).orElse(new ResultUtil<>().setErrorMsg(201, "添加失败！"));
+
+    }
+
+    @Override
+    public Result<Object> resetPass(String userIds) {
+
+        return Optional.ofNullable(ToolUtil.setListToNul(ToolUtil.splitterStr(userIds)))
+                .map(ids -> {
+
+                    ids.parallelStream().forEach(id -> {
+
+                        String newPassword = new BCryptPasswordEncoder().encode("123456");
+
+                        Optional.ofNullable(super.getById(id))
+                                .ifPresent(user -> {
+
+                                    user.setPassword(newPassword);
+                                    super.updateById(user);
+                                });
+                    });
+
+                    return new ResultUtil<>().setSuccessMsg("重置密码成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "参数为空！"));
+    }
+
+    @Override
+    public Result<Object> editOwn(User u) {
+
+        return Optional.ofNullable(super.getById(u.getId()))
+                .map(user -> {
+
+                    super.saveOrUpdate(user);
+                    return new ResultUtil<>().setSuccessMsg("修改成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "当前用户不存在！"));
+    }
+
+    @Override
+    public Result<Object> modifyPass(String password, String newPass) {
+
+        BackUserInfo backUserInfo = securityUtil.getCurrUser();
+
+        if ( !new BCryptPasswordEncoder().matches(password, backUserInfo.getPassword())) {
+
+            return new ResultUtil<>().setErrorMsg(201, "密码不一致！");
+        }
+
+        return Optional.ofNullable(super.getById(backUserInfo.getId()))
+                .map(user -> {
+
+                    user.setPassword(new BCryptPasswordEncoder().encode(newPass));
+                    super.updateById(user);
+
+                    return new ResultUtil<>().setSuccessMsg("修改密码成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(202, "不存在当前用户！"));
+    }
+
+
+    @Override
+    public BackUserInfo getBackUserInfo(String username) {
+
+        return Optional.ofNullable(super.getOne(Wrappers.<User>lambdaQuery()
+                .eq(User::getUsername, username)))
+                .map(user -> {
+
+                    BackUserInfo backUserInfo = new BackUserInfo();
+                    ToolUtil.copyProperties(user, backUserInfo);
+
+                    //角色
+                    backUserInfo.setRoles(roleService.getRolesByRoleIds(userRoleService.getRoleIdsByUserId(user.getId())))
+                            .setPermissions(rolePermissionService.getPermissionByRoles(userRoleService.getRoleIdsByUserId(user.getId())));
+
+                    return backUserInfo;
+
+                }).orElse(null);
     }
 }

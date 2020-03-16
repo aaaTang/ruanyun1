@@ -6,8 +6,15 @@ import cn.hutool.core.util.StrUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.vo.SearchVo;
 import cn.ruanyun.backInterface.modules.base.mapper.UserDao;
+import cn.ruanyun.backInterface.modules.base.mapper.mapper.PermissionMapper;
+import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserRoleMapper;
+import cn.ruanyun.backInterface.modules.base.pojo.Permission;
+import cn.ruanyun.backInterface.modules.base.pojo.Role;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.UserService;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IPermissionService;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IRoleService;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,6 +24,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,9 +42,12 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserDao userDao;
 
+    @Resource
+    private UserRoleMapper userRoleMapper;
 
-    @Autowired
-    private SecurityUtil securityUtil;
+    @Resource
+    private PermissionMapper permissionMapper;
+
 
     @Override
     public UserDao getRepository() {
@@ -46,6 +57,13 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByUsername(String username) {
 
+        /* // 关联角色
+        List<Role> roleList = userRoleMapper.findByUserId(user.getId());
+        user.setRoles(roleList);
+
+        // 关联权限菜单
+        List<Permission> permissionList = permissionMapper.findByUserId(user.getId());
+        user.setPermissions(permissionList);*/
         return userDao.findByUsername(username);
     }
 

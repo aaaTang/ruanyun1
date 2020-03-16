@@ -16,7 +16,6 @@ import java.util.List;
  * 用户接口
  * @author fei
  */
-@CacheConfig(cacheNames = "user")
 public interface UserService extends RuanyunBaseService<User,String> {
 
     /**
@@ -24,7 +23,6 @@ public interface UserService extends RuanyunBaseService<User,String> {
      * @param username
      * @return
      */
-    @Cacheable(key = "#username")
     User findByUsername(String username);
 
     /**

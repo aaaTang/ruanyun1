@@ -76,11 +76,11 @@ public class IpInfoUtil {
      */
     public String getIpWeatherInfo(String ip){
 
-        String GET_IP_WEATHER = "http://apicloud.mob.com/v1/weather/ip?key="+ appKey +"&ip=";
+      /*  String GET_IP_WEATHER = "http://apicloud.mob.com/v1/weather/ip?key="+ appKey +"&ip=";
         if(StrUtil.isNotBlank(ip)){
             String url = GET_IP_WEATHER + ip;
             return HttpUtil.get(url);
-        }
+        }*/
         return null;
     }
 
@@ -91,7 +91,7 @@ public class IpInfoUtil {
      */
     public String getIpCity(String ip){
 
-        String GET_IP_LOCATE = "http://apicloud.mob.com/ip/query?key="+ appKey +"&ip=";
+        /*String GET_IP_LOCATE = "http://apicloud.mob.com/ip/query?key="+ appKey +"&ip=";
         if(null != ip){
             String url = GET_IP_LOCATE + ip;
             String result = "未知";
@@ -109,7 +109,7 @@ public class IpInfoUtil {
                 log.info("获取IP信息失败");
             }
             return result;
-        }
+        }*/
         return null;
     }
 

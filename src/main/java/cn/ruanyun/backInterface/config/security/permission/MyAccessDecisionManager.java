@@ -24,7 +24,7 @@ public class MyAccessDecisionManager implements AccessDecisionManager {
     @Override
     public void decide(Authentication authentication, Object o, Collection<ConfigAttribute> configAttributes) throws AccessDeniedException, InsufficientAuthenticationException {
 
-        if(configAttributes==null){
+      /*  if(configAttributes==null){
             return;
         }
         for (ConfigAttribute c : configAttributes) {
@@ -36,7 +36,7 @@ public class MyAccessDecisionManager implements AccessDecisionManager {
                 }
             }
         }
-        throw new AccessDeniedException("抱歉，您没有访问权限");
+        throw new AccessDeniedException("抱歉，您没有访问权限");*/
     }
 
     @Override

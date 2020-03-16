@@ -93,13 +93,13 @@ public  class ToolUtil extends ValidateUtil {
         try {
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             byte[] bs = md5.digest(str.getBytes());
-            StringBuffer md5StrBuff = new StringBuffer();
+            StringBuilder md5StrBuff = new StringBuilder();
 
-            for(int i = 0; i < bs.length; ++i) {
-                if (Integer.toHexString(255 & bs[i]).length() == 1) {
-                    md5StrBuff.append("0").append(Integer.toHexString(255 & bs[i]));
+            for (byte b : bs) {
+                if (Integer.toHexString(255 & b).length() == 1) {
+                    md5StrBuff.append("0").append(Integer.toHexString(255 & b));
                 } else {
-                    md5StrBuff.append(Integer.toHexString(255 & bs[i]));
+                    md5StrBuff.append(Integer.toHexString(255 & b));
                 }
             }
 
@@ -263,7 +263,7 @@ public  class ToolUtil extends ValidateUtil {
 
     public static String repaceStr(String str){
 
-        StringBuffer res = new StringBuffer();
+        StringBuilder res = new StringBuilder();
         int len = str.length() - 1;
         for(int i = len; i >= 0; i--){
             if(str.charAt(i) == '/'||str.charAt(i) == 't')
@@ -294,7 +294,7 @@ public  class ToolUtil extends ValidateUtil {
             long min  = ((times/(60*1000))-day*24*60-hour*60);
             long sec  = (times/1000-day*24*60*60-hour*60*60-min*60);
 
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             //sb.append("发表于：");
             if(hour>0 ){
                 sb.append(hour).append("小时前");

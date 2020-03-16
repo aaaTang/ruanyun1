@@ -4,8 +4,10 @@ package cn.ruanyun.backInterface.modules.base.pojo;
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.utils.CommonUtil;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -13,7 +15,9 @@ import lombok.experimental.Accessors;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @author fei
@@ -72,11 +76,6 @@ public class User extends RuanyunBaseEntity {
      */
     private BigDecimal Balance;
 
-    /**
-     * 密码强度
-     */
-    @Column(length = 2)
-    private String passStrength;
 
     /**
      * 邀请码
@@ -98,6 +97,5 @@ public class User extends RuanyunBaseEntity {
      * 状态 默认0正常 -1拉黑
      */
     private Integer status = CommonConstant.USER_STATUS_NORMAL;
-
 
 }

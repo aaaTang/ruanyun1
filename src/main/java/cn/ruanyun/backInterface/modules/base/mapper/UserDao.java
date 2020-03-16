@@ -3,6 +3,8 @@ package cn.ruanyun.backInterface.modules.base.mapper;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseDao;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
+import org.hibernate.annotations.SQLInsert;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 

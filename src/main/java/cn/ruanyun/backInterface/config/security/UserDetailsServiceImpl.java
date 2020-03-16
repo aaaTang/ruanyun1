@@ -5,6 +5,8 @@ import cn.hutool.core.util.StrUtil;
 import cn.ruanyun.backInterface.common.exception.LoginFailLimitException;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.UserService;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -28,6 +30,9 @@ public class UserDetailsServiceImpl implements UserDetailsService{
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private IUserService iUserService;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
@@ -38,7 +43,7 @@ public class UserDetailsServiceImpl implements UserDetailsService{
             //超过限制次数
             throw new LoginFailLimitException("登录错误次数超过限制，请"+timeRest+"分钟后再试");
         }
-        User user = userService.findByUsername(username);
-        return new SecurityUserDetails(user);
+        BackUserInfo backUserInfo = iUserService.getBackUserInfo(username);
+        return new SecurityUserDetails(backUserInfo);
     }
 }

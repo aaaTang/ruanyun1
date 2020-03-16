@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 /**
- * @author Exrick
+ * @author fei
  */
 @Slf4j
 @RestController
@@ -31,7 +31,7 @@ public class MessageController {
     @Autowired
     private MessageSendService sendService;
 
-    @RequestMapping(value = "/getByCondition", method = RequestMethod.GET)
+    @RequestMapping(value = "/getByCondition", method = RequestMethod.POST)
     public Result<Page<Message>> getByCondition(@ModelAttribute Message message,
                                                 @ModelAttribute SearchVo searchVo,
                                                 @ModelAttribute PageVo pageVo){

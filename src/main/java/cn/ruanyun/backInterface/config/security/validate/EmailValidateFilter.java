@@ -4,7 +4,6 @@ package cn.ruanyun.backInterface.config.security.validate;
 import cn.hutool.core.util.StrUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.utils.ResponseUtil;
-import cn.ruanyun.backInterface.common.vo.EmailValidate;
 import cn.ruanyun.backInterface.config.properties.CaptchaProperties;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
@@ -60,12 +59,7 @@ public class EmailValidateFilter extends OncePerRequestFilter {
                 ResponseUtil.out(response, ResponseUtil.resultMap(false,500,"验证码已过期，请重新获取"));
                 return;
             }
-            EmailValidate e = new Gson().fromJson(v, EmailValidate.class);
-            if(!code.equals(e.getCode())){
-                log.info("验证码错误：code:"+ code +"，redisCode:"+e.getCode());
-                ResponseUtil.out(response, ResponseUtil.resultMap(false,500,"邮件验证码输入错误"));
-                return;
-            }
+
             // 已验证清除key
             redisTemplate.delete(CommonConstant.PRE_EMAIL + email);
             // 验证成功 放行
