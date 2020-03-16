@@ -55,7 +55,7 @@ public interface IUserService extends IService<User> {
      * @param roleIds
      * @return
      */
-    Result<Object>  addUser(User user, String roleIds);
+    Result<Object> addUser(User user, String roleIds);
 
     /**
      * 重置密码
@@ -88,7 +88,6 @@ public interface IUserService extends IService<User> {
      * @return
      */
     BackUserInfo getBackUserInfo(String username);
-
 
 
 }
