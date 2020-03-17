@@ -4,12 +4,12 @@
 
     <!--按一级分类ID查询二级分类-->
     <select id="getAppCategoryList"  resultType="cn.ruanyun.backInterface.modules.business.classification.VO.AppCategoryVO">
-      select id,title,pic from t_classification where parent_id = #{id} ORDER BY sort_order;
+      select id,title,pic from t_classification where parent_id = #{id} and del_flag = 0 ORDER BY sort_order;
     </select>
 
     <!--后端查询一级及二级-->
     <select id="getCategoryList"  resultType="cn.ruanyun.backInterface.modules.business.classification.VO.BackAreaVO">
-      select * from t_classification where parent_id = #{id} ORDER BY sort_order;
+      select * from t_classification where parent_id = #{id}  and del_flag = 0  ORDER BY sort_order;
     </select>
 
 </mapper>
