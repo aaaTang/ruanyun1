@@ -99,8 +99,7 @@ public class IClassificationServiceImpl extends ServiceImpl<ClassificationMapper
      */
     @Override
     public List<AppCategoryVO> getSecondLevelCategory(String ids){
-        List<AppCategoryVO> categoryVOS = classificationMapper.getAppCategoryList(ids);//获取二级分类
-        return categoryVOS;
+        return classificationMapper.getAppCategoryList(ids);
     }
 
     /**

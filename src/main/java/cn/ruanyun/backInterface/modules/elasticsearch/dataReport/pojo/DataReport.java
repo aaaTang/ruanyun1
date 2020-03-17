@@ -75,8 +75,4 @@ public class DataReport implements Serializable {
     @Field(type = FieldType.Date, index = false, format = DateFormat.custom, pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime = new Date();
 
-
-
-
-
 }
