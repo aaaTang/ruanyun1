@@ -260,6 +260,7 @@ ignored:
     - /ruanyun/user/registerByPhoneAndPassword #通过手机验证码注册用户
     - /ruanyun/common/captcha/sendRegistSmsCode #发送注册短信验证码
     - /ruanyun/weChat/**
+    - /ruanyun                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                /**
 
 # Actuator
 management:

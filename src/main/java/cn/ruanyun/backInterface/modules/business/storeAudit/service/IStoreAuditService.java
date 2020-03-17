@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.storeAudit.service;
 
+import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.storeAudit.DTO.StoreAuditDTO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditVO;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -34,16 +35,19 @@ public interface IStoreAuditService extends IService<StoreAudit> {
      * 1.审核通过后，会把该用户的角色信息变更为商家。并开通登录商家后台管理权限
      * @param storeAuditDTO
      */
-     void checkStoreAudit(StoreAuditDTO storeAuditDTO);
+     Result<Object> checkStoreAudit(StoreAuditDTO storeAuditDTO);
 
 
     /**
      * 后台获取app获取审核列表,根据审核状态进行筛选
      * @return
      */
-    List<StoreAuditVO> getStoreAuditList();
+    List<StoreAuditVO> getStoreAuditList(StoreAuditDTO storeAuditDTO);
 
-
-
-
+    /**
+     * 插入申请
+     * @param storeAudit
+     * @return
+     */
+    Result<Object> addApply(StoreAudit storeAudit);
 }

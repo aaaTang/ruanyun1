@@ -82,73 +82,72 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
         //2.获取封装之前的数据
         CompletableFuture<Optional<List<Area>>> getAreas = parentId.thenApplyAsync(optionalS -> optionalS
                 .map(optional -> Optional.ofNullable(getAreaList(optional))).orElseGet(() ->
-                        Optional.ofNullable(getAreaList(CommonConstant.PARENT_ID))),ThreadPoolUtil.getPool());
+                        Optional.ofNullable(getAreaList(CommonConstant.PARENT_ID))), ThreadPoolUtil.getPool());
 
         //3.获取封装之后的数据
         CompletableFuture<List<BackAreaVO>> backAreaList = getAreas.thenApplyAsync(areas ->
                 areas.map(areaList -> areaList.parallelStream().flatMap(area -> {
 
                     BackAreaVO backAreaVO = new BackAreaVO();
-                    ToolUtil.copyProperties(area,backAreaVO);
+                    ToolUtil.copyProperties(area, backAreaVO);
 
                     if (ToolUtil.isNotEmpty(super.list(Wrappers.<Area>lambdaQuery()
-                        .eq(Area::getParentId, area.getId())))) {
+                            .eq(Area::getParentId, area.getId())))) {
 
                         backAreaVO.setIsParent(true);
                     }
                     return Stream.of(backAreaVO);
-                }).collect(Collectors.toList())).orElse(null),ThreadPoolUtil.getPool());
+                }).collect(Collectors.toList())).orElse(null), ThreadPoolUtil.getPool());
 
         return backAreaList.join();
     }
 
 
-
     /**
      * 获取基础分类列表
+     *
      * @param pid
      * @return
      */
     public List<Area> getAreaList(String pid) {
 
         return ToolUtil.setListToNul(this.list(Wrappers.<Area>lambdaQuery()
-                .eq(Area::getParentId,pid)
+                .eq(Area::getParentId, pid)
                 .orderByDesc(Area::getCreateTime)));
     }
-
 
 
     @Override
     public List<AppAreaListVO> getAppAreaList() {
 
-      return Mono.fromCompletionStage(CompletableFuture.supplyAsync(() -> Optional.ofNullable(ToolUtil.setListToNul(super
+        return Mono.fromCompletionStage(CompletableFuture.supplyAsync(() -> Optional.ofNullable(ToolUtil.setListToNul(super
                 .list(Wrappers.<Area>lambdaQuery()
-                .isNotNull(Area::getAreaIndex)
-                .eq(Area::getStatus, CommonConstant.STATUS_NORMAL)
-                .orderByAsc(Area::getSortOrder)
-                .orderByDesc(Area::getAreaIndex)))))
+                        .isNotNull(Area::getAreaIndex)
+                        .eq(Area::getStatus, CommonConstant.STATUS_NORMAL)
+                        .orderByAsc(Area::getSortOrder)
+                        .orderByDesc(Area::getAreaIndex)))))
 
-        .thenApplyAsync(areas -> areas.map(areaList -> areaList.parallelStream().collect(Collectors.groupingBy(Area::getAreaIndex))))
-        .thenApplyAsync(areaIndexEnumListMap -> areaIndexEnumListMap.map(areaIndexEnumList -> {
+                .thenApplyAsync(areas -> areas.map(areaList -> areaList.parallelStream().collect(Collectors.groupingBy(Area::getAreaIndex))))
+                .thenApplyAsync(areaIndexEnumListMap -> areaIndexEnumListMap.map(areaIndexEnumList -> {
 
-            List<AppAreaListVO> appAreaListVOS = Lists.newArrayList();
+                    List<AppAreaListVO> appAreaListVOS = Lists.newArrayList();
 
-            areaIndexEnumList.forEach((k, v) -> {
+                    areaIndexEnumList.forEach((k, v) -> {
 
-                AppAreaListVO appAreaListVO = new AppAreaListVO();
-                appAreaListVO.setAreaIndex(k)
-                        .setAreaListVOS(v.parallelStream().flatMap(area -> {
+                        AppAreaListVO appAreaListVO = new AppAreaListVO();
+                        appAreaListVO.setAreaIndex(k)
+                                .setAreaListVOS(v.parallelStream().flatMap(area -> {
 
-                            AppAreaVO appAreaVO = new AppAreaVO();
-                            ToolUtil.copyProperties(area, appAreaVO);
-                            return Stream.of(appAreaVO);
-                        }).collect(Collectors.toList()));
+                                    AppAreaVO appAreaVO = new AppAreaVO();
+                                    ToolUtil.copyProperties(area, appAreaVO);
+                                    return Stream.of(appAreaVO);
+                                }).collect(Collectors.toList()));
 
-                appAreaListVOS.add(appAreaListVO);
-            });
+                        appAreaListVOS.add(appAreaListVO);
+                    });
 
-            return appAreaListVOS;
-        }).orElse(null))).toFuture().join();
+                    return appAreaListVOS;
+                }).orElse(null))).toFuture().join();
     }
 
     @Override
@@ -158,5 +157,30 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
         return null;
     }
 
+    @Override
+    public String getAddress(String id) {
+        String address = "";
+        Area area = super.getById(id);
+        if (ToolUtil.isNotEmpty(area)) {
+            if (ToolUtil.isNotEmpty(area.getParentId()) && !"0".equals(area.getParentId()) && !"1".equals(area.getParentId())) {
+                address = spliceAddress(address, id);
+            } else {
+                address = address.concat(area.getTitle());
+            }
+        }
+        return address;
+    }
+
+    //拼接详细地址
+    public String spliceAddress(String address, String id) {
+        Area area = super.getById(id);
+        if (ToolUtil.isNotEmpty(area.getParentId()) && !"0".equals(area.getParentId()) && !"1".equals(area.getParentId())) {
+            address = area.getTitle() + address;
+            address = spliceAddress(address, area.getParentId());
+        } else {
+            address = (area.getTitle()).concat(address);
+        }
+        return address;
+    }
 
 }

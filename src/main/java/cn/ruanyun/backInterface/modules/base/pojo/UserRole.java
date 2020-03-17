@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -19,6 +20,7 @@ import javax.persistence.Transient;
 @Table(name = "t_user_role")
 @TableName("t_user_role")
 @ApiModel(value = "用户角色")
+@Accessors(chain = true)
 public class UserRole extends RuanyunBaseEntity {
 
     private static final long serialVersionUID = 1L;
