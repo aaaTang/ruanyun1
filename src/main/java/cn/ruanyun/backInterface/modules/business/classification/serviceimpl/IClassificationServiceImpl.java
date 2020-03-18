@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 import reactor.core.publisher.Mono;
@@ -124,6 +125,14 @@ public class IClassificationServiceImpl extends ServiceImpl<ClassificationMapper
         }
         return backAreaListVOS;
 
+    }
+
+    @Override
+    public String getClassificationName(String id) {
+
+        return Optional.ofNullable(super.getById(id))
+                .map(Classification::getTitle)
+                .orElse(null);
     }
 
 }

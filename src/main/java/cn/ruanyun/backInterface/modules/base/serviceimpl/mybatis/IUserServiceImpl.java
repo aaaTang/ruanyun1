@@ -1,49 +1,41 @@
 package cn.ruanyun.backInterface.modules.base.serviceimpl.mybatis;
 
 
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import cn.ruanyun.backInterface.common.utils.*;
-import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.common.vo.SearchVo;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
-import cn.ruanyun.backInterface.modules.base.mapper.UserDao;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
-import cn.ruanyun.backInterface.modules.base.pojo.Role;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
 import cn.ruanyun.backInterface.modules.base.service.UserService;
-import cn.ruanyun.backInterface.modules.base.service.mybatis.*;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IRolePermissionService;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IRoleService;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.base.vo.AppUserVO;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
+import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Page;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.PersistenceContext;
-import javax.persistence.criteria.*;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import javax.persistence.EntityManager;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author fei
  */
 @Service
 public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
-
-    @Autowired
-    private UserDao userDao;
 
     @Autowired
     private UserService userService;
@@ -58,13 +50,8 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     private IRoleService roleService;
 
     @Autowired
-    private IPermissionService permissionService;
-
-    @Autowired
     private IRolePermissionService rolePermissionService;
 
-    @PersistenceContext
-    private EntityManager entityManager;
 
     @Override
     public String getUserIdByName(String userName) {
@@ -206,83 +193,117 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
       return Optional.ofNullable(userService.save(user)).map(userInsert -> {
 
-            //添加默认角色
-            Optional.ofNullable(ToolUtil.setListToNul(ToolUtil.splitterStr(roleIds)))
-                    .ifPresent(ids -> ids.parallelStream().forEach(id -> {
+          UserRole userRole = new UserRole();
+          userRole.setUserId(user.getId());
+          userRole.setRoleId(roleService.getIdByRoleName(CommonConstant.ADMIN));
+          userRoleService.save(userRole);
 
-                        UserRole userRole = new UserRole();
-                        userRole.setUserId(user.getId());
-                        userRole.setRoleId(id);
-                        userRoleService.save(userRole);
-                    }));
-
-            return new ResultUtil<>().setSuccessMsg("添加成功！");
+          return new ResultUtil<>().setSuccessMsg("添加成功！");
 
         }).orElse(new ResultUtil<>().setErrorMsg(201, "添加失败！"));
 
     }
 
     @Override
-    public Result<Page<User>> getByCondition(User user, SearchVo searchVo, PageVo pageVo) {
+    public List<BackUserVO> getBackUserAdminList(UserDTO userDTO) {
 
-        Pageable pageable=PageUtil.initPage(pageVo);
-        Page<User> userPage=userDao.findAll(new Specification<User>() {
-            @Override
-            public Predicate toPredicate(Root<User> root, CriteriaQuery<?> cq, CriteriaBuilder cb) {
+        return Optional.ofNullable(getUserList(UserTypeEnum.ADMIN))
+                .map(users -> users.parallelStream().flatMap(user -> Stream.of(getBackUserVO(user.getId())))
+                .collect(Collectors.toList()))
+                .orElse(null);
 
-                Path<String> usernameField = root.get("username");
-                Path<String> mobileField = root.get("mobile");
-                Path<String> emailField = root.get("email");
-                Path<String> departmentIdField = root.get("departmentId");
-                Path<String> sexField = root.get("sex");
-                Path<Integer> typeField = root.get("type");
-                Path<Integer> statusField = root.get("status");
-                Path<Date> createTimeField = root.get("createTime");
-
-                List<Predicate> list = new ArrayList<Predicate>();
-
-                //模糊搜素
-                if(StrUtil.isNotBlank(user.getUsername())){
-                    list.add(cb.like(usernameField,'%'+user.getUsername()+'%'));
-                }
-                if(StrUtil.isNotBlank(user.getMobile())){
-                    list.add(cb.like(mobileField,'%'+user.getMobile()+'%'));
-                }
-
-                //性别
-                if(StrUtil.isNotBlank(user.getSex())){
-                    list.add(cb.equal(sexField, user.getSex()));
-                }
-                //类型
-                if(user.getType()!=null){
-                    list.add(cb.equal(typeField, user.getType()));
-                }
-                //状态
-                if(user.getStatus()!=null){
-                    list.add(cb.equal(statusField, user.getStatus()));
-                }
-                //创建时间
-                if(StrUtil.isNotBlank(searchVo.getStartDate())&&StrUtil.isNotBlank(searchVo.getEndDate())){
-                    Date start = DateUtil.parse(searchVo.getStartDate());
-                    Date end = DateUtil.parse(searchVo.getEndDate());
-                    list.add(cb.between(createTimeField, start, DateUtil.endOfDay(end)));
-                }
-
-                Predicate[] arr = new Predicate[list.size()];
-                cq.where(list.toArray(arr));
-                return null;
-            }
-        }, pageable);
-        for(User u: userPage.getContent()){
-
-            // 关联角色
-            List<Role> list = roleService.getRolesByRoleIds(userRoleService.getRoleIdsByUserId(u.getId()));
-            // 清除持久上下文环境 避免后面语句导致持久化
-            entityManager.clear();
-            u.setPassword(null);
-        }
-        return new ResultUtil<Page<User>>().setData(userPage);
     }
+
+    @Override
+    public List<BackUserVO> getBackUserStoreList(UserDTO userDTO) {
+
+        return Optional.ofNullable(getUserList(UserTypeEnum.STORE))
+                .map(users -> users.parallelStream().flatMap(user -> Stream.of(getBackUserVO(user.getId())))
+                        .collect(Collectors.toList()))
+                .orElse(null);
+    }
+
+    @Override
+    public List<BackUserVO> getBackUserCommonList(UserDTO userDTO) {
+
+        return Optional.ofNullable(getUserList(UserTypeEnum.DEFAULT_ROLE))
+                .map(users -> users.parallelStream().flatMap(user -> Stream.of(getBackUserVO(user.getId())))
+                        .collect(Collectors.toList()))
+                .orElse(null);
+    }
+
+    @Override
+    public List<BackUserVO> getBackUserPersonStoreList(UserDTO userDTO) {
+
+        return Optional.ofNullable(getUserList(UserTypeEnum.PER_STORE))
+                .map(users -> users.parallelStream().flatMap(user -> Stream.of(getBackUserVO(user.getId())))
+                        .collect(Collectors.toList()))
+                .orElse(null);
+    }
+
+    @Override
+    public List<BackUserInfo> getUserList(UserDTO userDTO) {
+
+        LambdaQueryWrapper<User> userQuery = Wrappers.<User>lambdaQuery()
+                .orderByDesc(User::getCreateTime);
+
+
+        if (ToolUtil.isNotEmpty(userDTO.getMobile())) {
+
+            userQuery.eq(User::getMobile, userDTO.getMobile());
+        }
+
+        if (ToolUtil.isNotEmpty(userDTO.getUsername())) {
+
+            userQuery.like(User::getUsername, userDTO.getUsername());
+        }
+
+        return Optional.ofNullable(ToolUtil.setListToNul(super.list(userQuery)))
+                .map(users -> users.parallelStream().flatMap(user -> Stream.of(getBackUserInfo(user.getId())))
+                .collect(Collectors.toList()))
+                .orElse(null);
+
+
+    }
+
+
+    /**
+     * 获取基本用户数据
+     * @param userType
+     * @return
+     */
+    public List<User> getUserList(UserTypeEnum userType) {
+
+        if (ObjectUtil.equal(UserTypeEnum.DEFAULT_ROLE, userType)) {
+
+            return userRoleService.getUserIdsByRoleId(roleService.getIdByRoleName(CommonConstant.DEFAULT_ROLE));
+        }else if (ObjectUtil.equal(UserTypeEnum.STORE, userType)) {
+
+            return userRoleService.getUserIdsByRoleId(roleService.getIdByRoleName(CommonConstant.STORE));
+        }else if (ObjectUtil.equal(UserTypeEnum.ADMIN, userType)){
+
+            return userRoleService.getUserIdsByRoleId(roleService.getIdByRoleName(CommonConstant.ADMIN));
+        }else {
+
+            return userRoleService.getUserIdsByRoleId(roleService.getIdByRoleName(CommonConstant.PER_STORE));
+        }
+    }
+
+    /**
+     * 封装数据
+     * @param userId
+     * @return
+     */
+    public BackUserVO getBackUserVO(String userId) {
+
+        BackUserVO backUserVO = new BackUserVO();
+
+        Optional.ofNullable(super.getById(userId))
+                .ifPresent(user -> ToolUtil.copyProperties(user, backUserVO));
+
+        return backUserVO;
+    }
+
 
     @Override
     public Result<Object> resetPass(String userIds) {
@@ -335,6 +356,19 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
                     return new ResultUtil<>().setSuccessMsg("修改密码成功！");
                 }).orElse(new ResultUtil<>().setErrorMsg(202, "不存在当前用户！"));
+    }
+
+    @Override
+    public Result<Object> freezeAccount(String userId) {
+
+        return Optional.ofNullable(super.getById(userId))
+                .map(user -> {
+
+                    user.setStatus(CommonConstant.USER_STATUS_LOCK);
+                    super.updateById(user);
+
+                    return new ResultUtil<>().setSuccessMsg("冻结成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "不存在此用户"));
     }
 
 

@@ -8,9 +8,11 @@ import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.vo.AppUserVO;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
+import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
 
 
 /**
@@ -65,10 +67,42 @@ public interface IUserService extends IService<User> {
      */
     Result<Object> addUser(User user, String roleIds);
 
+
     /**
-     *
+     * 获取管理员用户
+     * @return
      */
-    Result<Page<User>> getByCondition(User user, SearchVo searchVo, PageVo pageVo);
+    List<BackUserVO> getBackUserAdminList(UserDTO userDTO);
+
+
+    /**
+     * 获取商家用户
+     * @return
+     */
+    List<BackUserVO> getBackUserStoreList(UserDTO userDTO);
+
+
+    /**
+     * 获取普通消费者
+     * @return
+     */
+    List<BackUserVO> getBackUserCommonList(UserDTO userDTO);
+
+
+    /**
+     * 获取个人商家用户
+     * @param userDTO
+     * @return
+     */
+    List<BackUserVO> getBackUserPersonStoreList(UserDTO userDTO);
+
+
+    /**
+     * 用户管理
+     * @param userDTO
+     * @return
+     */
+    List<BackUserInfo> getUserList(UserDTO userDTO);
 
     /**
      * 重置密码
@@ -93,6 +127,14 @@ public interface IUserService extends IService<User> {
      * @return
      */
     Result<Object> modifyPass( String password, String newPass);
+
+
+    /**
+     * 冻结账号
+     * @param userId
+     * @return
+     */
+    Result<Object> freezeAccount(String userId);
 
 
     /**

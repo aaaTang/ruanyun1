@@ -1,18 +1,22 @@
 package cn.ruanyun.backInterface.modules.base.controller.manage;
 
 
+import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.common.vo.SearchVo;
+import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+import java.util.Optional;
 
 
 /**
@@ -47,20 +51,6 @@ public class BackUserController {
 
 
     /**
-     * 根据条件获取用户列表
-     * @param user
-     * @param searchVo
-     * @param pageVo
-     * @return
-     */
-    @GetMapping("/getByCondition")
-    public Result<Page<User>> getByCondition(@ModelAttribute User user,
-                                             @ModelAttribute SearchVo searchVo,
-                                             @ModelAttribute PageVo pageVo){
-        return iUserService.getByCondition(user,searchVo,pageVo);
-    }
-
-    /**
      * 重置密码
      * @param userIds
      * @return
@@ -77,7 +67,7 @@ public class BackUserController {
      * @param u
      * @return
      */
-    @RequestMapping(value = "/edit", method = RequestMethod.POST)
+    @PostMapping("/editOwn")
     public Result<Object> editOwn(@ModelAttribute User u){
 
         return iUserService.editOwn(u);
@@ -107,6 +97,115 @@ public class BackUserController {
     public Result<Object> addUser(User user, String roleIds){
 
         return iUserService.addUser(user, roleIds);
+    }
+
+    /**
+     * 获取后台管理员列表
+     * @param userDTO
+     * @param pageVo
+     * @return
+     */
+    @PostMapping("/getBackUserAdminList")
+    public Result<Object> getBackUserAdminList(UserDTO userDTO, PageVo pageVo) {
+
+        return Optional.ofNullable(iUserService.getBackUserAdminList(userDTO))
+                .map(backUserVOS -> {
+
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("size", backUserVOS.size());
+                    result.put("data", PageUtil.listToPage(pageVo, backUserVOS));
+                    return new ResultUtil<>().setData(result, "获取管理员用户成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+    }
+
+
+    /**
+     * 获取后台商家列表
+     * @param userDTO
+     * @param pageVo
+     * @return
+     */
+    @PostMapping("/getBackUserStoreList")
+    public Result<Object> getBackUserStoreList(UserDTO userDTO, PageVo pageVo) {
+
+        return Optional.ofNullable(iUserService.getBackUserStoreList(userDTO))
+                .map(backUserVOS -> {
+
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("size", backUserVOS.size());
+                    result.put("data", PageUtil.listToPage(pageVo, backUserVOS));
+                    return new ResultUtil<>().setData(result, "获取商家列表成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+    }
+
+    /**
+     * 获取普通用户列表
+     * @param userDTO
+     * @param pageVo
+     * @return
+     */
+    @PostMapping("/getBackUserCommonList")
+    public Result<Object> getBackUserCommonList(UserDTO userDTO, PageVo pageVo) {
+
+        return Optional.ofNullable(iUserService.getBackUserCommonList(userDTO))
+                .map(backUserVOS -> {
+
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("size", backUserVOS.size());
+                    result.put("data", PageUtil.listToPage(pageVo, backUserVOS));
+                    return new ResultUtil<>().setData(result, "获取普通消费者列表成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+    }
+
+    /**
+     * 获取后台个人商家列表
+     * @param userDTO
+     * @param pageVo
+     * @return
+     */
+    @PostMapping("/getBackUserPersonStoreList")
+    public Result<Object> getBackUserPersonStoreList(UserDTO userDTO, PageVo pageVo) {
+
+        return Optional.ofNullable(iUserService.getBackUserPersonStoreList(userDTO))
+                .map(backUserVOS -> {
+
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("size", backUserVOS.size());
+                    result.put("data", PageUtil.listToPage(pageVo, backUserVOS));
+                    return new ResultUtil<>().setData(result, "获取个人商家列表成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+    }
+
+
+    /**
+     * 获取用户列表
+     * @param userDTO
+     * @param pageVo
+     * @return
+     */
+    @PostMapping("/getUserList")
+    public Result<Object>  getUserList(UserDTO userDTO, PageVo pageVo) {
+
+        return Optional.ofNullable(iUserService.getUserList(userDTO))
+                .map(backUserVOS -> {
+
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("size", backUserVOS.size());
+                    result.put("data", PageUtil.listToPage(pageVo, backUserVOS));
+                    return new ResultUtil<>().setData(result, "获取用户管理列表成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+    }
+
+
+    /**
+     * 冻结账号
+     * @param userId
+     * @return
+     */
+    @PostMapping("/freezeAccount")
+    public Result<Object> freezeAccount(String userId) {
+
+        return iUserService.freezeAccount(userId);
     }
 
 }

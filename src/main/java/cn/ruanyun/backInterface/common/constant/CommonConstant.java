@@ -182,6 +182,11 @@ public interface CommonConstant {
 
     String DEFAULT_ROLE = "普通用户";
 
+    String STORE = "商家";
+
+    String ADMIN = "管理员用户";
+
+    String PER_STORE = "个人商家";
 
 }
 

@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.base.dto;
 
+import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -17,6 +18,17 @@ public class UserDTO {
      * 手机号
      */
     private String mobile;
+
+    /**
+     * 姓名
+     */
+    private String username;
+
+
+    /**
+     * 用户角色类型
+     */
+    private UserTypeEnum userType;
 
     /**
      * 验证码
