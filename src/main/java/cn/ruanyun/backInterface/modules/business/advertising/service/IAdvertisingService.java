@@ -34,7 +34,7 @@ public interface IAdvertisingService extends IService<Advertising> {
      * @param advertisingJumpType  1.编辑详情页  2.H5网页链接  3.活动页面  4.商家店铺首页
      * @return
      */
-     List<AppAdvertisingListVO> APPgetAdvertisingList(Integer advertisingType, Integer advertisingJumpType);
+     List<AppAdvertisingListVO> APPgetAdvertisingList(String advertisingType, String advertisingJumpType);
 
     /**
      * 后端查询广告数据列表
@@ -42,7 +42,7 @@ public interface IAdvertisingService extends IService<Advertising> {
      * @param advertisingJumpType  1.编辑详情页  2.H5网页链接  3.活动页面  4.商家店铺首页
      * @return
      */
-     List<Advertising> BackGetAdvertisingList(Integer advertisingType, Integer advertisingJumpType);
+     List<Advertising> BackGetAdvertisingList(String advertisingType, String advertisingJumpType);
 
 
 

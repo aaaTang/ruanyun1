@@ -74,7 +74,7 @@ public class AdvertisingController {
      * @return
      */
     @PostMapping(value = "/APPgetAdvertisingList")
-    public Result<Object> APPgetAdvertisingList(PageVo pageVo ,Integer advertisingType, Integer advertisingJumpType){
+    public Result<Object> APPgetAdvertisingList(PageVo pageVo ,String advertisingType, String advertisingJumpType){
 
         return Optional.ofNullable(iAdvertisingService.APPgetAdvertisingList(advertisingType,advertisingJumpType))
                 .map(advertisingList -> {
@@ -94,7 +94,7 @@ public class AdvertisingController {
      * @return
      */
     @PostMapping(value = "/BackGetAdvertisingList")
-    public Result<Object> BackGetAdvertisingList(PageVo pageVo ,Integer advertisingType, Integer advertisingJumpType){
+    public Result<Object> BackGetAdvertisingList(PageVo pageVo ,String advertisingType, String advertisingJumpType){
 
         return Optional.ofNullable(iAdvertisingService.BackGetAdvertisingList(advertisingType,advertisingJumpType))
                 .map(iAdvertisingService -> {

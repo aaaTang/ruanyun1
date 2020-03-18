@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.advertising.serviceimpl;
 
+import cn.ruanyun.backInterface.common.utils.EmptyUtil;
 import cn.ruanyun.backInterface.modules.business.advertising.VO.AppAdvertisingListVO;
 import cn.ruanyun.backInterface.modules.business.advertising.mapper.AdvertisingMapper;
 import cn.ruanyun.backInterface.modules.business.advertising.pojo.Advertising;
@@ -24,6 +25,7 @@ import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 
 /**
  * 广告管理接口实现
+ *
  * @author fei
  */
 @Slf4j
@@ -32,65 +34,70 @@ import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 public class IAdvertisingServiceImpl extends ServiceImpl<AdvertisingMapper, Advertising> implements IAdvertisingService {
 
 
-       @Autowired
-       private SecurityUtil securityUtil;
+    @Autowired
+    private SecurityUtil securityUtil;
 
-       @Override
-       public void insertOrderUpdateAdvertising(Advertising advertising) {
+    @Override
+    public void insertOrderUpdateAdvertising(Advertising advertising) {
 
-           if (ToolUtil.isEmpty(advertising.getCreateBy())) {
+        if (ToolUtil.isEmpty(advertising.getCreateBy())) {
 
-                       advertising.setCreateBy(securityUtil.getCurrUser().getId());
-                   }else {
+            advertising.setCreateBy(securityUtil.getCurrUser().getId());
+        } else {
 
-                       advertising.setUpdateBy(securityUtil.getCurrUser().getId());
-                   }
+            advertising.setUpdateBy(securityUtil.getCurrUser().getId());
+        }
 
 
-                   Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(advertising)))
-                           .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
-                           .toFuture().join();
-       }
+        Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(advertising)))
+                .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
+                .toFuture().join();
+    }
 
-      @Override
-      public void removeAdvertising(String ids) {
+    @Override
+    public void removeAdvertising(String ids) {
 
-          CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
-      }
+        CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
+    }
 
 
     /**
      * pp查询广告数据列表
-     * @param advertisingType 1.开屏,  2.轮播
-     * @param advertisingJumpType  1.编辑详情页  2.H5网页链接  3.活动页面  4.商家店铺首页
-     * @return
-     */
-      @Override
-      public List<AppAdvertisingListVO> APPgetAdvertisingList(Integer advertisingType, Integer advertisingJumpType){
-
-           List<Advertising> list=this.list(new QueryWrapper<Advertising>().lambda().eq(Advertising::getAdvertisingType,advertisingType)
-           .eq(Advertising::getAdvertisingJumpType,advertisingJumpType));
-
-          List<AppAdvertisingListVO> appAdvertisingListVOS =list.parallelStream().map(advertising -> {
-              AppAdvertisingListVO advertisingListVO = new AppAdvertisingListVO();
-              ToolUtil.copyProperties(advertising,advertisingListVO);
-              return advertisingListVO;
-          }).collect(Collectors.toList());
-
-        return appAdvertisingListVOS;
-
-      }
-
-    /**
-     * 后端查询广告数据列表
-     * @param advertisingType 1.开屏,  2.轮播
-     * @param advertisingJumpType  1.编辑详情页  2.H5网页链接  3.活动页面  4.商家店铺首页
+     *
+     * @param advertisingType     1.开屏,  2.轮播
+     * @param advertisingJumpType 1.编辑详情页  2.H5网页链接  3.活动页面  4.商家店铺首页
      * @return
      */
     @Override
-    public List<Advertising> BackGetAdvertisingList(Integer advertisingType, Integer advertisingJumpType){
+    public List<AppAdvertisingListVO> APPgetAdvertisingList(String advertisingType, String advertisingJumpType) {
 
-    return  this.list(new QueryWrapper<Advertising>().lambda().eq(Advertising::getAdvertisingType ,advertisingType)
-            .eq(Advertising::getAdvertisingJumpType, advertisingJumpType));
+        List<Advertising> list = this.list(new QueryWrapper<Advertising>().lambda().eq(Advertising::getAdvertisingType, advertisingType)
+                .eq(Advertising::getAdvertisingJumpType, advertisingJumpType));
+
+        List<AppAdvertisingListVO> appAdvertisingListVOS = list.parallelStream().map(advertising -> {
+            AppAdvertisingListVO advertisingListVO = new AppAdvertisingListVO();
+            ToolUtil.copyProperties(advertising, advertisingListVO);
+            return advertisingListVO;
+        }).collect(Collectors.toList());
+
+        return appAdvertisingListVOS;
+
+    }
+
+    /**
+     * 后端查询广告数据列表
+     *
+     * @param advertisingType     1.开屏,  2.轮播
+     * @param advertisingJumpType 1.编辑详情页  2.H5网页链接  3.活动页面  4.商家店铺首页
+     * @return
+     */
+    @Override
+    public List<Advertising> BackGetAdvertisingList(String advertisingType, String advertisingJumpType) {
+
+
+        return this.list(new QueryWrapper<Advertising>().lambda()
+                .eq(EmptyUtil.isNotEmpty(advertisingType), Advertising::getAdvertisingType, advertisingType)
+                .eq(EmptyUtil.isNotEmpty(advertisingJumpType), Advertising::getAdvertisingJumpType, advertisingJumpType));
+
     }
 }
