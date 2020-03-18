@@ -4,7 +4,7 @@ jasypt:
     password: xboot
 
 server:
-  port: 8083
+  port: 8085
   servlet:
     context-path: /
   tomcat:
@@ -260,7 +260,10 @@ ignored:
     - /ruanyun/user/registerByPhoneAndPassword #通过手机验证码注册用户
     - /ruanyun/common/captcha/sendRegistSmsCode #发送注册短信验证码
     - /ruanyun/weChat/**
-    - /ruanyun/advertising/APPgetAdvertisingList                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                /**
+    - /ruanyun/advertising/**
+    - /ruanyun/area/**
+    - /ruanyun/classification/**
+    -
 
 # Actuator
 management:
