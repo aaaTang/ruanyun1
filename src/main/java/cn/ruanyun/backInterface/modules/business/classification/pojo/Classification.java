@@ -60,4 +60,7 @@ public class Classification extends RuanyunBaseEntity {
      */
     private Integer status = CommonConstant.STATUS_NORMAL;
 
+
+
+
 }

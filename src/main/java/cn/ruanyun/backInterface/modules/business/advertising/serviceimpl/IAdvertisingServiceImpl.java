@@ -8,10 +8,12 @@ import cn.ruanyun.backInterface.modules.business.advertising.service.IAdvertisin
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -62,7 +64,7 @@ public class IAdvertisingServiceImpl extends ServiceImpl<AdvertisingMapper, Adve
 
 
     /**
-     * pp查询广告数据列表
+     * App查询广告数据列表
      *
      * @param advertisingType     1.开屏,  2.轮播
      * @param advertisingJumpType 1.编辑详情页  2.H5网页链接  3.活动页面  4.商家店铺首页
@@ -71,8 +73,8 @@ public class IAdvertisingServiceImpl extends ServiceImpl<AdvertisingMapper, Adve
     @Override
     public List<AppAdvertisingListVO> APPgetAdvertisingList(String advertisingType, String advertisingJumpType) {
 
-        List<Advertising> list = this.list(new QueryWrapper<Advertising>().lambda().eq(Advertising::getAdvertisingType, advertisingType)
-                .eq(Advertising::getAdvertisingJumpType, advertisingJumpType));
+        List<Advertising> list = this.list(new QueryWrapper<Advertising>().lambda().eq(EmptyUtil.isNotEmpty(advertisingType),Advertising::getAdvertisingType, advertisingType)
+                .eq(EmptyUtil.isNotEmpty(advertisingJumpType),Advertising::getAdvertisingJumpType, advertisingJumpType));
 
         List<AppAdvertisingListVO> appAdvertisingListVOS = list.parallelStream().map(advertising -> {
             AppAdvertisingListVO advertisingListVO = new AppAdvertisingListVO();

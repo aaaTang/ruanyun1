@@ -116,7 +116,7 @@ public class IClassificationServiceImpl extends ServiceImpl<ClassificationMapper
             List<BackAreaVO> backAreaVOS = classificationMapper.getCategoryList(classification.getId());//获取二级分类
 
             BackAreaListVO backAreaListVO =new BackAreaListVO();
-            backAreaListVO.setTitle(classification.getTitle()).setPic(classification.getPic())
+            backAreaListVO.setId(classification.getId()).setTitle(classification.getTitle()).setPic(classification.getPic())
                     .setIsParent(classification.getIsParent()).setSortOrder(classification.getSortOrder())
                     .setStatus(classification.getStatus()).setParentId(classification.getParentId())
                     .setBackAreaVOS(backAreaVOS);

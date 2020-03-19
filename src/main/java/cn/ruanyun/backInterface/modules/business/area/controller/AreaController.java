@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.area.controller;
 
+import cn.ruanyun.backInterface.common.utils.EmptyUtil;
 import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
@@ -86,19 +87,26 @@ public class AreaController {
 
     /**
      * 获取app区域数据
-     * @param pageVo
+     * @param pageNumber
+     * @param pageSize
      * @return
      */
     @PostMapping("/getAppAreaList")
-    public Result<Object> getAppAreaList(PageVo pageVo) {
+    public Result<Object> getAppAreaList(Integer pageNumber,Integer pageSize) {
 
         return Optional.ofNullable(iAreaService.getAppAreaList())
                 .map(appAreaList -> {
 
                     Map<String, Object> result = Maps.newHashMap();
                     result.put("size", appAreaList.size());
-                    result.put("data", PageUtil.listToPage(pageVo, appAreaList));
-
+                    if(EmptyUtil.isNotEmpty(pageNumber)||EmptyUtil.isNotEmpty(pageSize)){
+                        PageVo pageVo =new PageVo();
+                        pageVo.setPageNumber(pageNumber);
+                        pageVo.setPageSize(pageSize);
+                        result.put("data", PageUtil.listToPage(pageVo, appAreaList));
+                    }else {
+                        result.put("data", appAreaList);
+                    }
                     return new ResultUtil<>().setData(result, "获取app区域数据成功！");
                 }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
     }

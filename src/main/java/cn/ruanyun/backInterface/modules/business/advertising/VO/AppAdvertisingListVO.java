@@ -13,13 +13,13 @@ public class AppAdvertisingListVO {
     /**
      * 广告类型
      */
-    private AdvertisingTypeEnum advertisingType;
+    private String advertisingType;
 
 
     /**
      * 跳转类型
      */
-    private AdvertisingJumpTypeEnum advertisingJumpType;
+    private String advertisingJumpType;
 
 
     /**

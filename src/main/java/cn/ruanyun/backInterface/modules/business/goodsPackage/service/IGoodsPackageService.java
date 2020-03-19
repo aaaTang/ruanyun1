@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.goodsPackage.service;
 
+import cn.ruanyun.backInterface.common.vo.Result;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 
@@ -25,4 +26,11 @@ public interface IGoodsPackageService extends IService<GoodsPackage> {
        * @param ids
        */
      void removeGoodsPackage(String ids);
+
+    /**
+     * App查询商家商品详情
+     * @param ids
+     * @return
+     */
+     Result<Object>  GetGoodsPackage(String ids);
 }

@@ -1,25 +1,15 @@
-package cn.ruanyun.backInterface.modules.business.goodsPackage.pojo;
+package cn.ruanyun.backInterface.modules.business.goodsPackage.VO;
 
-import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
-import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 
-/**
- * 商品套餐
- * @author fei
- */
 @Data
-@Entity
-@Table(name = "t_goods_package")
-@TableName("t_goods_package")
-public class GoodsPackage extends RuanyunBaseEntity {
+@Accessors(chain = true)
+public class GoodsPackageParticularsVO {
 
-    private static final long serialVersionUID = 1L;
-
+    private String id;
     /**
      * 套餐图片
      */
@@ -71,12 +61,4 @@ public class GoodsPackage extends RuanyunBaseEntity {
      * 温馨提示
      */
     private String warmPrompt;
-
-    /**
-     * 分类ID
-     */
-    private String classId;
-
-
-
 }
