@@ -47,7 +47,7 @@ spring:
       enabled: always
   # 数据源
   datasource:
-    url: jdbc:mysql://47.98.123.232/fanfusha?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    url: jdbc:mysql://47.99.50.236/fanshafu?useUnicode=true&characterEncoding=utf-8&useSSL=false
     username: root
     # Jasypt加密 可到common-utils中找到JasyptUtil加解密工具类生成加密结果 格式为ENC(加密结果)
     password: 123456
@@ -98,12 +98,12 @@ spring:
     timeout: 3S
 
   #rabbitmq
-  rabbitmq:
-    host: 47.98.123.232
-    port: 5672
-    virtual-host: my_vhost
-    password: admin
-    username: admin
+  #rabbitmq:
+   # host: 47.98.123.232
+   # port: 5672
+  #  virtual-host: my_vhost
+   # password: admin
+   # username: admin
 
   # Elasticsearch
   data:
@@ -263,8 +263,6 @@ ignored:
     - /ruanyun/advertising/**
     - /ruanyun/area/**
     - /ruanyun/classification/**
-    -
-
 # Actuator
 management:
   health:

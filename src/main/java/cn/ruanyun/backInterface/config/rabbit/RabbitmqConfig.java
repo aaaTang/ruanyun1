@@ -1,3 +1,4 @@
+/*
 package cn.ruanyun.backInterface.config.rabbit;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,10 +28,12 @@ public class RabbitmqConfig {
     private SimpleRabbitListenerContainerFactoryConfigurer simpleRabbitListenerContainerFactoryConfigurer;
 
 
-    /**
+    */
+/**
      * 单一消费者
      * @return
-     */
+     *//*
+
     @Bean(name = "singleListenerContainer")
     public SimpleRabbitListenerContainerFactory listenerContainer(){
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
@@ -45,10 +48,12 @@ public class RabbitmqConfig {
     }
 
 
-    /**
+    */
+/**
      * 多个消费者
      * @return
-     */
+     *//*
+
     @Bean(name = "multiListenerContainer")
     public SimpleRabbitListenerContainerFactory multiListenerContainer(){
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
@@ -79,3 +84,4 @@ public class RabbitmqConfig {
    }
 
 }
+*/
