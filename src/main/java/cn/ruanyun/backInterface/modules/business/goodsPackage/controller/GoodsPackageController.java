@@ -2,6 +2,7 @@ package cn.ruanyun.backInterface.modules.business.goodsPackage.controller;
 
 import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
@@ -86,7 +87,77 @@ public class GoodsPackageController {
     }
 
 
+    /**
+     * 后端查询商品全部数据
+     * @return
+     */
+    @PostMapping(value = "/BackGoodsPackageList")
+    public Result<Object> BackGoodsPackageList(PageVo pageVo){
 
+        return Optional.ofNullable(iGoodsPackageService.BackGoodsPackageList())
+                .map(iBackGoodsPackageList-> {
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("size",  iBackGoodsPackageList.size());
+                    result.put("data",  PageUtil.listToPage(pageVo,iBackGoodsPackageList));
+
+                    return new ResultUtil<>().setData(result, "获取后端查询商品全部数据成功！");
+
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+    }
+
+
+    /**
+     * App分类商家商品筛选
+     */
+    @PostMapping(value = "/GetGoodsPackageList")
+    public Result<Object> GetGoodsPackageList(PageVo pageVo, String classId, String areaId,Integer newPrice){
+
+        return Optional.ofNullable(iGoodsPackageService.GetGoodsPackageList(classId,areaId,newPrice))
+                .map(iGetGoodsPackageList-> {
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("size",  iGetGoodsPackageList.size());
+                    result.put("data",  PageUtil.listToPage(pageVo, iGetGoodsPackageList));
+
+                    return new ResultUtil<>().setData(result, "获取App查询商品详情数据成功！");
+
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+    }
+
+
+    /**
+     * 查询商家精选套餐
+     */
+    @PostMapping(value = "/AppGoodsPackageList")
+    public Result<Object> AppGoodsPackageList(PageVo pageVo, String ids){
+
+        return Optional.ofNullable(iGoodsPackageService.AppGoodsPackageList(ids))
+                .map(iAppGoodsPackageList-> {
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("size",  iAppGoodsPackageList.size());
+                    result.put("data",  PageUtil.listToPage(pageVo, iAppGoodsPackageList));
+
+                    return new ResultUtil<>().setData(result, "获取查询商家精选套餐数据成功！");
+
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+    }
+
+
+    /**
+     * 获取App店铺详情
+     */
+    @PostMapping(value = "/getShopParticulars")
+    public Result<Object> getShopParticulars(String ids){
+
+        return Optional.ofNullable(iGoodsPackageService.getShopParticulars(ids))
+                .map(iShopParticulars-> {
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("data",  iShopParticulars);
+
+                    return new ResultUtil<>().setData(result, "获取App店铺详情数据成功！");
+
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+
+    }
 
 
 

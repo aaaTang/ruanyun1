@@ -21,6 +21,11 @@ public class GoodsPackage extends RuanyunBaseEntity {
     private static final long serialVersionUID = 1L;
 
     /**
+     * 商品名称
+     */
+    private String goodsName;
+
+    /**
      * 套餐图片
      */
     private String pics;
@@ -77,6 +82,10 @@ public class GoodsPackage extends RuanyunBaseEntity {
      */
     private String classId;
 
+    /**
+     * 地区ID
+     */
+    private String areaId;
 
 
 }

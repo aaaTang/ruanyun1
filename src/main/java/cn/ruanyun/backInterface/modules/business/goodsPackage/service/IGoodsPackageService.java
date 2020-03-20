@@ -1,6 +1,9 @@
 package cn.ruanyun.backInterface.modules.business.goodsPackage.service;
 
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.AppGoodsPackageListVO;
+import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.GoodsPackageListVO;
+import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.ShopParticularsVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 
@@ -33,4 +36,23 @@ public interface IGoodsPackageService extends IService<GoodsPackage> {
      * @return
      */
      Result<Object>  GetGoodsPackage(String ids);
+
+    /**
+     * App分类商家商品筛选
+     */
+    List<GoodsPackageListVO>  GetGoodsPackageList(String classId, String areaId,Integer newPrice);
+
+    /**
+     * 后端查询商品全部数据
+     */
+    List<GoodsPackage> BackGoodsPackageList();
+    /**
+     * 获取App店铺详情数据成功
+     */
+    ShopParticularsVO getShopParticulars(String ids);
+
+    /**
+     * 查询商家精选套餐
+     */
+    List<AppGoodsPackageListVO> AppGoodsPackageList(String ids);
 }

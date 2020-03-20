@@ -11,6 +11,10 @@ public class GoodsPackageParticularsVO {
 
     private String id;
     /**
+     * 商品名称
+     */
+    private String goodsName;
+    /**
      * 套餐图片
      */
     private String pics;

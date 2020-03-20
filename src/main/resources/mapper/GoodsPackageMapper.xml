@@ -2,4 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.ruanyun.backInterface.modules.business.goodsPackage.mapper.GoodsPackageMapper">
 
+
+    <!--获取App店铺详情数据成功-->
+    <select id="getShopParticulars"  resultType="cn.ruanyun.backInterface.modules.business.goodsPackage.VO.ShopParticularsVO">
+      select u.id,u.username,u.avatar,u.address,s.mobile,s.longitude,s.latitude from  t_user u left join t_store_audit s on u.id = s.create_by where s.create_by =#{ids}
+    </select>
+
+    <!--查询商家精选套餐-->
+    <select id="AppGoodsPackageList"  resultType="cn.ruanyun.backInterface.modules.business.goodsPackage.VO.AppGoodsPackageListVO">
+        select  g.id,g.goods_name,g.new_price,g.pics from  t_goods_package g where g.create_by = #{ids}
+    </select>
 </mapper>
