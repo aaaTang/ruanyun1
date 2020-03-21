@@ -1,12 +1,10 @@
 package cn.ruanyun.backInterface.modules.base.service.mybatis;
 
 
-import cn.ruanyun.backInterface.modules.base.pojo.Role;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.cache.annotation.CacheConfig;
-import org.springframework.cache.annotation.Cacheable;
 
 import java.util.List;
 

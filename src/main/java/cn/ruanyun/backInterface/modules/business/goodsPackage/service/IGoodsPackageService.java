@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.goodsPackage.service;
 
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.goodsPackage.DTO.ShopParticularsDTO;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.AppGoodsPackageListVO;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.GoodsPackageListVO;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.ShopParticularsVO;
@@ -55,4 +56,11 @@ public interface IGoodsPackageService extends IService<GoodsPackage> {
      * 查询商家精选套餐
      */
     List<AppGoodsPackageListVO> AppGoodsPackageList(String ids);
+
+    /**
+     * 修改店铺详情
+     */
+    void UpdateShopParticulars(ShopParticularsDTO shopParticularsDTO);
+
+
 }

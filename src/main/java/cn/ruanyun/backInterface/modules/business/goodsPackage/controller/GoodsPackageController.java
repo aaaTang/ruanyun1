@@ -4,6 +4,7 @@ import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.goodsPackage.DTO.ShopParticularsDTO;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
 import com.google.common.collect.Maps;
@@ -142,6 +143,9 @@ public class GoodsPackageController {
     }
 
 
+
+    /*****************************************************分割线****商家店铺******************************************************/
+
     /**
      * 获取App店铺详情
      */
@@ -159,6 +163,23 @@ public class GoodsPackageController {
 
     }
 
+
+    /**
+     * 修改店铺详情
+     * @return
+     */
+    @PostMapping(value = "/UpdateShopParticulars")
+    public Result<Object> UpdateShopParticulars(ShopParticularsDTO shopParticularsDTO){
+
+        try {
+
+                iGoodsPackageService.UpdateShopParticulars(shopParticularsDTO);
+            return new ResultUtil<>().setSuccessMsg("修改店铺详情成功！");
+        }catch (Exception e) {
+
+            return new ResultUtil<>().setErrorMsg(201, e.getMessage());
+        }
+    }
 
 
 }

@@ -23,6 +23,7 @@ public class StoreAudit extends RuanyunBaseEntity {
     private static final long serialVersionUID = 1L;
 
 
+
     /**
      * 商家类型
      */

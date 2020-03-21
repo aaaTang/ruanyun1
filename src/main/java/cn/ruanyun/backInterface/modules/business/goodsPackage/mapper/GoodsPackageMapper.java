@@ -1,10 +1,12 @@
 package cn.ruanyun.backInterface.modules.business.goodsPackage.mapper;
 
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.goodsPackage.DTO.ShopParticularsDTO;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.AppGoodsPackageListVO;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.ShopParticularsVO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
+import org.apache.ibatis.annotations.Param;
 import org.thymeleaf.expression.Ids;
 
 import java.util.List;
@@ -24,4 +26,9 @@ public interface GoodsPackageMapper extends BaseMapper<GoodsPackage> {
      * 查询商家精选套餐
      */
     List<AppGoodsPackageListVO>  AppGoodsPackageList(String ids);
+
+    /**
+     * 修改店铺详情
+     */
+    void UpdateShopParticulars(@Param("obj")ShopParticularsDTO shopParticularsDTO);
 }

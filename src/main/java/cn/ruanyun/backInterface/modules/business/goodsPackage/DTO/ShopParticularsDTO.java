@@ -1,16 +1,16 @@
-package cn.ruanyun.backInterface.modules.business.goodsPackage.VO;
+package cn.ruanyun.backInterface.modules.business.goodsPackage.DTO;
 
 import lombok.Data;
 
 import javax.persistence.Column;
 
 @Data
-public class ShopParticularsVO {
+public class ShopParticularsDTO {
 
     private String id;
 
 
-   /* *//**
+    /* *//**
      * 店铺评分
      *//*
     private String score;*/

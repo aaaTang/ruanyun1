@@ -5,6 +5,7 @@ import cn.ruanyun.backInterface.modules.base.pojo.Role;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import javax.persistence.Column;
 import java.util.List;
 
 @Data
@@ -50,6 +51,27 @@ public class BackUserInfo {
      * 状态 默认0正常 -1拉黑
      */
     private Integer status;
+
+    /**
+     * 轮播图
+     */
+    @Column(length = 1000)
+    private String  pic ;
+
+    /**
+     * 经度
+     */
+    private String longitude;
+
+    /**
+     * 纬度
+     */
+    private String latitude;
+
+    /**
+     * 店铺名称
+     */
+    private String shopName;
 
     /**
      * 用户的角色信息

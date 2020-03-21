@@ -8,6 +8,7 @@ import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
 import cn.ruanyun.backInterface.modules.business.area.mapper.AreaMapper;
 import cn.ruanyun.backInterface.modules.business.area.pojo.Area;
 import cn.ruanyun.backInterface.modules.business.area.service.IAreaService;
+import cn.ruanyun.backInterface.modules.business.goodsPackage.DTO.ShopParticularsDTO;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.AppGoodsPackageListVO;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.GoodsPackageListVO;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.GoodsPackageParticularsVO;
@@ -148,8 +149,13 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
         return  igoodsPackageMapper.AppGoodsPackageList(ids);
     }
 
+    /**
+     * 修改店铺详情
+     */
+    public void UpdateShopParticulars(ShopParticularsDTO shopParticularsDTO){
 
-
+        igoodsPackageMapper.UpdateShopParticulars(shopParticularsDTO);
+    }
 
 
 

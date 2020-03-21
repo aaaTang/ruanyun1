@@ -5,11 +5,39 @@
 
     <!--获取App店铺详情数据成功-->
     <select id="getShopParticulars"  resultType="cn.ruanyun.backInterface.modules.business.goodsPackage.VO.ShopParticularsVO">
-      select u.id,u.username,u.avatar,u.address,s.mobile,s.longitude,s.latitude from  t_user u left join t_store_audit s on u.id = s.create_by where s.create_by =#{ids}
+      select u.id,u.address,u.mobile,u.shop_name,u.longitude,u.latitude,u.pic from t_user u where u.id = #{ids}
     </select>
+
 
     <!--查询商家精选套餐-->
     <select id="AppGoodsPackageList"  resultType="cn.ruanyun.backInterface.modules.business.goodsPackage.VO.AppGoodsPackageListVO">
         select  g.id,g.goods_name,g.new_price,g.pics from  t_goods_package g where g.create_by = #{ids}
     </select>
+
+
+    <update id="UpdateShopParticulars"  parameterType="cn.ruanyun.backInterface.modules.business.goodsPackage.DTO.ShopParticularsDTO">
+        update t_user
+        <set>
+            <if test="obj.address !=null">
+                address=#{obj.address},
+            </if>
+            <if test="obj.mobile !=null">
+                mobile=#{obj.mobile},
+            </if>
+            <if test="obj.shopName !=null">
+                shop_name=#{obj.shopName},
+            </if>
+            <if test="obj.longitude !=null">
+                longitude=#{obj.longitude},
+            </if>
+            <if test="obj.latitude !=null">
+                latitude=#{obj.latitude},
+            </if>
+            <if test="obj.pic !=null">
+                pic=#{obj.pic},
+            </if>
+        </set>
+        where id=#{obj.id}
+
+    </update>
 </mapper>

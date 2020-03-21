@@ -47,7 +47,7 @@ public class CaptchaController {
     @Autowired
     private SettingService settingService;
 
-    @RequestMapping(value = "/init", method = RequestMethod.GET)
+        @RequestMapping(value = "/init", method = RequestMethod.GET)
     @ApiOperation(value = "初始化验证码")
     public Result<Object> initCaptcha() {
 

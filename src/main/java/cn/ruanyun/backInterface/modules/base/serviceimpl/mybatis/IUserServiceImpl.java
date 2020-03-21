@@ -5,6 +5,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import cn.ruanyun.backInterface.common.utils.*;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
@@ -19,13 +20,17 @@ import cn.ruanyun.backInterface.modules.base.vo.AppUserVO;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -244,6 +249,10 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     @Override
     public List<BackUserInfo> getUserList(UserDTO userDTO) {
 
+        if (ObjectUtil.equal("", userDTO.getUsername()) || ObjectUtil.equal(" ", userDTO.getUsername())) {
+
+            userDTO.setUsername(null);
+        }
         LambdaQueryWrapper<User> userQuery = Wrappers.<User>lambdaQuery()
                 .orderByDesc(User::getCreateTime);
 
@@ -259,11 +268,9 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         }
 
         return Optional.ofNullable(ToolUtil.setListToNul(super.list(userQuery)))
-                .map(users -> users.parallelStream().flatMap(user -> Stream.of(getBackUserInfo(user.getId())))
+                .map(users -> users.parallelStream().flatMap(user -> Stream.of(getBackUserInfo(user.getUsername())))
                 .collect(Collectors.toList()))
                 .orElse(null);
-
-
     }
 
 
@@ -363,11 +370,17 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
         return Optional.ofNullable(super.getById(userId))
                 .map(user -> {
-
-                    user.setStatus(CommonConstant.USER_STATUS_LOCK);
+                    String result = "";
+                    if(user.getStatus().equals(-1)){
+                        user.setStatus(0);
+                        result="解冻成功！";
+                    }else if (user.getStatus().equals(0)){
+                        user.setStatus(CommonConstant.USER_STATUS_LOCK);
+                        result="冻结成功！";
+                    }
                     super.updateById(user);
 
-                    return new ResultUtil<>().setSuccessMsg("冻结成功！");
+                    return new ResultUtil<>().setSuccessMsg(result);
                 }).orElse(new ResultUtil<>().setErrorMsg(201, "不存在此用户"));
     }
 
@@ -390,4 +403,6 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
                 }).orElse(null);
     }
+
+
 }

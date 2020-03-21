@@ -4,6 +4,8 @@ import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.utils.CommonUtil;
 import lombok.Data;
 import lombok.experimental.Accessors;
+
+import javax.persistence.Column;
 import java.math.BigDecimal;
 
 @Data
@@ -66,4 +68,24 @@ public class BackUserVO {
      */
     private Integer status = CommonConstant.USER_STATUS_NORMAL;
 
+    /**
+     * 轮播图
+     */
+    @Column(length = 1000)
+    private String  pic ;
+
+    /**
+     * 经度
+     */
+    private String longitude;
+
+    /**
+     * 纬度
+     */
+    private String latitude;
+
+    /**
+     * 店铺名称
+     */
+    private String shopName;
 }
