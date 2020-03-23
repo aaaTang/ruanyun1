@@ -257,7 +257,7 @@
             </exclusions>
         </dependency>
 
-        <!--kafka-->
+       <!-- &lt;!&ndash;kafka&ndash;&gt;
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
@@ -267,7 +267,7 @@
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
             <version>2.4.0</version>
-        </dependency>
+        </dependency>-->
 
         <!-- 热更新 -->
         <dependency>
