@@ -1,22 +1,25 @@
 package cn.ruanyun.backInterface.modules.base.controller.manage;
 
 
-import cn.ruanyun.backInterface.common.utils.PageUtil;
-import cn.ruanyun.backInterface.common.utils.ResultUtil;
-import cn.ruanyun.backInterface.common.utils.SecurityUtil;
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import com.aliyun.oss.ClientException;
+import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -32,6 +35,12 @@ public class BackUserController {
     private SecurityUtil securityUtil;
 
     private IUserService iUserService;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
+
+    @Autowired
+    private SmsUtil smsUtil;
 
     @Autowired
     public BackUserController(SecurityUtil securityUtil, IUserService iUserService) {
@@ -208,4 +217,30 @@ public class BackUserController {
         return iUserService.freezeAccount(userId);
     }
 
+    /**
+     * 发送短信验证码
+     */
+    @PostMapping("/sendMessage")
+    public Result<Object> sendMessage(String mobile) throws ClientException {
+
+        // 生成6位数验证码
+        String code = CommonUtil.getRandomNum();
+        // 缓存验证码
+        redisTemplate.opsForValue().set(CommonConstant.PRE_SMS + mobile, code, 15L, TimeUnit.MINUTES);
+        // 发送验证码
+        try {
+            SendSmsResponse response = smsUtil.sendCode(mobile, code, "SMS_176930019");
+            if (response.getCode() != null && ("OK").equals(response.getMessage())) {
+                return ResultUtil.success("发送短信验证码成功");
+            } else {
+                return ResultUtil.error("请求发送验证码失败，" + response.getMessage());
+            }
+        } catch (ClientException e) {
+            log.error("请求发送短信验证码失败，" + e);
+            return ResultUtil.error("请求发送验证码失败，" + e.getMessage());
+        } catch (com.aliyuncs.exceptions.ClientException e) {
+            e.printStackTrace();
+            return ResultUtil.error("请求发送验证码失败，" + e.getMessage());
+        }
+    }
 }
