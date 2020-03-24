@@ -34,7 +34,7 @@ public class IUserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> 
                 .eq(UserRole::getUserId, userId)
                 .orderByDesc(UserRole::getCreateTime))))
                 .map(userRoles -> userRoles.parallelStream().map(UserRole::getRoleId)
-                .collect(Collectors.joining()))
+                .collect(Collectors.joining(",")))
                 .orElse(null);
     }
 
