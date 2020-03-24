@@ -17,6 +17,11 @@ public class AppCategoryListVO {
     private String title;
 
     /**
+     * 一級分类图片
+     */
+    private String pic;
+
+    /**
      * 二级分类集合
      */
     private List<AppCategoryVO> categoryVOS;

@@ -19,7 +19,6 @@ public interface SettingService {
      * @param id
      * @return
      */
-    @Cacheable(key = "#id")
     Setting get(String id);
 
     /**

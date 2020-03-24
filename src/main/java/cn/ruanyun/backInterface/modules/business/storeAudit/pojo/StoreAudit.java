@@ -6,6 +6,7 @@ import cn.ruanyun.backInterface.common.enums.StoreTypeEnum;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
@@ -83,6 +84,11 @@ public class StoreAudit extends RuanyunBaseEntity {
      */
     private String latitude;
 
+    /**
+     * 店铺轮播图
+     */
+    @Column(length = 1000)
+    private String  pic ;
 
     /**
      * 审核意见

@@ -80,8 +80,7 @@ public class GoodsPackageController {
         return Optional.ofNullable(iGoodsPackageService.GetGoodsPackage(ids))
                 .map(iAppGetGoodsPackage-> {
                     Map<String, Object> result = Maps.newHashMap();
-                    result.put("data",  iAppGetGoodsPackage);
-
+                    result.put("data",  iAppGetGoodsPackage.getResult());
                     return new ResultUtil<>().setData(result, "获取App查询商品详情数据成功！");
 
                 }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));

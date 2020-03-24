@@ -1,10 +1,12 @@
 package cn.ruanyun.backInterface.modules.business.goodsPackage.DTO;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import javax.persistence.Column;
 
 @Data
+@Accessors(chain = true)
 public class ShopParticularsDTO {
 
     private String id;

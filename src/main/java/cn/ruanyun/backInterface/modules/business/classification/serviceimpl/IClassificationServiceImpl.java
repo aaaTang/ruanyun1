@@ -70,13 +70,6 @@ public class IClassificationServiceImpl extends ServiceImpl<ClassificationMapper
     @Override
     public List<AppCategoryListVO> getAppCategoryList() {
 
-       /* List<Classification> list = this.list(new QueryWrapper<Classification>().lambda().eq(Classification::getIsParent,true));
-        List<AppCategoryListVO> appCategoryListVOList = list.parallelStream().map(classic->{
-            AppCategoryListVO appCategoryListVO = new AppCategoryListVO();
-            ToolUtil.copyProperties(classic,appCategoryListVO);
-            return appCategoryListVO;
-        }).collect(Collectors.toList());*/
-
         List<Classification> list = this.list(new QueryWrapper<Classification>().lambda().eq(Classification::getIsParent,true));
         List<AppCategoryListVO> appCategoryListVOList  =new ArrayList<>();
         for (Classification classification : list) {
@@ -86,6 +79,7 @@ public class IClassificationServiceImpl extends ServiceImpl<ClassificationMapper
             AppCategoryListVO appCategoryVO =new AppCategoryListVO();
             appCategoryVO.setId(classification.getId())
                         .setTitle(classification.getTitle())
+                        .setPic(classification.getPic())
                         .setCategoryVOS(categoryVOS);
 
             appCategoryListVOList.add(appCategoryVO);

@@ -17,6 +17,7 @@ public class GoodsPackageParticularsVO {
     /**
      * 套餐图片
      */
+    @Column(length = 1000)
     private String pics;
 
     /**

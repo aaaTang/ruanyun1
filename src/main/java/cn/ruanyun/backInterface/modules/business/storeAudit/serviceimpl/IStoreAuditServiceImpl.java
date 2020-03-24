@@ -2,19 +2,28 @@ package cn.ruanyun.backInterface.modules.business.storeAudit.serviceimpl;
 
 import cn.ruanyun.backInterface.common.enums.CheckEnum;
 import cn.ruanyun.backInterface.common.enums.StoreTypeEnum;
-import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserRoleMapper;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
 import cn.ruanyun.backInterface.modules.business.area.service.IAreaService;
+import cn.ruanyun.backInterface.modules.business.bestChoiceShop.mapper.BestShopMapper;
+import cn.ruanyun.backInterface.modules.business.bestChoiceShop.pojo.BestShop;
+import cn.ruanyun.backInterface.modules.business.bestChoiceShop.service.IBestShopService;
+import cn.ruanyun.backInterface.modules.business.bestChoiceShop.serviceimpl.IBestShopServiceImpl;
 import cn.ruanyun.backInterface.modules.business.classification.mapper.ClassificationMapper;
 import cn.ruanyun.backInterface.modules.business.classification.service.IClassificationService;
+import cn.ruanyun.backInterface.modules.business.goodsPackage.DTO.ShopParticularsDTO;
+import cn.ruanyun.backInterface.modules.business.goodsPackage.mapper.GoodsPackageMapper;
 import cn.ruanyun.backInterface.modules.business.storeAudit.DTO.StoreAuditDTO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditVO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.mapper.StoreAuditMapper;
 import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
 import cn.ruanyun.backInterface.modules.business.storeAudit.service.IStoreAuditService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +40,6 @@ import java.util.stream.Collectors;
 
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import cn.ruanyun.backInterface.common.utils.ToolUtil;
-import cn.ruanyun.backInterface.common.utils.SecurityUtil;
-import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 
 import javax.annotation.Resource;
 
@@ -59,6 +65,13 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
     private UserRoleMapper userRoleMapper;
     @Autowired
     private StringRedisTemplate redisTemplate;
+    @Resource
+    private GoodsPackageMapper igoodsPackageMapper;
+    @Resource
+    private BestShopMapper ibestShopMapper;
+    @Resource
+    private IBestShopService iBestShopService;
+
 
     @Override
     public void insertOrderUpdateStoreAudit(StoreAudit storeAudit) {
@@ -98,6 +111,18 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
                         String roleId = StoreTypeEnum.MERCHANTS_SETTLED.equals(sa.getStoreType())? "485623585622655" : "165184654654545";
                         userRole.setRoleId(roleId)
                                 .setUserId(sa.getCreateBy());
+                        //修改用户表信息
+                        ShopParticularsDTO shopParticularsDTO = new ShopParticularsDTO();
+                            shopParticularsDTO.setId(userRole.getUserId())
+                                    .setShopName(sa.getUsername())
+                                    .setLatitude(sa.getLatitude())
+                                    .setLongitude(sa.getLongitude())
+                                    .setMobile(sa.getMobile())
+                                    .setPic(sa.getPic());
+
+                        igoodsPackageMapper.UpdateShopParticulars(shopParticularsDTO);
+
+
                         //删除缓存
                         Set<String> keysUserRole = redisTemplate.keys("userRole:" + "*");
                         assert keysUserRole != null;
@@ -146,6 +171,17 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
     @Override
     public Result<Object> addApply(StoreAudit storeAudit) {
         storeAudit.setCreateBy(securityUtil.getCurrUser().getId());
+
+        BestShop bestShop  = ibestShopMapper.selectOne(new QueryWrapper<BestShop>().lambda().eq(BestShop::getStoreAuditId,securityUtil.getCurrUser().getId()));
+
+            if(ToolUtil.isEmpty(bestShop)){
+                BestShop bestShop1=new BestShop();
+                bestShop1.setStoreAuditId(securityUtil.getCurrUser().getId())
+                        .setStrict(0)
+                        .setCreateBy(securityUtil.getCurrUser().getId());
+                iBestShopService.insertOrderUpdateBestShop(bestShop1);
+            }
+
         return CompletableFuture.supplyAsync(() ->
                 //查询是否有过申请记录
                 super.list(new LambdaQueryWrapper<StoreAudit>().eq(StoreAudit::getCreateBy, storeAudit.getCreateBy()).and(wrapper -> wrapper.eq(StoreAudit::getCheckEnum, CheckEnum.PRE_CHECK).or().eq(StoreAudit::getCheckEnum, CheckEnum.CHECK_SUCCESS)))

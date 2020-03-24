@@ -3,6 +3,8 @@ package cn.ruanyun.backInterface.modules.business.goodsPackage.VO;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import javax.persistence.Column;
+
 @Data
 @Accessors(chain = true)
 public class GoodsPackageListVO {
@@ -15,6 +17,7 @@ public class GoodsPackageListVO {
     /**
      * 套餐图片
      */
+    @Column(length = 1000)
     private String pics;
 
     /**
@@ -35,5 +38,6 @@ public class GoodsPackageListVO {
     /**
      * 用户图片
      */
+
     private String userPic;
 }
