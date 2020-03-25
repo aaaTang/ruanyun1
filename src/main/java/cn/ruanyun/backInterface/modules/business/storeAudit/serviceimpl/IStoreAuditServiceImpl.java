@@ -108,7 +108,7 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
                             userRoleMapper.deleteBatchIds(userRoles.stream().map(UserRole::getId).collect(Collectors.toList()));
                         }
                         UserRole userRole = new UserRole();
-                        String roleId = StoreTypeEnum.MERCHANTS_SETTLED.equals(sa.getStoreType())? "485623585622655" : "165184654654545";
+                        String roleId = StoreTypeEnum.MERCHANTS_SETTLED.equals(sa.getStoreType())? "496138616573954" : "496138616573955";
                         userRole.setRoleId(roleId)
                                 .setUserId(sa.getCreateBy());
                         //修改用户表信息

@@ -79,4 +79,12 @@ public class AppUserController {
         return userService.updateAppUserInfo(user);
     }
 
+    /**
+     * 忘记密码
+     */
+    @PostMapping("/forgetPassword")
+    public Result<Object> forgetPassword(UserDTO user){
+
+        return userService.forgetPassword(user);
+    }
 }

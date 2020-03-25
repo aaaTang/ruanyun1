@@ -448,5 +448,30 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                 }).orElse(null);
     }
 
+    @Override
+    public Result<Object> forgetPassword(UserDTO user) {
+        User old = this.getOne(Wrappers.<User>lambdaQuery()
+                .eq(User::getMobile, user.getMobile()));
+        //1.判断用户是否存在
+        if (ToolUtil.isEmpty(old)) {
+            return new ResultUtil<>().setErrorMsg(201, "手机号错误或用户不存在");
+        }
+        //2.判断验证码是否失效(默认时间5分钟)
+        if (ToolUtil.isEmpty(RedisUtil.getStr(CommonConstant.PRE_SMS + user.getMobile()))) {
+
+            return new ResultUtil<>().setErrorMsg(202, "验证码已失效,请重新发送短信验证！");
+        }
+        //3.判断验证码是否一致
+        if (!RedisUtil.getStr(CommonConstant.PRE_SMS + user.getMobile()).equals(user.getCode())) {
+
+            return new ResultUtil<>().setErrorMsg(203, "验证码不一致！");
+        }
+        old.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+        this.updateById(old);
+        //删除缓存
+        RedisUtil.del("user::" + old.getUsername());
+        return new ResultUtil<>().setSuccessMsg("注册成功！");
+    }
+
 
 }

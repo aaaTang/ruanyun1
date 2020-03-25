@@ -145,4 +145,10 @@ public interface IUserService extends IService<User> {
      */
     BackUserInfo getBackUserInfo(String username);
 
+    /**
+     * 忘记密码
+     * @param user
+     * @return
+     */
+    Result<Object> forgetPassword(UserDTO user);
 }
