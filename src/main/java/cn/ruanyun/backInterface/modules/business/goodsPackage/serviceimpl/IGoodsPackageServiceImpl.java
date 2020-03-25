@@ -2,20 +2,22 @@ package cn.ruanyun.backInterface.modules.business.goodsPackage.serviceimpl;
 
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.serviceimpl.mybatis.IUserServiceImpl;
 import cn.ruanyun.backInterface.modules.base.vo.AppUserVO;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
 import cn.ruanyun.backInterface.modules.business.area.mapper.AreaMapper;
 import cn.ruanyun.backInterface.modules.business.area.pojo.Area;
 import cn.ruanyun.backInterface.modules.business.area.service.IAreaService;
+import cn.ruanyun.backInterface.modules.business.bestChoiceShop.mapper.BestShopMapper;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.DTO.ShopParticularsDTO;
-import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.AppGoodsPackageListVO;
-import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.GoodsPackageListVO;
-import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.GoodsPackageParticularsVO;
-import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.ShopParticularsVO;
+import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.*;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.mapper.GoodsPackageMapper;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
+import cn.ruanyun.backInterface.modules.business.storeAudit.mapper.StoreAuditMapper;
+import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qcloud.cos.transfer.Copy;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -56,6 +59,12 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
 
         @Resource
         private GoodsPackageMapper igoodsPackageMapper;
+
+        @Resource
+        private StoreAuditMapper istoreAuditMapper;
+
+        @Resource
+        private UserMapper userMapper;
 
        @Override
        public void insertOrderUpdateGoodsPackage(GoodsPackage goodsPackage) {
@@ -155,6 +164,39 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     public void UpdateShopParticulars(ShopParticularsDTO shopParticularsDTO){
 
         igoodsPackageMapper.UpdateShopParticulars(shopParticularsDTO);
+    }
+
+    /**
+     * 后端获取店铺列表
+     */
+
+    @Override
+    public List<ShopDatelistVO> getShopDateList(String username, String shopName, Integer storeType ) {
+        List<StoreAudit> storeAudits = istoreAuditMapper.selectList(new QueryWrapper<StoreAudit>().lambda()
+                .eq(StoreAudit::getCheckEnum,2));//从申请商家列表中取出通过的商家数据
+
+        List<ShopDatelistVO> shopDatelistVO =  storeAudits.parallelStream().map(store->{
+
+            ShopDatelistVO datelistVO = new ShopDatelistVO();
+
+                User users =  userMapper.selectById(store.getCreateBy());
+
+                datelistVO.setId(users.getId())
+                        .setStoreType(store.getStoreType())
+                        .setUsername(users.getUsername())
+                        .setMobile(users.getMobile())
+                        .setIdCardBack(store.getIdCardBack())
+                        .setIdCardFront(store.getIdCardFront())
+                        .setBusinessCard(store.getBusinessCard())
+                        .setAddress(users.getAddress())
+                        .setPic(users.getPic())
+                        .setShopName(users.getShopName());
+
+            return datelistVO;
+        }).collect(Collectors.toList());
+
+        return shopDatelistVO;
+
     }
 
 

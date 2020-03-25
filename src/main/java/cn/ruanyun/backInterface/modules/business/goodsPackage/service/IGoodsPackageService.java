@@ -4,6 +4,7 @@ import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.DTO.ShopParticularsDTO;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.AppGoodsPackageListVO;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.GoodsPackageListVO;
+import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.ShopDatelistVO;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.ShopParticularsVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
@@ -62,5 +63,8 @@ public interface IGoodsPackageService extends IService<GoodsPackage> {
      */
     void UpdateShopParticulars(ShopParticularsDTO shopParticularsDTO);
 
-
+    /**
+     * 后端获取店铺列表
+     */
+    List<ShopDatelistVO> getShopDateList(String username, String shopName, Integer storeType );
 }

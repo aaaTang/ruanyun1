@@ -180,5 +180,20 @@ public class GoodsPackageController {
         }
     }
 
+    /**
+     * 后端获取店铺列表
+     */
+    @PostMapping("/getShopDateList")
+    public Result<Object> getShopDateList(String username, String shopName, Integer storeType , PageVo pageVo) {
+
+        return Optional.ofNullable(iGoodsPackageService.getShopDateList(username,  shopName,  storeType ))
+                .map(backUserVOS -> {
+
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("size", backUserVOS.size());
+                    result.put("data", PageUtil.listToPage(pageVo, backUserVOS));
+                    return new ResultUtil<>().setData(result, "获取后端获取店铺列表成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+    }
 
 }
