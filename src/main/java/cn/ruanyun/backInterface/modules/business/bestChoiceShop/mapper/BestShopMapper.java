@@ -19,11 +19,5 @@ public interface BestShopMapper extends BaseMapper<BestShop> {
      */
     BestShopListVO getBestChoiceShopList(String ids,String strict);
 
-    /**
-     * 后端严选商家
-     * @param strict 是否严选1是  0否
-     * @return
-     */
-    BackBestShopListVO BackBestChoiceShopList(String ids, String strict);
 
 }

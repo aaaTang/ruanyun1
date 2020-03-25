@@ -96,28 +96,14 @@ public class BestShopController {
     }
 
 
-
-
     /**
-     * 后端严选商家
-     * @param strict 是否严选1是  0否
-     * @return
+     * 后端修改严选商家
      */
-    @PostMapping(value = "/BackBestChoiceShopList")
-    public Result<Object> BackBestChoiceShopList(PageVo pageVo,String strict){
+    @PostMapping("/updateStrictShop")
+    public Result<Object> updateStrictShop(String StrictId) {
 
-        return Optional.ofNullable(iBestShopService.BackBestChoiceShopList(strict))
-                .map(bestShopList-> {
-                    Map<String, Object> result = Maps.newHashMap();
-                    result.put("size",  bestShopList.size());
-                    result.put("data",  PageUtil.listToPage(pageVo, bestShopList));
-
-                    return new ResultUtil<>().setData(result, "获取后端严选商家数据成功！");
-
-                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+        return iBestShopService.updateStrictShop(StrictId);
     }
-
-
 
 
 }

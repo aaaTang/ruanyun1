@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.bestChoiceShop.service;
 
+import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.bestChoiceShop.VO.BackBestShopListVO;
 import cn.ruanyun.backInterface.modules.business.bestChoiceShop.VO.BestShopListVO;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -36,9 +37,7 @@ public interface IBestShopService extends IService<BestShop> {
     List<BestShopListVO> getBestChoiceShopList(String strict);
 
     /**
-     * 后端严选商家
-     * @param strict 是否严选1是  0否
-     * @return
+     * 后端修改严选商家
      */
-    List<BackBestShopListVO> BackBestChoiceShopList(String strict);
+    Result<Object> updateStrictShop(String StrictId);
 }

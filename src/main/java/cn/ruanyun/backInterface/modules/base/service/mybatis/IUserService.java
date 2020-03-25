@@ -7,6 +7,7 @@ import cn.ruanyun.backInterface.common.vo.SearchVo;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.vo.AppUserVO;
+import cn.ruanyun.backInterface.modules.base.vo.BackStrictVO;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -79,7 +80,7 @@ public interface IUserService extends IService<User> {
      * 获取商家用户
      * @return
      */
-    List<BackUserVO> getBackUserStoreList(UserDTO userDTO);
+    List<BackStrictVO> getBackUserStoreList(UserDTO userDTO);
 
 
     /**

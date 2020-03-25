@@ -1,6 +1,8 @@
 package cn.ruanyun.backInterface.modules.business.bestChoiceShop.serviceimpl;
 
-import cn.ruanyun.backInterface.common.utils.EmptyUtil;
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.utils.*;
+import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.business.bestChoiceShop.VO.BackBestShopListVO;
@@ -26,9 +28,6 @@ import java.util.stream.Collectors;
 
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import cn.ruanyun.backInterface.common.utils.ToolUtil;
-import cn.ruanyun.backInterface.common.utils.SecurityUtil;
-import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 
 import javax.annotation.Resource;
 
@@ -114,34 +113,26 @@ public class IBestShopServiceImpl extends ServiceImpl<BestShopMapper, BestShop> 
     }
 
 
-
     /**
-     *  后端严选商家
-     * @param strict 是否是严选商家，0否，1是
-     * @return
+     * 后端修改严选商家
      */
     @Override
-    public List<BackBestShopListVO> BackBestChoiceShopList(String strict){
-        List<StoreAudit> storeAudits = storeAuditMapper.selectList(new QueryWrapper<StoreAudit>().lambda()
-                .eq(StoreAudit::getCheckEnum, 2));
+    public Result<Object> updateStrictShop(String StrictId) {
 
-        List<BackBestShopListVO> backBestShopListVOS =storeAudits.parallelStream().map(st->{
+        return Optional.ofNullable(super.getById(StrictId))
+                .map(shop -> {
+                    String result = "";
+                    if(shop.getStrict().equals(1)){
+                        shop.setStrict(0);
+                        result="取消严选商家成功！";
+                    }else if (shop.getStrict().equals(0)){
+                        shop.setStrict(1);
+                        result="设为严选商家成功！";
+                    }
+                    super.updateById(shop);
 
-            BackBestShopListVO backBestShopListVO = bestShopMapper.BackBestChoiceShopList(st.getCreateBy(),strict);
-            if(ToolUtil.isNotEmpty(backBestShopListVO)) {
-                List<GoodsPackage> goodsPackages = goodsPackageMapper.selectList(new QueryWrapper<GoodsPackage>().lambda()
-                                .eq(GoodsPackage::getCreateBy, st.getCreateBy())
-                                .orderByAsc(GoodsPackage::getNewPrice));
-
-
-                String goodPrice = ToolUtil.isEmpty(goodsPackages) ? null : goodsPackages.get(0).getNewPrice();
-                backBestShopListVO.setPrice(goodPrice);
-                ToolUtil.copyProperties(st, backBestShopListVO);
-            }
-            return backBestShopListVO;
-        }).filter(store->ToolUtil.isNotEmpty(store)).collect(Collectors.toList());
-
-        return backBestShopListVOS;
+                    return new ResultUtil<>().setSuccessMsg(result);
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "在此商家信息有误"));
     }
 
 

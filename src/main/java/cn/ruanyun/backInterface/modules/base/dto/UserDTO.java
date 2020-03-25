@@ -45,4 +45,13 @@ public class UserDTO {
      */
     private String invitationCode;
 
+    /**
+     *是否严选 0：不是 1：是
+     */
+    private Integer isBest;
+    /**
+     *用户地址
+     */
+    private String address;
+
 }

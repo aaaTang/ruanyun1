@@ -17,8 +17,11 @@ import cn.ruanyun.backInterface.modules.base.service.mybatis.IRoleService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.base.vo.AppUserVO;
+import cn.ruanyun.backInterface.modules.base.vo.BackStrictVO;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
+import cn.ruanyun.backInterface.modules.business.bestChoiceShop.mapper.BestShopMapper;
+import cn.ruanyun.backInterface.modules.business.bestChoiceShop.pojo.BestShop;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -28,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +60,8 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
     @Autowired
     private IRolePermissionService rolePermissionService;
+    @Resource
+    private BestShopMapper bestShopMapper;
 
 
     @Override
@@ -220,12 +226,29 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     }
 
     @Override
-    public List<BackUserVO> getBackUserStoreList(UserDTO userDTO) {
+    public List<BackStrictVO> getBackUserStoreList(UserDTO userDTO) {
 
-        return Optional.ofNullable(getUserList(UserTypeEnum.STORE))
-                .map(users -> users.parallelStream().flatMap(user -> Stream.of(getBackUserVO(user.getId())))
+        List<BackStrictVO> list =  Optional.ofNullable(getUserList(UserTypeEnum.STORE))
+                .map(users -> users.parallelStream()
+                        .filter(user -> user.getUsername().contains(Optional.ofNullable(userDTO.getUsername()).orElse(user.getUsername())))
+                        .filter(user -> user.getMobile().contains(Optional.ofNullable(userDTO.getMobile()).orElse(user.getMobile())))
+                        .filter(user -> user.getAddress().contains(Optional.ofNullable(userDTO.getAddress()).orElse(user.getAddress())))
+                            .flatMap(user -> Stream.of(getBackStrictVO(user.getId())))
                         .collect(Collectors.toList()))
                 .orElse(null);
+        if(ToolUtil.isNotEmpty(userDTO.getIsBest())){
+            if(0 == userDTO.getIsBest()){
+                list = list.stream().filter
+                        (user->ToolUtil.isEmpty
+                                (bestShopMapper.selectOne(new LambdaQueryWrapper<BestShop>().eq(BestShop::getCreateBy,user.getId()).eq(BestShop::getStrict,1).last("limit 1")))).collect(Collectors.toList());
+            }
+            if(0 == userDTO.getIsBest()){
+                list = list.stream().filter
+                        (user->ToolUtil.isNotEmpty
+                                (bestShopMapper.selectOne(new LambdaQueryWrapper<BestShop>().eq(BestShop::getCreateBy,user.getId()).eq(BestShop::getStrict,1).last("limit 1")))).collect(Collectors.toList());
+            }
+        }
+        return list;
     }
 
     @Override
@@ -311,6 +334,27 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         return backUserVO;
     }
 
+    /**
+     * 严选商家
+     * @param userId
+     * @return
+     */
+    public BackStrictVO getBackStrictVO(String userId) {
+
+        return Optional.ofNullable(super.getById(userId))
+                .map(user -> {
+                    BackStrictVO backStrictVO = new BackStrictVO();
+
+                    BestShop bestShop = bestShopMapper.selectOne(Wrappers.<BestShop>lambdaQuery().eq(BestShop::getCreateBy,user.getId()));
+                    backStrictVO.setStrictId(bestShop.getId()).setStrict(bestShop.getStrict());
+
+                    ToolUtil.copyProperties(user, backStrictVO);
+
+                    return backStrictVO;
+
+                }).orElse(null);
+
+    }
 
     @Override
     public Result<Object> resetPass(String userIds) {
