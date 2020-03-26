@@ -122,7 +122,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         ));
 
 
-        return new ResultUtil<>().setSuccessMsg("注册成功！");
+        return new ResultUtil<>().setData(200,"注册成功！");
 
 
     }
@@ -236,6 +236,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                             .flatMap(user -> Stream.of(getBackStrictVO(user.getId())))
                         .collect(Collectors.toList()))
                 .orElse(null);
+
         if(ToolUtil.isNotEmpty(userDTO.getIsBest())){
             if(0 == userDTO.getIsBest()){
                 list = list.stream().filter
@@ -470,7 +471,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         this.updateById(old);
         //删除缓存
         RedisUtil.del("user::" + old.getUsername());
-        return new ResultUtil<>().setSuccessMsg("注册成功！");
+        return new ResultUtil<>().setData(200,"注册成功！");
     }
 
 

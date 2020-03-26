@@ -40,4 +40,26 @@
         where id=#{obj.id}
 
     </update>
+
+    <!--后端获取店铺列表-->
+    <select id="getShopDateList"  resultType="cn.ruanyun.backInterface.modules.business.goodsPackage.VO.ShopDatelistVO">
+          select u.id,s.store_type as storeType,u.username,u.mobile,
+              s.id_card_front AS idCardFront,s.id_card_back AS idCardBack,
+              s.business_card AS businessCard,
+              u.address,u.pic,u.shop_name AS shopName
+          from  t_store_audit s,t_user u
+          where s.create_by = u.id
+          and s.check_enum= '2'
+          <if test="storeType != null and storeType != '' ">
+          and s.store_type =#{storeType}
+          </if>
+          <if test="username != null and username != '' ">
+          and u.username like concat('%',#{username},'%')
+          </if>
+          <if test="shopName != null and shopName != '' ">
+          and u.shop_name like concat('%',#{shopName},'%')
+          </if>
+          order  by  s.create_time desc
+    </select>
+
 </mapper>

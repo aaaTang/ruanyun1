@@ -18,6 +18,7 @@ import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
 import cn.ruanyun.backInterface.modules.business.storeAudit.mapper.StoreAuditMapper;
 import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qcloud.cos.transfer.Copy;
@@ -171,33 +172,11 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
      */
 
     @Override
-    public List<ShopDatelistVO> getShopDateList(String username, String shopName, Integer storeType ) {
-        List<StoreAudit> storeAudits = istoreAuditMapper.selectList(new QueryWrapper<StoreAudit>().lambda()
-                .eq(StoreAudit::getCheckEnum,2));//从申请商家列表中取出通过的商家数据
+    public List<ShopDatelistVO> getShopDateList(String username, String shopName, Integer storeType) {
 
-        List<ShopDatelistVO> shopDatelistVO =  storeAudits.parallelStream().map(store->{
-
-            ShopDatelistVO datelistVO = new ShopDatelistVO();
-
-                User users =  userMapper.selectById(store.getCreateBy());
-
-                datelistVO.setId(users.getId())
-                        .setStoreType(store.getStoreType())
-                        .setUsername(users.getUsername())
-                        .setMobile(users.getMobile())
-                        .setIdCardBack(store.getIdCardBack())
-                        .setIdCardFront(store.getIdCardFront())
-                        .setBusinessCard(store.getBusinessCard())
-                        .setAddress(users.getAddress())
-                        .setPic(users.getPic())
-                        .setShopName(users.getShopName());
-
-            return datelistVO;
-        }).collect(Collectors.toList());
-
-        return shopDatelistVO;
-
+            return igoodsPackageMapper.getShopDateList(username,shopName,storeType);
     }
+
 
 
 
