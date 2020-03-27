@@ -5,7 +5,6 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import cn.ruanyun.backInterface.common.utils.*;
-import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
@@ -20,21 +19,15 @@ import cn.ruanyun.backInterface.modules.base.vo.AppUserVO;
 import cn.ruanyun.backInterface.modules.base.vo.BackStrictVO;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
-import cn.ruanyun.backInterface.modules.business.bestChoiceShop.mapper.BestShopMapper;
-import cn.ruanyun.backInterface.modules.business.bestChoiceShop.pojo.BestShop;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -60,8 +53,6 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
     @Autowired
     private IRolePermissionService rolePermissionService;
-    @Resource
-    private BestShopMapper bestShopMapper;
 
 
     @Override
@@ -176,6 +167,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
     }
 
+    @Override
     public Result<Object> updateAppUserInfo(User u){
         return Optional.ofNullable(super.getById(u.getId()))
                 .map(user -> {
@@ -228,28 +220,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     @Override
     public List<BackStrictVO> getBackUserStoreList(UserDTO userDTO) {
 
-        List<BackStrictVO> list =  Optional.ofNullable(getUserList(UserTypeEnum.STORE))
-                .map(users -> users.parallelStream()
-                        .filter(user -> user.getUsername().contains(Optional.ofNullable(userDTO.getUsername()).orElse(user.getUsername())))
-                        .filter(user -> user.getMobile().contains(Optional.ofNullable(userDTO.getMobile()).orElse(user.getMobile())))
-                        .filter(user -> user.getAddress().contains(Optional.ofNullable(userDTO.getAddress()).orElse(user.getAddress())))
-                            .flatMap(user -> Stream.of(getBackStrictVO(user.getId())))
-                        .collect(Collectors.toList()))
-                .orElse(null);
-
-        if(ToolUtil.isNotEmpty(userDTO.getIsBest())){
-            if(0 == userDTO.getIsBest()){
-                list = list.stream().filter
-                        (user->ToolUtil.isEmpty
-                                (bestShopMapper.selectOne(new LambdaQueryWrapper<BestShop>().eq(BestShop::getCreateBy,user.getId()).eq(BestShop::getStrict,1).last("limit 1")))).collect(Collectors.toList());
-            }
-            if(0 == userDTO.getIsBest()){
-                list = list.stream().filter
-                        (user->ToolUtil.isNotEmpty
-                                (bestShopMapper.selectOne(new LambdaQueryWrapper<BestShop>().eq(BestShop::getCreateBy,user.getId()).eq(BestShop::getStrict,1).last("limit 1")))).collect(Collectors.toList());
-            }
-        }
-        return list;
+        return null;
     }
 
     @Override
@@ -335,27 +306,6 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         return backUserVO;
     }
 
-    /**
-     * 严选商家
-     * @param userId
-     * @return
-     */
-    public BackStrictVO getBackStrictVO(String userId) {
-
-        return Optional.ofNullable(super.getById(userId))
-                .map(user -> {
-                    BackStrictVO backStrictVO = new BackStrictVO();
-
-                    BestShop bestShop = bestShopMapper.selectOne(Wrappers.<BestShop>lambdaQuery().eq(BestShop::getCreateBy,user.getId()));
-                    backStrictVO.setStrictId(bestShop.getId()).setStrict(bestShop.getStrict());
-
-                    ToolUtil.copyProperties(user, backStrictVO);
-
-                    return backStrictVO;
-
-                }).orElse(null);
-
-    }
 
     @Override
     public Result<Object> resetPass(String userIds) {
@@ -451,8 +401,10 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
     @Override
     public Result<Object> forgetPassword(UserDTO user) {
+
         User old = this.getOne(Wrappers.<User>lambdaQuery()
                 .eq(User::getMobile, user.getMobile()));
+
         //1.判断用户是否存在
         if (ToolUtil.isEmpty(old)) {
             return new ResultUtil<>().setErrorMsg(201, "手机号错误或用户不存在");

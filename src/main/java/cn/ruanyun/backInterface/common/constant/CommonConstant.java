@@ -182,11 +182,50 @@ public interface CommonConstant {
 
     String DEFAULT_ROLE = "普通用户";
 
-    String STORE = "商家用户";
+    String STORE = "商家";
 
     String ADMIN = "ROLE_ADMIN";
 
     String PER_STORE = "个人商家";
+
+
+
+    /*-------------------筛选类型-----------------------------*/
+
+    /*
+    销量升序
+     */
+    Integer SALES_VOLUME_ASC =  1;
+
+    /*
+    销量降序
+     */
+    Integer SALES_VOLUME_DESC = 2;
+
+    /*
+    价格升序
+     */
+    Integer PRICE_ASC = 3;
+
+    /*
+    价格降序
+     */
+    Integer PRICE_DESC = 4;
+
+    /*
+    评论数升序
+     */
+    Integer COMMENTS_NUM_ASC = 5;
+
+    /*
+    评论数降序
+     */
+    Integer COMMENTS_NUM_DESC = 6;
+
+
+    Integer YES = 0;
+
+    Integer NO = 1;
 
 }
 

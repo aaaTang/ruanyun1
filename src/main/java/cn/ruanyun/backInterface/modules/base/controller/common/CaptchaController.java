@@ -69,11 +69,7 @@ public class CaptchaController {
         redisTemplate.opsForValue().set(CommonConstant.PRE_SMS + mobile, code,5L, TimeUnit.MINUTES);
         // 发送验证码
         try {
-            // 获取模板
-            /*Setting setting = settingService.get(CommonUtil.getSmsTemplate(template));
-            if(StrUtil.isBlank(setting.getValue())){
-                return ResultUtil.error("系统还未配置短信服务或通用模版");
-            }*/
+
             SendSmsResponse response = smsUtil.sendCode(mobile, code, "SMS_176930019");
             if(response.getCode() != null && ("OK").equals(response.getMessage())) {
                 // 请求成功 标记限流

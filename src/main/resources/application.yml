@@ -236,6 +236,12 @@ ignored:
     - /ruanyun/advertising/**
     - /ruanyun/area/**
     - /ruanyun/classification/**
+    - /ruanyun/goodCategory/getGoodCategoryList #获取分类数据
+    - /ruanyun/goodCategory/getAppGoodCategoryList #app获取分类数据
+    - /ruanyun/good/getAppGoodList #获取商品列表
+    - /ruanyun/good/getGoodDetailVO #获取商品详情数据
+    - /ruanyun/good/getAppGoodInfo #获取商品参数信息
+    - /ruanyun/selectStore/getSelectStoreList #获取严选商家列表
 # Actuator
 management:
   health:

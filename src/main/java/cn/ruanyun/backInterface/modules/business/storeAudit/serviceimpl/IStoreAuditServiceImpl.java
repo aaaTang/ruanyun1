@@ -1,19 +1,26 @@
 package cn.ruanyun.backInterface.modules.business.storeAudit.serviceimpl;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.CheckEnum;
+import cn.ruanyun.backInterface.common.enums.StoreTypeEnum;
+import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IRoleService;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
 import cn.ruanyun.backInterface.modules.business.area.service.IAreaService;
-import cn.ruanyun.backInterface.modules.business.classification.service.IClassificationService;
+import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
 import cn.ruanyun.backInterface.modules.business.storeAudit.DTO.StoreAuditDTO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditVO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.mapper.StoreAuditMapper;
 import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
 import cn.ruanyun.backInterface.modules.business.storeAudit.service.IStoreAuditService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,9 +51,15 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
     @Autowired
     private SecurityUtil securityUtil;
     @Resource
-    private IClassificationService iClassificationService;
+    private IGoodCategoryService goodCategoryService;
     @Resource
     private IAreaService iAreaService;
+
+    @Autowired
+    private IUserRoleService userRoleService;
+
+    @Autowired
+    private IRoleService roleService;
 
 
     @Override
@@ -82,49 +95,73 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
                    if (ObjectUtil.equal(storeAuditDTO.getCheckEnum(), CheckEnum.CHECK_SUCCESS)) {
 
                        //1.1 移除之前的角色
+                       userRoleService.remove(Wrappers.<UserRole>lambdaQuery()
+                       .eq(UserRole::getUserId, storeAudit1.getCreateBy()));
 
+                       UserRole userRole = new UserRole();
+                       userRole.setUserId(storeAudit1.getCreateBy());
 
+                       //1.2 重新分配角色
+                       if (ObjectUtil.equal(storeAudit1.getStoreType(), StoreTypeEnum.INDIVIDUALS_IN)) {
 
+                           userRole.setRoleId(roleService.getIdByRoleName(CommonConstant.PER_STORE));
+                       }else {
 
+                           userRole.setRoleId(roleService.getIdByRoleName(CommonConstant.STORE));
+                       }
+
+                       userRoleService.save(userRole);
+                   }else {
+
+                       // TODO: 2020/3/27  审核失败，极光推送
                    }
 
+                   ToolUtil.copyProperties(storeAuditDTO, storeAudit1);
+                   super.updateById(storeAudit1);
 
-
-                    //2. 审核失败，极光推送
-
-                }))
+                   return new ResultUtil<>().setSuccessMsg("审核成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无该数据！")))
+                .join();
     }
 
 
     @Override
     public List<StoreAuditVO> getStoreAuditList(StoreAuditDTO storeAuditDTO) {
+
         return CompletableFuture.supplyAsync(() -> {
+
             //组合条件搜索
             LambdaQueryWrapper<StoreAudit> wrapper = new LambdaQueryWrapper<>();
             if (ToolUtil.isNotEmpty(storeAuditDTO.getMobile())) {
+
                 wrapper.eq(StoreAudit::getMobile, storeAuditDTO.getMobile());
             }
             if (ToolUtil.isNotEmpty(storeAuditDTO.getId())) {
+
                 wrapper.and(w -> w.eq(StoreAudit::getCreateBy, storeAuditDTO.getId()));
             }
             if (ToolUtil.isNotEmpty(storeAuditDTO.getCheckEnum())) {
+
                 wrapper.and(w -> w.eq(StoreAudit::getCheckEnum, storeAuditDTO.getCheckEnum()));
             }
             if (ToolUtil.isNotEmpty(storeAuditDTO.getUsername())) {
+
                 wrapper.and(w -> w.eq(StoreAudit::getUsername, storeAuditDTO.getUsername()));
             }
             wrapper.orderByAsc(StoreAudit::getCheckEnum).orderByDesc(StoreAudit::getCreateTime);
             return super.list(wrapper);
         }).thenApplyAsync(storeAudit -> {
+
             //封装查寻数据
             return storeAudit.parallelStream().map(sa -> Optional.ofNullable(sa).map(s -> {
                 StoreAuditVO storeAuditVO = new StoreAuditVO();
                 ToolUtil.copyProperties(s, storeAuditVO);
                 //查询服务类型
-                storeAuditVO.setClassificationName(Optional.ofNullable(iClassificationService.getClassificationName(s.getClassificationId())).orElse("未知"));
+                storeAuditVO.setClassificationName(Optional.ofNullable(goodCategoryService.getGoodCategoryName(s.getClassificationId())).orElse("未知"));
                 //查询区域
                 storeAuditVO.setAreaName(Optional.ofNullable(iAreaService.getAddress(s.getAreaId())).orElse("未知"));
                 return storeAuditVO;
+
             }).orElse(null)).collect(Collectors.toList()).stream().filter(Objects::nonNull).collect(Collectors.toList());
         }).join();
     }
