@@ -184,7 +184,7 @@ public interface CommonConstant {
 
     String STORE = "商家用户";
 
-    String ADMIN = "管理员用户";
+    String ADMIN = "ROLE_ADMIN";
 
     String PER_STORE = "个人商家";
 
