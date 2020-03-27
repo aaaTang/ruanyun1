@@ -163,8 +163,8 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         ToolUtil.copyProperties(securityUtil.getCurrUser(), appUserVO);
 
         //当前角色
-        appUserVO.setRoleName(roleService.getRolesByRoleIds(userRoleService.getRoleIdsByUserId(securityUtil.getCurrUser()
-                .getId())).get(0).getName());
+        appUserVO.setRoleName(Optional.ofNullable(roleService.getRolesByRoleIds(userRoleService.getRoleIdsByUserId(securityUtil.getCurrUser()
+                .getId()))).map(roles -> roles.get(0).getName()).orElse("暂无！"));
 
         // TODO: 2020/3/13 我的收藏数量
         // TODO: 2020/3/13 我的足迹数量
@@ -471,7 +471,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         this.updateById(old);
         //删除缓存
         RedisUtil.del("user::" + old.getUsername());
-        return new ResultUtil<>().setData(200,"注册成功！");
+        return new ResultUtil<>().setData(200,"修改成功！");
     }
 
 

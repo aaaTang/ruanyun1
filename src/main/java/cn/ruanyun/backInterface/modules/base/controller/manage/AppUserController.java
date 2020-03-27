@@ -9,6 +9,7 @@ import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -56,16 +57,11 @@ public class AppUserController {
      * 获取个人信息
      * @return
      */
-    @PostMapping("/getAppUserInfo")
+    @GetMapping("/getAppUserInfo")
     public Result<Object> getAppUserInfo() {
 
-        try {
+        return new ResultUtil<>().setData(userService.getAppUserInfo(), "获取个人信息成功！");
 
-            return new ResultUtil<>().setData(userService.getAppUserInfo(), "获取个人信息成功！");
-        }catch (Exception e) {
-
-            return new ResultUtil<>().setErrorMsg(201, e.getMessage());
-        }
     }
 
     /**

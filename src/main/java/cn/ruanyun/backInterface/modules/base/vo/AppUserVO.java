@@ -37,37 +37,37 @@ public class AppUserVO {
     /**
      * 我的收藏数量
      */
-    private Long myCollectNum;
+    private Long myCollectNum = 0L;
 
 
     /**
      * 我的足迹数量
      */
-    private Long myFootprintNum;
+    private Long myFootprintNum = 0L;
 
 
     /**
      * 我的粉丝数量
      */
-    private Long myFansNum;
+    private Long myFansNum = 0L;
 
 
     /**
      * 我的关注数量
      */
-    private Long myAttentionNum;
+    private Long myAttentionNum = 0L;
 
 
     /**
      * 我的余额
      */
-    private BigDecimal myBalance;
+    private BigDecimal myBalance = new BigDecimal(0);
 
 
     /**
      * 我的额度
      */
-    private BigDecimal myLimit;
+    private BigDecimal myLimit = new BigDecimal(0);
 
 
 }
