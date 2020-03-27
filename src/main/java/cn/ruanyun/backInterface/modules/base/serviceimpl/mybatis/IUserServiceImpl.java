@@ -80,7 +80,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         if (ToolUtil.isNotEmpty(this.getOne(Wrappers.<User>lambdaQuery()
                 .eq(User::getMobile, user.getMobile())))) {
 
-            return new ResultUtil<>().setErrorMsg(201, "改手机号已注册过==！");
+            return new ResultUtil<>().setErrorMsg(201, "该手机号已注册过==！");
         }
 
         //2.判断验证码是否失效(默认时间5分钟)

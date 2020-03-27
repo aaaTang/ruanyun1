@@ -84,11 +84,6 @@ public class StoreAudit extends RuanyunBaseEntity {
      */
     private String latitude;
 
-    /**
-     * 店铺轮播图
-     */
-    @Column(length = 1000)
-    private String  pic ;
 
     /**
      * 审核意见

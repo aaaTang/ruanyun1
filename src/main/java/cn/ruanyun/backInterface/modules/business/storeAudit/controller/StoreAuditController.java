@@ -80,17 +80,9 @@ public class StoreAuditController {
     }
 
     /**
-     * 审核申请记录
+     * 审核申请
      */
     @PostMapping("/checkStoreAudit")
     public Result<Object> checkStoreAudit(StoreAuditDTO storeAuditDTO){return iStoreAuditService.checkStoreAudit(storeAuditDTO);}
-
-    /**
-     * 插入申请
-     */
-    @PostMapping("/addApply")
-    public Result<Object> addApply(StoreAudit storeAudit){return iStoreAuditService.addApply(storeAudit);}
-
-
 
 }

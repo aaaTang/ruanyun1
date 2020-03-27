@@ -44,10 +44,4 @@ public interface IStoreAuditService extends IService<StoreAudit> {
      */
     List<StoreAuditVO> getStoreAuditList(StoreAuditDTO storeAuditDTO);
 
-    /**
-     * 插入申请
-     * @param storeAudit
-     * @return
-     */
-    Result<Object> addApply(StoreAudit storeAudit);
 }
