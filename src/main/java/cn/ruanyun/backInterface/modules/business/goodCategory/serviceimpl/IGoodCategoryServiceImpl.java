@@ -159,7 +159,8 @@ public class IGoodCategoryServiceImpl extends ServiceImpl<GoodCategoryMapper, Go
 
                         //封装一级分类数据
                         goodCategoryListVO.setParentId(k)
-                                .setParentName(this.getById(k).getTitle());
+                                .setParentName(Optional.ofNullable(super.getById(k)).map(GoodCategory::getTitle)
+                                .orElse("暂无！"));
 
                         //分装二级数据
                         goodCategoryListVO.setGoodCategorySonVOS(v.parallelStream().flatMap(goodCategory -> {
