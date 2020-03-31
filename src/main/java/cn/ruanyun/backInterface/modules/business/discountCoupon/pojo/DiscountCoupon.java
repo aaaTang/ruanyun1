@@ -1,15 +1,14 @@
 package cn.ruanyun.backInterface.modules.business.discountCoupon.pojo;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
-import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
 import cn.ruanyun.backInterface.common.enums.DisCouponTypeEnum;
+import cn.ruanyun.backInterface.common.enums.DisCouponUseTypeEnum;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 /**
  * 优惠券
@@ -23,39 +22,45 @@ public class DiscountCoupon extends RuanyunBaseEntity {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 指定商品id
+     */
+    private String goodId;
+
 
     /**
-     * 名称
+     * 标题
      */
     private String title;
 
-    /**
-     * 优惠券类型
-     */
-    private DisCouponTypeEnum disCouponType;
-
-    /**
-     * 商品id
-     */
-    private String goodsPackageId;
 
     /**
      * 满多少
      */
     private BigDecimal fullMoney;
 
+
     /**
      * 减多少
      */
-    private BigDecimal subtractMoney;
+    private BigDecimal subMoney;
+
 
     /**
-     * 有效期
+     * 有效时间
      */
-    private LocalDateTime validityPeriod;
+    private String validTime;
+
 
     /**
-     * 是否过期
+     * 优惠券类型
      */
-    private BooleanTypeEnum pastDue = BooleanTypeEnum.NO;
+    private DisCouponTypeEnum disCouponType;
+
+
+    /**
+     * 优惠券使用状态
+     */
+    private DisCouponUseTypeEnum disCouponUseTypeEnum;
+
 }

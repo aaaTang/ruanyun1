@@ -74,4 +74,10 @@ public class Good extends RuanyunBaseEntity {
     private Integer inventory;
 
 
+    /**
+     * 积分
+     */
+    private Integer integral;
+
+
 }

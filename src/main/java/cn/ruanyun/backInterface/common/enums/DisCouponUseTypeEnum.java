@@ -4,47 +4,30 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * @program: xboot-plus
- * @description: 订单状态枚举
+ * 优惠券类型
+ * @program: ruanyun
+ * @description:
  * @author: fei
- * @create: 2020-02-13 14:45
+ * @create: 2020-02-13 11:29
  **/
-public enum OrderStatusEnum {
-
-
-    /**
-     * 待付款
-     */
-    PRE_PAY(1,"待付款"),
+public enum DisCouponUseTypeEnum {
 
     /**
-     * 已付款
+     * 待使用
      */
-    PRE_SEND(2,"已付款"),
+    PRE_USE(1,"待使用"),
 
     /**
-     * 待评价
+     * 已使用
      */
-    PRE_COMMENT(4,"待评价"),
+    HAVE_USE(2,"已使用"),
 
     /**
-     * 退款售后
+     * 已失效
      */
-    SALE_AFTER(5,"退款售后"),
+    HAVE_VALID(3,"已失效");
 
-    /**
-     * 取消订单
-     */
-    CANCEL_ORDER(6,"取消订单"),
-
-    /**
-     * 完成订单
-     */
-    IS_COMPLETE(7,"完成订单");
-
-
-
-     OrderStatusEnum(int code, String value) {
+    DisCouponUseTypeEnum(int code, String value) {
         this.code = code;
         this.value = value;
     }
@@ -67,3 +50,4 @@ public enum OrderStatusEnum {
     private  String value;
 
 }
+

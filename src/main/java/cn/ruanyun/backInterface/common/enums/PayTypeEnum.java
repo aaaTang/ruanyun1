@@ -4,47 +4,33 @@ import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
- * @program: xboot-plus
- * @description: 订单状态枚举
+ * 支付方式
+ * @program: ruanyun
+ * @description:
  * @author: fei
- * @create: 2020-02-13 14:45
+ * @create: 2020-02-13 11:29
  **/
-public enum OrderStatusEnum {
+public enum PayTypeEnum {
+
+    /**
+     * 微信支付
+     */
+    WE_CHAT(1,"微信支付"),
 
 
     /**
-     * 待付款
+     * 微信支付
      */
-    PRE_PAY(1,"待付款"),
+    ALI_PAY(2,"支付宝支付"),
+
 
     /**
-     * 已付款
+     * 余额支付
      */
-    PRE_SEND(2,"已付款"),
-
-    /**
-     * 待评价
-     */
-    PRE_COMMENT(4,"待评价"),
-
-    /**
-     * 退款售后
-     */
-    SALE_AFTER(5,"退款售后"),
-
-    /**
-     * 取消订单
-     */
-    CANCEL_ORDER(6,"取消订单"),
-
-    /**
-     * 完成订单
-     */
-    IS_COMPLETE(7,"完成订单");
+    BALANCE(3, "余额支付");
 
 
-
-     OrderStatusEnum(int code, String value) {
+    PayTypeEnum(int code, String value) {
         this.code = code;
         this.value = value;
     }
@@ -67,3 +53,4 @@ public enum OrderStatusEnum {
     private  String value;
 
 }
+

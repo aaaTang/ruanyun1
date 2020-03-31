@@ -1,6 +1,5 @@
 package cn.ruanyun.backInterface.modules.business.good.VO;
 
-import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -57,9 +56,9 @@ public class AppGoodDetailVO {
     private Integer inventory;
 
 
-    /**
+/*    *//**
      * 優惠券
-     */
-    private List<DiscountCouponListVO> discountCouponListVOS;
+     *//*
+    private List<DiscountCouponListVO> discountCouponListVOS;*/
 
 }

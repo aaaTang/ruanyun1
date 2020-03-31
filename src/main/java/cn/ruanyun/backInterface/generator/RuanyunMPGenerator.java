@@ -25,13 +25,13 @@ public class RuanyunMPGenerator {
      * 实体类名
      * 建议仅需修改
      */
-    private static final String className = "SelectStore";
+    private static final String className = "bookingOrder";
 
     /**
      * 类说明描述
      * 建议仅需修改
      */
-    private static final String description = "商品";
+    private static final String description = "预约订单";
 
     /**
      * 作者名
@@ -54,31 +54,31 @@ public class RuanyunMPGenerator {
      * 实体类对应包
      * (文件自动生成至该包下)
      */
-    private static final String entityPackage = "cn.ruanyun.backInterface.modules.business.selectStore.pojo";
+    private static final String entityPackage = "cn.ruanyun.backInterface.modules.business.bookingOrder.pojo";
 
     /**
      * dao对应包
      * (文件自动生成至该包下)
      */
-    private static final String daoPackage = "cn.ruanyun.backInterface.modules.business.selectStore.mapper";
+    private static final String daoPackage = "cn.ruanyun.backInterface.modules.business.bookingOrder.mapper";
 
     /**
      * service对应包
      * (文件自动生成至该包下)
      */
-    private static final String servicePackage = "cn.ruanyun.backInterface.modules.business.selectStore.service";
+    private static final String servicePackage = "cn.ruanyun.backInterface.modules.business.bookingOrder.service";
 
     /**
      * serviceImpl对应包
      * (文件自动生成至该包下)
      */
-    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.business.selectStore.serviceimpl";
+    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.business.bookingOrder.serviceimpl";
 
     /**
      * controller对应包
      * (文件自动生成至该包下)
      */
-    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.business.selectStore.controller";
+    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.business.bookingOrder.controller";
 
     /**
      * 运行该主函数即可生成代码

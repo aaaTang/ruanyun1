@@ -1,8 +1,8 @@
-package cn.ruanyun.backInterface.modules.business.order.serviceimpl;
+package cn.ruanyun.backInterface.modules.business.myCollect.serviceimpl;
 
-import cn.ruanyun.backInterface.modules.business.order.mapper.OrderMapper;
-import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
-import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
+import cn.ruanyun.backInterface.modules.business.myCollect.mapper.myCollectMapper;
+import cn.ruanyun.backInterface.modules.business.myCollect.pojo.myCollect;
+import cn.ruanyun.backInterface.modules.business.myCollect.service.ImyCollectService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,37 +17,37 @@ import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 
 
 /**
- * 订单接口实现
+ * 我的收藏接口实现
  * @author fei
  */
 @Slf4j
 @Service
 @Transactional
-public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements IOrderService {
+public class ImyCollectServiceImpl extends ServiceImpl<myCollectMapper, myCollect> implements ImyCollectService {
 
 
        @Autowired
        private SecurityUtil securityUtil;
 
        @Override
-       public void insertOrderUpdateOrder(Order order) {
+       public void insertOrderUpdatemyCollect(myCollect myCollect) {
 
-           if (ToolUtil.isEmpty(order.getCreateBy())) {
+           if (ToolUtil.isEmpty(myCollect.getCreateBy())) {
 
-                       order.setCreateBy(securityUtil.getCurrUser().getId());
+                       myCollect.setCreateBy(securityUtil.getCurrUser().getId());
                    }else {
 
-                       order.setUpdateBy(securityUtil.getCurrUser().getId());
+                       myCollect.setUpdateBy(securityUtil.getCurrUser().getId());
                    }
 
 
-                   Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(order)))
+                   Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(myCollect)))
                            .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
                            .toFuture().join();
        }
 
       @Override
-      public void removeOrder(String ids) {
+      public void removemyCollect(String ids) {
 
           CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
       }

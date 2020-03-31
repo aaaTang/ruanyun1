@@ -1,9 +1,9 @@
-package cn.ruanyun.backInterface.modules.business.order.controller;
+package cn.ruanyun.backInterface.modules.business.comment.controller;
 
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
-import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
+import cn.ruanyun.backInterface.modules.business.comment.pojo.Common;
+import cn.ruanyun.backInterface.modules.business.comment.service.ICommonService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -13,29 +13,29 @@ import java.util.List;
 
 /**
  * @author fei
- * 订单管理接口
+ * 评价管理接口
  */
 @Slf4j
 @RestController
-@RequestMapping("/ruanyun/order")
+@RequestMapping("/ruanyun/common")
 @Transactional
-public class OrderController {
+public class CommonController {
 
     @Autowired
-    private IOrderService iOrderService;
+    private ICommonService iCommonService;
 
 
    /**
      * 更新或者插入数据
-     * @param order
+     * @param common
      * @return
     */
-    @PostMapping(value = "/insertOrderUpdateOrder")
-    public Result<Object> insertOrderUpdateOrder(Order order){
+    @PostMapping(value = "/insertOrderUpdateCommon")
+    public Result<Object> insertOrderUpdateCommon(Common common){
 
         try {
 
-            iOrderService.insertOrderUpdateOrder(order);
+            iCommonService.insertOrderUpdateCommon(common);
             return new ResultUtil<>().setSuccessMsg("插入或者更新成功!");
         }catch (Exception e) {
 
@@ -49,12 +49,12 @@ public class OrderController {
      * @param ids
      * @return
     */
-    @PostMapping(value = "/removeOrder")
-    public Result<Object> removeOrder(String ids){
+    @PostMapping(value = "/removeCommon")
+    public Result<Object> removeCommon(String ids){
 
         try {
 
-            iOrderService.removeOrder(ids);
+            iCommonService.removeCommon(ids);
             return new ResultUtil<>().setSuccessMsg("移除成功！");
         }catch (Exception e) {
 

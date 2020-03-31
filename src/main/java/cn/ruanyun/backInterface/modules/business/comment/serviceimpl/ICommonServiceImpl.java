@@ -1,8 +1,8 @@
-package cn.ruanyun.backInterface.modules.business.order.serviceimpl;
+package cn.ruanyun.backInterface.modules.business.comment.serviceimpl;
 
-import cn.ruanyun.backInterface.modules.business.order.mapper.OrderMapper;
-import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
-import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
+import cn.ruanyun.backInterface.modules.business.comment.mapper.CommonMapper;
+import cn.ruanyun.backInterface.modules.business.comment.pojo.Common;
+import cn.ruanyun.backInterface.modules.business.comment.service.ICommonService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,37 +17,37 @@ import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 
 
 /**
- * 订单接口实现
+ * 评价接口实现
  * @author fei
  */
 @Slf4j
 @Service
 @Transactional
-public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements IOrderService {
+public class ICommonServiceImpl extends ServiceImpl<CommonMapper, Common> implements ICommonService {
 
 
        @Autowired
        private SecurityUtil securityUtil;
 
        @Override
-       public void insertOrderUpdateOrder(Order order) {
+       public void insertOrderUpdateCommon(Common common) {
 
-           if (ToolUtil.isEmpty(order.getCreateBy())) {
+           if (ToolUtil.isEmpty(common.getCreateBy())) {
 
-                       order.setCreateBy(securityUtil.getCurrUser().getId());
+                       common.setCreateBy(securityUtil.getCurrUser().getId());
                    }else {
 
-                       order.setUpdateBy(securityUtil.getCurrUser().getId());
+                       common.setUpdateBy(securityUtil.getCurrUser().getId());
                    }
 
 
-                   Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(order)))
+                   Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(common)))
                            .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
                            .toFuture().join();
        }
 
       @Override
-      public void removeOrder(String ids) {
+      public void removeCommon(String ids) {
 
           CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
       }

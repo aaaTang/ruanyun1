@@ -1,9 +1,11 @@
 package cn.ruanyun.backInterface.modules.business.good.serviceimpl;
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.utils.SecurityUtil;
+import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
+import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.business.color.service.IcolorService;
-import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
 import cn.ruanyun.backInterface.modules.business.good.DTO.GoodDTO;
 import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodDetailVO;
 import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodInfoVO;
@@ -11,8 +13,6 @@ import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodListVO;
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
-import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
-import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
 import cn.ruanyun.backInterface.modules.business.size.service.IsizeService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -20,7 +20,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.Comparator;
 import java.util.List;
@@ -28,12 +29,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
-import cn.ruanyun.backInterface.common.utils.ToolUtil;
-import cn.ruanyun.backInterface.common.utils.SecurityUtil;
-import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 
 
 /**
@@ -56,12 +51,6 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
        @Autowired
        private IsizeService sizeService;
-
-       @Autowired
-       private ICommentService commentService;
-
-       @Autowired
-       private IOrderService orderService;
 
 
 
@@ -113,10 +102,10 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                     .orElse("暂无"));
 
                     // TODO: 2020/3/27 其他信息
-                    appGoodListVO.setSaleVolume(orderService.getGoodSalesVolume(good.getId()))
+                    /*appGoodListVO.setSaleVolume(orderService.getGoodSalesVolume(good.getId()))
                             .setCommentNum(Optional.ofNullable(commentService.getCommentVOByGoodId(good.getId()))
                             .map(List::size)
-                            .orElse(0));
+                            .orElse(0));*/
 
                     return appGoodListVO;
 
@@ -228,7 +217,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
             .splitterStr(good.getGoodDetails()))).orElse(null));
 
             // TODO: 2020/3/27 商品优惠券
-            goodDetailVO.setDiscountCouponListVOS(null);
+            //goodDetailVO.setDiscountCouponListVOS(null);
 
             return goodDetailVO;
         }).orElse(null);
