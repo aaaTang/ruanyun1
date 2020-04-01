@@ -1,11 +1,11 @@
-package cn.ruanyun.backInterface.modules.business.myCollect.controller;
+package cn.ruanyun.backInterface.modules.business.myFootprint.controller;
 
 import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.modules.business.myCollect.pojo.myCollect;
-import cn.ruanyun.backInterface.modules.business.myCollect.service.ImyCollectService;
+import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
+import cn.ruanyun.backInterface.modules.business.myFootprint.service.IMyFootprintService;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,30 +17,30 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * @author fei
- * 我的收藏管理接口
+ * @author zhu
+ * 用户足迹管理接口
  */
 @Slf4j
 @RestController
-@RequestMapping("/ruanyun/myCollect")
+@RequestMapping("/ruanyun/myFootprint")
 @Transactional
-public class myCollectController {
+public class MyFootprintController {
 
     @Autowired
-    private ImyCollectService imyCollectService;
+    private IMyFootprintService iMyFootprintService;
 
 
    /**
-         * 更新或者插入数据
-     * @param myCollect
+     * 更新或者插入数据
+     * @param myFootprint
      * @return
     */
-    @PostMapping(value = "/insertOrderUpdatemyCollect")
-    public Result<Object> insertOrderUpdatemyCollect(myCollect myCollect){
+    @PostMapping(value = "/insertOrderUpdateMyFootprint")
+    public Result<Object> insertOrderUpdateMyFootprint(MyFootprint myFootprint){
 
         try {
 
-            imyCollectService.insertOrderUpdatemyCollect(myCollect);
+            iMyFootprintService.insertOrderUpdateMyFootprint(myFootprint);
             return new ResultUtil<>().setSuccessMsg("插入或者更新成功!");
         }catch (Exception e) {
 
@@ -54,12 +54,12 @@ public class myCollectController {
      * @param ids
      * @return
     */
-    @PostMapping(value = "/removemyCollect")
-    public Result<Object> removemyCollect(String ids){
+    @PostMapping(value = "/removeMyFootprint")
+    public Result<Object> removeMyFootprint(String ids){
 
         try {
 
-            imyCollectService.removemyCollect(ids);
+            iMyFootprintService.removeMyFootprint(ids);
             return new ResultUtil<>().setSuccessMsg("移除成功！");
         }catch (Exception e) {
 
@@ -69,22 +69,23 @@ public class myCollectController {
 
 
     /**
-     * 用户收藏商品列表
+     * 获取用户足迹列表
      * @param pageVo
      * @return
      */
-    @PostMapping("/myCollectList")
-    public Result<Object> myCollectList(PageVo pageVo) {
+    @PostMapping("/MyFootprintList")
+    public Result<Object> MyFootprintList(PageVo pageVo) {
 
-        return Optional.ofNullable(imyCollectService.myCollectList())
-                .map(myCollect -> {
+        return Optional.ofNullable(iMyFootprintService.MyFootprintList())
+                .map(myf -> {
 
                     Map<String,Object> result = Maps.newHashMap();
-                    result.put("size",myCollect.size());
-                    result.put("data", PageUtil.listToPage(pageVo,myCollect));
+                    result.put("size",myf.size());
+                    result.put("data", PageUtil.listToPage(pageVo,myf));
 
-                    return new ResultUtil<>().setData(result,"获取用户收藏商品列表成功！");
+                    return new ResultUtil<>().setData(result,"获取用户足迹列表成功！");
                 }).orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
+
 
 }

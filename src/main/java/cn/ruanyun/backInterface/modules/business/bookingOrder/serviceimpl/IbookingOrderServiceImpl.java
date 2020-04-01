@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.bookingOrder.serviceimpl;
 
+import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.BookingOrderVO;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.mapper.bookingOrderMapper;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.pojo.bookingOrder;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.service.IbookingOrderService;
@@ -8,12 +9,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
+
+import javax.annotation.Resource;
 
 
 /**
@@ -28,6 +33,9 @@ public class IbookingOrderServiceImpl extends ServiceImpl<bookingOrderMapper, bo
 
        @Autowired
        private SecurityUtil securityUtil;
+
+       @Resource
+       private bookingOrderMapper ibookingOrderMapper;
 
        @Override
        public void insertOrderUpdatebookingOrder(bookingOrder bookingOrder) {
@@ -51,4 +59,16 @@ public class IbookingOrderServiceImpl extends ServiceImpl<bookingOrderMapper, bo
 
           CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
       }
+
+    /**
+     * 获取预约订单列表
+     */
+        public List<BookingOrderVO> bookingOrderList(String classId){
+
+            List<BookingOrderVO> List = ibookingOrderMapper.bookingOrderList(securityUtil.getCurrUser().getId(),classId);
+            /*评论数量，评分未写*/
+           return List;
+        }
+
+
 }

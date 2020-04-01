@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.myCollect.service;
 
+import cn.ruanyun.backInterface.modules.business.myCollect.VO.MyCollectListVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.myCollect.pojo.myCollect;
 
@@ -25,4 +26,9 @@ public interface ImyCollectService extends IService<myCollect> {
        * @param ids
        */
      void removemyCollect(String ids);
+
+    /**
+     * 用户收藏商品列表数据
+     */
+     List<MyCollectListVO> myCollectList();
 }

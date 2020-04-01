@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.bookingOrder.service;
 
+import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.BookingOrderVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.pojo.bookingOrder;
 
@@ -25,4 +26,9 @@ public interface IbookingOrderService extends IService<bookingOrder> {
        * @param ids
        */
      void removebookingOrder(String ids);
+
+    /**
+     * 获取预约订单列表
+     */
+     List<BookingOrderVO> bookingOrderList(String classId);
 }
