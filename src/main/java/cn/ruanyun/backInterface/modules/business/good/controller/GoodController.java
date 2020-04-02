@@ -114,4 +114,24 @@ public class GoodController {
                 .orElse(new ResultUtil<>().setErrorMsg(201, "不存在该数据！"));
     }
 
+
+    /**
+     * app获取商家详情商品列表
+     * @param goodDTO
+     * @param pageVo
+     * @return
+     */
+    /*@PostMapping("/getAppGoodList")
+    public Result<Object> getAppGoodList(GoodDTO goodDTO, PageVo pageVo) {
+
+        return Optional.ofNullable(iGoodService.getAppGoodList(goodDTO))
+                .map(goodListVOS -> {
+                    Map<String,Object> result = Maps.newHashMap();
+                    result.put("size",goodListVOS.size());
+                    result.put("data", PageUtil.listToPage(pageVo,goodListVOS));
+                    return new ResultUtil<>().setData(result,"获取数据成功！");
+                })
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }*/
+
 }

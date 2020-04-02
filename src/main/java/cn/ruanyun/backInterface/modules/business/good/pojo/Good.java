@@ -1,7 +1,11 @@
 package cn.ruanyun.backInterface.modules.business.good.pojo;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
+import cn.ruanyun.backInterface.common.utils.ToolUtil;
+import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.annotation.TableName;
+import dm.jdbc.stat.support.json.JSONArray;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -78,6 +82,20 @@ public class Good extends RuanyunBaseEntity {
      * 积分
      */
     private Integer integral;
+
+
+    public static void main(String[] args) {
+        String s = "[{\"sizeId\":\"256005326325682176\",\"buyCount\":5,\"colorId\":\"256004810652782592\",\"goodId\":\"1243581862115827714\"},{\"sizeId\":\"256005326325682176\",\"buyCount\":5,\"colorId\":\"256004810652782592\",\"goodId\":\"1243581862115827714\"}]";
+        JSONArray jsonArray = new JSONArray(s);
+        for (int i = 0; i < jsonArray.length(); i++) {
+           /* OrderDetail orderDetail = JSON.parseObject(jsonArray.get(i).toString(), OrderDetail.class);
+            orderDetail.setOrderId(order.getId());
+            Good byId = goodService.getById(orderDetail.getGoodId());
+            byId.setId(null);
+            ToolUtil.copyProperties(byId,orderDetail);
+            orderDetailService.insertOrderUpdateOrderDetail(orderDetail);*/
+        }
+    }
 
 
 }

@@ -295,9 +295,22 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
-
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-extension</artifactId>
+            <version>3.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dameng</groupId>
+            <artifactId>Dm7JdbcDriver17</artifactId>
+            <version>7.6.0.77</version>
+        </dependency>
+        <!-- <dependency>
+             <groupId>com.baomidou</groupId>
+             <artifactId>mybatis-plus-extension</artifactId>
+             <version>3.1.0</version>
+         </dependency>-->
     </dependencies>
-
 
     <build>
         <plugins>

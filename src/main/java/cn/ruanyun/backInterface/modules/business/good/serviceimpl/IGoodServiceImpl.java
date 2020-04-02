@@ -10,6 +10,7 @@ import cn.ruanyun.backInterface.modules.business.good.DTO.GoodDTO;
 import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodDetailVO;
 import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodInfoVO;
 import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodListVO;
+import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodOrderVO;
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
@@ -265,6 +266,44 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
         return Optional.ofNullable(this.getById(id)).map(Good::getGoodName)
                 .orElse("组合商品");
+    }
+
+    /**
+     * 获取商品积分
+     * @param id
+     * @return
+     */
+    @Override
+    public Integer getGoodIntegral(String id) {
+
+        return Optional.ofNullable(this.getById(id)).map(Good::getIntegral)
+                .orElse(0);
+    }
+
+    /**
+     * 获取商品购买信息
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public AppGoodOrderVO getAppGoodOrder(String id,String color,String size) {
+
+        return Optional.ofNullable(super.getById(id))
+                .map(good -> {
+                    AppGoodOrderVO appGoodOrderVO = new AppGoodOrderVO();
+                    ToolUtil.copyProperties(good, appGoodOrderVO);
+
+                    //1.商品图片
+                    appGoodOrderVO.setGoodPic(Optional.ofNullable(ToolUtil.setListToNul(ToolUtil.splitterStr(good.getGoodPics())))
+                            .map(pics -> pics.get(0))
+                            .orElse("暂无"));
+
+                    //2.商品颜色尺寸
+                    appGoodOrderVO.setColor(colorService.getById(color).getTitle())
+                            .setSize(sizeService.getById(size).getName());
+                    return appGoodOrderVO;
+                }).orElse(null);
     }
 
 }
