@@ -171,9 +171,12 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     public Result<Object> updateAppUserInfo(User u){
         return Optional.ofNullable(super.getById(u.getId()))
                 .map(user -> {
-
+                    user.setId(null);
+                    ToolUtil.copyProperties(u,user);
                     super.saveOrUpdate(user);
-                    return new ResultUtil<>().setSuccessMsg("修改成功！");
+                    //3.可以登录
+                    String token = securityUtil.getToken(user.getUsername(), true);
+                    return new ResultUtil<>().setData(token,"修改成功！");
                 }).orElse(new ResultUtil<>().setErrorMsg(201, "当前用户不存在！"));
     }
 
