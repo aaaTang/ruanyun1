@@ -79,9 +79,11 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
      * @param ids
      */
     @Override
-    public void removeShoppingCart(String ids) {
+    public void removeShoppingCart(String[] ids) {
 
-        CompletableFuture.runAsync(() -> ToolUtil.splitterStr(ids).parallelStream().forEach(this::removeById));
+        CompletableFuture.runAsync(() -> {
+                for(String id : ids){this.removeById(id);}
+                });
     }
 
     /**
@@ -124,7 +126,9 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
                     shoppingCartVO.setPic(goodService.getPicLimit1(shoppingCart.getGoodId()))
                             .setSizeName(sizeService.getSizeName(shoppingCart.getSizeId()))
                             .setColorName(colorService.getColorName(shoppingCart.getColorId()))
-                            .setName(goodService.getGoodName(shoppingCart.getGoodId()));
+                            .setName(goodService.getGoodName(shoppingCart.getGoodId()))
+                            .setGoodPrice(goodService.getGoodPrice(shoppingCart.getGoodId()))
+                            .setInventory(goodService.getInventory(shoppingCart.getGoodId()));
 
                     return Stream.of(shoppingCartVO);
                 }).collect(Collectors.toList())).orElse(null));

@@ -9,6 +9,7 @@ import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @Accessors(chain = true)
@@ -50,6 +51,6 @@ public class ShowOrderVO {
     private Integer integral;
 
     //确认下单的时候需要传的商品的数据
-    private String goods;
+    private  String goods;
 
 }

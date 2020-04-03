@@ -19,7 +19,7 @@ public enum PayTypeEnum {
 
 
     /**
-     * 微信支付
+     * 支付宝支付
      */
     ALI_PAY(2,"支付宝支付"),
 

@@ -8,6 +8,7 @@ import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodOrderVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -91,5 +92,20 @@ public interface IGoodService extends IService<Good> {
      * @return
      */
     AppGoodOrderVO getAppGoodOrder(String id,String color,String size);
+
+    /**
+     * 获取商品单价
+     * @param id
+     * @return
+     */
+    BigDecimal getGoodPrice(String  id);
+
+    /**
+     * 获取商品库存
+     * @param id
+     * @return
+     */
+    Integer getInventory(String  id);
+
 
 }

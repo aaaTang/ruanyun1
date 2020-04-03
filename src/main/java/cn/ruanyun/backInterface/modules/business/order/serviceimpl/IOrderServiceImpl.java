@@ -83,9 +83,11 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
            harvestAddress.setId(null);
            ToolUtil.copyProperties(harvestAddress,order);
            //下单的优惠信息
-           DiscountCoupon discountCoupon = discountCouponService.getById(orderDTO.getDiscountCouponId());
-           discountCoupon.setId(null);
-           ToolUtil.copyProperties(discountCoupon,order);
+           if(ToolUtil.isNotEmpty(orderDTO.getDiscountCouponId())){
+               DiscountCoupon discountCoupon = discountCouponService.getById(orderDTO.getDiscountCouponId());
+               discountCoupon.setId(null);
+               ToolUtil.copyProperties(discountCoupon,order);
+           }
 
            //"[{"sizeId":"256005326325682176","buyCount":5,"colorId":"256004810652782592","goodId":"1243581862115827714"},{"sizeId":"256005326325682176","buyCount":5,"colorId":"256004810652782592","goodId":"1243581862115827714"}]"
            JSONArray jsonArray = new JSONArray(orderDTO.getGoods().toString());

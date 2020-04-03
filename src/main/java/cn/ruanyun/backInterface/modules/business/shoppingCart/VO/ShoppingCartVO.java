@@ -52,4 +52,13 @@ public class ShoppingCartVO {
      */
     private BigDecimal totalPrice;
 
+    /**
+     * 商品单价
+     */
+    private BigDecimal goodPrice;
+    /**
+     * 商品库存
+     */
+    private Integer inventory;
+
 }

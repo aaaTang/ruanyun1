@@ -5,6 +5,7 @@ import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import cn.ruanyun.backInterface.modules.business.color.entity.Color;
 import cn.ruanyun.backInterface.modules.business.color.service.IcolorService;
 import cn.ruanyun.backInterface.modules.business.good.DTO.GoodDTO;
 import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodDetailVO;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -281,6 +283,30 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     }
 
     /**
+     * 获取商品单价
+     * @param id
+     * @return
+     */
+    @Override
+    public BigDecimal getGoodPrice(String id) {
+
+        return Optional.ofNullable(this.getById(id)).map(Good::getGoodNewPrice)
+                .orElse(BigDecimal.valueOf(0));
+    }
+
+    /**
+     * 获取商品库存
+     * @param id
+     * @return
+     */
+    @Override
+    public Integer getInventory(String id) {
+
+        return Optional.ofNullable(this.getById(id)).map(Good::getInventory)
+                .orElse(0);
+    }
+
+    /**
      * 获取商品购买信息
      *
      * @param id
@@ -300,10 +326,14 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                             .orElse("暂无"));
 
                     //2.商品颜色尺寸
-                    appGoodOrderVO.setColor(colorService.getById(color).getTitle())
-                            .setSize(sizeService.getById(size).getName());
+                    if(ToolUtil.isNotEmpty(color)){
+                        appGoodOrderVO.setColor(colorService.getById(color).getTitle());
+                    }
+                    appGoodOrderVO.setSize(sizeService.getById(size).getName());
                     return appGoodOrderVO;
                 }).orElse(null);
     }
+
+
 
 }

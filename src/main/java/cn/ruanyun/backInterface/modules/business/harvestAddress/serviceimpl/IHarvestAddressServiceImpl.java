@@ -99,10 +99,11 @@ public class IHarvestAddressServiceImpl extends ServiceImpl<HarvestAddressMapper
     @Override
     public List<HarvestAddressVO> getAddressList() {
 
+        String currentUser = securityUtil.getCurrUser().getId();
         //1.获取封装之前的数据
         CompletableFuture<Optional<List<HarvestAddress>>> harvestAddressLists = CompletableFuture.supplyAsync(() ->
                 Optional.ofNullable(this.list(Wrappers.<HarvestAddress>lambdaQuery()
-                .eq(HarvestAddress::getCreateBy,securityUtil.getCurrUser().getId())
+                .eq(HarvestAddress::getCreateBy,currentUser)
                 .orderByDesc(HarvestAddress::getCreateTime))));
 
         //2.获取封装之后的数据

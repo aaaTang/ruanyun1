@@ -23,7 +23,7 @@ public interface IShoppingCartService extends IService<ShoppingCart> {
      * 移除购物车
      * @param ids
      */
-    void removeShoppingCart(String ids);
+    void removeShoppingCart(String[] ids);
 
 
     /**
