@@ -3,6 +3,7 @@ package cn.ruanyun.backInterface.modules.business.harvestAddress.controller;
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.entity.HarvestAddress;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.service.IHarvestAddressService;
@@ -38,7 +39,7 @@ public class HarvestAddressController {
     @PostMapping("/insertAddress")
     public Result<Object> insertAddress(HarvestAddress harvestAddress) {
 
-        //不能重复添加默认地址
+      /*  //不能重复添加默认地址
         if (CommonConstant.YES.equals(harvestAddress.getDefaultAddress())) {
             return Optional.ofNullable(iHarvestAddressService.getMyDefaultAddress())
                     .map(harvestAddressVO -> new ResultUtil<>().setErrorMsg(201,"已有默认地址！"))
@@ -49,7 +50,32 @@ public class HarvestAddressController {
         }
 
         iHarvestAddressService.insertAddress(harvestAddress);
-        return new ResultUtil<>().setSuccessMsg("插入成功！");
+        return new ResultUtil<>().setSuccessMsg("插入成功！");*/
+
+
+        //不能重复添加默认地址
+        if (CommonConstant.YES.equals(harvestAddress.getDefaultAddress())) {
+            return Optional.ofNullable(iHarvestAddressService.getMyDefaultAddress())
+                    .map(harvestAddressVO -> {
+
+                        iHarvestAddressService.insertAddress(harvestAddress);
+
+                        //把默认地址改成普通地址
+                        HarvestAddress harvestAdd = new HarvestAddress();
+                        harvestAdd.setId(harvestAddressVO.getId());
+                        harvestAdd.setDefaultAddress(CommonConstant.NO);
+                        iHarvestAddressService.updateAddress(harvestAdd);
+
+                        return new ResultUtil<>().setSuccessMsg("新增成功！");
+                    }).orElseGet(() -> {
+                        iHarvestAddressService.insertAddress(harvestAddress);
+                        return new ResultUtil<>().setSuccessMsg("新增成功！");
+                    });
+
+        }
+
+        iHarvestAddressService.insertAddress(harvestAddress);
+        return new ResultUtil<>().setSuccessMsg("新增成功！");
     }
 
 
@@ -80,8 +106,16 @@ public class HarvestAddressController {
         //不能重复添加默认地址
         if (CommonConstant.YES.equals(harvestAddress.getDefaultAddress())) {
             return Optional.ofNullable(iHarvestAddressService.getMyDefaultAddress())
-                    .map(harvestAddressVO -> new ResultUtil<>().setErrorMsg(201,"已有默认地址！"))
-                    .orElseGet(() -> {
+                    .map(harvestAddressVO -> {
+                        //把默认地址改成普通地址
+                        HarvestAddress harvestAdd = new HarvestAddress();
+                        harvestAdd.setId(harvestAddressVO.getId());
+                        harvestAdd.setDefaultAddress(CommonConstant.NO);
+                        iHarvestAddressService.updateAddress(harvestAdd);
+
+                        iHarvestAddressService.updateAddress(harvestAddress);
+                        return new ResultUtil<>().setSuccessMsg("更新成功！");
+                    }).orElseGet(() -> {
                         iHarvestAddressService.updateAddress(harvestAddress);
                         return new ResultUtil<>().setSuccessMsg("更新成功！");
                     });

@@ -7,6 +7,8 @@ import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import cn.ruanyun.backInterface.modules.business.balance.pojo.Balance;
+import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.pojo.DiscountCoupon;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
 import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodOrderVO;
@@ -25,6 +27,7 @@ import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
 import cn.ruanyun.backInterface.modules.business.orderDetail.service.IOrderDetailService;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
 import com.alibaba.fastjson.JSON;
+import com.google.api.client.util.ArrayMap;
 import dm.jdbc.stat.support.json.JSONArray;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -69,6 +72,8 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
        private IOrderDetailService orderDetailService;
        @Autowired
        private IUserService userService;
+       @Autowired
+       private IBalanceService iBalanceService;
 
        @Override
        public Result<Object> insertOrderUpdateOrder(OrderDTO orderDTO) {
@@ -105,7 +110,11 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                    .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
                    .toFuture().join();
 
-           return new ResultUtil<>().setData(order.getId(),"插入或者更新成功!");
+
+           Map<String,Object> map = new ArrayMap<>();
+           map.put("id",order.getId());
+           map.put("Balance", userService.getAccountBalance());
+           return new ResultUtil<>().setData(map,"插入或者更新成功!");
        }
 
     /**
@@ -128,17 +137,37 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         //余额支付
         }else if (payTypeEnum.getCode() == 3){
             User byId = userService.getById(securityUtil.getCurrUser().getId());
-            BigDecimal balance = byId.getBalance();
-            BigDecimal fullMoney = order.getFullMoney();
-            int i = byId.getBalance().compareTo(order.getFullMoney());
+            BigDecimal totalPrice =order.getTotalPrice();//订单总价格
+
+            if(ToolUtil.isNotEmpty(order.getFullMoney())){
+                int m = order.getTotalPrice().compareTo(order.getFullMoney());//满减是否大于总金额
+                if(m == 0){
+                    totalPrice = order.getTotalPrice().subtract(order.getSubtractMoney());//大于就减多少
+                }
+            }
+
+            int i = byId.getBalance().compareTo(totalPrice);
             if(i == -1){
                 return new ResultUtil<>().setErrorMsg("余额不足!");
             }
+
+            Balance balance1 = new Balance();
+            balance1.setTotalPrice(order.getTotalPrice())
+                    .setFullMoney(order.getFullMoney())
+                    .setSubtractMoney(order.getSubtractMoney())
+                    .setOrderId(order.getId())
+                    .setPayMoney(byId.getBalance())
+                    .setSurplusMoney(byId.getBalance().subtract(totalPrice));//支付后的余额
+            iBalanceService.insertOrderUpdateBalance(balance1);//添加余额使用明细
+
+            byId.setBalance(byId.getBalance().subtract(totalPrice));//余额减商品价格
+            userService.updateById(byId);//修改账户余额
+
 //            生成账单流水
             order.setOrderStatus(OrderStatusEnum.PRE_SEND);
             this.updateById(order);
         }
-        return null;
+        return new ResultUtil<>().setData(200,"支付成功!");
     }
 
     @Override

@@ -1,10 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.good.service;
 
 import cn.ruanyun.backInterface.modules.business.good.DTO.GoodDTO;
-import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodDetailVO;
-import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodInfoVO;
-import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodListVO;
-import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodOrderVO;
+import cn.ruanyun.backInterface.modules.business.good.VO.*;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 
@@ -108,4 +105,9 @@ public interface IGoodService extends IService<Good> {
     Integer getInventory(String  id);
 
 
+    /**
+     * 获取商家的商品列表
+     * @return
+     */
+    List<PcGoodListVO> PCgoodsList();
 }

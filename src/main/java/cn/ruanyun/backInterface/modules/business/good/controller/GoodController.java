@@ -82,7 +82,7 @@ public class GoodController {
                     Map<String,Object> result = Maps.newHashMap();
                     result.put("size",goodListVOS.size());
                     result.put("data", PageUtil.listToPage(pageVo,goodListVOS));
-                    return new ResultUtil<>().setData(result,"获取数据成功！");
+                    return new ResultUtil<>().setData(result,"获取商品列表成功！");
                 })
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
@@ -133,5 +133,25 @@ public class GoodController {
                 })
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }*/
+
+
+    /**
+     * PC获取商家的商品列表
+     * @param pageVo
+     * @return
+     */
+     @PostMapping("/PCgoodsList")
+        public Result<Object> PCgoodsList(PageVo pageVo) {
+
+            return Optional.ofNullable(iGoodService.PCgoodsList())
+                    .map(goodsList -> {
+                        Map<String,Object> result = Maps.newHashMap();
+                        result.put("size",goodsList.size());
+                        result.put("data", PageUtil.listToPage(pageVo,goodsList));
+                        return new ResultUtil<>().setData(result,"获取商家的商品成功！");
+                    })
+                    .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+        }
+
 
 }

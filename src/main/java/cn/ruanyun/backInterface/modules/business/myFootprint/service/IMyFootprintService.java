@@ -27,6 +27,15 @@ public interface IMyFootprintService extends IService<MyFootprint> {
        */
      void removeMyFootprint(String ids);
 
-
+    /**
+     * 获取用户足迹列表
+     * @return
+     */
      List<MyFootprintVO> MyFootprintList();
+
+    /**
+     * 获取足迹数量
+     * @return
+     */
+    Long getMyFootprintNum();
 }

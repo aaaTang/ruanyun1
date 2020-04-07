@@ -41,5 +41,14 @@ public interface IFollowAttentionService extends IService<FollowAttention> {
      */
      List<MefansListVO> mefansList();
 
-
+    /**
+     * 获取我的粉丝数量
+     * @return
+     */
+    Long getMefansNum();
+    /**
+     * 获取我的关注数量
+     * @return
+     */
+    Long getfollowAttentionNum();
 }

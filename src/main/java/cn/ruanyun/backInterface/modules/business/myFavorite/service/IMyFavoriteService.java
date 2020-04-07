@@ -32,5 +32,11 @@ public interface IMyFavoriteService extends IService<MyFavorite> {
      */
     List<AppGoodListVO> getMyFavoriteList();
 
+    /**
+     * 获取我的收藏数量
+     * @return
+     */
+    Long getMyFavoriteNum();
+
 
 }

@@ -2,17 +2,13 @@ package cn.ruanyun.backInterface.modules.business.myFootprint.serviceimpl;
 
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
-import cn.ruanyun.backInterface.modules.business.myCollect.VO.MyCollectListVO;
 import cn.ruanyun.backInterface.modules.business.myFootprint.VO.MyFootprintVO;
 import cn.ruanyun.backInterface.modules.business.myFootprint.mapper.MyFootprintMapper;
 import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
 import cn.ruanyun.backInterface.modules.business.myFootprint.service.IMyFootprintService;
-import cn.ruanyun.backInterface.modules.business.shoppingCart.entity.ShoppingCart;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import lombok.Data;
-import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -101,6 +97,18 @@ public class IMyFootprintServiceImpl extends ServiceImpl<MyFootprintMapper, MyFo
             return myFootprintVO;
         }).collect(Collectors.toList());
            return list;
+    }
+
+
+    /**
+     * 获取足迹数量
+     * @return
+     */
+    @Override
+    public Long getMyFootprintNum() {
+        List<MyFootprint> list = this.list(new QueryWrapper<MyFootprint>().lambda().eq(MyFootprint::getCreateBy,securityUtil.getCurrUser().getId()));
+        Long num = Long.valueOf(list.size());
+        return (num != null ? num : 0);
     }
 
 }

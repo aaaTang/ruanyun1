@@ -1,14 +1,16 @@
 package cn.ruanyun.backInterface.modules.business.discountCoupon.pojo;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
+import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
 import cn.ruanyun.backInterface.common.enums.DisCouponTypeEnum;
-import cn.ruanyun.backInterface.common.enums.DisCouponUseTypeEnum;
+import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 /**
  * 优惠券
@@ -22,45 +24,43 @@ public class DiscountCoupon extends RuanyunBaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 指定商品id
-     */
-    private String goodId;
-
 
     /**
-     * 标题
+     * 名称
      */
     private String title;
 
+    /**
+     * 优惠券类型 ALL_USE全场满减 ONE_PRODUCT商品满减
+     */
+    private DisCouponTypeEnum disCouponType;
+
+    /**
+     * 商家id
+     */
+    private String storeAuditOid;
+    /**
+     * 商品id
+     */
+    private String goodsPackageId;
 
     /**
      * 满多少
      */
     private BigDecimal fullMoney;
 
-
     /**
      * 减多少
      */
-    private BigDecimal subMoney;
-
-
-    /**
-     * 有效时间
-     */
-    private String validTime;
-
+    private BigDecimal subtractMoney;
 
     /**
-     * 优惠券类型
+     * 有效期
      */
-    private DisCouponTypeEnum disCouponType;
-
+    private String validityPeriod;
 
     /**
-     * 优惠券使用状态
+     * 是否过期
      */
-    private DisCouponUseTypeEnum disCouponUseTypeEnum;
-
+    private BooleanTypeEnum pastDue = BooleanTypeEnum.NO;
 }

@@ -6,6 +6,7 @@ import cn.ruanyun.backInterface.modules.business.followAttention.VO.UserFollowAt
 import cn.ruanyun.backInterface.modules.business.followAttention.mapper.FollowAttentionMapper;
 import cn.ruanyun.backInterface.modules.business.followAttention.pojo.FollowAttention;
 import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
+import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -120,6 +121,30 @@ public class IFollowAttentionServiceImpl extends ServiceImpl<FollowAttentionMapp
         }
         return mefansList;
     }
+
+    /**
+     * 获取我的粉丝数量
+     * @return
+     */
+    @Override
+    public Long getMefansNum() {
+        List<FollowAttention> list = this.list(new QueryWrapper<FollowAttention>().lambda()
+                        .eq(FollowAttention::getUserId,securityUtil.getCurrUser().getId()));
+        Long num = Long.valueOf(list.size());
+        return (num != null ? num : 0);
+    }
+
+    /**
+     * 获取我的关注数量
+     * @return
+     */
+    @Override
+    public Long getfollowAttentionNum() {
+        List<FollowAttention> list = this.list(new QueryWrapper<FollowAttention>().lambda().eq(FollowAttention::getCreateBy,securityUtil.getCurrUser().getId()));
+        Long num = Long.valueOf(list.size());
+        return (num != null ? num : 0);
+    }
+
 
 
 }

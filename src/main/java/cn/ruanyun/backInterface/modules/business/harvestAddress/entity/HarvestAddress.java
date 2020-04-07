@@ -37,6 +37,11 @@ public class HarvestAddress extends RuanyunBaseEntity {
     private String address;
 
     /**
+     * 城市id
+     */
+    private String cityCode;
+
+    /**
      * 是否是默认收货地址
      */
     private Integer defaultAddress = CommonConstant.NO;

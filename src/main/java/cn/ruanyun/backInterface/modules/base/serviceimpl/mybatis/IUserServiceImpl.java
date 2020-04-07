@@ -19,6 +19,9 @@ import cn.ruanyun.backInterface.modules.base.vo.AppUserVO;
 import cn.ruanyun.backInterface.modules.base.vo.BackStrictVO;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
+import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
+import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
+import cn.ruanyun.backInterface.modules.business.myFootprint.service.IMyFootprintService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -27,6 +30,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -53,6 +57,15 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
     @Autowired
     private IRolePermissionService rolePermissionService;
+
+    @Autowired
+    private IMyFavoriteService iMyFavoriteService;
+
+    @Autowired
+    private IMyFootprintService iMyFootprintService;
+
+    @Autowired
+    private IFollowAttentionService iFollowAttentionService;
 
 
     @Override
@@ -94,6 +107,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
             userNew.setUsername("梵夫莎用户" + CommonUtil.getRandomNum())
                     .setPassword(new BCryptPasswordEncoder().encode(user.getPassword()))
                     .setMobile(user.getMobile())
+                    .setAvatar(CommonConstant.USER_DEFAULT_AVATAR)
                     .setInvitationCode(CommonUtil.getRandomNum());
 
             return userService.save(userNew);
@@ -158,9 +172,13 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                 .getId()))).map(roles -> roles.get(0).getName()).orElse("暂无！"));
 
         // TODO: 2020/3/13 我的收藏数量
+        appUserVO.setMyCollectNum(iMyFavoriteService.getMyFavoriteNum());
         // TODO: 2020/3/13 我的足迹数量
+        appUserVO.setMyFootprintNum(iMyFootprintService.getMyFootprintNum());
         // TODO: 2020/3/13 我的粉丝数量
+        appUserVO.setMyFansNum(iFollowAttentionService.getMefansNum());
         // TODO: 2020/3/13 我的关注数量
+        appUserVO.setMyAttentionNum(iFollowAttentionService.getfollowAttentionNum());
         // TODO: 2020/3/13 我的额度
 
         return appUserVO;
@@ -427,6 +445,15 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         //删除缓存
         RedisUtil.del("user::" + old.getUsername());
         return new ResultUtil<>().setData(200,"修改成功！");
+    }
+
+    @Override
+    public BigDecimal getAccountBalance() {
+
+        return  Optional.ofNullable(super.getOne(Wrappers.<User>lambdaQuery()
+                .eq(User::getId,securityUtil.getCurrUser().getId())))
+                .map(User::getBalance)
+                .orElse(null);
     }
 
 

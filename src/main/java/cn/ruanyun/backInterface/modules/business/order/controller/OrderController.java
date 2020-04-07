@@ -49,7 +49,7 @@ public class OrderController {
     public Result<Object> orderPay(String id , PayTypeEnum payTypeEnum){
         try {
             iOrderService.payOrder(id,payTypeEnum);
-            return new ResultUtil<>().setSuccessMsg("插入或者更新成功!");
+            return new ResultUtil<>().setSuccessMsg("支付成功");
         }catch (Exception e) {
             return new ResultUtil<>().setErrorMsg(201, e.getMessage());
         }

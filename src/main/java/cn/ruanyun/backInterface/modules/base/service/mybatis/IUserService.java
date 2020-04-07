@@ -13,6 +13,7 @@ import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.data.domain.Page;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -151,4 +152,9 @@ public interface IUserService extends IService<User> {
      * @return
      */
     Result<Object> forgetPassword(UserDTO user);
+
+    /**
+     * 获取账户余额
+     */
+    BigDecimal getAccountBalance();
 }

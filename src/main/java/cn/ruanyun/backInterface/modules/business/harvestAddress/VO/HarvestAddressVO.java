@@ -31,6 +31,11 @@ public class HarvestAddressVO {
     private String address;
 
     /**
+     * 城市名称
+     */
+    private String cityName;
+
+    /**
      * 是否是默认收货地址
      */
     private Integer defaultAddress;

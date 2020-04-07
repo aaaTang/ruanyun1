@@ -8,6 +8,7 @@ import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.myFavorite.entity.MyFavorite;
 import cn.ruanyun.backInterface.modules.business.myFavorite.mapper.MyFavoriteMapper;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -87,4 +88,18 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
 
         return goodVOList.join();
     }
+
+
+    /**
+     * 获取我的收藏数量
+     * @return
+     */
+    @Override
+    public Long getMyFavoriteNum() {
+        List<MyFavorite> list = this.list(new QueryWrapper<MyFavorite>().lambda().eq(MyFavorite::getCreateBy,securityUtil.getCurrUser().getId()));
+            Long num = Long.valueOf(list.size());
+        return (num != null ? num : 0);
+    }
+
+
 }

@@ -4,10 +4,13 @@ package cn.ruanyun.backInterface.modules.business.harvestAddress.serviceimpl;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
+import cn.ruanyun.backInterface.modules.business.area.mapper.AreaMapper;
+import cn.ruanyun.backInterface.modules.business.area.pojo.Area;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.VO.HarvestAddressVO;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.entity.HarvestAddress;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.mapper.HarvestAddressMapper;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.service.IHarvestAddressService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -33,6 +37,8 @@ public class IHarvestAddressServiceImpl extends ServiceImpl<HarvestAddressMapper
     @Autowired
     private SecurityUtil securityUtil;
 
+    @Resource
+    private AreaMapper areaMapper;
 
 
     /**
@@ -86,6 +92,12 @@ public class IHarvestAddressServiceImpl extends ServiceImpl<HarvestAddressMapper
         return Optional.ofNullable(this.getById(id))
                 .map(harvestAddress -> {
                     HarvestAddressVO harvestAddressVO = new HarvestAddressVO();
+
+                    //获取地址中文名称
+                    Area area = areaMapper.selectById(harvestAddress.getCityCode());
+                    if(ToolUtil.isNotEmpty(area)){
+                        harvestAddressVO.setCityName(area.getTitle());
+                    }
                     ToolUtil.copyProperties(harvestAddress,harvestAddressVO);
                     return harvestAddressVO;
                 }).orElse(null);
@@ -128,4 +140,7 @@ public class IHarvestAddressServiceImpl extends ServiceImpl<HarvestAddressMapper
                 .map(harvestAddresses -> getAddressDetail(harvestAddresses.getId()))
                 .orElse(null);
     }
+
+
+
 }

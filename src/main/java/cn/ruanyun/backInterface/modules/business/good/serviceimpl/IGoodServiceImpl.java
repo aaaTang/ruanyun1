@@ -8,15 +8,18 @@ import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.business.color.entity.Color;
 import cn.ruanyun.backInterface.modules.business.color.service.IcolorService;
 import cn.ruanyun.backInterface.modules.business.good.DTO.GoodDTO;
-import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodDetailVO;
-import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodInfoVO;
-import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodListVO;
-import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodOrderVO;
+import cn.ruanyun.backInterface.modules.business.good.VO.*;
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
+import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
+import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
+import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
+import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
+import cn.ruanyun.backInterface.modules.business.myFootprint.serviceimpl.IMyFootprintServiceImpl;
 import cn.ruanyun.backInterface.modules.business.size.service.IsizeService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +28,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
@@ -55,6 +59,11 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
        @Autowired
        private IsizeService sizeService;
 
+       @Autowired
+       private IMyFootprintServiceImpl iMyFootprintService;
+
+       @Resource
+       private GoodCategoryMapper goodCategoryMapper;
 
 
        @Override
@@ -219,6 +228,11 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
             goodDetailVO.setGoodDetails(Optional.ofNullable(ToolUtil.setListToNul(ToolUtil
             .splitterStr(good.getGoodDetails()))).orElse(null));
 
+            //用户浏览商品足迹
+            MyFootprint myFootprint = new MyFootprint();
+            myFootprint.setGoodsId(good.getId());
+            iMyFootprintService.insertOrderUpdateMyFootprint(myFootprint);
+
             // TODO: 2020/3/27 商品优惠券
             //goodDetailVO.setDiscountCouponListVOS(null);
 
@@ -334,6 +348,22 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                 }).orElse(null);
     }
 
+    /************************************************PC端******************************************************/
+
+    @Override
+    public List<PcGoodListVO> PCgoodsList(){
+        List<Good> list = this.list(new QueryWrapper<Good>().lambda().eq(Good::getCreateBy, securityUtil.getCurrUser().getId()));
+        List<PcGoodListVO> pcGoodList = list.parallelStream().map(pcGoods->{
+            PcGoodListVO pc = new PcGoodListVO();
+            String goodCategory = goodCategoryMapper.selectById(pcGoods.getGoodCategoryId()).getTitle();
+            pc.setGoodCategoryName(goodCategory);
+
+            ToolUtil.copyProperties(pcGoods , pc);
+            return  pc;
+        }).collect(Collectors.toList());
+
+        return pcGoodList;
+    }
 
 
 }

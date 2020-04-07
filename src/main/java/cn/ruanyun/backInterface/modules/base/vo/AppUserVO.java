@@ -4,6 +4,7 @@ package cn.ruanyun.backInterface.modules.base.vo;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import javax.persistence.Column;
 import java.math.BigDecimal;
 
 /**
@@ -33,6 +34,27 @@ public class AppUserVO {
      */
     private String roleName;
 
+
+    /**
+     * 性别
+     */
+    private String sex;
+
+    /**
+     * 地址
+     */
+    private String address;
+
+    /**
+     * 婚期
+     */
+    private String weddingDay;
+
+    /**
+     * 个人简介
+     */
+    @Column(length = 500)
+    private String individualResume;
 
     /**
      * 我的收藏数量

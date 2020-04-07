@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
+
 
 /**
  * app端的用户部分
@@ -83,4 +85,14 @@ public class AppUserController {
 
         return userService.forgetPassword(user);
     }
+
+    /**
+     * 获取账户余额
+     */
+    @PostMapping("/getAccountBalance")
+    public BigDecimal getAccountBalance(){
+
+        return userService.getAccountBalance();
+    }
+
 }

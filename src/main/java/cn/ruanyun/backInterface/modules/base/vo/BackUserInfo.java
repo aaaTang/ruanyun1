@@ -39,6 +39,16 @@ public class BackUserInfo {
     private String address;
 
     /**
+     * 婚期
+     */
+    private String weddingDay;
+
+    /**
+     * 个人简介
+     */
+    @Column(length = 500)
+    private String individualResume;
+    /**
      * 用户头像
      */
     private String avatar;

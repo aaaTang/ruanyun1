@@ -68,7 +68,7 @@ public class DiscountMyController {
      */
     @PostMapping("/getCanUseCoupon")
     public Result<Object> getCanUseCoupon(String userId, String productId){
-        return Optional.ofNullable(discountMyService.getCanUseCoupon(productId)).map(myCoupon -> new ResultUtil<>().setData(myCoupon,"获取可以使用的优FDFD惠券成功！"))
+        return Optional.ofNullable(discountMyService.getCanUseCoupon(productId)).map(myCoupon -> new ResultUtil<>().setData(myCoupon,"获取可以使用的优惠券成功！"))
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
 }
