@@ -33,21 +33,21 @@ public class AppGoodInfoVO {
     private String goodPic;
 
 
-    /**
-     * 尺寸
-     */
-    private List<SizeInfoVO> sizes;
-
-
-    /**
-     * 颜色
-     */
-    private List<ColorInfoVO> colors;
-
-
-    /**
-     * 商品库存
-     */
-    private Integer inventory;
+//    /**
+//     * 尺寸
+//     */
+//    private List<SizeInfoVO> sizes;
+//
+//
+//    /**
+//     * 颜色
+//     */
+//    private List<ColorInfoVO> colors;
+//
+//
+//    /**
+//     * 商品库存
+//     */
+//    private Integer inventory;
 
 }

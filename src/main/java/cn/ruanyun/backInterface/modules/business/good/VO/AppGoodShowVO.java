@@ -1,11 +1,8 @@
 package cn.ruanyun.backInterface.modules.business.good.VO;
 
-import cn.ruanyun.backInterface.modules.business.color.VO.ColorInfoVO;
-import cn.ruanyun.backInterface.modules.business.size.VO.SizeInfoVO;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.util.List;
 
 /**
  * @program: ruanyun
@@ -33,16 +30,16 @@ public class AppGoodShowVO {
     private String goodPic;
 
 
-    /**
-     * 尺寸
-     */
-    private List<SizeInfoVO> sizes;
-
-
-    /**
-     * 颜色
-     */
-    private List<ColorInfoVO> colors;
+//    /**
+//     * 尺寸
+//     */
+//    private List<SizeInfoVO> sizes;
+//
+//
+//    /**
+//     * 颜色
+//     */
+//    private List<ColorInfoVO> colors;
 
 
     /**

@@ -50,10 +50,10 @@ public class AppGoodDetailVO {
     private List<String> goodDetails;
 
 
-    /**
-     * 商品库存
-     */
-    private Integer inventory;
+//    /**
+//     * 商品库存
+//     */
+//    private Integer inventory;
 
 
 /*    *//**

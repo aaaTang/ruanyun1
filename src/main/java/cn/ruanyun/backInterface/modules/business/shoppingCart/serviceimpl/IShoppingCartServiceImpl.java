@@ -3,13 +3,12 @@ package cn.ruanyun.backInterface.modules.business.shoppingCart.serviceimpl;
 
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
-import cn.ruanyun.backInterface.modules.business.color.service.IcolorService;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.VO.ShoppingCartVO;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.entity.ShoppingCart;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.mapper.ShoppingCartMapper;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
-import cn.ruanyun.backInterface.modules.business.size.service.IsizeService;
+import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -38,13 +37,10 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
     private SecurityUtil securityUtil;
 
     @Autowired
-    private IsizeService sizeService;
-
-    @Autowired
-    private IcolorService colorService;
-
-    @Autowired
     private IGoodService goodService;
+
+    @Autowired
+    private ISizeAndRolorService iSizeAndRolorService;
 
     /**
      * 加入购物车
@@ -124,11 +120,11 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
                     ToolUtil.copyProperties(shoppingCart,shoppingCartVO);
 
                     shoppingCartVO.setPic(goodService.getPicLimit1(shoppingCart.getGoodId()))
-                            .setSizeName(sizeService.getSizeName(shoppingCart.getSizeId()))
-                            .setColorName(colorService.getColorName(shoppingCart.getColorId()))
+                            .setSizeName(iSizeAndRolorService.getSizeName(shoppingCart.getSizeId()))
+                            .setColorName(iSizeAndRolorService.getColorName(shoppingCart.getColorId()))
                             .setName(goodService.getGoodName(shoppingCart.getGoodId()))
                             .setGoodPrice(goodService.getGoodPrice(shoppingCart.getGoodId()))
-                            .setInventory(goodService.getInventory(shoppingCart.getGoodId()));
+                            .setInventory(iSizeAndRolorService.getInventory(shoppingCart.getSizeId()));
 
                     return Stream.of(shoppingCartVO);
                 }).collect(Collectors.toList())).orElse(null));

@@ -60,22 +60,22 @@ public class Good extends RuanyunBaseEntity {
     private BigDecimal goodNewPrice;
 
 
-    /**
-     * 颜色数据
-     */
-    private String colorIds;
+//    /**
+//     * 颜色数据
+//     */
+//    private String colorIds;
+//
+//
+//    /**
+//     * 尺寸信息
+//     */
+//    private String sizeIds;
 
-
-    /**
-     * 尺寸信息
-     */
-    private String sizeIds;
-
-
-    /**
-     * 商品库存
-     */
-    private Integer inventory;
+//
+//    /**
+//     * 商品库存
+//     */
+//    private Integer inventory;
 
 
     /**

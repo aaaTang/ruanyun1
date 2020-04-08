@@ -5,19 +5,14 @@ import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
-import cn.ruanyun.backInterface.modules.business.color.entity.Color;
-import cn.ruanyun.backInterface.modules.business.color.service.IcolorService;
 import cn.ruanyun.backInterface.modules.business.good.DTO.GoodDTO;
 import cn.ruanyun.backInterface.modules.business.good.VO.*;
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
-import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
 import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
-import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
 import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
 import cn.ruanyun.backInterface.modules.business.myFootprint.serviceimpl.IMyFootprintServiceImpl;
-import cn.ruanyun.backInterface.modules.business.size.service.IsizeService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -53,11 +48,11 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
        @Autowired
        private IUserService userService;
 
-       @Autowired
-       private IcolorService colorService;
-
-       @Autowired
-       private IsizeService sizeService;
+//       @Autowired
+//       private IcolorService colorService;
+//
+//       @Autowired
+//       private IsizeService sizeService;
 
        @Autowired
        private IMyFootprintServiceImpl iMyFootprintService;
@@ -250,14 +245,14 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                     AppGoodInfoVO appGoodInfoVO = new AppGoodInfoVO();
                     ToolUtil.copyProperties(good, appGoodInfoVO);
 
-                    //1.商品图片
-                    appGoodInfoVO.setGoodPic(Optional.ofNullable(ToolUtil.setListToNul(ToolUtil.splitterStr(good.getGoodPics())))
-                            .map(pics -> pics.get(0))
-                            .orElse("暂无"));
-
-                    //2.商品颜色尺寸
-                    appGoodInfoVO.setColors(colorService.getColorInfoVO(good.getColorIds()))
-                            .setSizes(sizeService.getSizeVoByIds(good.getSizeIds()));
+//                    //1.商品图片
+//                    appGoodInfoVO.setGoodPic(Optional.ofNullable(ToolUtil.setListToNul(ToolUtil.splitterStr(good.getGoodPics())))
+//                            .map(pics -> pics.get(0))
+//                            .orElse("暂无"));
+//
+//                    //2.商品颜色尺寸
+//                    appGoodInfoVO.setColors(colorService.getColorInfoVO(good.getColorIds()))
+//                            .setSizes(sizeService.getSizeVoByIds(good.getSizeIds()));
 
                     return appGoodInfoVO;
                 }).orElse(null);
@@ -316,8 +311,9 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     @Override
     public Integer getInventory(String id) {
 
-        return Optional.ofNullable(this.getById(id)).map(Good::getInventory)
-                .orElse(0);
+//        return Optional.ofNullable(this.getById(id)).map(Good::getInventory)
+//                .orElse(0);
+                return null;
     }
 
     /**
@@ -333,17 +329,17 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                 .map(good -> {
                     AppGoodOrderVO appGoodOrderVO = new AppGoodOrderVO();
                     ToolUtil.copyProperties(good, appGoodOrderVO);
-
-                    //1.商品图片
-                    appGoodOrderVO.setGoodPic(Optional.ofNullable(ToolUtil.setListToNul(ToolUtil.splitterStr(good.getGoodPics())))
-                            .map(pics -> pics.get(0))
-                            .orElse("暂无"));
-
-                    //2.商品颜色尺寸
-                    if(ToolUtil.isNotEmpty(color)){
-                        appGoodOrderVO.setColor(colorService.getById(color).getTitle());
-                    }
-                    appGoodOrderVO.setSize(sizeService.getById(size).getName());
+//
+//                    //1.商品图片
+//                    appGoodOrderVO.setGoodPic(Optional.ofNullable(ToolUtil.setListToNul(ToolUtil.splitterStr(good.getGoodPics())))
+//                            .map(pics -> pics.get(0))
+//                            .orElse("暂无"));
+//
+//                    //2.商品颜色尺寸
+//                    if(ToolUtil.isNotEmpty(color)){
+//                        appGoodOrderVO.setColor(colorService.getById(color).getTitle());
+//                    }
+//                    appGoodOrderVO.setSize(sizeService.getById(size).getName());
                     return appGoodOrderVO;
                 }).orElse(null);
     }
@@ -352,7 +348,8 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
     @Override
     public List<PcGoodListVO> PCgoodsList(){
-        List<Good> list = this.list(new QueryWrapper<Good>().lambda().eq(Good::getCreateBy, securityUtil.getCurrUser().getId()));
+        List<Good> list = this.list(new QueryWrapper<Good>().lambda()
+                .eq(Good::getCreateBy, securityUtil.getCurrUser().getId()));
         List<PcGoodListVO> pcGoodList = list.parallelStream().map(pcGoods->{
             PcGoodListVO pc = new PcGoodListVO();
             String goodCategory = goodCategoryMapper.selectById(pcGoods.getGoodCategoryId()).getTitle();
