@@ -13,6 +13,7 @@ import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
 import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
 import cn.ruanyun.backInterface.modules.business.myFootprint.serviceimpl.IMyFootprintServiceImpl;
+import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -59,6 +60,9 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
        @Resource
        private GoodCategoryMapper goodCategoryMapper;
+
+       @Resource
+       private SizeAndRolorMapper sizeAndRolorMapper;
 
 
        @Override
@@ -329,17 +333,17 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                 .map(good -> {
                     AppGoodOrderVO appGoodOrderVO = new AppGoodOrderVO();
                     ToolUtil.copyProperties(good, appGoodOrderVO);
-//
-//                    //1.商品图片
-//                    appGoodOrderVO.setGoodPic(Optional.ofNullable(ToolUtil.setListToNul(ToolUtil.splitterStr(good.getGoodPics())))
-//                            .map(pics -> pics.get(0))
-//                            .orElse("暂无"));
-//
-//                    //2.商品颜色尺寸
-//                    if(ToolUtil.isNotEmpty(color)){
-//                        appGoodOrderVO.setColor(colorService.getById(color).getTitle());
-//                    }
-//                    appGoodOrderVO.setSize(sizeService.getById(size).getName());
+
+                    //1.商品图片
+                    appGoodOrderVO.setGoodPic(Optional.ofNullable(ToolUtil.setListToNul(ToolUtil.splitterStr(good.getGoodPics())))
+                            .map(pics -> pics.get(0))
+                            .orElse("暂无"));
+
+                    //2.商品颜色尺寸
+                    if(ToolUtil.isNotEmpty(color)){
+                        appGoodOrderVO.setColor(sizeAndRolorMapper.selectById(color).getColor());
+                    }
+                    appGoodOrderVO.setSize(sizeAndRolorMapper.selectById(size).getSize());
                     return appGoodOrderVO;
                 }).orElse(null);
     }

@@ -1,12 +1,9 @@
 package cn.ruanyun.backInterface.modules.business.good.VO;
 
-import cn.ruanyun.backInterface.modules.business.color.VO.ColorInfoVO;
-import cn.ruanyun.backInterface.modules.business.size.VO.SizeInfoVO;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * @program: ruanyun
