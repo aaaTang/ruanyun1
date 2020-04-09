@@ -52,73 +52,64 @@ import static jdk.nashorn.api.scripting.ScriptUtils.convert;
 public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, GoodsPackage> implements IGoodsPackageService {
 
 
-       @Autowired
-       private SecurityUtil securityUtil;
+    @Autowired
+    private SecurityUtil securityUtil;
 
-        @Resource
-        private IUserServiceImpl iUserService;
+    @Resource
+    private IUserServiceImpl iUserService;
 
-        @Resource
-        private GoodsPackageMapper igoodsPackageMapper;
+    @Resource
+    private GoodsPackageMapper igoodsPackageMapper;
 
-        @Resource
-        private StoreAuditMapper istoreAuditMapper;
+    @Resource
+    private StoreAuditMapper istoreAuditMapper;
 
-        @Resource
-        private UserMapper userMapper;
+    @Resource
+    private UserMapper userMapper;
 
-       @Override
-       public void insertOrderUpdateGoodsPackage(GoodsPackage goodsPackage) {
+    @Override
+    public void insertOrderUpdateGoodsPackage(GoodsPackage goodsPackage) {
+        if (ToolUtil.isEmpty(goodsPackage.getCreateBy())) {
+            goodsPackage.setCreateBy(securityUtil.getCurrUser().getId());
+        } else {
+            goodsPackage.setUpdateBy(securityUtil.getCurrUser().getId());
+        }
+        Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(goodsPackage)))
+                .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
+                .toFuture().join();
+    }
 
-           if (ToolUtil.isEmpty(goodsPackage.getCreateBy())) {
-
-                       goodsPackage.setCreateBy(securityUtil.getCurrUser().getId());
-                   }else {
-
-                       goodsPackage.setUpdateBy(securityUtil.getCurrUser().getId());
-                   }
-
-
-                   Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(goodsPackage)))
-                           .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
-                           .toFuture().join();
-       }
-
-      @Override
-      public void removeGoodsPackage(String ids) {
-
-          CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
-      }
+    @Override
+    public void removeGoodsPackage(String ids) {
+        CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
+    }
 
     /**
      * 后端查询商品全部数据
      */
-    public List<GoodsPackage> BackGoodsPackageList(){
-
+    public List<GoodsPackage> BackGoodsPackageList() {
         return this.list();
     }
 
 
     /**
      * App查询商家商品详情
+     *
      * @param ids
      * @return
      */
-      public Result<Object> GetGoodsPackage(String ids){
-
-          GoodsPackage goodsPackage = this.getById(ids);
-          GoodsPackageParticularsVO goodsPackageParticularsVO = new GoodsPackageParticularsVO();
-          BeanUtils.copyProperties(goodsPackage,goodsPackageParticularsVO);
-          return new ResultUtil<>().setData(goodsPackageParticularsVO);
-     }
+    public Result<Object> GetGoodsPackage(String ids) {
+        GoodsPackage goodsPackage = this.getById(ids);
+        GoodsPackageParticularsVO goodsPackageParticularsVO = new GoodsPackageParticularsVO();
+        BeanUtils.copyProperties(goodsPackage, goodsPackageParticularsVO);
+        return new ResultUtil<>().setData(goodsPackageParticularsVO);
+    }
 
 
     /**
      * App分类商家商品筛选
      */
     public List<GoodsPackageListVO> GetGoodsPackageList(String classId,String areaId,Integer newPrice){
-
-
         List<GoodsPackage> list= this.list(new QueryWrapper<GoodsPackage>().lambda()
                 .eq(EmptyUtil.isNotEmpty(classId),GoodsPackage::getClassId,classId)
                 .eq(EmptyUtil.isNotEmpty(areaId),GoodsPackage::getAreaId,areaId)
@@ -127,18 +118,14 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
         );
 
         List<GoodsPackageListVO> goodsPackageListVOS = list.parallelStream().map(goodsPackage -> {
-
             GoodsPackageListVO goodsPackageListVOList =new GoodsPackageListVO();
-
             BackUserVO backUserVO = iUserService.getBackUserVO(goodsPackage.getCreateBy());//查询用户信息
             goodsPackageListVOList.setUserid(goodsPackage.getCreateBy())
                     .setUserName(backUserVO.getUsername())
                     .setUserPic(backUserVO.getAvatar());
-
             ToolUtil.copyProperties(goodsPackage, goodsPackageListVOList);
             return goodsPackageListVOList;
         }).collect(Collectors.toList());
-
         return goodsPackageListVOS;
     }
 
@@ -147,7 +134,6 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
      * 获取App店铺详情数据成功
      */
     public ShopParticularsVO getShopParticulars(String ids){
-
         return  igoodsPackageMapper.getShopParticulars(ids);
     }
 
@@ -155,7 +141,6 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
      * 查询商家精选套餐
      */
     public List<AppGoodsPackageListVO> AppGoodsPackageList(String ids){
-
         return  igoodsPackageMapper.AppGoodsPackageList(ids);
     }
 
@@ -163,21 +148,14 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
      * 修改店铺详情
      */
     public void UpdateShopParticulars(ShopParticularsDTO shopParticularsDTO){
-
         igoodsPackageMapper.UpdateShopParticulars(shopParticularsDTO);
     }
 
     /**
      * 后端获取店铺列表
      */
-
     @Override
     public List<ShopDatelistVO> getShopDateList(String username, String shopName, Integer storeType) {
-
             return igoodsPackageMapper.getShopDateList(username,shopName,storeType);
     }
-
-
-
-
 }
