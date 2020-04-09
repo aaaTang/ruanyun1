@@ -59,43 +59,11 @@ public class Good extends RuanyunBaseEntity {
      */
     private BigDecimal goodNewPrice;
 
-
-//    /**
-//     * 颜色数据
-//     */
-//    private String colorIds;
-//
-//
-//    /**
-//     * 尺寸信息
-//     */
-//    private String sizeIds;
-
-//
-//    /**
-//     * 商品库存
-//     */
-//    private Integer inventory;
-
-
     /**
      * 积分
      */
     private Integer integral;
 
-
-    public static void main(String[] args) {
-        String s = "[{\"sizeId\":\"256005326325682176\",\"buyCount\":5,\"colorId\":\"256004810652782592\",\"goodId\":\"1243581862115827714\"},{\"sizeId\":\"256005326325682176\",\"buyCount\":5,\"colorId\":\"256004810652782592\",\"goodId\":\"1243581862115827714\"}]";
-        JSONArray jsonArray = new JSONArray(s);
-        for (int i = 0; i < jsonArray.length(); i++) {
-           /* OrderDetail orderDetail = JSON.parseObject(jsonArray.get(i).toString(), OrderDetail.class);
-            orderDetail.setOrderId(order.getId());
-            Good byId = goodService.getById(orderDetail.getGoodId());
-            byId.setId(null);
-            ToolUtil.copyProperties(byId,orderDetail);
-            orderDetailService.insertOrderUpdateOrderDetail(orderDetail);*/
-        }
-    }
 
 
 }

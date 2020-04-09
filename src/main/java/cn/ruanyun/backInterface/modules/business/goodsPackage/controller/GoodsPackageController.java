@@ -40,7 +40,6 @@ public class GoodsPackageController {
     public Result<Object> insertOrderUpdateGoodsPackage(GoodsPackage goodsPackage){
 
         try {
-
             iGoodsPackageService.insertOrderUpdateGoodsPackage(goodsPackage);
             return new ResultUtil<>().setSuccessMsg("插入或者更新成功!");
         }catch (Exception e) {
@@ -59,7 +58,6 @@ public class GoodsPackageController {
     public Result<Object> removeGoodsPackage(String ids){
 
         try {
-
             iGoodsPackageService.removeGoodsPackage(ids);
             return new ResultUtil<>().setSuccessMsg("移除成功！");
         }catch (Exception e) {
@@ -135,7 +133,6 @@ public class GoodsPackageController {
                     Map<String, Object> result = Maps.newHashMap();
                     result.put("size",  iAppGoodsPackageList.size());
                     result.put("data",  PageUtil.listToPage(pageVo, iAppGoodsPackageList));
-
                     return new ResultUtil<>().setData(result, "获取查询商家精选套餐数据成功！");
 
                 }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
@@ -171,8 +168,7 @@ public class GoodsPackageController {
     public Result<Object> UpdateShopParticulars(ShopParticularsDTO shopParticularsDTO){
 
         try {
-
-                iGoodsPackageService.UpdateShopParticulars(shopParticularsDTO);
+            iGoodsPackageService.UpdateShopParticulars(shopParticularsDTO);
             return new ResultUtil<>().setSuccessMsg("修改店铺详情成功！");
         }catch (Exception e) {
 
@@ -188,7 +184,6 @@ public class GoodsPackageController {
 
         return Optional.ofNullable(iGoodsPackageService.getShopDateList(username,  shopName,  storeType ))
                 .map(backUserVOS -> {
-
                     Map<String, Object> result = Maps.newHashMap();
                     result.put("size", backUserVOS.size());
                     result.put("data", PageUtil.listToPage(pageVo, backUserVOS));
