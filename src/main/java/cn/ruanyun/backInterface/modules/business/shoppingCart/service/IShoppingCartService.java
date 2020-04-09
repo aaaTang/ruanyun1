@@ -38,4 +38,6 @@ public interface IShoppingCartService extends IService<ShoppingCart> {
      */
     List<ShoppingCartVO> shoppingCartVOList(String ids);
 
+
+    Integer getGoodsCartNum();
 }

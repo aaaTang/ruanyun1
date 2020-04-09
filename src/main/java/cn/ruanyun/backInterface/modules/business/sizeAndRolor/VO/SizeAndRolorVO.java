@@ -4,6 +4,7 @@ package cn.ruanyun.backInterface.modules.business.sizeAndRolor.VO;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -38,4 +39,9 @@ public class SizeAndRolorVO {
      * 商品数量
      */
     private AtomicReference<Integer> inventory;
+
+    /**
+     *  商品价格
+     */
+    private AtomicReference<BigDecimal> goodsPrice;
 }

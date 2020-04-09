@@ -7,6 +7,7 @@ import lombok.Data;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.math.BigDecimal;
 
 /**
  * 规格和大小
@@ -44,6 +45,11 @@ public class SizeAndRolor extends RuanyunBaseEntity {
      * 商品图片
      */
     private String pic;
+
+    /**
+     *  商品价格
+     */
+    private BigDecimal goodsPrice;
 
     /**
      * 父id

@@ -50,13 +50,40 @@ public class AppGoodDetailVO {
     private List<String> goodDetails;
 
 
+    /**
+     * 商品数量
+     */
+    private Integer goodsCartNum;
 //    /**
 //     * 商品库存
 //     */
 //    private Integer inventory;
+/*
+
+    */
+/**
+     * 店铺名称
+     *//*
+
+    private String shopName;
+
+    */
+/**
+     * 商品数量
+     *//*
+
+    private Integer goodsNum;
+
+    */
+/**
+     *
+     *//*
+
+    private Integer favorite;
+*/
 
 
-/*    *//**
+    /*    *//**
      * 優惠券
      *//*
     private List<DiscountCouponListVO> discountCouponListVOS;*/

@@ -9,6 +9,7 @@ import cn.ruanyun.backInterface.modules.business.shoppingCart.entity.ShoppingCar
 import cn.ruanyun.backInterface.modules.business.shoppingCart.mapper.ShoppingCartMapper;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -130,6 +131,12 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
                 }).collect(Collectors.toList())).orElse(null));
 
         return shopCartVos.join();
+    }
+
+    @Override
+    public Integer getGoodsCartNum() {
+        List<ShoppingCart> shoppingCart = this.list(new QueryWrapper<ShoppingCart>().lambda().eq(ShoppingCart::getCreateBy,securityUtil.getCurrUser().getId()));
+        return Optional.ofNullable(shoppingCart.size()).orElse(null);
     }
 
 

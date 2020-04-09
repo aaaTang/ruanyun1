@@ -1,6 +1,5 @@
 package cn.ruanyun.backInterface.modules.business.sizeAndRolor.serviceimpl;
 
-import cn.ruanyun.backInterface.modules.business.color.entity.Color;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.VO.SizeAndRolorVO;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.VO.SizeVO;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
@@ -13,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -85,6 +85,7 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
 
                 AtomicReference<Integer> num = new AtomicReference<>(0);
 
+                AtomicReference<BigDecimal> goodsPrice =null;
                     //循环二级获取尺寸
                     List<SizeVO> sizeVOList = sizeVO.parallelStream().map(srv ->{
                         SizeVO sizeVO1 = new SizeVO();
@@ -92,8 +93,16 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
                                 if(sizeId.equals(srv.getId())){
                                     num.updateAndGet(v -> v + srv.getInventory());//单个尺寸的库存数量
                                 }
+
+                                if(ToolUtil.isNotEmpty(sizeAndRolor.getGoodsPrice())) { //判断规格价格不能为空
+                                    goodsPrice.set(srv.getGoodsPrice());//获取二级规格和尺寸价格
+                                }
                             }else {
                                 num.updateAndGet(v -> v + srv.getInventory());//每种颜色的总和库存数量
+
+                                if(ToolUtil.isNotEmpty(sizeAndRolor.getGoodsPrice())){//判断规格价格不能为空
+                                    goodsPrice.set(sizeAndRolor.getGoodsPrice());//获取一级默认价格
+                                }
                             }
 
                         ToolUtil.copyProperties(srv,sizeVO1);
@@ -102,6 +111,7 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
 
                 sr.setSizeList(sizeVOList);//尺寸的集合
                 sr.setInventory(num);//库存数量
+                sr.setGoodsPrice(goodsPrice);//规格和尺寸价格
 
                 ToolUtil.copyProperties(sizeAndRolor,sr);
                 return sr;

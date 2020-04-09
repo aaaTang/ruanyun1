@@ -13,6 +13,8 @@ import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
 import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
 import cn.ruanyun.backInterface.modules.business.myFootprint.serviceimpl.IMyFootprintServiceImpl;
+import cn.ruanyun.backInterface.modules.business.shoppingCart.mapper.ShoppingCartMapper;
+import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -63,6 +65,9 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
        @Resource
        private SizeAndRolorMapper sizeAndRolorMapper;
+
+       @Autowired
+       private IShoppingCartService iShoppingCartService;
 
 
        @Override
@@ -227,6 +232,8 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
             goodDetailVO.setGoodDetails(Optional.ofNullable(ToolUtil.setListToNul(ToolUtil
             .splitterStr(good.getGoodDetails()))).orElse(null));
 
+            //用户的购物车数量
+            goodDetailVO.setGoodsCartNum(iShoppingCartService.getGoodsCartNum());
             //用户浏览商品足迹
             MyFootprint myFootprint = new MyFootprint();
             myFootprint.setGoodsId(good.getId());
