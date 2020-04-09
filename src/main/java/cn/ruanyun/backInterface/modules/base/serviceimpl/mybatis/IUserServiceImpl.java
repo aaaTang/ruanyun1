@@ -456,5 +456,13 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                 .orElse(null);
     }
 
+    @Override
+    public String getUserIdByUserName(String id) {
+        return  Optional.ofNullable(super.getOne(Wrappers.<User>lambdaQuery()
+                .eq(User::getId,id)))
+                .map(User::getShopName)
+                .orElse(null);
+    }
+
 
 }

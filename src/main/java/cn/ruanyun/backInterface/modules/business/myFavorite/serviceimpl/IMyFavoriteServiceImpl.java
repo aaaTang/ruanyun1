@@ -102,4 +102,16 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
     }
 
 
+    /**
+     * 查詢我是否关注这个商品
+     * @param id
+     * @return
+     */
+    @Override
+    public Integer getMyFavoriteGood(String id) {
+        MyFavorite myFavorite = this.getOne(Wrappers.<MyFavorite>lambdaQuery().eq(MyFavorite::getGoodId,id).eq(MyFavorite::getCreateBy,securityUtil.getCurrUser().getId()));
+        return  (myFavorite != null ? 1 : 0);
+    }
+
+
 }

@@ -5,15 +5,18 @@ import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
+import cn.ruanyun.backInterface.modules.business.followAttention.pojo.FollowAttention;
+import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
 import cn.ruanyun.backInterface.modules.business.good.DTO.GoodDTO;
 import cn.ruanyun.backInterface.modules.business.good.VO.*;
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
+import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
 import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
 import cn.ruanyun.backInterface.modules.business.myFootprint.serviceimpl.IMyFootprintServiceImpl;
-import cn.ruanyun.backInterface.modules.business.shoppingCart.mapper.ShoppingCartMapper;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -45,11 +48,11 @@ import java.util.stream.Stream;
 public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements IGoodService {
 
 
-       @Autowired
-       private SecurityUtil securityUtil;
+    @Autowired
+    private SecurityUtil securityUtil;
 
-       @Autowired
-       private IUserService userService;
+    @Autowired
+    private IUserService userService;
 
 //       @Autowired
 //       private IcolorService colorService;
@@ -57,41 +60,53 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 //       @Autowired
 //       private IsizeService sizeService;
 
-       @Autowired
-       private IMyFootprintServiceImpl iMyFootprintService;
+    @Autowired
+    private IMyFootprintServiceImpl iMyFootprintService;
 
-       @Resource
-       private GoodCategoryMapper goodCategoryMapper;
+    @Resource
+    private GoodCategoryMapper goodCategoryMapper;
 
-       @Resource
-       private SizeAndRolorMapper sizeAndRolorMapper;
+    @Resource
+    private SizeAndRolorMapper sizeAndRolorMapper;
 
-       @Autowired
-       private IShoppingCartService iShoppingCartService;
+    @Autowired
+    private IShoppingCartService iShoppingCartService;
+
+    @Autowired
+    private IFollowAttentionService iFollowAttentionService;
+
+    @Autowired
+    private IMyFavoriteService iMyFavoriteService;
+
+    @Autowired
+    private IDiscountCouponService iDiscountCouponService;
+
+//    @Autowired
+//    private IGoodsServiceService iGoodsServiceService;
 
 
-       @Override
-       public void insertOrderUpdateGood(Good good) {
+    @Override
+    public void insertOrderUpdateGood(Good good) {
 
-           if (ToolUtil.isEmpty(good.getCreateBy())) {
+        if (ToolUtil.isEmpty(good.getCreateBy())) {
 
-                       good.setCreateBy(securityUtil.getCurrUser().getId());
-                   }else {
+            good.setCreateBy(securityUtil.getCurrUser().getId());
+        }else {
 
-                       good.setUpdateBy(securityUtil.getCurrUser().getId());
-                   }
+            good.setUpdateBy(securityUtil.getCurrUser().getId());
+        }
 
 
-                   Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(good)))
-                           .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
-                           .toFuture().join();
-       }
+        Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(good)))
+                .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
+                .toFuture().join();
+    }
 
-      @Override
-      public void removeGood(String ids) {
+    @Override
+    public void removeGood(String ids) {
 
-          CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
-      }
+        CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
+    }
 
     /**
      * 封装类，获取商品列表字段
@@ -114,8 +129,8 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                     ToolUtil.copyProperties(good,appGoodListVO);
 
                     appGoodListVO.setGoodPic(Optional.ofNullable(ToolUtil.setListToNul(ToolUtil.splitterStr(good.getGoodPics())))
-                    .map(pics -> pics.get(0))
-                    .orElse("暂无"));
+                            .map(pics -> pics.get(0))
+                            .orElse("暂无"));
 
                     // TODO: 2020/3/27 其他信息
                     /*appGoodListVO.setSaleVolume(orderService.getGoodSalesVolume(good.getId()))
@@ -230,17 +245,32 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
             ToolUtil.copyProperties(good,goodDetailVO);
 
             goodDetailVO.setGoodDetails(Optional.ofNullable(ToolUtil.setListToNul(ToolUtil
-            .splitterStr(good.getGoodDetails()))).orElse(null));
+                    .splitterStr(good.getGoodDetails()))).orElse(null));
 
-            //用户的购物车数量
-            goodDetailVO.setGoodsCartNum(iShoppingCartService.getGoodsCartNum());
+            //TODO: 用户的购物车数量
+            goodDetailVO.setGoodsCartNum(iShoppingCartService.getGoodsCartNum())
+                    // TODO: 店铺名称
+                    .setShopName(userService.getUserIdByUserName(good.getCreateBy()))
+                    //TODO: 商品数量
+                    .setGoodsNum(this.list(Wrappers.<Good>lambdaQuery()
+                            .eq(Good::getCreateBy, good.getCreateBy())).size())
+                    //TODO: 关注店铺人数
+                    .setFollowAttentionNum(iFollowAttentionService.list(Wrappers.<FollowAttention>lambdaQuery()
+                            .eq(FollowAttention::getUserId, good.getCreateBy())).size())
+                    //TODO: 评论数量
+                    //.setCommonNum();
+                    //TODO: 是否收藏0否 1收藏
+                    .setFavorite(iMyFavoriteService.getMyFavoriteGood(id))
+                    //TODO: 商品优惠券
+                    .setDiscountCouponListVOS(iDiscountCouponService.getDiscountCouponListByGoodsPackageId(id))
+                    //TODO: 商品服务类型
+//                    .setGoodsService(iGoodsServiceService.getGoodsServiceList(id))
+            ;
+
             //用户浏览商品足迹
             MyFootprint myFootprint = new MyFootprint();
             myFootprint.setGoodsId(good.getId());
             iMyFootprintService.insertOrderUpdateMyFootprint(myFootprint);
-
-            // TODO: 2020/3/27 商品优惠券
-            //goodDetailVO.setDiscountCouponListVOS(null);
 
             return goodDetailVO;
         }).orElse(null);
@@ -324,7 +354,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
 //        return Optional.ofNullable(this.getById(id)).map(Good::getInventory)
 //                .orElse(0);
-                return null;
+        return null;
     }
 
     /**

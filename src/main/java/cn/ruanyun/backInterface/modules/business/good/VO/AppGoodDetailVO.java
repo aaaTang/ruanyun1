@@ -1,5 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.good.VO;
 
+import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
+
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -15,7 +17,7 @@ import java.util.List;
 
 @Data
 @Accessors(chain = true)
-public class AppGoodDetailVO {
+public class    AppGoodDetailVO {
 
 
     private String id;
@@ -51,41 +53,44 @@ public class AppGoodDetailVO {
 
 
     /**
-     * 商品数量
+     * 购物车数量
      */
     private Integer goodsCartNum;
-//    /**
-//     * 商品库存
-//     */
-//    private Integer inventory;
-/*
 
-    */
-/**
+
+    /**
      * 店铺名称
-     *//*
-
+     */
     private String shopName;
 
-    */
-/**
+    /**
      * 商品数量
-     *//*
-
+     */
     private Integer goodsNum;
 
-    */
-/**
-     *
-     *//*
+    /**
+     * 关注店铺人数
+     */
+    private Integer followAttentionNum;
 
+    /**
+     * 关注店铺人数
+     */
+    private Integer commonNum;
+
+    /**
+     * 是否收藏  0否 1 是
+     */
     private Integer favorite;
-*/
 
+    /**
+     * 优惠券
+     */
+    private List<DiscountCouponListVO> discountCouponListVOS;
 
-    /*    *//**
-     * 優惠券
-     *//*
-    private List<DiscountCouponListVO> discountCouponListVOS;*/
+    /**
+     * 商品服务
+     */
 
+//    private List<GoodsServiceVO> goodsService;
 }

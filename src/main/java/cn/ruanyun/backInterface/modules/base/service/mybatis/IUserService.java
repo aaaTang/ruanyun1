@@ -157,4 +157,11 @@ public interface IUserService extends IService<User> {
      * 获取账户余额
      */
     BigDecimal getAccountBalance();
+
+    /**
+     * 获取店铺名称
+     * @param createBy
+     * @return
+     */
+    String getUserIdByUserName(String createBy);
 }

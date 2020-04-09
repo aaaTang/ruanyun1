@@ -1,11 +1,9 @@
 package cn.ruanyun.backInterface.modules.business.discountCoupon.VO;
 
-import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
 import cn.ruanyun.backInterface.common.enums.DisCouponTypeEnum;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Data
 public class DiscountCouponListVO {

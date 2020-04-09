@@ -38,5 +38,10 @@ public interface IMyFavoriteService extends IService<MyFavorite> {
      */
     Long getMyFavoriteNum();
 
-
+    /**
+     * 查詢我是否关注这个商品
+     * @param id
+     * @return
+     */
+    Integer getMyFavoriteGood(String id);
 }
