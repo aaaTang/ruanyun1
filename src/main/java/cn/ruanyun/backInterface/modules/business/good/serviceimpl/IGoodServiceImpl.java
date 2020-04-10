@@ -33,6 +33,7 @@ import reactor.core.scheduler.Schedulers;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -246,28 +247,36 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
             AppGoodDetailVO goodDetailVO = new AppGoodDetailVO();
             ToolUtil.copyProperties(good,goodDetailVO);
 
-            goodDetailVO.setGoodDetails(Optional.ofNullable(ToolUtil.setListToNul(ToolUtil
-                    .splitterStr(good.getGoodDetails()))).orElse(null));
+            goodDetailVO.setGoodDetails(Optional.ofNullable(
+                    good.getGoodDetails()).orElse(null));
+
+            //TODO: 店铺数据
+            AppShopVO shopList = new AppShopVO();
+            // TODO: 店铺图片
+            shopList.setShopPic(userService.getUserIdByUserPic(good.getCreateBy()))
+            // TODO: 店铺名称
+            .setShopName(userService.getUserIdByUserName(good.getCreateBy()))
+            //TODO: 商品数量
+            .setGoodsNum(this.list(Wrappers.<Good>lambdaQuery()
+                            .eq(Good::getCreateBy, good.getCreateBy())).size())
+            // TODO: 关注店铺人数
+            .setFollowAttentionNum(iFollowAttentionService.list(Wrappers.<FollowAttention>lambdaQuery()
+                         .eq(FollowAttention::getUserId, good.getCreateBy())).size())
+            //TODO: 评论数量
+//            .setCommonNum(0)
+            ;
+
 
             //TODO: 用户的购物车数量
             goodDetailVO.setGoodsCartNum(iShoppingCartService.getGoodsCartNum())
-                    // TODO: 店铺名称
-                    .setShopName(userService.getUserIdByUserName(good.getCreateBy()))
-                    //TODO: 商品数量
-                    .setGoodsNum(this.list(Wrappers.<Good>lambdaQuery()
-                            .eq(Good::getCreateBy, good.getCreateBy())).size())
-                    //TODO: 关注店铺人数
-                    .setFollowAttentionNum(iFollowAttentionService.list(Wrappers.<FollowAttention>lambdaQuery()
-                            .eq(FollowAttention::getUserId, good.getCreateBy())).size())
-                    //TODO: 评论数量
-                    //.setCommonNum();
+                    //TODO: 店铺数据
+                    .setShopList(shopList)
                     //TODO: 是否收藏0否 1收藏
                     .setFavorite(iMyFavoriteService.getMyFavoriteGood(id))
                     //TODO: 商品优惠券
                     .setDiscountCouponListVOS(iDiscountCouponService.getDiscountCouponListByGoodsPackageId(id))
                     //TODO: 商品服务类型
-                    .setGoodsService(iGoodServiceService.getGoodsServiceList(id))
-            ;
+                    .setGoodsService(iGoodServiceService.getGoodsServiceList(id));
 
             //用户浏览商品足迹
             MyFootprint myFootprint = new MyFootprint();

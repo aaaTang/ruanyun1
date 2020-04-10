@@ -1,5 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.sizeAndRolor.serviceimpl;
 
+import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
+import cn.ruanyun.backInterface.modules.business.sizeAndRolor.VO.ColorVO;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.VO.SizeAndRolorVO;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.VO.SizeVO;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
@@ -25,6 +27,8 @@ import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 
+import javax.annotation.Resource;
+
 
 /**
  * 规格和大小接口实现
@@ -38,6 +42,9 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
 
        @Autowired
        private SecurityUtil securityUtil;
+
+       @Resource
+       private GoodMapper goodMapper;
 
        @Override
        public void insertOrderUpdateSizeAndRolor(SizeAndRolor sizeAndRolor) {
@@ -58,62 +65,132 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
       }
 
 
+//
+//    /**
+//     * 获取商品规格和大小
+//     * @return
+//     */
+//      @Override
+//      public List<SizeAndRolorVO> SizeAndRolorList(String goodsId,String sizeId) {
+//
+//           //获取一级颜色数据
+//            List<SizeAndRolor>  list = this.list(new QueryWrapper<SizeAndRolor>().lambda()
+//                    .eq(SizeAndRolor::getGoodsId,goodsId).eq(SizeAndRolor::getIsParent,1));
+//
+//            List<SizeAndRolorVO> sizeAndRolorList  = list.parallelStream().map(sizeAndRolor -> {
+//                SizeAndRolorVO sr = new SizeAndRolorVO();
+//
+//                //获取颜色下的二级数据
+//                List<SizeAndRolor>  sizeVO = this.list(new QueryWrapper<SizeAndRolor>().lambda()
+//                        .eq(SizeAndRolor::getParentId,sizeAndRolor.getId()).eq(SizeAndRolor::getGoodsId,goodsId)
+//                        .eq(SizeAndRolor::getIsParent,0));
+//
+//                AtomicReference<Integer> num = new AtomicReference<>(0);
+//
+//                AtomicReference<BigDecimal> goodsPrice =null;
+//                    //循环二级获取尺寸
+//                    List<SizeVO> sizeVOList = sizeVO.parallelStream().map(srv ->{
+//                        SizeVO sizeVO1 = new SizeVO();
+//                            if(ToolUtil.isNotEmpty(sizeId)){
+//                                if(sizeId.equals(srv.getId())){
+//                                    num.updateAndGet(v -> v + srv.getInventory());//单个尺寸的库存数量
+//                                }
+//
+//                                if(ToolUtil.isNotEmpty(sizeAndRolor.getGoodsPrice())) { //判断规格价格不能为空
+//                                    goodsPrice.set(srv.getGoodsPrice());//获取二级规格和尺寸价格
+//                                }
+//                            }else {
+//                                num.updateAndGet(v -> v + srv.getInventory());//每种颜色的总和库存数量
+//
+//                                if(ToolUtil.isNotEmpty(sizeAndRolor.getGoodsPrice())){//判断规格价格不能为空
+//                                    goodsPrice.set(sizeAndRolor.getGoodsPrice());//获取一级默认价格
+//                                }
+//                            }
+//
+//                        ToolUtil.copyProperties(srv,sizeVO1);
+//                        return sizeVO1;
+//                    }).collect(Collectors.toList());
+//
+//                sr.setSizeList(sizeVOList);//尺寸的集合
+//                sr.setInventory(num);//库存数量
+//                sr.setGoodsPrice(goodsPrice);//规格和尺寸价格
+//
+//                ToolUtil.copyProperties(sizeAndRolor,sr);
+//                return sr;
+//            }).collect(Collectors.toList());
+//
+//         return sizeAndRolorList;
+//      }
 
-    /**
-     * 获取商品规格和大小
-     * @return
-     */
-      @Override
-      public List<SizeAndRolorVO> SizeAndRolorList(String goodsId,String sizeId) {
 
-           //获取一级颜色数据
-            List<SizeAndRolor>  list = this.list(new QueryWrapper<SizeAndRolor>().lambda()
-                    .eq(SizeAndRolor::getGoodsId,goodsId).eq(SizeAndRolor::getIsParent,1));
+    public SizeAndRolorVO SizeAndRolorList(String goodsId,String colorId,String sizeId) {
 
-            List<SizeAndRolorVO> sizeAndRolorList  = list.parallelStream().map(sizeAndRolor -> {
-                SizeAndRolorVO sr = new SizeAndRolorVO();
+           //获取默认规格第一条数据
+            SizeAndRolor data = Optional.ofNullable(this.getSizeAndRolorList(goodsId,colorId).get(0))
+                .orElse(null);
 
-                //获取颜色下的二级数据
-                List<SizeAndRolor>  sizeVO = this.list(new QueryWrapper<SizeAndRolor>().lambda()
-                        .eq(SizeAndRolor::getParentId,sizeAndRolor.getId()).eq(SizeAndRolor::getGoodsId,goodsId)
-                        .eq(SizeAndRolor::getIsParent,0));
+            SizeAndRolorVO sizeAndRolor = new SizeAndRolorVO();
 
-                AtomicReference<Integer> num = new AtomicReference<>(0);
-
-                AtomicReference<BigDecimal> goodsPrice =null;
-                    //循环二级获取尺寸
-                    List<SizeVO> sizeVOList = sizeVO.parallelStream().map(srv ->{
-                        SizeVO sizeVO1 = new SizeVO();
-                            if(ToolUtil.isNotEmpty(sizeId)){
-                                if(sizeId.equals(srv.getId())){
-                                    num.updateAndGet(v -> v + srv.getInventory());//单个尺寸的库存数量
-                                }
-
-                                if(ToolUtil.isNotEmpty(sizeAndRolor.getGoodsPrice())) { //判断规格价格不能为空
-                                    goodsPrice.set(srv.getGoodsPrice());//获取二级规格和尺寸价格
-                                }
-                            }else {
-                                num.updateAndGet(v -> v + srv.getInventory());//每种颜色的总和库存数量
-
-                                if(ToolUtil.isNotEmpty(sizeAndRolor.getGoodsPrice())){//判断规格价格不能为空
-                                    goodsPrice.set(sizeAndRolor.getGoodsPrice());//获取一级默认价格
-                                }
-                            }
-
-                        ToolUtil.copyProperties(srv,sizeVO1);
-                        return sizeVO1;
-                    }).collect(Collectors.toList());
-
-                sr.setSizeList(sizeVOList);//尺寸的集合
-                sr.setInventory(num);//库存数量
-                sr.setGoodsPrice(goodsPrice);//规格和尺寸价格
-
-                ToolUtil.copyProperties(sizeAndRolor,sr);
-                return sr;
+            ToolUtil.copyProperties(data,sizeAndRolor);
+            //获取所有规格颜色
+            List<SizeAndRolor> list = this.getSizeAndRolorList(goodsId,null);
+            List<ColorVO>  colorList = list.parallelStream().map(color ->{
+                ColorVO colorVO = new ColorVO();
+                ToolUtil.copyProperties(color,colorVO);
+                return colorVO;
             }).collect(Collectors.toList());
+            sizeAndRolor.setColor(colorList);//获取集合规格颜色
 
-         return sizeAndRolorList;
-      }
+
+            AtomicReference<Integer> num = new AtomicReference<>(0);
+            AtomicReference<BigDecimal> goodsPrice = new AtomicReference<>();
+            //获取当前颜色下的所有规格的库存数量
+           List<SizeAndRolor> sizeInventory = Optional.ofNullable(this.getInventory(goodsId,Optional.ofNullable(colorId).orElse(data.getId())))
+                   .orElse(null);
+            List<SizeVO>  sizeList = sizeInventory.parallelStream().map(size ->{
+                SizeVO sizeVO = new SizeVO();
+                if(ToolUtil.isNotEmpty(sizeId)){
+                    if(sizeId.equals(size.getId())){
+                        num.updateAndGet(v -> v + size.getInventory());//单个尺寸的库存数量
+                    }
+                    if(ToolUtil.isNotEmpty(size.getGoodsPrice())) { //判断规格价格不能为空
+                            goodsPrice.set(size.getGoodsPrice());//获取二级规格和尺寸价格
+                    }
+                }else {
+                    num.updateAndGet(v -> v + size.getInventory());//按每种颜色的总和库存数量
+                     if(ToolUtil.isNotEmpty(size.getGoodsPrice())){//判断规格价格不能为空
+                            goodsPrice.set(goodMapper.selectById(goodsId).getGoodNewPrice());//获取一级默认价格
+                     }
+                }
+                ToolUtil.copyProperties(size,sizeVO);
+                return sizeVO;
+             }).collect(Collectors.toList());
+            sizeAndRolor.setSizeList(sizeList);//尺寸大小
+            sizeAndRolor.setGoodsPrice(goodsPrice);//价格
+            sizeAndRolor.setInventory(num);//库存
+
+
+
+           return Optional.ofNullable(sizeAndRolor)
+                   .orElse(null);
+    }
+
+
+
+    public List<SizeAndRolor>  getSizeAndRolorList(String goodsId,String colorId) {
+        return this.list(new QueryWrapper<SizeAndRolor>().lambda()
+                .eq(SizeAndRolor::getGoodsId,goodsId)
+                .eq(ToolUtil.isNotEmpty(colorId),SizeAndRolor::getId,colorId)
+                .eq(SizeAndRolor::getIsParent,1));
+    }
+
+
+    public List<SizeAndRolor>  getInventory(String goodsId,String colorId) {
+        return this.list(new QueryWrapper<SizeAndRolor>().lambda()
+                .eq(SizeAndRolor::getGoodsId,goodsId)
+                .eq(ToolUtil.isNotEmpty(colorId),SizeAndRolor::getParentId,colorId)
+                .eq(SizeAndRolor::getIsParent,0));
+    }
 
 
     @Override

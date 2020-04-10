@@ -27,5 +27,6 @@ public interface IGoodServiceService extends IService<GoodService> {
        */
      void removeGoodService(String ids);
 
+
      List<GoodServerVO> getGoodsServiceList(String goodsId);
 }

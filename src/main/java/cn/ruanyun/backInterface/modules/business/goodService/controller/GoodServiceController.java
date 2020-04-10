@@ -1,15 +1,20 @@
 package cn.ruanyun.backInterface.modules.business.goodService.controller;
 
+import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.goodService.pojo.GoodService;
 import cn.ruanyun.backInterface.modules.business.goodService.service.IGoodServiceService;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author z
@@ -61,5 +66,23 @@ public class GoodServiceController {
             return new ResultUtil<>().setErrorMsg(201, e.getMessage());
         }
     }
+
+    /**
+     * 按商品获取服务类型数据
+     * @param goodsId
+     * @return
+     */
+    @PostMapping(value = "/getGoodsServiceList")
+    public Result<Object> getGoodsServiceList(String goodsId){
+
+        return Optional.ofNullable(iGoodServiceService.getGoodsServiceList(goodsId))
+                .map(goodServer -> {
+
+                    Map<String,Object> result = Maps.newHashMap();
+                    result.put("data",goodServer);
+                    return new ResultUtil<>().setData(result,"按商品获取服务类型数据成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
+
 
 }

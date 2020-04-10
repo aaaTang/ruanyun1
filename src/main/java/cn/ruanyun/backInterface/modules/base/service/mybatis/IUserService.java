@@ -164,4 +164,12 @@ public interface IUserService extends IService<User> {
      * @return
      */
     String getUserIdByUserName(String createBy);
+
+
+    /**
+     * 获取店铺图片
+     * @param createBy
+     * @return
+     */
+    String getUserIdByUserPic(String createBy);
 }

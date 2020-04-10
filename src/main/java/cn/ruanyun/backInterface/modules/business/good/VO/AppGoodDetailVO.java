@@ -51,7 +51,7 @@ public class  AppGoodDetailVO {
     /**
      * 商品详情
      */
-    private List<String> goodDetails;
+    private String goodDetails;
 
 
     /**
@@ -59,27 +59,10 @@ public class  AppGoodDetailVO {
      */
     private Integer goodsCartNum;
 
-
     /**
-     * 店铺名称
+     * 店铺数据
      */
-    private String shopName;
-
-    /**
-     * 购物车数量
-     */
-    private Integer goodsNum;
-
-    /**
-     * 关注店铺人数
-     */
-    private Integer followAttentionNum;
-
-    /**
-     * 评论数量
-     */
-    private Integer commonNum;
-
+    private AppShopVO shopList;
     /**
      * 是否收藏  0否 1 是
      */
@@ -93,6 +76,10 @@ public class  AppGoodDetailVO {
     /**
      * 商品服务
      */
-
     private List<GoodServerVO> goodsService;
+
+    /**
+     * 心愿单
+     */
+    private String wishList;
 }

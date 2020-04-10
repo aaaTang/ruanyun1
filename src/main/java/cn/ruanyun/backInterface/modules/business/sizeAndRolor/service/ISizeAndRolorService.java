@@ -32,7 +32,7 @@ public interface ISizeAndRolorService extends IService<SizeAndRolor> {
      * 获取商品规格和大小
      * @return
      */
-     List<SizeAndRolorVO> SizeAndRolorList(String goodsId,String sizeId);
+     SizeAndRolorVO SizeAndRolorList(String goodsId,String colorId,String sizeId);
 
     /**
      * 获取商品尺码名称
