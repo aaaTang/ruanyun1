@@ -68,6 +68,16 @@ public class OrderController {
     }
 
     /**
+     * 下单之前获取订单的信息  直接购买套餐商品
+     * @param orderShowDTO
+     * @return
+     */
+    @PostMapping(value = "/showGoodsPackageOrder")
+    public Result<Object> showGoodsPackageOrder(OrderShowDTO orderShowDTO){
+        return new ResultUtil<>().setData(iOrderService.showGoodsPackageOrder(orderShowDTO),"获取详情成功！");
+    }
+
+    /**
      * 移除数据
      * @param ids
      * @return

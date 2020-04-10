@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.good.serviceimpl;
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
@@ -165,7 +166,6 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
         //3.筛选条件
         CompletableFuture<List<AppGoodListVO>> goodsVOFilterList = goodsVOList.thenApplyAsync(goodListVOS ->
                 goodListVOS.map(goodListVOS1 -> {
-
                     //查询筛选条件
                     return Optional.ofNullable(goodDTO.getFilterCondition()).map(code -> {
 
@@ -214,7 +214,8 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
         // 1.默认条件构造器
         LambdaQueryWrapper<Good> wrappers = Wrappers.<Good>lambdaQuery()
-                .eq(Good::getGoodCategoryId,goodDTO.getGoodCategoryId());
+                .eq(Good::getGoodCategoryId,goodDTO.getGoodCategoryId())
+                .eq(Good::getTypeEnum, goodDTO.getGoodTypeEnum());
 
 
         //2.筛选条件

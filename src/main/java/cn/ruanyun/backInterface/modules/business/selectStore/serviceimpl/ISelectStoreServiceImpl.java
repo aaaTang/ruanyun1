@@ -35,51 +35,45 @@ import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 public class ISelectStoreServiceImpl extends ServiceImpl<SelectStoreMapper, SelectStore> implements ISelectStoreService {
 
 
-       @Autowired
-       private SecurityUtil securityUtil;
+    @Autowired
+    private SecurityUtil securityUtil;
 
-       @Autowired
-       private IUserService userService;
+    @Autowired
+    private IUserService userService;
 
-       @Override
-       public void insertOrderUpdateSelectStore(SelectStore selectStore) {
+    @Override
+    public void insertOrderUpdateSelectStore(SelectStore selectStore) {
+        if (ToolUtil.isEmpty(selectStore.getCreateBy())) {
+            selectStore.setCreateBy(securityUtil.getCurrUser().getId());
+        } else {
+            selectStore.setUpdateBy(securityUtil.getCurrUser().getId());
+        }
+        Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(selectStore)))
+                .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
+                .toFuture().join();
+    }
 
-           if (ToolUtil.isEmpty(selectStore.getCreateBy())) {
-
-                       selectStore.setCreateBy(securityUtil.getCurrUser().getId());
-                   }else {
-
-                       selectStore.setUpdateBy(securityUtil.getCurrUser().getId());
-                   }
-
-
-                   Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(selectStore)))
-                           .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
-                           .toFuture().join();
-       }
-
-      @Override
-      public void removeSelectStore(String ids) {
-
-          CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
-      }
+    @Override
+    public void removeSelectStore(String ids) {
+        CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
+    }
 
     @Override
     public List<SelectStoreListVO> getSelectStoreList() {
 
-           return Optional.ofNullable(ToolUtil.setListToNul(super.list(Wrappers.<SelectStore>lambdaQuery()
-                   .orderByDesc(SelectStore::getCreateTime))))
-                   .map(selectStores -> selectStores.parallelStream().flatMap(selectStore -> {
+        return Optional.ofNullable(ToolUtil.setListToNul(super.list(Wrappers.<SelectStore>lambdaQuery()
+                .orderByDesc(SelectStore::getCreateTime))))
+                .map(selectStores -> selectStores.parallelStream().flatMap(selectStore -> {
 
-                       SelectStoreListVO selectStoreListVO = new SelectStoreListVO();
+                    SelectStoreListVO selectStoreListVO = new SelectStoreListVO();
 
-                       Optional.ofNullable(userService.getById(selectStore.getUserId()))
-                               .ifPresent(user -> ToolUtil.copyProperties(user, selectStoreListVO));
+                    Optional.ofNullable(userService.getById(selectStore.getUserId()))
+                            .ifPresent(user -> ToolUtil.copyProperties(user, selectStoreListVO));
 
-                       ToolUtil.copyProperties(selectStore, selectStoreListVO);
+                    ToolUtil.copyProperties(selectStore, selectStoreListVO);
 
-                       return Stream.of(selectStoreListVO);
-                   }).collect(Collectors.toList()))
-                   .orElse(null);
+                    return Stream.of(selectStoreListVO);
+                }).collect(Collectors.toList()))
+                .orElse(null);
     }
 }

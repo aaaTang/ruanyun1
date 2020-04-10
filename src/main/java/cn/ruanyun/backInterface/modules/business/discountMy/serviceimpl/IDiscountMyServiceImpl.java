@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.discountMy.serviceimpl;
 
 import cn.ruanyun.backInterface.common.enums.Disabled;
+import cn.ruanyun.backInterface.common.utils.EmptyUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import sun.invoke.empty.Empty;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -70,9 +72,39 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
                 }).orElse(null);
     }
 
+    /**
+     * 处理某个订单下面的商品能够使用的优惠券
+     * @param userId
+     * @param goodId
+     * @param multiply
+     * @return
+     */
     @Override
-    public DiscountVO getDealCanUseCoupon(String id, String goodId, BigDecimal multiply) {
-        return null;
+    public DiscountVO getDealCanUseCoupon(String userId, String goodId, BigDecimal multiply) {
+        return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<DiscountMy>lambdaQuery().eq(DiscountMy::getCreateBy,userId))))
+                .map(discountMIES -> {
+                    List<DiscountVO> discountVOList = discountMIES.parallelStream().map(discountMy -> {
+                        DiscountCoupon byId = discountService.getById(discountMy.getDiscountCouponId());
+                        DiscountVO discountVO = new DiscountVO();
+                        if (EmptyUtil.isNotEmpty(byId)){
+                            //全场 价格达到标准
+                            int i = multiply.compareTo(byId.getFullMoney());
+                            if (byId.getDisCouponType().getCode() == 1 && i != -1){
+                                ToolUtil.copyProperties(byId,discountVO);
+                                //指定商品
+                            }else if(byId.getDisCouponType().getCode() == 2 && byId.getGoodsPackageId().equals(goodId)  && i != -1){
+                                ToolUtil.copyProperties(byId,discountVO);
+                            }
+                        }
+                        return discountVO;
+                    }).collect(Collectors.toList());
+                    if (discountVOList.size() == 0){
+                        return null;
+                    }else {
+                        return discountVOList.get(0);
+                    }
+                }).orElse(null);
+
     }
 
 

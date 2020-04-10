@@ -52,7 +52,7 @@ public class AppGoodOrderVO {
     /**
      * 商品新价格
      */
-    private BigDecimal goodNewPrice;
+    private BigDecimal goodNewPrice= new BigDecimal(0);
 
     /**
      * 积分
@@ -67,12 +67,12 @@ public class AppGoodOrderVO {
     /**
      * 满多少
      */
-    private BigDecimal fullMoney;
+    private BigDecimal fullMoney = new BigDecimal(0);
 
     /**
      * 减多少
      */
-    private BigDecimal subtractMoney;
+    private BigDecimal subtractMoney= new BigDecimal(0);
 
 
 }

@@ -43,22 +43,17 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
        public void insertOrderUpdateSizeAndRolor(SizeAndRolor sizeAndRolor) {
 
            if (ToolUtil.isEmpty(sizeAndRolor.getCreateBy())) {
-
-                       sizeAndRolor.setCreateBy(securityUtil.getCurrUser().getId());
-                   }else {
-
-                       sizeAndRolor.setUpdateBy(securityUtil.getCurrUser().getId());
-                   }
-
-
-                   Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(sizeAndRolor)))
-                           .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
-                           .toFuture().join();
+               sizeAndRolor.setCreateBy(securityUtil.getCurrUser().getId());
+           } else {
+               sizeAndRolor.setUpdateBy(securityUtil.getCurrUser().getId());
+           }
+           Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(sizeAndRolor)))
+                   .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
+                   .toFuture().join();
        }
 
       @Override
       public void removeSizeAndRolor(String ids) {
-
           CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
       }
 

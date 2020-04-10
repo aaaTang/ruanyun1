@@ -17,10 +17,13 @@ import cn.ruanyun.backInterface.modules.business.discountMy.service.IDiscountMyS
 import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodOrderVO;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
+import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
+import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.entity.HarvestAddress;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.service.IHarvestAddressService;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderDTO;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderShowDTO;
+import cn.ruanyun.backInterface.modules.business.order.VO.GoodsPackageOrderVO;
 import cn.ruanyun.backInterface.modules.business.order.VO.MyOrderVO;
 import cn.ruanyun.backInterface.modules.business.order.VO.ShowOrderVO;
 import cn.ruanyun.backInterface.modules.business.order.mapper.OrderMapper;
@@ -32,6 +35,7 @@ import cn.ruanyun.backInterface.modules.business.shoppingCart.entity.ShoppingCar
 import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
+import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.google.api.client.util.ArrayMap;
@@ -81,6 +85,8 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
        private IDiscountMyService discountMyService;
        @Autowired
        private ISizeAndRolorService sizeAndRolorService;
+       @Autowired
+       private IGoodsPackageService goodsPackageService;
 
        @Override
        public Result<Object> insertOrderUpdateOrder(OrderDTO orderDTO) {
@@ -206,7 +212,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 balance1.setTotalPrice(new BigDecimal(order.getTotalPrice()))
                         .setType(1)
                         .setStatus(2)
-                        .setTableOid(ids.toString())
+                        .setTableOid(ids)
                         .setTotalPrice(new BigDecimal(order.getTotalPrice()))
                         .setPayMoney(byId.getBalance())
                         .setSurplusMoney(byId.getBalance().subtract(new BigDecimal(order.getTotalPrice())));//支付后的余额
@@ -222,6 +228,15 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     }
 
     @Override
+    public GoodsPackageOrderVO showGoodsPackageOrder(OrderShowDTO orderShowDTO) {
+        GoodsPackageOrderVO showOrderVO = new GoodsPackageOrderVO();
+        GoodsPackage byId = goodsPackageService.getById(orderShowDTO.getGoodId());
+        goodService.listByIds(ToolUtil.splitterStr(byId.getGoodIds()));
+
+        return showOrderVO;
+    }
+
+    @Override
     public ShowOrderVO showOrder(OrderShowDTO orderShowDTO) {
         String id = securityUtil.getCurrUser().getId();
         ShowOrderVO showOrderVO = new ShowOrderVO();
@@ -234,7 +249,18 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         if (orderShowDTO.getType() == 1){
             appGoodOrderVOS.add(this.getShowOrderVOOne(orderShowDTO));
         //购物车多选下单
-        }else {
+        }else if(orderShowDTO.getType() == 2){
+            appGoodOrderVOS = Optional.ofNullable(shoppingCartService.listByIds(ToolUtil.splitterStr(orderShowDTO.getShoppingCartIds()))).map(shoppingCarts -> {
+                List<AppGoodOrderVO> appGoodOrderVOS1 = shoppingCarts.parallelStream().flatMap(shoppingCart -> {
+                    AppGoodOrderVO appGoodOrder = this.getShowOrderVOShoppingCart(shoppingCart);
+                    return Stream.of(appGoodOrder);
+                }).collect(Collectors.toList());
+                return appGoodOrderVOS1;
+            }).orElse(null);
+            //直接该买套餐商品
+        }else if(orderShowDTO.getType() == 3){
+
+
             appGoodOrderVOS = Optional.ofNullable(shoppingCartService.listByIds(ToolUtil.splitterStr(orderShowDTO.getShoppingCartIds()))).map(shoppingCarts -> {
                 List<AppGoodOrderVO> appGoodOrderVOS1 = shoppingCarts.parallelStream().flatMap(shoppingCart -> {
                     AppGoodOrderVO appGoodOrder = this.getShowOrderVOShoppingCart(shoppingCart);
@@ -269,13 +295,19 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 .eq(SizeAndRolor::getParentId, orderShowDTO.getSizeId())
                 .eq(SizeAndRolor::getIsParent, 1));
         ToolUtil.copyProperties(appGoodOrder,appGoodOrderVO);
-        appGoodOrderVO.setGoodNewPrice(new BigDecimal(0));
+        if (EmptyUtil.isNotEmpty(one)){
+            appGoodOrderVO.setGoodNewPrice(one.getGoodsPrice());
+        }
         appGoodOrderVO.setCount(orderShowDTO.getCount());
 
-        //处理优惠券信息
+        //处理优惠券信息 订单的价格是否满足
         DiscountVO detailById = discountMyService.getDetailById(orderShowDTO.getDiscountCouponId());
-        ToolUtil.copyProperties(detailById,appGoodOrderVO);
-
+        int i = detailById.getFullMoney().compareTo(new BigDecimal(appGoodOrderVO.getCount()).multiply(appGoodOrderVO.getGoodNewPrice()));
+        if (i == -1){
+            appGoodOrderVO.setDiscountMyId(detailById.getId());
+            detailById.setId(null);
+            ToolUtil.copyProperties(detailById,appGoodOrderVO);
+        }
         return appGoodOrderVO;
     }
 
@@ -287,21 +319,27 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         AppGoodOrderVO appGoodOrderVO = new AppGoodOrderVO();
         //查询商品信息
         AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(shoppingCart.getGoodId(), shoppingCart.getColorId(), shoppingCart.getSizeId());
+        ToolUtil.copyProperties(appGoodOrder,appGoodOrderVO);
         //查询商品价格
         SizeAndRolor one = sizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery()
                 .eq(SizeAndRolor::getId, shoppingCart.getSizeId())
                 .eq(SizeAndRolor::getParentId, shoppingCart.getColorId())
-                .eq(SizeAndRolor::getIsParent, 1));
-        ToolUtil.copyProperties(appGoodOrder,appGoodOrderVO);
-        appGoodOrderVO.setGoodNewPrice(new BigDecimal(0));
+                .eq(SizeAndRolor::getIsParent, 0));
+        if (EmptyUtil.isNotEmpty(one)){
+            appGoodOrderVO.setGoodNewPrice(one.getGoodsPrice());
+        }
         appGoodOrderVO.setCount(shoppingCart.getCount());
         //获取这个人，这个商品 能用的优惠券
-        DiscountVO dealCanUseCoupon = discountMyService.getDealCanUseCoupon(securityUtil.getCurrUser().getId(),shoppingCart.getGoodId(), appGoodOrder.getGoodNewPrice().multiply(new BigDecimal(appGoodOrder.getCount())));
+        String id = securityUtil.getCurrUser().getId();
+        String goodId = shoppingCart.getGoodId();
+        BigDecimal multiply = appGoodOrderVO.getGoodNewPrice().multiply(new BigDecimal(appGoodOrderVO.getCount()));
+        DiscountVO dealCanUseCoupon = discountMyService.getDealCanUseCoupon(id,goodId, multiply);
 
         if (EmptyUtil.isNotEmpty(dealCanUseCoupon)){
             ToolUtil.copyProperties(dealCanUseCoupon,appGoodOrder);
+            appGoodOrder.setDiscountMyId(dealCanUseCoupon.getId());
         }
-        appGoodOrder.setDiscountMyId(dealCanUseCoupon.getId());
+
 
         return appGoodOrderVO;
     }
@@ -313,7 +351,11 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     private BigDecimal getSumPrice(List<AppGoodOrderVO> appGoodOrderVOS){
         BigDecimal sumPrice = new BigDecimal(0);
         for (AppGoodOrderVO appGoodOrderVO:appGoodOrderVOS) {
-            sumPrice.add(appGoodOrderVO.getGoodNewPrice().divide(new BigDecimal(appGoodOrderVO.getCount()))).subtract(appGoodOrderVO.getSubtractMoney());
+            if (StringUtils.isEmpty(appGoodOrderVO.getDiscountMyId())){
+                sumPrice.add(appGoodOrderVO.getGoodNewPrice().multiply(new BigDecimal(appGoodOrderVO.getCount())));
+            }else {
+                sumPrice.add(appGoodOrderVO.getGoodNewPrice().divide(new BigDecimal(appGoodOrderVO.getCount()))).subtract(appGoodOrderVO.getSubtractMoney());
+            }
         }
         return sumPrice;
     }

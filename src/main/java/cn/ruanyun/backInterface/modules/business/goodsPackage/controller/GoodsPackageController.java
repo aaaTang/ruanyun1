@@ -162,7 +162,6 @@ public class GoodsPackageController {
      */
     @PostMapping(value = "/UpdateShopParticulars")
     public Result<Object> UpdateShopParticulars(ShopParticularsDTO shopParticularsDTO){
-
         try {
             iGoodsPackageService.UpdateShopParticulars(shopParticularsDTO);
             return new ResultUtil<>().setSuccessMsg("修改店铺详情成功！");
@@ -177,7 +176,6 @@ public class GoodsPackageController {
      */
     @PostMapping("/getShopDateList")
     public Result<Object> getShopDateList(String username, String shopName, Integer storeType , PageVo pageVo) {
-
         return Optional.ofNullable(iGoodsPackageService.getShopDateList(username,  shopName,  storeType ))
                 .map(backUserVOS -> {
                     Map<String, Object> result = Maps.newHashMap();

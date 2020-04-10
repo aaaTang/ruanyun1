@@ -50,4 +50,6 @@ public interface IOrderService extends IService<Order> {
      * @param orderShowDTO
      */
     ShowOrderVO showOrder(OrderShowDTO orderShowDTO);
+
+    Object showGoodsPackageOrder(OrderShowDTO orderShowDTO);
 }

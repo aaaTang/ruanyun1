@@ -49,7 +49,7 @@ public class SizeAndRolor extends RuanyunBaseEntity {
     /**
      *  商品价格
      */
-    private BigDecimal goodsPrice;
+    private BigDecimal goodsPrice = new BigDecimal(0);
 
     /**
      * 父id

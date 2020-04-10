@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.good.DTO;
 
+import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -24,6 +25,8 @@ public class GoodDTO {
     private Integer filterCondition;
 
 
+    private GoodTypeEnum goodTypeEnum;
+
     /**
      * 价格最高
      */
@@ -33,7 +36,7 @@ public class GoodDTO {
     /**
      * 价格最低
      */
-    private BigDecimal priceLow;
+    private BigDecimal priceLow = new BigDecimal(0);
 
 
     /**

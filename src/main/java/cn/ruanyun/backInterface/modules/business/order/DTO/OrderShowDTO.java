@@ -20,7 +20,8 @@ public class OrderShowDTO {
 
 
     /*1购物车直接下单
-    * 2直接购买*/
+    * 2直接购买
+    * 3直接购买套餐商品*/
     private int type;
 
     private String goodId;
