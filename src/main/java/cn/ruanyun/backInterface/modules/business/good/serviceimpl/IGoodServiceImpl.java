@@ -14,6 +14,7 @@ import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
+import cn.ruanyun.backInterface.modules.business.goodService.service.IGoodServiceService;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
 import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
 import cn.ruanyun.backInterface.modules.business.myFootprint.serviceimpl.IMyFootprintServiceImpl;
@@ -81,8 +82,8 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     @Autowired
     private IDiscountCouponService iDiscountCouponService;
 
-//    @Autowired
-//    private IGoodsServiceService iGoodsServiceService;
+    @Autowired
+    private IGoodServiceService iGoodServiceService;
 
 
     @Override
@@ -264,7 +265,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                     //TODO: 商品优惠券
                     .setDiscountCouponListVOS(iDiscountCouponService.getDiscountCouponListByGoodsPackageId(id))
                     //TODO: 商品服务类型
-//                    .setGoodsService(iGoodsServiceService.getGoodsServiceList(id))
+                    .setGoodsService(iGoodServiceService.getGoodsServiceList(id))
             ;
 
             //用户浏览商品足迹
