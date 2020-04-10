@@ -5,14 +5,20 @@ import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
+import cn.ruanyun.backInterface.modules.business.followAttention.pojo.FollowAttention;
+import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
 import cn.ruanyun.backInterface.modules.business.good.DTO.GoodDTO;
 import cn.ruanyun.backInterface.modules.business.good.VO.*;
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
+import cn.ruanyun.backInterface.modules.business.goodService.service.IGoodServiceService;
+import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
 import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
 import cn.ruanyun.backInterface.modules.business.myFootprint.serviceimpl.IMyFootprintServiceImpl;
+import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -43,32 +49,27 @@ import java.util.stream.Stream;
 public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements IGoodService {
 
 
-       @Autowired
-       private SecurityUtil securityUtil;
+    @Autowired
+    private SecurityUtil securityUtil;
 
-       @Autowired
-       private IUserService userService;
+    @Autowired
+    private IUserService userService;
 
-       @Autowired
-       private IMyFootprintServiceImpl iMyFootprintService;
+//       @Autowired
+//       private IcolorService colorService;
+//
+//       @Autowired
+//       private IsizeService sizeService;
 
-       @Resource
-       private GoodCategoryMapper goodCategoryMapper;
+    @Autowired
+    private IMyFootprintServiceImpl iMyFootprintService;
 
-       @Resource
-       private SizeAndRolorMapper sizeAndRolorMapper;
+    @Resource
+    private GoodCategoryMapper goodCategoryMapper;
 
-       @Override
-       public void insertOrderUpdateGood(Good good) {
-           if (ToolUtil.isEmpty(good.getCreateBy())) {
-                       good.setCreateBy(securityUtil.getCurrUser().getId());
-                   }else {
-                       good.setUpdateBy(securityUtil.getCurrUser().getId());
-                   }
-                   Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(good)))
-                           .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
-                           .toFuture().join();
-       }
+    @Resource
+    private SizeAndRolorMapper sizeAndRolorMapper;
+
     @Autowired
     private IShoppingCartService iShoppingCartService;
 
@@ -81,8 +82,8 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     @Autowired
     private IDiscountCouponService iDiscountCouponService;
 
-//    @Autowired
-//    private IGoodsServiceService iGoodsServiceService;
+    @Autowired
+    private IGoodServiceService iGoodServiceService;
 
 
     @Override
@@ -102,10 +103,6 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                 .toFuture().join();
     }
 
-      @Override
-      public void removeGood(String ids) {
-          CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
-      }
     @Override
     public void removeGood(String ids) {
 
@@ -120,17 +117,21 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
      */
     @Override
     public AppGoodListVO getAppGoodListVO(String id) {
+
         return Optional.ofNullable(this.getById(id))
                 .map(good -> {
                     AppGoodListVO appGoodListVO = new AppGoodListVO();
+
                     //1.店铺信息
                     Optional.ofNullable(userService.getById(good.getCreateBy()))
                             .ifPresent(user -> ToolUtil.copyProperties(user, appGoodListVO));
+
                     //2.商品信息
                     ToolUtil.copyProperties(good,appGoodListVO);
+
                     appGoodListVO.setGoodPic(Optional.ofNullable(ToolUtil.setListToNul(ToolUtil.splitterStr(good.getGoodPics())))
-                    .map(pics -> pics.get(0))
-                    .orElse("暂无"));
+                            .map(pics -> pics.get(0))
+                            .orElse("暂无"));
 
                     // TODO: 2020/3/27 其他信息
                     /*appGoodListVO.setSaleVolume(orderService.getGoodSalesVolume(good.getId()))
@@ -264,16 +265,13 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                     //TODO: 商品优惠券
                     .setDiscountCouponListVOS(iDiscountCouponService.getDiscountCouponListByGoodsPackageId(id))
                     //TODO: 商品服务类型
-//                    .setGoodsService(iGoodsServiceService.getGoodsServiceList(id))
+                    .setGoodsService(iGoodServiceService.getGoodsServiceList(id))
             ;
 
             //用户浏览商品足迹
             MyFootprint myFootprint = new MyFootprint();
             myFootprint.setGoodsId(good.getId());
             iMyFootprintService.insertOrderUpdateMyFootprint(myFootprint);
-
-            // TODO: 2020/3/27 商品优惠券
-            //goodDetailVO.setDiscountCouponListVOS(null);
 
             return goodDetailVO;
         }).orElse(null);
@@ -357,7 +355,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
 //        return Optional.ofNullable(this.getById(id)).map(Good::getInventory)
 //                .orElse(0);
-                return null;
+        return null;
     }
 
     /**
