@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.good.VO;
 
+import cn.ruanyun.backInterface.modules.business.discountMy.pojo.DiscountMy;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -57,4 +58,21 @@ public class AppGoodOrderVO {
      * 积分
      */
     private Integer integral;
+
+    /**
+     * 我的优惠券id
+     */
+    private String discountMyId;
+
+    /**
+     * 满多少
+     */
+    private BigDecimal fullMoney;
+
+    /**
+     * 减多少
+     */
+    private BigDecimal subtractMoney;
+
+
 }

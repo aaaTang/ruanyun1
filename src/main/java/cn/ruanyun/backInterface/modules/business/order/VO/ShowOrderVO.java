@@ -26,16 +26,6 @@ public class ShowOrderVO {
     private List<AppGoodOrderVO> appGoodOrderVOS;
 
     /**
-     * 满多少
-     */
-    private BigDecimal fullMoney;
-
-    /**
-     * 减多少
-     */
-    private BigDecimal subtractMoney;
-
-    /**
      * 商品的总金额
      */
     private BigDecimal sumMoney;

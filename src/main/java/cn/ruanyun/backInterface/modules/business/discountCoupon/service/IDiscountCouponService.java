@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.discountCoupon.service;
 
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
+import cn.ruanyun.backInterface.modules.business.discountMy.VO.DiscountVO;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.VO.HarvestAddressVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.pojo.DiscountCoupon;
@@ -55,4 +56,5 @@ public interface IDiscountCouponService extends IService<DiscountCoupon> {
      */
      List<DiscountCouponListVO> getDiscountCouponListByGoodsPackageId(String goodsPackageId);
 
+    List<DiscountVO> getList(String join);
 }

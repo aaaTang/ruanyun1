@@ -1,13 +1,18 @@
 package cn.ruanyun.backInterface.modules.business.orderDetail.serviceimpl;
 
+import cn.ruanyun.backInterface.modules.business.discountMy.pojo.DiscountMy;
+import cn.ruanyun.backInterface.modules.business.discountMy.service.IDiscountMyService;
 import cn.ruanyun.backInterface.modules.business.orderDetail.mapper.OrderDetailMapper;
 import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
 import cn.ruanyun.backInterface.modules.business.orderDetail.service.IOrderDetailService;
+import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
 import java.util.concurrent.CompletableFuture;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -28,17 +33,25 @@ public class IOrderDetailServiceImpl extends ServiceImpl<OrderDetailMapper, Orde
 
        @Autowired
        private SecurityUtil securityUtil;
+       @Autowired
+       private IDiscountMyService discountMyService;
 
        @Override
        public void insertOrderUpdateOrderDetail(OrderDetail orderDetail) {
            if (ToolUtil.isEmpty(orderDetail.getCreateBy())) {
-                       orderDetail.setCreateBy(securityUtil.getCurrUser().getId());
-                   }else {
-                       orderDetail.setUpdateBy(securityUtil.getCurrUser().getId());
-                   }
-                   Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(orderDetail)))
-                           .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
-                           .toFuture().join();
+               orderDetail.setCreateBy(securityUtil.getCurrUser().getId());
+           } else {
+               orderDetail.setUpdateBy(securityUtil.getCurrUser().getId());
+           }
+           //优惠券变成已使用
+           if (!StringUtils.isEmpty(orderDetail.getDiscountMyId())){
+               DiscountMy byId = discountMyService.getById(orderDetail.getDiscountMyId());
+               byId.setStatus(0);
+               discountMyService.updateById(byId);
+           }
+           Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(orderDetail)))
+                   .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
+                   .toFuture().join();
        }
 
       @Override

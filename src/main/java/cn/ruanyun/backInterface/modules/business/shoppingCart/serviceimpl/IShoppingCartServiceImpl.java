@@ -53,14 +53,10 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
 
         shoppingCart.setCreateBy(securityUtil.getCurrUser().getId());
         CompletableFuture.runAsync(() -> {
-
-
             if (ToolUtil.isNotEmpty(getShopCartSame(shoppingCart))) {
-
                 ShoppingCart shoppingCartOld = getShopCartSame(shoppingCart);
-                shoppingCartOld.setCount(new BigDecimal(shoppingCartOld.getCount())
-                        .add(new BigDecimal(shoppingCart.getCount()))
-                        .toString()).setTotalPrice(getUpdatePrice(shoppingCartOld,shoppingCartOld.getCount()));
+                shoppingCartOld.setCount(shoppingCartOld.getCount()+shoppingCart.getCount())
+                        .setTotalPrice(getUpdatePrice(shoppingCartOld,shoppingCartOld.getCount().toString()));
                 this.updateById(shoppingCartOld);
 
             } else {
@@ -95,7 +91,7 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
         CompletableFuture.runAsync(() -> {
             ShoppingCart shoppingCartOld = this.getById(shoppingCart.getId());
             ToolUtil.copyProperties(shoppingCart,shoppingCartOld);
-            shoppingCartOld.setTotalPrice(getUpdatePrice(shoppingCartOld,shoppingCart.getCount()));
+            shoppingCartOld.setTotalPrice(getUpdatePrice(shoppingCartOld,shoppingCart.getCount().toString()));
             this.updateById(shoppingCartOld);
         });
     }

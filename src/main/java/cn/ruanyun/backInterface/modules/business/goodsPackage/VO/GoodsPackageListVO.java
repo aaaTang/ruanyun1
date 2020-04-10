@@ -26,6 +26,11 @@ public class GoodsPackageListVO {
     private String newPrice;
 
     /**
+     * 旧价格
+     */
+    private String oldPrice;
+
+    /**
      * 用户ID
      */
     private String userid;

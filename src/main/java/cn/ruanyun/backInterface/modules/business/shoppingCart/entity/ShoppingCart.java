@@ -41,7 +41,7 @@ public class ShoppingCart extends RuanyunBaseEntity {
     /**
      * 购买数量
      */
-    private String count;
+    private Integer count;
 
     /**
      * 优惠券id

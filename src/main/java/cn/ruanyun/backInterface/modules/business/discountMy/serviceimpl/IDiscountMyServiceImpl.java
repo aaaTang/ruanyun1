@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.discountMy.serviceimpl;
 
+import cn.ruanyun.backInterface.common.enums.Disabled;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
@@ -19,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -67,6 +70,11 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
                 }).orElse(null);
     }
 
+    @Override
+    public DiscountVO getDealCanUseCoupon(String id, String goodId, BigDecimal multiply) {
+        return null;
+    }
+
 
     /**
      * 领取优惠券
@@ -91,6 +99,42 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
         /*return Optional.ofNullable(getCanUseCouponId(securityUtil.getCurrUser().getId(),productId)).map(strings -> discountService.getList(JOINER.join(strings)))
                 .orElse(null);*/
        return  null;
+    }
+
+    /**
+     *获取订单里面能够使用的优惠券
+     * @param orderMoney
+     * @return
+     */
+    @Override
+    public List<DiscountVO> getCanUseCouponByOrder(String goodId ,BigDecimal orderMoney) {
+        return Optional.ofNullable(
+                getCanUseCouponId(securityUtil.getCurrUser().getId(),goodId,orderMoney)).map(strings -> discountService.getList(JOINER.join(strings)))
+                .orElse(null);
+    }
+
+    public List<String> getCanUseCouponId(String userId,String goodId ,BigDecimal orderMoney){
+        //1.先找出自己还没有使用的优惠券
+        List<DiscountMy> myCoupons = this.list(Wrappers.<DiscountMy>lambdaQuery()
+                .eq(DiscountMy::getCreateBy,userId)
+                .eq(DiscountMy::getStatus,0));
+        //2.过滤出能用的优惠券
+
+        return Optional.ofNullable(ToolUtil.setListToNul(myCoupons)).map(myCouponsList ->{
+            List<String> idsList = new ArrayList<>();
+            myCouponsList.parallelStream().forEach(discountMy -> {
+                DiscountCoupon one = discountService.getOne(
+                        Wrappers.<DiscountCoupon>lambdaQuery()
+                                .eq(DiscountCoupon::getId, myCoupons.get(1).getDiscountCouponId())
+                );
+                //优惠券是这个商品下面的，并且订单金额够了
+                int i = orderMoney.compareTo(one.getFullMoney());
+                if (one.getGoodsPackageId().equals(goodId) && i != -1){
+                    idsList.add(discountMy.getId());
+                }
+            });
+            return  idsList;
+        }).orElse(null);
     }
 
     public List<String> getCanUseCouponId(String userId, String productId){

@@ -1,5 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.balance.serviceimpl;
 
+import cn.ruanyun.backInterface.modules.base.pojo.User;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.business.balance.mapper.BalanceMapper;
 import cn.ruanyun.backInterface.modules.business.balance.pojo.Balance;
 import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
@@ -28,22 +30,28 @@ public class IBalanceServiceImpl extends ServiceImpl<BalanceMapper, Balance> imp
 
        @Autowired
        private SecurityUtil securityUtil;
+       @Autowired
+       private IUserService userService;
 
        @Override
        public void insertOrderUpdateBalance(Balance balance) {
-
            if (ToolUtil.isEmpty(balance.getCreateBy())) {
+               balance.setCreateBy(securityUtil.getCurrUser().getId());
+           } else {
+               balance.setUpdateBy(securityUtil.getCurrUser().getId());
+           }
+           Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(balance)))
+                   .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
+                   .toFuture().join();
+           User byId = userService.getById(balance.getCreateBy());
 
-                       balance.setCreateBy(securityUtil.getCurrUser().getId());
-                   }else {
-
-                       balance.setUpdateBy(securityUtil.getCurrUser().getId());
-                   }
-
-
-                   Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(balance)))
-                           .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
-                           .toFuture().join();
+           //1加 2减
+           if (balance.getStatus() == 1){
+               byId.setBalance(byId.getBalance().add(balance.getTotalPrice()));
+           }else{
+               byId.setBalance(byId.getBalance().subtract(balance.getTotalPrice()));
+           }
+           userService.updateById(byId);
        }
 
       @Override

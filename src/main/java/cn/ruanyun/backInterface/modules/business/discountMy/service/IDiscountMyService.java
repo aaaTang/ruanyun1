@@ -5,6 +5,7 @@ import cn.ruanyun.backInterface.modules.business.discountMy.VO.DiscountVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.discountMy.pojo.DiscountMy;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -35,4 +36,26 @@ public interface IDiscountMyService extends IService<DiscountMy> {
      */
     List<DiscountVO> getCanUseCoupon(String productId);
 
+    /***
+     *
+     * @param orderMoney
+     * @return
+     */
+    List<DiscountVO> getCanUseCouponByOrder(String goodId ,BigDecimal orderMoney);
+
+    /***
+     *
+     * @param discountCouponId
+     * @return
+     */
+    DiscountVO getDetailById(String discountCouponId);
+
+    /***
+     *
+     * @param id
+     * @param goodId
+     * @param multiply
+     * @return
+     */
+    DiscountVO getDealCanUseCoupon(String id, String goodId, BigDecimal multiply);
 }

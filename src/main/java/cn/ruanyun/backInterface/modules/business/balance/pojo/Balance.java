@@ -24,24 +24,23 @@ public class Balance extends RuanyunBaseEntity {
 
 
     /**
+     * 1订单
+     */
+    private Integer type;
+    /**
+     * 1加 2减
+     */
+    private Integer status;
+
+    /**
      * 订单id
      */
-    private String orderId;
+    private String tableOid;
 
     /**
-     * 商品总价格
+     * 价格
      */
     private BigDecimal totalPrice;
-
-    /**
-     * 满多少
-     */
-    private BigDecimal fullMoney;
-
-    /**
-     * 减多少
-     */
-    private BigDecimal subtractMoney;
 
     /**
      * 付钱之前的余额
@@ -49,7 +48,7 @@ public class Balance extends RuanyunBaseEntity {
     private BigDecimal payMoney;
 
     /**
-     * 付钱之前的余额
+     * 付钱之后的余额
      */
     private BigDecimal surplusMoney;
 

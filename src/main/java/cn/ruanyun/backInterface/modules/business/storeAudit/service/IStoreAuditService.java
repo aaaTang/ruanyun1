@@ -2,6 +2,7 @@ package cn.ruanyun.backInterface.modules.business.storeAudit.service;
 
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.storeAudit.DTO.StoreAuditDTO;
+import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditListVO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
@@ -43,5 +44,11 @@ public interface IStoreAuditService extends IService<StoreAudit> {
      * @return
      */
     List<StoreAuditVO> getStoreAuditList(StoreAuditDTO storeAuditDTO);
+
+    /**
+     * app商铺信息
+     * @return
+     */
+    StoreAuditListVO getStoreAudisByid(String id);
 
 }

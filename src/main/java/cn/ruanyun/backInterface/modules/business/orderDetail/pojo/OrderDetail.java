@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.orderDetail.pojo;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
+import cn.ruanyun.backInterface.modules.business.discountMy.pojo.DiscountMy;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -31,7 +32,6 @@ public class OrderDetail extends RuanyunBaseEntity {
      */
     private String goodName;
 
-
     /**
      * 商品图片
      */
@@ -47,7 +47,6 @@ public class OrderDetail extends RuanyunBaseEntity {
      */
     private Integer integral;
 
-
     /**
      * 颜色id
      */
@@ -61,5 +60,18 @@ public class OrderDetail extends RuanyunBaseEntity {
      */
     private Integer buyCount;
 
+    /**
+     * 购买数量
+     */
+    private String discountMyId;
+
+    /**
+     * 满多少
+     */
+    private BigDecimal fullMoney;
+    /**
+     * 减多少
+     */
+    private BigDecimal subtractMoney;
 
 }

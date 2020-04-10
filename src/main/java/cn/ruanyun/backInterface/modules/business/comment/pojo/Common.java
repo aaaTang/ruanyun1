@@ -2,6 +2,7 @@ package cn.ruanyun.backInterface.modules.business.comment.pojo;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.enums.OrderTypeEnum;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -29,6 +30,21 @@ public class Common extends RuanyunBaseEntity {
      * 订单id
      */
     private String orderId;
+
+    /**
+     * 商家id
+     */
+    private String userId;
+
+    /**
+     * 商品id
+     */
+    private String goodId;
+
+    /**
+     * 1商品，2套餐
+     */
+    private OrderTypeEnum typeEnum;
 
     /**
      * 评价星级

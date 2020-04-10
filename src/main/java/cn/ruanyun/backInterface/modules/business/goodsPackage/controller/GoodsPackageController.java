@@ -68,14 +68,14 @@ public class GoodsPackageController {
 
 
     /**
-     * 查询商家商品详情
-     * @param ids
+     * app查询套餐商品详情
+     * @param id
      * @return
      */
     @PostMapping(value = "/GetGoodsPackage")
-    public Result<Object> GetGoodsPackage(String ids){
+    public Result<Object> GetGoodsPackage(String id){
 
-        return Optional.ofNullable(iGoodsPackageService.GetGoodsPackage(ids))
+        return Optional.ofNullable(iGoodsPackageService.GetGoodsPackage(id))
                 .map(iAppGetGoodsPackage-> {
                     Map<String, Object> result = Maps.newHashMap();
                     result.put("data",  iAppGetGoodsPackage.getResult());
@@ -86,7 +86,7 @@ public class GoodsPackageController {
 
 
     /**
-     * 后端查询商品全部数据
+     * 后端查询套餐全部数据
      * @return
      */
     @PostMapping(value = "/BackGoodsPackageList")
@@ -97,7 +97,6 @@ public class GoodsPackageController {
                     Map<String, Object> result = Maps.newHashMap();
                     result.put("size",  iBackGoodsPackageList.size());
                     result.put("data",  PageUtil.listToPage(pageVo,iBackGoodsPackageList));
-
                     return new ResultUtil<>().setData(result, "获取后端查询商品全部数据成功！");
 
                 }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
@@ -109,13 +108,11 @@ public class GoodsPackageController {
      */
     @PostMapping(value = "/GetGoodsPackageList")
     public Result<Object> GetGoodsPackageList(PageVo pageVo, String classId, String areaId,Integer newPrice){
-
-        return Optional.ofNullable(iGoodsPackageService.GetGoodsPackageList(classId,areaId,newPrice))
+        return Optional.ofNullable(iGoodsPackageService.GetGoodsPackageList(classId,areaId,newPrice,null))
                 .map(iGetGoodsPackageList-> {
                     Map<String, Object> result = Maps.newHashMap();
                     result.put("size",  iGetGoodsPackageList.size());
                     result.put("data",  PageUtil.listToPage(pageVo, iGetGoodsPackageList));
-
                     return new ResultUtil<>().setData(result, "获取App查询商品详情数据成功！");
 
                 }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
@@ -127,7 +124,6 @@ public class GoodsPackageController {
      */
     @PostMapping(value = "/AppGoodsPackageList")
     public Result<Object> AppGoodsPackageList(PageVo pageVo, String ids){
-
         return Optional.ofNullable(iGoodsPackageService.AppGoodsPackageList(ids))
                 .map(iAppGoodsPackageList-> {
                     Map<String, Object> result = Maps.newHashMap();

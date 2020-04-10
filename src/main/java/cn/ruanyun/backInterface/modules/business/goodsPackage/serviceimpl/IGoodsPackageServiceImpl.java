@@ -18,8 +18,10 @@ import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
 import cn.ruanyun.backInterface.modules.business.storeAudit.mapper.StoreAuditMapper;
 import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
+import cn.ruanyun.backInterface.modules.business.storeAudit.service.IStoreAuditService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.qcloud.cos.transfer.Copy;
 import lombok.extern.slf4j.Slf4j;
@@ -61,11 +63,8 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     @Resource
     private GoodsPackageMapper igoodsPackageMapper;
 
-    @Resource
-    private StoreAuditMapper istoreAuditMapper;
-
-    @Resource
-    private UserMapper userMapper;
+    @Autowired
+    private IStoreAuditService storeAuditService;
 
     @Override
     public void insertOrderUpdateGoodsPackage(GoodsPackage goodsPackage) {
@@ -95,13 +94,19 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     /**
      * App查询商家商品详情
      *
-     * @param ids
+     * @param id
      * @return
      */
-    public Result<Object> GetGoodsPackage(String ids) {
-        GoodsPackage goodsPackage = this.getById(ids);
+    public Result<Object> GetGoodsPackage(String id) {
+        GoodsPackage goodsPackage = this.getById(id);
         GoodsPackageParticularsVO goodsPackageParticularsVO = new GoodsPackageParticularsVO();
         BeanUtils.copyProperties(goodsPackage, goodsPackageParticularsVO);
+        goodsPackageParticularsVO.setStoreAuditVO(storeAuditService.getStoreAudisByid(goodsPackage.getCreateBy()));
+        List<GoodsPackageListVO> goodsPackageListVOS = this.GetGoodsPackageList(null, null, null, goodsPackage.getCreateBy());
+        if (goodsPackageListVOS.size() > 4){
+            goodsPackageListVOS = goodsPackageListVOS.subList(0,4);
+        }
+        goodsPackageParticularsVO.setAppGoodsPackageListVOs(goodsPackageListVOS);
         return new ResultUtil<>().setData(goodsPackageParticularsVO);
     }
 
@@ -109,10 +114,11 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     /**
      * App分类商家商品筛选
      */
-    public List<GoodsPackageListVO> GetGoodsPackageList(String classId,String areaId,Integer newPrice){
+    public List<GoodsPackageListVO> GetGoodsPackageList(String classId,String areaId,Integer newPrice,String createBy){
         List<GoodsPackage> list= this.list(new QueryWrapper<GoodsPackage>().lambda()
                 .eq(EmptyUtil.isNotEmpty(classId),GoodsPackage::getClassId,classId)
                 .eq(EmptyUtil.isNotEmpty(areaId),GoodsPackage::getAreaId,areaId)
+                .eq(EmptyUtil.isNotEmpty(createBy),GoodsPackage::getCreateBy,createBy)
                 .orderByDesc(EmptyUtil.isNotEmpty(newPrice)&&newPrice.equals(1),GoodsPackage::getNewPrice)
                 .orderByAsc(EmptyUtil.isNotEmpty(newPrice)&&newPrice.equals(0),GoodsPackage::getNewPrice)
         );

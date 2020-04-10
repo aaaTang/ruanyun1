@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 /**
@@ -62,13 +63,24 @@ public class DiscountMyController {
 
     /**
      * 获取在当前商品下使用的优惠券
-     * @param userId
      * @param productId
      * @return
      */
     @PostMapping("/getCanUseCoupon")
-    public Result<Object> getCanUseCoupon(String userId, String productId){
+    public Result<Object> getCanUseCoupon(String productId){
         return Optional.ofNullable(discountMyService.getCanUseCoupon(productId)).map(myCoupon -> new ResultUtil<>().setData(myCoupon,"获取可以使用的优惠券成功！"))
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
+
+    /**
+     * 获取下单的时候，可以选择的优惠券
+     * @param orderMoney
+     * @param goodId
+     * @return
+     */
+    @PostMapping("/getCanUseCouponByOrder")
+    public Result<Object> getCanUseCouponByOrder(String goodId ,BigDecimal orderMoney){
+        return Optional.ofNullable(discountMyService.getCanUseCouponByOrder(goodId,orderMoney)).map(myCoupon -> new ResultUtil<>().setData(myCoupon,"获取可以使用的优惠券成功！"))
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
 }

@@ -3,11 +3,19 @@ package cn.ruanyun.backInterface.modules.business.comment.serviceimpl;
 import cn.ruanyun.backInterface.modules.business.comment.mapper.CommonMapper;
 import cn.ruanyun.backInterface.modules.business.comment.pojo.Common;
 import cn.ruanyun.backInterface.modules.business.comment.service.ICommonService;
+import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
+import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
+import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
+import cn.ruanyun.backInterface.modules.business.orderDetail.service.IOrderDetailService;
+import com.alibaba.druid.util.StringUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -28,19 +36,27 @@ public class ICommonServiceImpl extends ServiceImpl<CommonMapper, Common> implem
 
        @Autowired
        private SecurityUtil securityUtil;
+       @Autowired
+       private IOrderService orderService;
+       @Autowired
+       private IOrderDetailService orderDetailService;
 
        @Override
        public void insertOrderUpdateCommon(Common common) {
-
+           if (!StringUtils.isEmpty(common.getOrderId())){
+               Order byId = orderService.getById(common.getOrderId());
+               common.setTypeEnum(byId.getTypeEnum());
+               common.setUserId(byId.getUserId());
+               List<OrderDetail> list = orderDetailService.list(Wrappers.<OrderDetail>lambdaQuery().eq(OrderDetail::getOrderId, byId.getId()));
+               if (list.size() > 0){
+                   common.setGoodId(list.get(0).getGoodId());
+               }
+           }
            if (ToolUtil.isEmpty(common.getCreateBy())) {
-
                        common.setCreateBy(securityUtil.getCurrUser().getId());
                    }else {
-
                        common.setUpdateBy(securityUtil.getCurrUser().getId());
                    }
-
-
                    Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(common)))
                            .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
                            .toFuture().join();
@@ -48,7 +64,6 @@ public class ICommonServiceImpl extends ServiceImpl<CommonMapper, Common> implem
 
       @Override
       public void removeCommon(String ids) {
-
           CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
       }
 }

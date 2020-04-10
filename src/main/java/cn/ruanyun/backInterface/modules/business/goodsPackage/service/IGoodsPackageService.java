@@ -42,7 +42,7 @@ public interface IGoodsPackageService extends IService<GoodsPackage> {
     /**
      * App分类商家商品筛选
      */
-    List<GoodsPackageListVO>  GetGoodsPackageList(String classId, String areaId,Integer newPrice);
+    List<GoodsPackageListVO>  GetGoodsPackageList(String classId, String areaId,Integer newPrice ,String createBy);
 
     /**
      * 后端查询商品全部数据

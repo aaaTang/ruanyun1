@@ -130,6 +130,18 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
         return discountVOS;
     }
 
+    @Override
+    public List<DiscountVO> getList(String join) {
+        return Optional.ofNullable(ToolUtil.setListToNul(this.listByIds(ToolUtil.splitterStr(join)))).map(discountCouponList -> {
+            List<DiscountVO> discountCoupons = discountCouponList.parallelStream().map(discountCoupon -> {
+                DiscountVO discountCouponListVO = new DiscountVO();
+                ToolUtil.copyProperties(discountCoupon,discountCouponListVO);
+                return discountCouponListVO;
+            }).collect(Collectors.toList());
+            return discountCoupons;
+        }).orElse(null);
+    }
+
     //判断优惠券是否被领取
     public boolean getDetailById(DiscountCoupon discountCoupon){
         String userId = securityUtil.getCurrUser().getId();

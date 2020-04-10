@@ -22,6 +22,10 @@ public class AppGoodsPackageListVO {
      */
     private String newPrice;
     /**
+     * 旧价格
+     */
+    private String oldPrice;
+    /**
      * 套餐图片
      */
     @Column(length = 1000)

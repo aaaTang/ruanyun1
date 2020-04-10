@@ -1,7 +1,5 @@
 package cn.ruanyun.backInterface.modules.business.good.VO;
 
-import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
-
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -17,7 +15,7 @@ import java.util.List;
 
 @Data
 @Accessors(chain = true)
-public class    AppGoodDetailVO {
+public class AppGoodDetailVO {
 
 
     private String id;

@@ -58,14 +58,6 @@ public class DiscountCouponController {
     }
 
     /**
-     * 后台管理优惠券
-     * @param id
-     * @return
-     */
-
-
-
-    /**
      * 优惠券详情
      * @param id
      * @return

@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * @author fei
  * 订单管理接口
@@ -48,8 +50,7 @@ public class OrderController {
     @PostMapping(value = "/orderPay")
     public Result<Object> orderPay(String id , PayTypeEnum payTypeEnum){
         try {
-            iOrderService.payOrder(id,payTypeEnum);
-            return new ResultUtil<>().setSuccessMsg("支付成功");
+            return iOrderService.payOrder(id,payTypeEnum);
         }catch (Exception e) {
             return new ResultUtil<>().setErrorMsg(201, e.getMessage());
         }

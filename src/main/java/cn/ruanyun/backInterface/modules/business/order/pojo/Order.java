@@ -2,6 +2,7 @@ package cn.ruanyun.backInterface.modules.business.order.pojo;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
+import cn.ruanyun.backInterface.common.enums.OrderTypeEnum;
 import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -32,13 +33,21 @@ public class Order extends RuanyunBaseEntity {
      */
     private OrderStatusEnum orderStatus = OrderStatusEnum.PRE_PAY;
     /**
+     * 1商品，2套餐
+     */
+    private OrderTypeEnum typeEnum;
+    /**
+     * 1商品，2套餐
+     */
+    private String userId;
+    /**
      * 支付类型
      */
     private PayTypeEnum payTypeEnum;
     /**
      * 总价格
      */
-    private BigDecimal totalPrice;
+    private BigDecimal totalPrice = new BigDecimal(0);
     /**
      * 收获地址id
      */
@@ -58,19 +67,11 @@ public class Order extends RuanyunBaseEntity {
      */
     private String address;
 
-    /**
-     * 优惠券id
-     */
-    private String discountCouponId;
 
-    /**
-     * 满多少
-     */
-    private BigDecimal fullMoney;
+    public double getTotalPrice(){
+        return this.totalPrice.doubleValue();
+    }
 
-    /**
-     * 减多少
-     */
-    private BigDecimal subtractMoney;
+
 
 }
