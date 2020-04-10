@@ -46,13 +46,12 @@ public class MyFavoriteController {
 
     /**
      * 删除我的收藏
-     * @param id
      * @return
      */
     @PostMapping("/deleteMyFavorite")
-    public Result<Object> deleteMyFavorite(String id) {
+    public Result<Object> deleteMyFavorite(String ids) {
 
-        iMyFavoriteService.deleteMyFavorite(id);
+        iMyFavoriteService.deleteMyFavorite(ids);
         return new ResultUtil<>().setSuccessMsg("删除成功！");
     }
 

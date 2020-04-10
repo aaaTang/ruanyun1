@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -37,6 +38,9 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
     @Autowired
     private IGoodService goodService;
 
+    @Resource
+    private MyFavoriteMapper myFavoriteMapper;
+
     /**
      * 插入我的收藏
      *
@@ -46,18 +50,24 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
     public void insertMyFavorite(MyFavorite myFavorite) {
 
         myFavorite.setCreateBy(securityUtil.getCurrUser().getId());
-        CompletableFuture.runAsync(() -> this.save(myFavorite));
+            MyFavorite favorite = this.getOne(new QueryWrapper<MyFavorite>().lambda().eq(MyFavorite::getGoodId,myFavorite.getGoodId())
+            .eq(MyFavorite::getCreateBy,securityUtil.getCurrUser().getId()));
+
+            if(ToolUtil.isEmpty(favorite)){
+                this.save(myFavorite);
+            }
+
     }
 
     /**
      * 移除我的收藏
-     *
-     * @param id
      */
     @Override
-    public void deleteMyFavorite(String id) {
+    public void deleteMyFavorite(String goodsId) {
 
-        CompletableFuture.runAsync(() -> this.removeById(id));
+            String userid =securityUtil.getCurrUser().getId();
+
+         myFavoriteMapper.deleteMyFavorite(goodsId,userid);
     }
 
     /**

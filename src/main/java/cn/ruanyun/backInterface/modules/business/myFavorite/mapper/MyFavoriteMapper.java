@@ -10,4 +10,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface MyFavoriteMapper extends BaseMapper<MyFavorite> {
 
+    void deleteMyFavorite(String goodsId, String userid);
+
 }

@@ -125,9 +125,15 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
 
     public SizeAndRolorVO SizeAndRolorList(String goodsId,String colorId,String sizeId) {
 
-           //获取默认规格第一条数据
-            SizeAndRolor data = Optional.ofNullable(this.getSizeAndRolorList(goodsId,colorId).get(0))
-                .orElse(null);
+           List<SizeAndRolor> sizeAndRolorList = this.getSizeAndRolorList(goodsId,colorId);
+
+            SizeAndRolor data = new SizeAndRolor();
+            //获取默认规格第一条数据
+           if(ToolUtil.isNotEmpty(sizeAndRolorList)){
+               data = sizeAndRolorList.get(0);
+           }else {
+               return null;
+           }
 
             SizeAndRolorVO sizeAndRolor = new SizeAndRolorVO();
 
@@ -168,8 +174,6 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
             sizeAndRolor.setSizeList(sizeList);//尺寸大小
             sizeAndRolor.setGoodsPrice(goodsPrice);//价格
             sizeAndRolor.setInventory(num);//库存
-
-
 
            return Optional.ofNullable(sizeAndRolor)
                    .orElse(null);

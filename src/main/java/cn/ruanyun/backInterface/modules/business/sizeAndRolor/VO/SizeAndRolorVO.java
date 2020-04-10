@@ -44,7 +44,7 @@ public class SizeAndRolorVO {
 //     */
 //    private AtomicReference<BigDecimal> goodsPrice;
 
-    private String id;
+    //private String id;
     /**
      * 商品id
      */

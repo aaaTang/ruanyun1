@@ -1,6 +1,5 @@
 package cn.ruanyun.backInterface.modules.business.discountMy.serviceimpl;
 
-import cn.ruanyun.backInterface.common.enums.Disabled;
 import cn.ruanyun.backInterface.common.utils.EmptyUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
@@ -12,7 +11,6 @@ import cn.ruanyun.backInterface.modules.business.discountMy.VO.DiscountVO;
 import cn.ruanyun.backInterface.modules.business.discountMy.mapper.DiscountMyMapper;
 import cn.ruanyun.backInterface.modules.business.discountMy.pojo.DiscountMy;
 import cn.ruanyun.backInterface.modules.business.discountMy.service.IDiscountMyService;
-import cn.ruanyun.backInterface.modules.business.harvestAddress.VO.HarvestAddressVO;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.base.Joiner;
@@ -20,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import sun.invoke.empty.Empty;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

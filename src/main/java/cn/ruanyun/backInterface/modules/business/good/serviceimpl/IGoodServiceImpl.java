@@ -5,6 +5,7 @@ import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
 import cn.ruanyun.backInterface.modules.business.followAttention.pojo.FollowAttention;
@@ -254,6 +255,9 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
             AppShopVO shopList = new AppShopVO();
             // TODO: 店铺图片
             shopList.setShopPic(userService.getUserIdByUserPic(good.getCreateBy()))
+            // TODO: 店铺id
+            .setShopId(Optional.ofNullable(good.getCreateBy())
+                            .orElse(null))
             // TODO: 店铺名称
             .setShopName(userService.getUserIdByUserName(good.getCreateBy()))
             //TODO: 商品数量

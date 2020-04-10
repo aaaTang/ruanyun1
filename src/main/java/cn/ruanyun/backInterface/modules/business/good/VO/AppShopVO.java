@@ -6,6 +6,10 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class AppShopVO {
+    /**
+     * 店铺id
+     */
+    private String shopId;
 
     /**
      * 店铺名称
