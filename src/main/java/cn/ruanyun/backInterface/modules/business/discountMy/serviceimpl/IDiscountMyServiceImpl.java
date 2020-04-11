@@ -92,6 +92,8 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
                                 //指定商品
                             }else if(byId.getDisCouponType().getCode() == 2 && byId.getGoodsPackageId().equals(goodId)  && i != -1){
                                 ToolUtil.copyProperties(byId,discountVO);
+                            }else{
+                                return null;
                             }
                         }
                         return discountVO;
