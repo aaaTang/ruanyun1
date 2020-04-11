@@ -130,6 +130,29 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
         return discountVOS;
     }
 
+    /**
+     * app用户获取可以领取的优惠券
+     *
+     * @return
+     */
+    @Override
+    public List<DiscountCouponListVO> getDiscountCouponListByCreateBy(String createBy) {
+
+        //获取该商品下所有的优惠券
+        DiscountCoupon discountCoupon = new DiscountCoupon();
+        discountCoupon.setCreateBy(createBy);
+        List<DiscountCoupon> discountCouponList = this.getDiscountCouponList(discountCoupon);
+        List<DiscountCouponListVO> discountVOS = new ArrayList<>();
+        discountCouponList.forEach(discountCoupon1 -> {
+            DiscountCouponListVO discountCouponListVO = new DiscountCouponListVO();
+            ToolUtil.copyProperties(discountCoupon1,discountCouponListVO);
+            discountCouponListVO.setValidityPeriod(discountCouponListVO.getValidityPeriod().substring(0,discountCouponListVO.getValidityPeriod().indexOf(" ")));
+            discountCouponListVO.setIsReceive(this.getDetailById(discountCoupon1));
+            discountVOS.add(discountCouponListVO);
+        });
+        return discountVOS;
+    }
+
     @Override
     public List<DiscountVO> getList(String join) {
         return Optional.ofNullable(ToolUtil.setListToNul(this.listByIds(ToolUtil.splitterStr(join)))).map(discountCouponList -> {

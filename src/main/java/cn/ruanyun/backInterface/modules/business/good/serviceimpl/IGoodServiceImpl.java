@@ -395,7 +395,9 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                     if(ToolUtil.isNotEmpty(color)){
                         appGoodOrderVO.setColor(sizeAndRolorMapper.selectById(color).getColor());
                     }
-                    appGoodOrderVO.setSize(sizeAndRolorMapper.selectById(size).getSize());
+                    if(ToolUtil.isNotEmpty(size)){
+                        appGoodOrderVO.setSize(sizeAndRolorMapper.selectById(size).getSize());
+                    }
                     return appGoodOrderVO;
                 }).orElse(null);
     }

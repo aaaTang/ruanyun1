@@ -46,6 +46,7 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
         return Optional.ofNullable(ToolUtil.setListToNul(
                 this.list(Wrappers.<DiscountMy>lambdaQuery()
                         .eq(DiscountMy::getCreateBy,securityUtil.getCurrUser().getId())
+                        .eq(DiscountMy::getStatus,status)
                         .orderByDesc(DiscountMy::getCreateTime)))
         ).map(list ->{
             List<DiscountVO> discountVOS = list.parallelStream().flatMap(discountMy -> {
