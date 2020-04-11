@@ -27,24 +27,9 @@ public class SizeAndRolor extends RuanyunBaseEntity {
     private String goodsId;
 
     /**
-     * 商品尺寸
+     * 规格和规格属性id
      */
-    private String size;
-
-    /**
-     * 商品颜色
-     */
-    private String color;
-
-    /**
-     * 商品数量
-     */
-    private Integer inventory;
-
-    /**
-     * 商品图片
-     */
-    private String pic;
+    private String attrSymbolPath;
 
     /**
      *  商品价格
@@ -52,11 +37,12 @@ public class SizeAndRolor extends RuanyunBaseEntity {
     private BigDecimal goodsPrice = new BigDecimal(0);
 
     /**
-     * 父id
+     * 商品数量
      */
-    private String parentId;
+    private Integer inventory;
 
-
-    @ApiModelProperty(value = "是否为父节点(含子节点) 默认false")
-    private Boolean isParent = false;
+    /**
+     *图片
+     */
+    private String pic;
 }

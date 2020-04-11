@@ -71,9 +71,9 @@ public class SizeAndRolorController {
      * @return
      */
     @PostMapping(value = "/SizeAndRolorList")
-    public Result<Object> SizeAndRolorList(String goodsId,String colorId,String sizeId){
+    public Result<Object> SizeAndRolorList(String goodsId){
 
-            return Optional.ofNullable(iSizeAndRolorService.SizeAndRolorList(goodsId,colorId,sizeId))
+            return Optional.ofNullable(iSizeAndRolorService.SizeAndRolorList(goodsId))
                     .map(sizeAndRolor-> {
                         Map<String, Object> result = Maps.newHashMap();
                         result.put("data",  sizeAndRolor);
@@ -82,5 +82,21 @@ public class SizeAndRolorController {
                     }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
     }
 
+
+    /**
+     * 获取规格属性的图片价格库存
+     * @return
+     */
+    @PostMapping(value = "/getInventory")
+    public Result<Object> getInventory(String ids){
+
+        return Optional.ofNullable(iSizeAndRolorService.getInventory(ids))
+                .map(sizeAndRolor-> {
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("data",  sizeAndRolor);
+                    return new ResultUtil<>().setData(result, "获取规格属性的图片价格库存数据成功！");
+
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+    }
 
 }
