@@ -46,6 +46,7 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
         return Optional.ofNullable(ToolUtil.setListToNul(
                 this.list(Wrappers.<DiscountMy>lambdaQuery()
                         .eq(DiscountMy::getCreateBy,securityUtil.getCurrUser().getId())
+                        .eq(DiscountMy::getStatus,status)
                         .orderByDesc(DiscountMy::getCreateTime)))
         ).map(list ->{
             List<DiscountVO> discountVOS = list.parallelStream().flatMap(discountMy -> {
@@ -91,6 +92,8 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
                                 //指定商品
                             }else if(byId.getDisCouponType().getCode() == 2 && byId.getGoodsPackageId().equals(goodId)  && i != -1){
                                 ToolUtil.copyProperties(byId,discountVO);
+                            }else{
+                                return null;
                             }
                         }
                         return discountVO;

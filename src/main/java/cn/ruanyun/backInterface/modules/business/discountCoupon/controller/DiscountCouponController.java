@@ -80,5 +80,16 @@ public class DiscountCouponController {
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
 
+    /**
+     * 商家获取优惠券
+     * @param createBy
+     * @return
+     */
+    @PostMapping("/getDiscountCouponListByCreateBy")
+    public Result<Object> getDiscountCouponListByCreatedId(String createBy) {
+        return Optional.ofNullable(iDiscountCouponService.getDiscountCouponListByCreateBy(createBy))
+                .map(discountCouponList -> new ResultUtil<>().setData(discountCouponList,"获取列表成功！"))
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
 
 }

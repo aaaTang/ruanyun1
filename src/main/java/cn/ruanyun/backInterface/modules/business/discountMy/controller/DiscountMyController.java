@@ -31,11 +31,11 @@ public class DiscountMyController {
 
     /**
      * 我的优惠券
-     * @param userId
+     * @param status
      * @return
      */
     @PostMapping("/getDiscountMy")
-    public Result<Object> getDiscountMy(String userId, Integer status){
+    public Result<Object> getDiscountMy( Integer status){
         return Optional.ofNullable(discountMyService.getMyCoupon(status)).map(myCoupons ->new ResultUtil<>().setData(myCoupons,"获取我的优惠券成功！"))
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }

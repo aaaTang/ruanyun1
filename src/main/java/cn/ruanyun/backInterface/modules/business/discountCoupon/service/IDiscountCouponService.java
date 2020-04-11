@@ -57,4 +57,6 @@ public interface IDiscountCouponService extends IService<DiscountCoupon> {
      List<DiscountCouponListVO> getDiscountCouponListByGoodsPackageId(String goodsPackageId);
 
     List<DiscountVO> getList(String join);
+
+    List<DiscountCouponListVO>  getDiscountCouponListByCreateBy(String createBy);
 }

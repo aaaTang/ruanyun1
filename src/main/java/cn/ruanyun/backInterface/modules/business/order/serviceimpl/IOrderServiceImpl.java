@@ -152,17 +152,19 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             byId.setId(null);
             ToolUtil.copyProperties(byId, orderDetail);
 
-            //处理商品优惠卷信息
-            DiscountVO detailById = discountMyService.getDetailById(orderDetail.getDiscountMyId());
-            if (EmptyUtil.isNotEmpty(detailById)) {
-                int orderDetailMoney = detailById.getFullMoney().compareTo(orderDetail.getGoodNewPrice().divide(new BigDecimal(orderDetail.getBuyCount())));
-                if (orderDetailMoney == -1) {
-                    detailById.setId(null);
-                    ToolUtil.copyProperties(detailById, orderDetail);
-                    orderDetail.setDiscountMyId(detailById.getId());
+            if (!StringUtils.isEmpty(orderDetail.getDiscountMyId())){
+                //处理商品优惠卷信息
+                DiscountVO detailById = discountMyService.getDetailById(orderDetail.getDiscountMyId());
+                if (EmptyUtil.isNotEmpty(detailById)) {
+                    int orderDetailMoney = detailById.getFullMoney().compareTo(orderDetail.getGoodNewPrice().divide(new BigDecimal(orderDetail.getBuyCount())));
+                    if (orderDetailMoney == -1) {
+                        detailById.setId(null);
+                        ToolUtil.copyProperties(detailById, orderDetail);
+                        orderDetail.setDiscountMyId(detailById.getId());
+                    }
                 }
-            }
 
+            }
             List<OrderDetail> goodList = goodMap.get(byId.getCreateBy());
             if (EmptyUtil.isEmpty(goodList)) {
                 ArrayList<OrderDetail> orderDetails = new ArrayList<>();
@@ -300,13 +302,15 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         }
         appGoodOrderVO.setCount(orderShowDTO.getCount());
 
-        //处理优惠券信息 订单的价格是否满足
-        DiscountVO detailById = discountMyService.getDetailById(orderShowDTO.getDiscountCouponId());
-        int i = detailById.getFullMoney().compareTo(new BigDecimal(appGoodOrderVO.getCount()).multiply(appGoodOrderVO.getGoodNewPrice()));
-        if (i == -1){
-            appGoodOrderVO.setDiscountMyId(detailById.getId());
-            detailById.setId(null);
-            ToolUtil.copyProperties(detailById,appGoodOrderVO);
+        if (!StringUtils.isEmpty(orderShowDTO.getDiscountCouponId())){
+            //处理优惠券信息 订单的价格是否满足
+            DiscountVO detailById = discountMyService.getDetailById(orderShowDTO.getDiscountCouponId());
+            int i = detailById.getFullMoney().compareTo(new BigDecimal(appGoodOrderVO.getCount()).multiply(appGoodOrderVO.getGoodNewPrice()));
+            if (i == -1){
+                appGoodOrderVO.setDiscountMyId(detailById.getId());
+                detailById.setId(null);
+                ToolUtil.copyProperties(detailById,appGoodOrderVO);
+            }
         }
         return appGoodOrderVO;
     }
