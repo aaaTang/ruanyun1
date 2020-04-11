@@ -29,14 +29,9 @@ public class ShoppingCart extends RuanyunBaseEntity {
     private String goodId;
 
     /**
-     * 颜色id
+     * 规格和规格属性id
      */
-    private String colorId;
-
-    /**
-     * 尺寸id
-     */
-    private String sizeId;
+    private String attrSymbolPath;
 
     /**
      * 购买数量

@@ -1,13 +1,18 @@
 package cn.ruanyun.backInterface.modules.business.shoppingCart.serviceimpl;
 
 
+import cn.ruanyun.backInterface.common.utils.EmptyUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
+import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
+import cn.ruanyun.backInterface.modules.business.itemAttrKey.pojo.ItemAttrKey;
+import cn.ruanyun.backInterface.modules.business.itemAttrKey.service.IItemAttrKeyService;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.VO.ShoppingCartVO;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.entity.ShoppingCart;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.mapper.ShoppingCartMapper;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
+import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -42,6 +47,8 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
 
     @Autowired
     private ISizeAndRolorService iSizeAndRolorService;
+    @Autowired
+    private IItemAttrKeyService itemAttrKeyService;
 
     /**
      * 加入购物车
@@ -114,15 +121,26 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
                 shoppingCarts.map(shoppingCarts1 -> shoppingCarts1.parallelStream().flatMap(shoppingCart -> {
 
                     ShoppingCartVO shoppingCartVO = new ShoppingCartVO();
+
+                    //处理属性信息
+                    List<String> itemAttrKeys = itemAttrKeyService.listByIds(ToolUtil.splitterStr(shoppingCart.getAttrSymbolPath())).stream().map(ItemAttrKey::getAttrName).collect(Collectors.toList());
+                    shoppingCartVO.setItemAttrKeys(itemAttrKeys);
+
+                    Good byId = goodService.getById(shoppingCart.getGoodId());
+                    if (EmptyUtil.isNotEmpty(byId)){
+                        shoppingCartVO.setName(byId.getGoodName())
+                        .setGoodPrice(byId.getGoodNewPrice())
+                        .setPic(byId.getGoodPics());
+                    }
+                    //处理价格 如果这个属性配置了新的价格，就用新的价格
+                    SizeAndRolor one = iSizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery()
+                            .eq(SizeAndRolor::getAttrSymbolPath, shoppingCart.getAttrSymbolPath())
+                            .eq(SizeAndRolor::getGoodsId, shoppingCart.getGoodId()));
+                    if (EmptyUtil.isNotEmpty(one)){
+                        ToolUtil.copyProperties(one,shoppingCartVO);
+                    }
+
                     ToolUtil.copyProperties(shoppingCart,shoppingCartVO);
-
-                    shoppingCartVO.setPic(goodService.getPicLimit1(shoppingCart.getGoodId()))
-                            .setSizeName(iSizeAndRolorService.getSizeName(shoppingCart.getSizeId()))
-                            .setColorName(iSizeAndRolorService.getColorName(shoppingCart.getColorId()))
-                            .setName(goodService.getGoodName(shoppingCart.getGoodId()))
-                            .setGoodPrice(goodService.getGoodPrice(shoppingCart.getGoodId()))
-                            .setInventory(iSizeAndRolorService.getInventory(shoppingCart.getSizeId()));
-
                     return Stream.of(shoppingCartVO);
                 }).collect(Collectors.toList())).orElse(null));
 
@@ -135,6 +153,15 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
         return Optional.ofNullable(shoppingCart.size()).orElse(null);
     }
 
+    @Override
+    public void changeCount(String id,Integer count) {
+        CompletableFuture.runAsync(() -> {
+            ShoppingCart shoppingCartOld = this.getById(id);
+            shoppingCartOld.setCount(count);
+            shoppingCartOld.setTotalPrice(getUpdatePrice(shoppingCartOld,shoppingCartOld.getCount().toString()));
+            this.updateById(shoppingCartOld);
+        });
+    }
 
     /**
      * 获取基本数据
@@ -177,8 +204,7 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
        return this.getOne(Wrappers.<ShoppingCart>lambdaQuery()
                 .eq(ShoppingCart::getCreateBy,shoppingCart.getCreateBy())
                 .eq(ShoppingCart::getGoodId,shoppingCart.getGoodId())
-                .eq(ShoppingCart::getSizeId,shoppingCart.getSizeId())
-                .eq(ShoppingCart::getColorId,shoppingCart.getColorId()));
+                .eq(ShoppingCart::getAttrSymbolPath,shoppingCart.getAttrSymbolPath()));
     }
 
 }

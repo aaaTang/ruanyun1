@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.discountMy.serviceimpl;
 
+import cn.ruanyun.backInterface.common.enums.DisCouponTypeEnum;
 import cn.ruanyun.backInterface.common.utils.EmptyUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
@@ -11,6 +12,8 @@ import cn.ruanyun.backInterface.modules.business.discountMy.VO.DiscountVO;
 import cn.ruanyun.backInterface.modules.business.discountMy.mapper.DiscountMyMapper;
 import cn.ruanyun.backInterface.modules.business.discountMy.pojo.DiscountMy;
 import cn.ruanyun.backInterface.modules.business.discountMy.service.IDiscountMyService;
+import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
+import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.base.Joiner;
@@ -19,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.xml.transform.sax.SAXResult;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +42,9 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
     private SecurityUtil securityUtil;
     @Autowired
     private IDiscountCouponService discountService;
+    @Autowired
+    private IGoodService goodService;
+
 
     private static final Joiner JOINER = Joiner.on(",").skipNulls();
 
@@ -78,7 +85,9 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
      * @return
      */
     @Override
-    public DiscountVO getDealCanUseCoupon(String userId, String goodId, BigDecimal multiply) {
+    public  List<DiscountVO> getDealCanUseCoupon(String userId, String goodId, BigDecimal multiply) {
+        String createBy = goodService.getById(goodId).getCreateBy();
+        userId = securityUtil.getCurrUser().getId();
         return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<DiscountMy>lambdaQuery().eq(DiscountMy::getCreateBy,userId))))
                 .map(discountMIES -> {
                     List<DiscountVO> discountVOList = discountMIES.parallelStream().map(discountMy -> {
@@ -87,22 +96,20 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
                         if (EmptyUtil.isNotEmpty(byId)){
                             //全场 价格达到标准
                             int i = multiply.compareTo(byId.getFullMoney());
-                            if (byId.getDisCouponType().getCode() == 1 && i != -1){
+                            if (byId.getDisCouponType().getCode() == DisCouponTypeEnum.ALL_USE.getCode() && i != -1 && byId.getCreateBy().equals(createBy)){
                                 ToolUtil.copyProperties(byId,discountVO);
+                                discountVO.setDisCouponType(byId.getDisCouponType().getValue());
                                 //指定商品
-                            }else if(byId.getDisCouponType().getCode() == 2 && byId.getGoodsPackageId().equals(goodId)  && i != -1){
+                            }else if(byId.getDisCouponType().getCode() == DisCouponTypeEnum.ONE_PRODUCT.getCode() && byId.getGoodsPackageId().equals(goodId)  && i != -1){
                                 ToolUtil.copyProperties(byId,discountVO);
-                            }else{
+                            }else {
                                 return null;
                             }
                         }
+                        discountVO.setValidityPeriod(discountVO.getValidityPeriod().substring(0,discountVO.getValidityPeriod().indexOf(" ")));
                         return discountVO;
                     }).collect(Collectors.toList());
-                    if (discountVOList.size() == 0){
-                        return null;
-                    }else {
-                        return discountVOList.get(0);
-                    }
+                    return discountVOList;
                 }).orElse(null);
 
     }
@@ -131,42 +138,6 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
         /*return Optional.ofNullable(getCanUseCouponId(securityUtil.getCurrUser().getId(),productId)).map(strings -> discountService.getList(JOINER.join(strings)))
                 .orElse(null);*/
        return  null;
-    }
-
-    /**
-     *获取订单里面能够使用的优惠券
-     * @param orderMoney
-     * @return
-     */
-    @Override
-    public List<DiscountVO> getCanUseCouponByOrder(String goodId ,BigDecimal orderMoney) {
-        return Optional.ofNullable(
-                getCanUseCouponId(securityUtil.getCurrUser().getId(),goodId,orderMoney)).map(strings -> discountService.getList(JOINER.join(strings)))
-                .orElse(null);
-    }
-
-    public List<String> getCanUseCouponId(String userId,String goodId ,BigDecimal orderMoney){
-        //1.先找出自己还没有使用的优惠券
-        List<DiscountMy> myCoupons = this.list(Wrappers.<DiscountMy>lambdaQuery()
-                .eq(DiscountMy::getCreateBy,userId)
-                .eq(DiscountMy::getStatus,0));
-        //2.过滤出能用的优惠券
-
-        return Optional.ofNullable(ToolUtil.setListToNul(myCoupons)).map(myCouponsList ->{
-            List<String> idsList = new ArrayList<>();
-            myCouponsList.parallelStream().forEach(discountMy -> {
-                DiscountCoupon one = discountService.getOne(
-                        Wrappers.<DiscountCoupon>lambdaQuery()
-                                .eq(DiscountCoupon::getId, myCoupons.get(1).getDiscountCouponId())
-                );
-                //优惠券是这个商品下面的，并且订单金额够了
-                int i = orderMoney.compareTo(one.getFullMoney());
-                if (one.getGoodsPackageId().equals(goodId) && i != -1){
-                    idsList.add(discountMy.getId());
-                }
-            });
-            return  idsList;
-        }).orElse(null);
     }
 
     public List<String> getCanUseCouponId(String userId, String productId){

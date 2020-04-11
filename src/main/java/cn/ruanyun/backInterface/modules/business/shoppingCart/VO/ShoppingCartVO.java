@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @program: ruanyun-plus
@@ -28,18 +29,10 @@ public class ShoppingCartVO {
      */
     private String pic;
 
-
     /**
-     * 颜色名称
+     * 属性信息
      */
-    private String colorName;
-
-
-    /**
-     * 尺寸名称
-     */
-    private String sizeName;
-
+    private List<String> itemAttrKeys;
 
     /**
      * 购买数量
@@ -50,12 +43,12 @@ public class ShoppingCartVO {
     /**
      * 购买总金额
      */
-    private BigDecimal totalPrice;
+    private BigDecimal totalPrice = new BigDecimal(0);
 
     /**
      * 商品单价
      */
-    private BigDecimal goodPrice;
+    private BigDecimal goodPrice = new BigDecimal(0);
     /**
      * 商品库存
      */

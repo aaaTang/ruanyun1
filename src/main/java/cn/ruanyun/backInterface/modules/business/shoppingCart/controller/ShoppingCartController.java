@@ -82,5 +82,16 @@ public class ShoppingCartController {
                     return new ResultUtil<>().setData(result,"获取我的购物车数据成功！");
                 }).orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
+   /* *
+     * 获取我的购物车数据
+     * @param pageVo
+     * @return
+     * */
+
+    @PostMapping("/changeCount")
+    public Result<Object> changeCount(String id,Integer count) {
+        iShoppingCartService.changeCount(id,count);
+        return new ResultUtil<>().setErrorMsg("更新购物车成功！");
+    }
 
 }

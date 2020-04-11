@@ -27,15 +27,10 @@ public class OrderShowDTO {
     private String goodId;
 
     /**
-     * 颜色id
+     * 属性
      */
-    private String colorId;
+    private String attrSymbolPath;
 
-
-    /**
-     * 规格id
-     */
-    private String sizeId;
 
     private Integer count;
 

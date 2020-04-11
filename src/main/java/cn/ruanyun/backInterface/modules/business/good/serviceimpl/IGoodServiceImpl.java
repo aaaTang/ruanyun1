@@ -17,6 +17,9 @@ import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
 import cn.ruanyun.backInterface.modules.business.goodService.service.IGoodServiceService;
+import cn.ruanyun.backInterface.modules.business.itemAttrKey.pojo.ItemAttrKey;
+import cn.ruanyun.backInterface.modules.business.itemAttrVal.pojo.ItemAttrVal;
+import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrValService;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
 import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
 import cn.ruanyun.backInterface.modules.business.myFootprint.serviceimpl.IMyFootprintServiceImpl;
@@ -58,20 +61,11 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     @Autowired
     private IUserService userService;
 
-//       @Autowired
-//       private IcolorService colorService;
-//
-//       @Autowired
-//       private IsizeService sizeService;
-
     @Autowired
     private IMyFootprintServiceImpl iMyFootprintService;
 
     @Resource
     private GoodCategoryMapper goodCategoryMapper;
-
-    @Resource
-    private SizeAndRolorMapper sizeAndRolorMapper;
 
     @Autowired
     private IShoppingCartService iShoppingCartService;
@@ -87,6 +81,9 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
     @Autowired
     private IGoodServiceService iGoodServiceService;
+
+    @Autowired
+    private IItemAttrValService iItemAttrValService;
 
 
     @Override
@@ -379,7 +376,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
      * @return
      */
     @Override
-    public AppGoodOrderVO getAppGoodOrder(String id,String color,String size) {
+    public AppGoodOrderVO getAppGoodOrder(String id,String attrSymbolPath) {
 
         return Optional.ofNullable(super.getById(id))
                 .map(good -> {
@@ -392,12 +389,8 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                             .orElse("暂无"));
 
                     //2.商品颜色尺寸
-                    if(ToolUtil.isNotEmpty(color)){
-                        appGoodOrderVO.setColor(sizeAndRolorMapper.selectById(color).getColor());
-                    }
-                    if(ToolUtil.isNotEmpty(size)){
-                        appGoodOrderVO.setSize(sizeAndRolorMapper.selectById(size).getSize());
-                    }
+                    List<String> itemAttrVals = iItemAttrValService.listByIds(ToolUtil.splitterStr(attrSymbolPath)).stream().map(ItemAttrVal::getAttrValue).collect(Collectors.toList());
+                    appGoodOrderVO.setItemAttrKeys(itemAttrVals);
                     return appGoodOrderVO;
                 }).orElse(null);
     }

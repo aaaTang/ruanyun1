@@ -260,16 +260,6 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 return appGoodOrderVOS1;
             }).orElse(null);
             //直接该买套餐商品
-        }else if(orderShowDTO.getType() == 3){
-
-
-            appGoodOrderVOS = Optional.ofNullable(shoppingCartService.listByIds(ToolUtil.splitterStr(orderShowDTO.getShoppingCartIds()))).map(shoppingCarts -> {
-                List<AppGoodOrderVO> appGoodOrderVOS1 = shoppingCarts.parallelStream().flatMap(shoppingCart -> {
-                    AppGoodOrderVO appGoodOrder = this.getShowOrderVOShoppingCart(shoppingCart);
-                    return Stream.of(appGoodOrder);
-                }).collect(Collectors.toList());
-                return appGoodOrderVOS1;
-            }).orElse(null);
         }
         showOrderVO.setAppGoodOrderVOS(appGoodOrderVOS);
 
@@ -290,15 +280,14 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     private AppGoodOrderVO getShowOrderVOOne(OrderShowDTO orderShowDTO){
         AppGoodOrderVO appGoodOrderVO = new AppGoodOrderVO();
         //查询商品信息
-        AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(orderShowDTO.getGoodId(), orderShowDTO.getColorId(), orderShowDTO.getSizeId());
+        AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(orderShowDTO.getGoodId(),orderShowDTO.getAttrSymbolPath());
         //查询商品价格
         SizeAndRolor one = sizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery()
-                .eq(SizeAndRolor::getId, orderShowDTO.getSizeId())
-                .eq(SizeAndRolor::getParentId, orderShowDTO.getSizeId())
-                .eq(SizeAndRolor::getIsParent, 1));
+                .eq(SizeAndRolor::getAttrSymbolPath, orderShowDTO.getAddressId())
+                .eq(SizeAndRolor::getGoodsId, orderShowDTO.getGoodId()));
         ToolUtil.copyProperties(appGoodOrder,appGoodOrderVO);
         if (EmptyUtil.isNotEmpty(one)){
-            appGoodOrderVO.setGoodNewPrice(one.getGoodsPrice());
+            appGoodOrderVO.setGoodNewPrice(one.getGoodPrice());
         }
         appGoodOrderVO.setCount(orderShowDTO.getCount());
 
@@ -322,22 +311,22 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     private AppGoodOrderVO getShowOrderVOShoppingCart(ShoppingCart shoppingCart){
         AppGoodOrderVO appGoodOrderVO = new AppGoodOrderVO();
         //查询商品信息
-        AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(shoppingCart.getGoodId(), shoppingCart.getColorId(), shoppingCart.getSizeId());
+        AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(shoppingCart.getGoodId(), shoppingCart.getAttrSymbolPath());
+        appGoodOrder.setAttrSymbolPath(shoppingCart.getAttrSymbolPath());
         ToolUtil.copyProperties(appGoodOrder,appGoodOrderVO);
         //查询商品价格
         SizeAndRolor one = sizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery()
-                .eq(SizeAndRolor::getId, shoppingCart.getSizeId())
-                .eq(SizeAndRolor::getParentId, shoppingCart.getColorId())
-                .eq(SizeAndRolor::getIsParent, 0));
+                .eq(SizeAndRolor::getAttrSymbolPath, shoppingCart.getAttrSymbolPath())
+                .eq(SizeAndRolor::getGoodsId, shoppingCart.getGoodId()));
         if (EmptyUtil.isNotEmpty(one)){
-            appGoodOrderVO.setGoodNewPrice(one.getGoodsPrice());
+            appGoodOrderVO.setGoodNewPrice(one.getGoodPrice());
         }
         appGoodOrderVO.setCount(shoppingCart.getCount());
         //获取这个人，这个商品 能用的优惠券
         String id = securityUtil.getCurrUser().getId();
         String goodId = shoppingCart.getGoodId();
         BigDecimal multiply = appGoodOrderVO.getGoodNewPrice().multiply(new BigDecimal(appGoodOrderVO.getCount()));
-        DiscountVO dealCanUseCoupon = discountMyService.getDealCanUseCoupon(id,goodId, multiply);
+        DiscountVO dealCanUseCoupon = discountMyService.getDealCanUseCoupon(id,goodId, multiply).get(0);
 
         if (EmptyUtil.isNotEmpty(dealCanUseCoupon)){
             ToolUtil.copyProperties(dealCanUseCoupon,appGoodOrder);

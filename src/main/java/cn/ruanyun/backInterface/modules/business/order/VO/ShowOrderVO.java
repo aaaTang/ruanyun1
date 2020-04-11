@@ -30,10 +30,7 @@ public class ShowOrderVO {
      */
     private BigDecimal sumMoney;
 
-    /**
-     * 运费
-     */
-    private BigDecimal freightMoney;
+
 
     /**
      * 积分

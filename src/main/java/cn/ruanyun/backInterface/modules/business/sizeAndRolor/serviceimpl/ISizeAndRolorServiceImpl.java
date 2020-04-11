@@ -126,7 +126,7 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
         Map<String,Object> map = new HashMap<>();
         SizeAndRolor s =  this.getOne(Wrappers.<SizeAndRolor>lambdaQuery().eq(SizeAndRolor::getAttrSymbolPath,ids));
             map.put("inventory",s.getInventory());
-            map.put("goodsPrice",s.getGoodsPrice());
+            map.put("goodsPrice",s.getGoodPrice());
             map.put("pic",s.getPic());
         return map;
     }

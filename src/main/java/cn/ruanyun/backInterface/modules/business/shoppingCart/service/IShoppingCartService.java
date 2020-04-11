@@ -40,4 +40,6 @@ public interface IShoppingCartService extends IService<ShoppingCart> {
 
 
     Integer getGoodsCartNum();
+
+    void changeCount(String id,Integer count);
 }

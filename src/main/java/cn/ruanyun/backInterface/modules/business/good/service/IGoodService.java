@@ -88,7 +88,7 @@ public interface IGoodService extends IService<Good> {
      * @param id
      * @return
      */
-    AppGoodOrderVO getAppGoodOrder(String id,String color,String size);
+    AppGoodOrderVO getAppGoodOrder(String id,String attrSymbolPath);
 
     /**
      * 获取商品单价

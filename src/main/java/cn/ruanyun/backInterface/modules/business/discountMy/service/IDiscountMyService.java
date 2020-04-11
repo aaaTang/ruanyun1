@@ -38,13 +38,6 @@ public interface IDiscountMyService extends IService<DiscountMy> {
 
     /***
      *
-     * @param orderMoney
-     * @return
-     */
-    List<DiscountVO> getCanUseCouponByOrder(String goodId ,BigDecimal orderMoney);
-
-    /***
-     *
      * @param discountCouponId
      * @return
      */
@@ -57,5 +50,5 @@ public interface IDiscountMyService extends IService<DiscountMy> {
      * @param multiply
      * @return
      */
-    DiscountVO getDealCanUseCoupon(String id, String goodId, BigDecimal multiply);
+    List<DiscountVO> getDealCanUseCoupon(String id, String goodId, BigDecimal multiply);
 }

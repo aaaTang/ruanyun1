@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @program: ruanyun
@@ -33,16 +34,15 @@ public class AppGoodOrderVO {
 
 
     /**
-     * 尺寸
+     * 属性
      */
-    private String size;
+    private String attrSymbolPath;
 
 
     /**
      * 颜色
      */
-    private String color;
-
+    private List<String> itemAttrKeys;
 
     /**
      * 数量
@@ -73,6 +73,11 @@ public class AppGoodOrderVO {
      * 减多少
      */
     private BigDecimal subtractMoney= new BigDecimal(0);
+
+    /**
+     * 运费
+     */
+    private BigDecimal freightMoney = new BigDecimal(0);
 
 
 }
