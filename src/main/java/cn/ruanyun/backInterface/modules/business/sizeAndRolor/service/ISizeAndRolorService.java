@@ -40,26 +40,11 @@ public interface ISizeAndRolorService extends IService<SizeAndRolor> {
      * @return
      */
     Map<String,Object> getInventory(String ids);
-//
-//    /**
-//     * 获取商品尺码名称
-//     * @param sizeId
-//     * @return
-//     */
-//     String getSizeName(String sizeId);
-//
-//    /**
-//     * 获取商品颜色名称
-//     * @param sizeId
-//     * @return
-//     */
-//     String getColorName(String sizeId);
-//
-//    /**
-//     * 获取商品库存
-//     * @param sizeId
-//     * @return
-//     */
-//     Integer getInventory(String sizeId);
 
+    /**
+     * 获取配置信息
+     * @param attrSymbolPath
+     * @return
+     */
+    SizeAndRolor getOneByAttrSymbolPath(String attrSymbolPath);
 }

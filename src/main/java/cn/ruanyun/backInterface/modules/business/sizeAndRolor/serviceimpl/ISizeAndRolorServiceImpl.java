@@ -131,6 +131,18 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
         return map;
     }
 
+    /**
+     * 获取配置信息
+     *
+     * @param attrSymbolPath
+     * @return
+     */
+    @Override
+    public SizeAndRolor getOneByAttrSymbolPath(String attrSymbolPath) {
+        return Optional.ofNullable(this.getOne(Wrappers.<SizeAndRolor>lambdaQuery()
+            .eq(SizeAndRolor::getAttrSymbolPath,attrSymbolPath))).orElse(null);
+    }
+
 
 //
 //    /**

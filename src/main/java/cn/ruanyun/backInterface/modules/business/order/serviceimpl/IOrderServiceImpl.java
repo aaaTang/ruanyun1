@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.order.serviceimpl;
 
+import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
 import cn.ruanyun.backInterface.common.utils.*;
@@ -118,6 +119,14 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                    orderDetail.setOrderId(order.getId());
                    orderDetail.setCreateBy(null);
                    orderDetailService.insertOrderUpdateOrderDetail(orderDetail);
+                   //将购物车数据删除
+                   ShoppingCart one = shoppingCartService.getOne(Wrappers.<ShoppingCart>lambdaQuery()
+                           .eq(ShoppingCart::getGoodId, orderDetail.getGoodId())
+                           .eq(ShoppingCart::getAttrSymbolPath, orderDetail.getAttrSymbolPath())
+                           .eq(RuanyunBaseEntity::getCreateBy, orderDetail.getCreateBy())
+                   );
+                   shoppingCartService.removeById(one.getId());
+
                    totalPrice = totalPrice + (orderDetail.getBuyCount() * orderDetail.getGoodNewPrice().doubleValue());
                }
                order.setTotalPrice(new BigDecimal(totalPrice));
@@ -131,9 +140,12 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                        .toFuture().join();
                ids += ","+order.getId();
                sumPrice += order.getTotalPrice();
+
+
+
            }
            Map<String,Object> map = new ArrayMap<>();
-           map.put("id",ids.toString().substring(1));
+           map.put("id",ids.substring(1));
            map.put("balance", userService.getAccountBalance());
            map.put("totalPrice", sumPrice);
            return new ResultUtil<>().setData(map,"插入或者更新成功!");
@@ -167,6 +179,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 }
 
             }
+            SizeAndRolor sizeAndRolor = sizeAndRolorService.getOneByAttrSymbolPath(orderDetail.getAttrSymbolPath());
+            ToolUtil.copyProperties(sizeAndRolor,orderDetail);
+
             List<OrderDetail> goodList = goodMap.get(byId.getCreateBy());
             if (EmptyUtil.isEmpty(goodList)) {
                 ArrayList<OrderDetail> orderDetails = new ArrayList<>();
