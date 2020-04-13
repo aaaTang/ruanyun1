@@ -18,9 +18,14 @@ public enum OrderStatusEnum {
     PRE_PAY(1,"待付款"),
 
     /**
-     * 已付款
+     * 已付款 app 展示待收货  后台显示待发货
      */
-    PRE_SEND(2,"已付款"),
+    PRE_SEND(2,"待发货"),
+
+    /**
+     * app 展示待收货  后台显示待评价
+     */
+    DELIVER_SEND(3,"待收货"),
 
     /**
      * 待评价

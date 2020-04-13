@@ -1,18 +1,26 @@
 package cn.ruanyun.backInterface.modules.business.order.controller;
 
+import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
+import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
+import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.good.DTO.GoodDTO;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderDTO;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderShowDTO;
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
 import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
+import com.google.api.client.util.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author fei
@@ -91,6 +99,50 @@ public class OrderController {
 
             return new ResultUtil<>().setErrorMsg(201, e.getMessage());
         }
+    }
+
+
+    /**
+     * 获取 我的订单
+     * @param order
+     * @param pageVo
+     * @return
+     */
+    @PostMapping("/getMyOrderList")
+    public Result<Object> getMyOrderList(Order order, PageVo pageVo) {
+        return Optional.ofNullable(iOrderService.getOrderList(order))
+                .map(orderListVOS -> {
+                    Map<String,Object> result = Maps.newHashMap();
+                    result.put("size",orderListVOS.size());
+                    result.put("data", PageUtil.listToPage(pageVo,orderListVOS));
+                    return new ResultUtil<>().setData(result,"获取商品列表成功！");
+                })
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
+
+    /**
+     * 获取订单详情
+     * @param id
+     * @return
+     */
+    @PostMapping("/getOrderDetailVO")
+    public Result<Object> getOrderDetailVO(String id) {
+        return Optional.ofNullable(iOrderService.getById(id))
+                .map(good -> new ResultUtil<>().setData(iOrderService.getAppGoodDetail(id),"获取商品详情成功！"))
+                .orElse(new ResultUtil<>().setErrorMsg(201,"不存在该商品！"));
+    }
+
+
+    /**
+     * 改变订单状态  取消订单 确认收货
+     * @param order
+     * @return
+     */
+    @PostMapping("/changeStatus")
+    public Result<Object> changeStatus(Order order, PageVo pageVo) {
+        return Optional.ofNullable(iOrderService.getById(order))
+                .map(byid -> new ResultUtil<>().setData(iOrderService.changeStatus(order),"获取商品详情成功！"))
+                .orElse(new ResultUtil<>().setErrorMsg(201,"不存在该商品！"));
     }
 
 }

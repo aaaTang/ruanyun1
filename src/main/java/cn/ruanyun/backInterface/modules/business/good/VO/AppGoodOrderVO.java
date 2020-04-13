@@ -17,8 +17,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class AppGoodOrderVO {
 
-
-    private String id;
+    private String goodId;
 
 
     /**
@@ -47,7 +46,7 @@ public class AppGoodOrderVO {
     /**
      * 数量
      */
-    private Integer count;
+    private Integer buyCount;
 
     /**
      * 商品新价格

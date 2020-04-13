@@ -14,6 +14,7 @@ import cn.ruanyun.backInterface.modules.business.shoppingCart.mapper.ShoppingCar
 import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
+import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -132,14 +133,15 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
                         .setGoodPrice(byId.getGoodNewPrice())
                         .setPic(byId.getGoodPics());
                     }
-                    //处理价格 如果这个属性配置了新的价格，就用新的价格
-                    SizeAndRolor one = iSizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery()
-                            .eq(SizeAndRolor::getAttrSymbolPath, shoppingCart.getAttrSymbolPath())
-                            .eq(SizeAndRolor::getGoodsId, shoppingCart.getGoodId()));
-                    if (EmptyUtil.isNotEmpty(one)){
-                        ToolUtil.copyProperties(one,shoppingCartVO);
+                    if (!StringUtils.isEmpty(shoppingCart.getAttrSymbolPath())){
+                        //处理价格 如果这个属性配置了新的价格，就用新的价格
+                        SizeAndRolor one = iSizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery()
+                                .eq(SizeAndRolor::getAttrSymbolPath, shoppingCart.getAttrSymbolPath())
+                                .eq(SizeAndRolor::getGoodsId, shoppingCart.getGoodId()));
+                        if (EmptyUtil.isNotEmpty(one)){
+                            ToolUtil.copyProperties(one,shoppingCartVO);
+                        }
                     }
-
                     ToolUtil.copyProperties(shoppingCart,shoppingCartVO);
                     return Stream.of(shoppingCartVO);
                 }).collect(Collectors.toList())).orElse(null));

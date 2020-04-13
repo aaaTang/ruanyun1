@@ -99,14 +99,15 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
                             if (byId.getDisCouponType().getCode() == DisCouponTypeEnum.ALL_USE.getCode() && i != -1 && byId.getCreateBy().equals(createBy)){
                                 ToolUtil.copyProperties(byId,discountVO);
                                 discountVO.setDisCouponType(byId.getDisCouponType().getValue());
+                                discountVO.setValidityPeriod(discountVO.getValidityPeriod().substring(0,discountVO.getValidityPeriod().indexOf(" ")));
                                 //指定商品
                             }else if(byId.getDisCouponType().getCode() == DisCouponTypeEnum.ONE_PRODUCT.getCode() && byId.getGoodsPackageId().equals(goodId)  && i != -1){
                                 ToolUtil.copyProperties(byId,discountVO);
+                                discountVO.setValidityPeriod(discountVO.getValidityPeriod().substring(0,discountVO.getValidityPeriod().indexOf(" ")));
                             }else {
                                 return null;
                             }
                         }
-                        discountVO.setValidityPeriod(discountVO.getValidityPeriod().substring(0,discountVO.getValidityPeriod().indexOf(" ")));
                         return discountVO;
                     }).collect(Collectors.toList());
                     return discountVOList;

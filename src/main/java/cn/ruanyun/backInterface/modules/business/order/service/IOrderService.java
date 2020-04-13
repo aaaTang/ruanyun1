@@ -1,11 +1,14 @@
 package cn.ruanyun.backInterface.modules.business.order.service;
 
+import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderDTO;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderShowDTO;
 import cn.ruanyun.backInterface.modules.business.order.VO.MyOrderVO;
+import cn.ruanyun.backInterface.modules.business.order.VO.OrderDetailVO;
+import cn.ruanyun.backInterface.modules.business.order.VO.OrderListVO;
 import cn.ruanyun.backInterface.modules.business.order.VO.ShowOrderVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
@@ -52,4 +55,10 @@ public interface IOrderService extends IService<Order> {
     ShowOrderVO showOrder(OrderShowDTO orderShowDTO);
 
     Object showGoodsPackageOrder(OrderShowDTO orderShowDTO);
+
+    List<OrderListVO> getOrderList(Order order);
+
+    Object getAppGoodDetail(String id);
+
+    Object changeStatus(Order order);
 }

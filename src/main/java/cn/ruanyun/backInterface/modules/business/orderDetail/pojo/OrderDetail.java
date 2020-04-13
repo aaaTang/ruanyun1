@@ -48,13 +48,10 @@ public class OrderDetail extends RuanyunBaseEntity {
     private Integer integral;
 
     /**
-     * 颜色id
+     * 属性
      */
-    private String colorId;
-    /**
-     * 规格id
-     */
-    private String sizeId;
+    private String attrSymbolPath;
+
     /**
      * 购买数量
      */

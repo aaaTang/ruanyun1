@@ -4,6 +4,7 @@ import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.enums.OrderTypeEnum;
 import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
+import cn.ruanyun.backInterface.common.utils.CommonUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -27,7 +28,7 @@ public class Order extends RuanyunBaseEntity {
     /**
      * 订单号
      */
-    private String orderNum = ToolUtil.getRandomString(6);
+    private String orderNum = CommonUtil.getRandomNum();
     /**
      * 订单状态
      */
@@ -48,6 +49,11 @@ public class Order extends RuanyunBaseEntity {
      * 总价格
      */
     private BigDecimal totalPrice = new BigDecimal(0);
+    /**
+     * 快递单号
+     */
+    private String expressCode;
+
     /**
      * 收获地址id
      */

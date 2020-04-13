@@ -91,7 +91,7 @@ public class ShoppingCartController {
     @PostMapping("/changeCount")
     public Result<Object> changeCount(String id,Integer count) {
         iShoppingCartService.changeCount(id,count);
-        return new ResultUtil<>().setErrorMsg("更新购物车成功！");
+        return new ResultUtil<>().setData(null,"修改成功！");
     }
 
 }

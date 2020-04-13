@@ -53,13 +53,13 @@ public class ICommonServiceImpl extends ServiceImpl<CommonMapper, Common> implem
                }
            }
            if (ToolUtil.isEmpty(common.getCreateBy())) {
-                       common.setCreateBy(securityUtil.getCurrUser().getId());
-                   }else {
-                       common.setUpdateBy(securityUtil.getCurrUser().getId());
-                   }
-                   Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(common)))
-                           .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
-                           .toFuture().join();
+               common.setCreateBy(securityUtil.getCurrUser().getId());
+           } else {
+               common.setUpdateBy(securityUtil.getCurrUser().getId());
+           }
+           Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(common)))
+                   .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
+                   .toFuture().join();
        }
 
       @Override

@@ -382,6 +382,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                 .map(good -> {
                     AppGoodOrderVO appGoodOrderVO = new AppGoodOrderVO();
                     ToolUtil.copyProperties(good, appGoodOrderVO);
+                    appGoodOrderVO.setGoodId(good.getId());
 
                     //1.商品图片
                     appGoodOrderVO.setGoodPic(Optional.ofNullable(ToolUtil.setListToNul(ToolUtil.splitterStr(good.getGoodPics())))

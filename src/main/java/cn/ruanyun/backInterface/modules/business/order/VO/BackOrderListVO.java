@@ -44,6 +44,6 @@ public class BackOrderListVO extends OrderListVO{
     /**
      * 订单状态
      */
-    private OrderStatusEnum orderStatus;
+    private String orderStatus;
 
 }

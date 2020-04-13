@@ -1,9 +1,11 @@
 package cn.ruanyun.backInterface.modules.business.order.VO;
 
+import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @program: xboot-plus
@@ -25,30 +27,37 @@ public class OrderListVO {
     /*
       商品名称
     */
-    private String name;
+    private String goodName;
 
     /*
     商品图片（，隔开）
      */
-    private String pic;
+    private String goodPics;
 
     /**
      * 颜色名称
      */
-    private String colorName;
+    private List<String> attrSymbolPath;
 
     /**
-     * 尺寸名称
+     * 商品新价格
      */
-    private String sizeName;
+    private BigDecimal goodNewPrice;
 
     /**
      * 购买数量
      */
-    private Long count;
+    private Long buyCount;
 
     /**
      * 购买总金额
      */
     private BigDecimal totalPrice;
+
+    /**
+     * 订单状态
+     */
+    private String orderStatus ;
+
+    private int orderStatusInt ;
 }

@@ -21,7 +21,7 @@ public class OrderDetailVO extends OrderListVO {
     /**
      * 订单状态
      */
-    private OrderStatusEnum orderStatus;
+    private String orderStatus;
 
     /**
      * 创建时间
