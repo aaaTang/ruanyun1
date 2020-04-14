@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.selectStore.serviceimpl;
 
+import cn.ruanyun.backInterface.common.utils.EmptyUtil;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.business.selectStore.VO.SelectStoreListVO;
 import cn.ruanyun.backInterface.modules.business.selectStore.mapper.SelectStoreMapper;
@@ -68,9 +69,12 @@ public class ISelectStoreServiceImpl extends ServiceImpl<SelectStoreMapper, Sele
                     SelectStoreListVO selectStoreListVO = new SelectStoreListVO();
 
                     Optional.ofNullable(userService.getById(selectStore.getUserId()))
-                            .ifPresent(user -> ToolUtil.copyProperties(user, selectStoreListVO));
-
-                    ToolUtil.copyProperties(selectStore, selectStoreListVO);
+                            .ifPresent(user ->
+                                    selectStoreListVO.setAvatar(user.getPic().split(",")[0])
+                                    .setUsername(user.getShopName())
+                                    .setId(user.getId())
+                                    .setLowPrice(selectStore.getLowPrice())
+                            );
 
                     return Stream.of(selectStoreListVO);
                 }).collect(Collectors.toList()))

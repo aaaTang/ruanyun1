@@ -19,16 +19,14 @@ public class SelectStoreListVO {
     private String id;
 
     /**
-     * 用户名
+     * 店铺名称
      */
     private String username;
 
-
     /**
-     * 头像
+     * 店铺图片
      */
     private String avatar;
-
 
     /**
      * 最低价格
