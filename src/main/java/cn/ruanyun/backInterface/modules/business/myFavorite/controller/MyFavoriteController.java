@@ -57,14 +57,14 @@ public class MyFavoriteController {
 
 
     /**
-     * 获取我的收藏列表
+     * 获取我的收藏商品
      * @param pageVo
      * @return
      */
-    @PostMapping("/getMyFavoriteList")
-    public Result<Object> getMyFavoriteList(PageVo pageVo) {
+    @PostMapping("/getMyGoodsFavoriteList")
+    public Result<Object> getMyGoodsFavoriteList(PageVo pageVo) {
 
-        return Optional.ofNullable(iMyFavoriteService.getMyFavoriteList())
+        return Optional.ofNullable(iMyFavoriteService.getMyGoodsFavoriteList())
                 .map(goodListVOS -> {
 
                     Map<String,Object> result = Maps.newHashMap();

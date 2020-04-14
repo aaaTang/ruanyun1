@@ -2,6 +2,7 @@ package cn.ruanyun.backInterface.modules.business.good.service;
 
 import cn.ruanyun.backInterface.modules.business.good.DTO.GoodDTO;
 import cn.ruanyun.backInterface.modules.business.good.VO.*;
+import cn.ruanyun.backInterface.modules.business.myFavorite.VO.GoodsFavoriteVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 
@@ -110,4 +111,8 @@ public interface IGoodService extends IService<Good> {
      * @return
      */
     List<PcGoodListVO> PCgoodsList();
+
+
+    List<AppForSaleGoodsVO> getAppForSaleGoods(String ids);
+
 }

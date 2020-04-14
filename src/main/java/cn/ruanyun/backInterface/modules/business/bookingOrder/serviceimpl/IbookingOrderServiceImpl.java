@@ -4,6 +4,8 @@ import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.BookingOrderVO;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.mapper.bookingOrderMapper;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.pojo.bookingOrder;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.service.IbookingOrderService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +58,18 @@ public class IbookingOrderServiceImpl extends ServiceImpl<bookingOrderMapper, bo
 
       @Override
       public void removebookingOrder(String ids) {
+           bookingOrder bookingOrder = this.getOne(Wrappers.<bookingOrder>lambdaQuery()
+                   .eq(cn.ruanyun.backInterface.modules.business.bookingOrder.pojo.bookingOrder::getStoreId,ids)
+                   .eq(cn.ruanyun.backInterface.modules.business.bookingOrder.pojo.bookingOrder::getCreateBy,securityUtil.getCurrUser().getId())
+                   .eq(cn.ruanyun.backInterface.modules.business.bookingOrder.pojo.bookingOrder::getDelFlag,0)
+           );
+          if (ToolUtil.isNotEmpty(bookingOrder)){
+              bookingOrder.setDelFlag(1);
+              Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(bookingOrder)))
+                      .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
+                      .toFuture().join();
+          }
 
-          CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
       }
 
     /**

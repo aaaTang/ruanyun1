@@ -1,10 +1,14 @@
 package cn.ruanyun.backInterface.modules.business.myFavorite.serviceimpl;
 
 
+import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodListVO;
+import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
+import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
+import cn.ruanyun.backInterface.modules.business.myFavorite.VO.GoodsFavoriteVO;
 import cn.ruanyun.backInterface.modules.business.myFavorite.entity.MyFavorite;
 import cn.ruanyun.backInterface.modules.business.myFavorite.mapper.MyFavoriteMapper;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
@@ -41,6 +45,9 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
     @Resource
     private MyFavoriteMapper myFavoriteMapper;
 
+    @Resource
+    private GoodMapper goodMapper;
+
     /**
      * 插入我的收藏
      *
@@ -51,6 +58,7 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
 
         myFavorite.setCreateBy(securityUtil.getCurrUser().getId());
             MyFavorite favorite = this.getOne(new QueryWrapper<MyFavorite>().lambda().eq(MyFavorite::getGoodId,myFavorite.getGoodId())
+                    .eq(MyFavorite::getGoodTypeEnum,myFavorite.getGoodTypeEnum())
             .eq(MyFavorite::getCreateBy,securityUtil.getCurrUser().getId()));
 
             if(ToolUtil.isEmpty(favorite)){
@@ -71,27 +79,31 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
     }
 
     /**
-     * 获取我的收藏列表
+     * 获取我的收藏商品列表
      *
      * @return
      */
     @Override
-    public List<AppGoodListVO> getMyFavoriteList() {
+    public List<GoodsFavoriteVO> getMyGoodsFavoriteList() {
 
         String currentUser = securityUtil.getCurrUser().getId();
         //1.基础数据
         CompletableFuture<Optional<List<MyFavorite>>> myFavoriteList = CompletableFuture.supplyAsync(() ->
                 Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<MyFavorite>lambdaQuery()
                         .eq(MyFavorite::getCreateBy,currentUser)
-                        .orderByDesc(MyFavorite::getCreateTime)))));
-
+                        .eq(MyFavorite::getGoodTypeEnum, GoodTypeEnum.GOOD)
+                        .orderByDesc(MyFavorite::getCreateTime).eq(MyFavorite::getDelFlag,0)))));
 
         //2.封装数据
-        CompletableFuture<List<AppGoodListVO>> goodVOList = myFavoriteList.thenApplyAsync(myFavorites ->
+        CompletableFuture<List<GoodsFavoriteVO>> goodVOList = myFavoriteList.thenApplyAsync(myFavorites ->
                 myFavorites.map(myFavorites1 -> myFavorites1.parallelStream().flatMap(myFavorite -> {
-
-                    AppGoodListVO goodListVO = goodService.getAppGoodListVO(myFavorite.getGoodId());
-                    goodListVO.setId(myFavorite.getId());
+                    GoodsFavoriteVO goodListVO= new GoodsFavoriteVO();
+                        Good good = goodMapper.selectById(myFavorite.getGoodId());
+                    ToolUtil.copyProperties(good,goodListVO);
+                    String[] split = good.getGoodPics().split(",");
+                    if(ToolUtil.isNotEmpty(split)){
+                        goodListVO.setGoodPics(split[0]);
+                    }
                     return Stream.of(goodListVO);
                 })
                 .collect(Collectors.toList())).orElse(null));
@@ -106,7 +118,9 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
      */
     @Override
     public Long getMyFavoriteNum() {
-        List<MyFavorite> list = this.list(new QueryWrapper<MyFavorite>().lambda().eq(MyFavorite::getCreateBy,securityUtil.getCurrUser().getId()));
+        List<MyFavorite> list = this.list(new QueryWrapper<MyFavorite>().lambda()
+                .eq(MyFavorite::getGoodTypeEnum, GoodTypeEnum.GOOD)
+                .eq(MyFavorite::getCreateBy,securityUtil.getCurrUser().getId()));
             Long num = Long.valueOf(list.size());
         return (num != null ? num : 0);
     }
@@ -119,7 +133,24 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
      */
     @Override
     public Integer getMyFavoriteGood(String id) {
-        MyFavorite myFavorite = this.getOne(Wrappers.<MyFavorite>lambdaQuery().eq(MyFavorite::getGoodId,id).eq(MyFavorite::getCreateBy,securityUtil.getCurrUser().getId()));
+        MyFavorite myFavorite = this.getOne(Wrappers.<MyFavorite>lambdaQuery()
+                .eq(MyFavorite::getGoodId,id).eq(MyFavorite::getCreateBy,securityUtil.getCurrUser().getId())
+                .eq(MyFavorite::getGoodTypeEnum, GoodTypeEnum.GOOD)
+        );
+        return  (myFavorite != null ? 1 : 0);
+    }
+
+    /**
+     * 查詢我是否关注这个店铺
+     * @param id
+     * @return
+     */
+    @Override
+    public Integer getMyFavoriteShop(String id) {
+        MyFavorite myFavorite = this.getOne(Wrappers.<MyFavorite>lambdaQuery()
+                .eq(MyFavorite::getGoodId,id).eq(MyFavorite::getCreateBy,securityUtil.getCurrUser().getId())
+                .eq(MyFavorite::getGoodTypeEnum, GoodTypeEnum.SHOP)
+        );
         return  (myFavorite != null ? 1 : 0);
     }
 

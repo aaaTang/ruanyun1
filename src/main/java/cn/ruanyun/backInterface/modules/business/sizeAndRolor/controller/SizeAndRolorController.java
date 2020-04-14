@@ -88,9 +88,9 @@ public class SizeAndRolorController {
      * @return
      */
     @PostMapping(value = "/getInventory")
-    public Result<Object> getInventory(String ids){
+    public Result<Object> getInventory(String ids,String goodsId){
 
-        return Optional.ofNullable(iSizeAndRolorService.getInventory(ids))
+        return Optional.ofNullable(iSizeAndRolorService.getInventory(ids,goodsId))
                 .map(sizeAndRolor-> {
                     Map<String, Object> result = Maps.newHashMap();
                     result.put("data",  sizeAndRolor);

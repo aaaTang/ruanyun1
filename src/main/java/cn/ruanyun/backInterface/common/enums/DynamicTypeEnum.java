@@ -3,17 +3,21 @@ package cn.ruanyun.backInterface.common.enums;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-
 /**
- * 订单类型枚举
+ * 用户动态类型
+ * @program: ruanyun
+ * @description:
+ * @author: z
+ * @create: 2020年4月13日13:42:01
  */
-public enum GoodTypeEnum {
+public enum DynamicTypeEnum {
 
-    GOODSPACKAGE (1,"套餐"),
-    GOOD(2,"商品"),
-    SHOP(3,"店铺");
+    DYNAMIC(1,"动态"),
+    VIDEO(2,"视频"),
+    ASK(3,"问答");
 
-    GoodTypeEnum(int code, String value) {
+
+    DynamicTypeEnum(int code, String value) {
         this.code = code;
         this.value = value;
     }
@@ -34,5 +38,4 @@ public enum GoodTypeEnum {
     @EnumValue
     private final  int code;
     private  String value;
-
 }

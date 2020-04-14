@@ -16,15 +16,6 @@ import java.util.List;
  */
 public interface GoodsPackageMapper extends BaseMapper<GoodsPackage> {
 
-    /**
-     * 获取App店铺详情数据成功
-     */
-    ShopParticularsVO  getShopParticulars(String ids);
-
-    /**
-     * 查询商家精选套餐
-     */
-    List<AppGoodsPackageListVO>  AppGoodsPackageList(String ids);
 
     /**
      * 修改店铺详情

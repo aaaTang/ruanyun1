@@ -132,23 +132,22 @@ public class GoodController {
 
 
     /**
-     * app获取商家详情商品列表
-     * @param goodDTO
+     * 查询商家在售商品
      * @param pageVo
      * @return
      */
-    /*@PostMapping("/getAppGoodList")
-    public Result<Object> getAppGoodList(GoodDTO goodDTO, PageVo pageVo) {
+    @PostMapping("/getAppForSaleGoods")
+    public Result<Object> getAppForSaleGoods(String ids, PageVo pageVo) {
 
-        return Optional.ofNullable(iGoodService.getAppGoodList(goodDTO))
-                .map(goodListVOS -> {
+        return Optional.ofNullable(iGoodService.getAppForSaleGoods(ids))
+                .map(forSaleGoods -> {
                     Map<String,Object> result = Maps.newHashMap();
-                    result.put("size",goodListVOS.size());
-                    result.put("data", PageUtil.listToPage(pageVo,goodListVOS));
-                    return new ResultUtil<>().setData(result,"获取数据成功！");
+                    result.put("size",forSaleGoods.size());
+                    result.put("data", PageUtil.listToPage(pageVo,forSaleGoods));
+                    return new ResultUtil<>().setData(result,"查询在售商品成功！");
                 })
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
-    }*/
+    }
 
 
     /**

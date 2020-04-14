@@ -1,7 +1,9 @@
 package cn.ruanyun.backInterface.modules.business.discountCoupon.VO;
 
 import cn.ruanyun.backInterface.common.enums.DisCouponTypeEnum;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 
@@ -38,6 +40,8 @@ public class DiscountCouponListVO {
     /**
      * 有效期
      */
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private String validityPeriod;
 
     /**

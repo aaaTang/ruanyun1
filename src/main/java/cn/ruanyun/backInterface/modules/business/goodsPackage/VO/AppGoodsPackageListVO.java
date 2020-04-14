@@ -10,7 +10,7 @@ import javax.persistence.Column;
 public class AppGoodsPackageListVO {
 
     /**
-     * 商品id
+     * 套餐id
      */
     private String id;
     /**

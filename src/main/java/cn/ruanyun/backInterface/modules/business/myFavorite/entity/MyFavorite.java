@@ -2,6 +2,7 @@ package cn.ruanyun.backInterface.modules.business.myFavorite.entity;
 
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
+import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import lombok.Data;
@@ -25,5 +26,10 @@ public class MyFavorite extends RuanyunBaseEntity {
      * 商品id
      */
     private String goodId;
+
+    /**
+     * 类型
+     */
+    private GoodTypeEnum goodTypeEnum;
 
 }

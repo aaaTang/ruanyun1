@@ -1,21 +1,17 @@
 package cn.ruanyun.backInterface.modules.business.goodsPackage.VO;
 
+import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.persistence.Column;
+import java.util.List;
 
 @Data
 @Accessors(chain = true)
 public class ShopParticularsVO {
 
     private String id;
-
-
-   /* *//**
-     * 店铺评分
-     *//*
-    private String score;*/
 
     /**
      * 地址
@@ -47,4 +43,25 @@ public class ShopParticularsVO {
      */
     @Column(length = 1000)
     private String  pic ;
+
+    /**
+     * 店铺评分
+     */
+    private String score;
+
+    /**
+     * 店铺优惠券
+     */
+    private List<DiscountCouponListVO> discountList;
+
+    /**
+     *  用户评论
+     */
+    private List userComment;
+
+    /**
+     * 店铺收藏
+     */
+    private Integer favroite;
+
 }

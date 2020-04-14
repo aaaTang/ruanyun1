@@ -39,7 +39,7 @@ public interface ISizeAndRolorService extends IService<SizeAndRolor> {
      * 获取规格属性的图片价格库存
      * @return
      */
-    Map<String,Object> getInventory(String ids);
+    Map<String,Object> getInventory(String ids,String goodsId);
 
     /**
      * 获取配置信息

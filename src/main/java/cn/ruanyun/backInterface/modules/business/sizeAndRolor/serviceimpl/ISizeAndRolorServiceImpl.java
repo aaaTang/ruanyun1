@@ -108,7 +108,6 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
         Good good =goodMapper.selectOne(Wrappers.<Good>lambdaQuery().eq(Good::getId,goodsId));
         map.put("goodsPrice",good.getGoodNewPrice());//商品价格
 
-
        List<SizeAndRolor> list = sizeAndRolorMapper.selectList(
                 new QueryWrapper<SizeAndRolor>().lambda().eq(SizeAndRolor::getGoodsId,goodsId));
             Integer inventory = 0;
@@ -121,13 +120,19 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
     }
 
     @Override
-    public Map<String,Object> getInventory(String ids) {
+    public Map<String,Object> getInventory(String ids,String goodsId) {
 
         Map<String,Object> map = new HashMap<>();
-        SizeAndRolor s =  this.getOne(Wrappers.<SizeAndRolor>lambdaQuery().eq(SizeAndRolor::getAttrSymbolPath,ids));
-            map.put("inventory",s.getInventory());
-            map.put("goodsPrice",s.getGoodPrice());
-            map.put("pic",s.getPic());
+        SizeAndRolor s =  this.getOne(Wrappers.<SizeAndRolor>lambdaQuery().eq(SizeAndRolor::getAttrSymbolPath,ids).eq(SizeAndRolor::getGoodsId,goodsId));
+           if(ToolUtil.isNotEmpty(s)){
+               map.put("inventory",s.getInventory());
+               map.put("goodsPrice",s.getGoodPrice());
+               map.put("pic",s.getPic());
+           }else {
+               map.put("inventory",0);
+               map.put("goodsPrice",0);
+               map.put("pic",null);
+           }
         return map;
     }
 
