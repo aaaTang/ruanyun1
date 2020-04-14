@@ -16,7 +16,6 @@ import java.math.BigDecimal;
 @Accessors(chain = true)
 public class GoodDTO {
 
-
     /**
      * 销量升序 1，销量降序2
      * 价格升序3，价格价格4
@@ -24,8 +23,12 @@ public class GoodDTO {
      */
     private Integer filterCondition;
 
-
     private GoodTypeEnum goodTypeEnum;
+
+    /**
+     * 商家id
+     */
+    private String storeId;
 
     /**
      * 价格最高
