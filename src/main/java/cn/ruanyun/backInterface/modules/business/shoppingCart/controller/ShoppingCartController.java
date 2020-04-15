@@ -6,6 +6,7 @@ import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.entity.ShoppingCart;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
+import com.alibaba.druid.util.StringUtils;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,9 @@ public class ShoppingCartController {
 
     @PostMapping("/insertShoppingCart")
     public Result<Object> insertShoppingCart(ShoppingCart shoppingCart) {
-
+        if (!StringUtils.isEmpty(shoppingCart.getAttrSymbolPath())){
+            return new ResultUtil<>().setErrorMsg("请选择尺寸！");
+        }
         iShoppingCartService.insertShoppingCart(shoppingCart);
         return new ResultUtil<>().setSuccessMsg("添加购物车成功！");
     }
@@ -60,7 +63,7 @@ public class ShoppingCartController {
     public Result<Object> updateShoppingCart(ShoppingCart shoppingCart) {
 
         iShoppingCartService.updateShoppingCart(shoppingCart);
-        return new ResultUtil<>().setErrorMsg("更新购物车成功！");
+        return new ResultUtil<>().setSuccessMsg("更新购物车成功！");
     }
 
 

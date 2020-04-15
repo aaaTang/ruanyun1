@@ -59,6 +59,7 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
     @Override
     public void insertShoppingCart(ShoppingCart shoppingCart) {
 
+
         shoppingCart.setCreateBy(securityUtil.getCurrUser().getId());
         CompletableFuture.runAsync(() -> {
             if (ToolUtil.isNotEmpty(getShopCartSame(shoppingCart))) {
@@ -123,9 +124,11 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
 
                     ShoppingCartVO shoppingCartVO = new ShoppingCartVO();
 
-                    //处理属性信息
-                    List<String> itemAttrKeys = itemAttrKeyService.listByIds(ToolUtil.splitterStr(shoppingCart.getAttrSymbolPath())).stream().map(ItemAttrKey::getAttrName).collect(Collectors.toList());
-                    shoppingCartVO.setItemAttrKeys(itemAttrKeys);
+                    if (StringUtils.isEmpty(shoppingCart.getAttrSymbolPath())){
+                        //处理属性信息
+                        List<String> itemAttrKeys = itemAttrKeyService.listByIds(ToolUtil.splitterStr(shoppingCart.getAttrSymbolPath())).stream().map(ItemAttrKey::getAttrName).collect(Collectors.toList());
+                        shoppingCartVO.setItemAttrKeys(itemAttrKeys);
+                    }
 
                     Good byId = goodService.getById(shoppingCart.getGoodId());
                     if (EmptyUtil.isNotEmpty(byId)){
