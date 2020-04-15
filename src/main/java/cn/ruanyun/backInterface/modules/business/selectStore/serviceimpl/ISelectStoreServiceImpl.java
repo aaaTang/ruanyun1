@@ -6,6 +6,7 @@ import cn.ruanyun.backInterface.modules.business.selectStore.VO.SelectStoreListV
 import cn.ruanyun.backInterface.modules.business.selectStore.mapper.SelectStoreMapper;
 import cn.ruanyun.backInterface.modules.business.selectStore.pojo.SelectStore;
 import cn.ruanyun.backInterface.modules.business.selectStore.service.ISelectStoreService;
+import com.alibaba.druid.sql.visitor.functions.If;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -70,6 +71,7 @@ public class ISelectStoreServiceImpl extends ServiceImpl<SelectStoreMapper, Sele
 
                     Optional.ofNullable(userService.getById(selectStore.getUserId()))
                             .ifPresent(user ->
+
                                     selectStoreListVO.setAvatar(user.getPic().split(",")[0])
                                     .setUsername(user.getShopName())
                                     .setId(user.getId())

@@ -116,7 +116,6 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
                 //生成默认角色
                 CompletableFuture.runAsync(() -> {
-
                     UserRole userRole = new UserRole();
                     userRole.setUserId(user1.getId());
                     userRole.setRoleId(roleService.getIdByRoleName(CommonConstant.DEFAULT_ROLE));
@@ -140,10 +139,10 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         //1.判断手机号是否存在
         if (ToolUtil.isEmpty(userGet)) {
 
-            return new ResultUtil<>().setErrorMsg(201, "该手机号不存在或者没有注册!");
+            return new ResultUtil<>().setErrorMsg(203, "该手机号不存在或者没有注册!");
         }
 
-        //2.判断密码是否一致
+        //2.判断密码是否一致S
         if (!new BCryptPasswordEncoder().matches(user.getPassword(), userGet.getPassword())) {
 
             return new ResultUtil<>().setErrorMsg(202, "密码不一致！");

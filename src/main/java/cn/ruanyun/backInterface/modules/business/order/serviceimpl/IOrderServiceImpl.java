@@ -181,7 +181,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             }
             SizeAndRolor sizeAndRolor = sizeAndRolorService.getOneByAttrSymbolPath(orderDetail.getAttrSymbolPath());
             ToolUtil.copyProperties(sizeAndRolor,orderDetail);
-
+            orderDetail.setGoodPics(sizeAndRolor.getPic());
             List<OrderDetail> goodList = goodMap.get(byId.getCreateBy());
             if (EmptyUtil.isEmpty(goodList)) {
                 ArrayList<OrderDetail> orderDetails = new ArrayList<>();
@@ -274,9 +274,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                         .eq(OrderDetail::getOrderId, orderO.getId()));
                 if (orderDetailList.size() > 0){
                     ToolUtil.copyProperties(orderDetailList.get(0),orderListVO);
+                    orderListVO.setAttrSymbolPath(iItemAttrValService.listByIds(ToolUtil.splitterStr(orderDetailList.get(0).getAttrSymbolPath())).parallelStream().map(ItemAttrVal::getAttrValue).collect(Collectors.toList()));
                 }
                 ToolUtil.copyProperties(orderO,orderListVO);
-                orderListVO.setAttrSymbolPath(iItemAttrValService.listByIds(orderListVO.getAttrSymbolPath()).parallelStream().map(ItemAttrVal::getAttrValue).collect(Collectors.toList()));
                 orderListVO.setOrderStatusInt(orderO.getOrderStatus().getCode());
                 orderListVO.setOrderStatus(orderO.getOrderStatus().getValue());
                 return orderListVO;
@@ -450,9 +450,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         BigDecimal sumPrice = new BigDecimal(0);
         for (AppGoodOrderVO appGoodOrderVO:appGoodOrderVOS) {
             if (StringUtils.isEmpty(appGoodOrderVO.getDiscountMyId())){
-                sumPrice.add(appGoodOrderVO.getGoodNewPrice().multiply(new BigDecimal(appGoodOrderVO.getBuyCount())));
+                sumPrice = sumPrice.add(appGoodOrderVO.getGoodNewPrice().multiply(new BigDecimal(appGoodOrderVO.getBuyCount())));
             }else {
-                sumPrice.add(appGoodOrderVO.getGoodNewPrice().divide(new BigDecimal(appGoodOrderVO.getBuyCount()))).subtract(appGoodOrderVO.getSubtractMoney());
+                sumPrice = sumPrice.add(appGoodOrderVO.getGoodNewPrice().divide(new BigDecimal(appGoodOrderVO.getBuyCount()))).subtract(appGoodOrderVO.getSubtractMoney());
             }
         }
         return sumPrice;
