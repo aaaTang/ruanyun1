@@ -17,6 +17,8 @@ import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCoupo
 import cn.ruanyun.backInterface.modules.business.discountCoupon.pojo.DiscountCoupon;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.serviceimpl.IDiscountCouponServiceImpl;
+import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
+import cn.ruanyun.backInterface.modules.business.good.serviceimpl.IGoodServiceImpl;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.DTO.ShopParticularsDTO;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.*;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.mapper.GoodsPackageMapper;
@@ -83,6 +85,14 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
 
     @Resource
     private IMyFavoriteService iMyFavoriteService;
+
+    @Resource
+    private IGoodServiceImpl iGoodService;
+
+    @Resource
+    private IFollowAttentionService followAttentionService;
+
+
 
 
     @Override
@@ -181,7 +191,7 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
         //TODO::2020/4/13 店铺评分 未处理
 
         //TODO::2020/4/13 是否关注店铺
-        shopParticularsVO.setFavroite(iMyFavoriteService.getMyFavoriteShop(ids));
+        shopParticularsVO.setFavroite(followAttentionService.getMyFollowAttentionShop(ids));
 
         return shopParticularsVO;
     }
@@ -218,6 +228,32 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
             return igoodsPackageMapper.getShopDateList(username,shopName,storeType);
     }
 
+    /**
+     * 获取App店铺详情参数
+     */
+    @Override
+    public ShopParticularsParameterVO getShopParticularsParameter(String ids) {
+
+        User user = iUserService.getById(ids);
+        if(ToolUtil.isNotEmpty(user)){
+            ShopParticularsParameterVO shopParticularsParameterVO  = new ShopParticularsParameterVO();
+            shopParticularsParameterVO.setId(user.getId())
+                    .setAvatar(user.getAvatar())
+                    .setShopName(user.getShopName())
+                    .setIndividualResume(user.getIndividualResume())
+                    .setGoodsNum(iGoodService.getAppForSaleGoods(ids).size())//获取商品数量
+                    .setFollowAttentionNum(followAttentionService.getMefansNum(ids))//获取店铺关注数量
+                    //TODO::评论数量 暂无
+                     .setEvaluateNum(null)
+                    .setMyFollowAttention(followAttentionService.getFollowAttentionGood(ids))//当前登录用户是否关注这个店铺
+
+            ;
+            return shopParticularsParameterVO;
+        }else {
+            return null;
+        }
+
+    }
 
 
 }

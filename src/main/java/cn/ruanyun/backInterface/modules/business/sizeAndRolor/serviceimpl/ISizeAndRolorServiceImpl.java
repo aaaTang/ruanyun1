@@ -114,10 +114,7 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
         for (SizeAndRolor s : list) {
             inventory+=s.getInventory();
         }
-        if(ToolUtil.isEmpty(list)){
-            return null;
-        }
-        map.put("pic",list.get(0).getPic());//商品图片
+        map.put("pic",(list.size() >= 1 ? list.get(0).getPic() : ""));//商品图片
         map.put("inventory",inventory);//商品库存
         return map;
     }

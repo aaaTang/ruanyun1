@@ -45,10 +45,22 @@ public interface IFollowAttentionService extends IService<FollowAttention> {
      * 获取我的粉丝数量
      * @return
      */
-    Long getMefansNum();
+    Integer getMefansNum(String ids);
     /**
      * 获取我的关注数量
      * @return
      */
     Long getfollowAttentionNum();
+
+    /**
+     * 查詢我是否关注这个商品
+     * @return
+     */
+    Integer getFollowAttentionGood(String ids);
+
+    /**
+     * 查詢我是否关注这个店铺
+     * @return
+     */
+    Integer getMyFollowAttentionShop(String ids);
 }

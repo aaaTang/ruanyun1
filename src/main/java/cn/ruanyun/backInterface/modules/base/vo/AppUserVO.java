@@ -71,7 +71,7 @@ public class AppUserVO {
     /**
      * 我的粉丝数量
      */
-    private Long myFansNum = 0L;
+    private Integer myFansNum ;
 
 
     /**

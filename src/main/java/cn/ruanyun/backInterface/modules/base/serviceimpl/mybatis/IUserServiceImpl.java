@@ -176,7 +176,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         // TODO: 2020/3/13 我的足迹数量
         appUserVO.setMyFootprintNum(iMyFootprintService.getMyFootprintNum());
         // TODO: 2020/3/13 我的粉丝数量
-        appUserVO.setMyFansNum(iFollowAttentionService.getMefansNum());
+        appUserVO.setMyFansNum(iFollowAttentionService.getMefansNum(null));
         // TODO: 2020/3/13 我的关注数量
         appUserVO.setMyAttentionNum(iFollowAttentionService.getfollowAttentionNum());
         // TODO: 2020/3/13 我的额度

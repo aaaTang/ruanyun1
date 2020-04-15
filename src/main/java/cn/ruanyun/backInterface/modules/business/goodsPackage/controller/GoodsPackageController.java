@@ -155,6 +155,20 @@ public class GoodsPackageController {
 
     }
 
+    /**
+     * 获取App店铺详情参数
+     */
+    @PostMapping(value = "/getShopParticularsParameter")
+    public Result<Object> getShopParticularsParameter(String ids){
+
+        return Optional.ofNullable(iGoodsPackageService.getShopParticularsParameter(ids))
+                .map(iShopParticulars-> {
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("data",  iShopParticulars);
+                    return new ResultUtil<>().setData(result, "获取App店铺详情参数成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+
+    }
 
     /**
      * 修改店铺详情

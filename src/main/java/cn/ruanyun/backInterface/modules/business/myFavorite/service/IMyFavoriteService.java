@@ -1,8 +1,10 @@
 package cn.ruanyun.backInterface.modules.business.myFavorite.service;
 
 
+import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodListVO;
 import cn.ruanyun.backInterface.modules.business.myFavorite.VO.GoodsFavoriteVO;
+import cn.ruanyun.backInterface.modules.business.myFavorite.VO.PackageFavotiteVO;
 import cn.ruanyun.backInterface.modules.business.myFavorite.entity.MyFavorite;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -23,12 +25,11 @@ public interface IMyFavoriteService extends IService<MyFavorite> {
 
     /**
      * 移除我的收藏
-     * @param id
      */
-    void deleteMyFavorite(String id);
+    void deleteMyFavorite(String goodId, GoodTypeEnum goodTypeEnum);
 
     /**
-     * 获取我的收藏列表
+     * 获取我的收藏商品列表
      * @return
      */
     List<GoodsFavoriteVO> getMyGoodsFavoriteList();
@@ -40,17 +41,15 @@ public interface IMyFavoriteService extends IService<MyFavorite> {
     Long getMyFavoriteNum();
 
     /**
-     * 查詢我是否关注这个商品
-     * @param id
+     * 获取我的收藏套餐
      * @return
      */
-    Integer getMyFavoriteGood(String id);
-
+    List<PackageFavotiteVO> getMyGoodsPackageFavoriteList();
 
     /**
-     * 查詢我是否关注这个店铺
+     * 查询我是否收藏此商品
      * @param id
      * @return
      */
-    Integer getMyFavoriteShop(String id);
+    Integer getMyFavorite(String id, GoodTypeEnum goodTypeEnum);
 }

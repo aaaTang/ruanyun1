@@ -8,7 +8,10 @@ import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodListVO;
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
+import cn.ruanyun.backInterface.modules.business.goodsPackage.mapper.GoodsPackageMapper;
+import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 import cn.ruanyun.backInterface.modules.business.myFavorite.VO.GoodsFavoriteVO;
+import cn.ruanyun.backInterface.modules.business.myFavorite.VO.PackageFavotiteVO;
 import cn.ruanyun.backInterface.modules.business.myFavorite.entity.MyFavorite;
 import cn.ruanyun.backInterface.modules.business.myFavorite.mapper.MyFavoriteMapper;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
@@ -40,13 +43,15 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
     private SecurityUtil securityUtil;
 
     @Autowired
-    private IGoodService goodService;
 
     @Resource
     private MyFavoriteMapper myFavoriteMapper;
 
     @Resource
     private GoodMapper goodMapper;
+
+    @Resource
+    private GoodsPackageMapper goodsPackageMapper;
 
     /**
      * 插入我的收藏
@@ -71,11 +76,13 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
      * 移除我的收藏
      */
     @Override
-    public void deleteMyFavorite(String goodsId) {
+    public void deleteMyFavorite(String goodId, GoodTypeEnum goodTypeEnum) {
 
             String userid =securityUtil.getCurrUser().getId();
-
-         myFavoriteMapper.deleteMyFavorite(goodsId,userid);
+         this.remove(Wrappers.<MyFavorite>lambdaQuery().eq(MyFavorite::getGoodId,goodId)
+                 .eq(MyFavorite::getCreateBy,userid)
+                 .eq(MyFavorite::getGoodTypeEnum,goodTypeEnum)
+         );
     }
 
     /**
@@ -111,6 +118,50 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
         return goodVOList.join();
     }
 
+    /**
+     * 获取我的收藏套餐
+     * @return
+     */
+    @Override
+    public List<PackageFavotiteVO> getMyGoodsPackageFavoriteList() {
+        String currentUser = securityUtil.getCurrUser().getId();
+        //1.基础数据
+        CompletableFuture<Optional<List<MyFavorite>>> myFavoriteList = CompletableFuture.supplyAsync(() ->
+                Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<MyFavorite>lambdaQuery()
+                        .eq(MyFavorite::getCreateBy,currentUser)
+                        .eq(MyFavorite::getGoodTypeEnum, GoodTypeEnum.GOODSPACKAGE)
+                        .orderByDesc(MyFavorite::getCreateTime).eq(MyFavorite::getDelFlag,0)))));
+
+        //2.封装数据
+        CompletableFuture<List<PackageFavotiteVO>> goodVOList = myFavoriteList.thenApplyAsync(myFavorites ->
+                myFavorites.map(myFavorites1 -> myFavorites1.parallelStream().flatMap(myFavorite -> {
+                    PackageFavotiteVO goodListVO= new PackageFavotiteVO();
+                    GoodsPackage goodsPackage = goodsPackageMapper.selectById(myFavorite.getGoodId());
+                    ToolUtil.copyProperties(goodsPackage,goodListVO);
+                    String[] split = goodsPackage.getPics().split(",");
+                    if(ToolUtil.isNotEmpty(split)){
+                        goodListVO.setPics(split[0]);
+                    }
+                    return Stream.of(goodListVO);
+                })
+                        .collect(Collectors.toList())).orElse(null));
+
+        return goodVOList.join();
+    }
+
+    @Override
+    public Integer getMyFavorite(String id,GoodTypeEnum goodTypeEnum) {
+
+        MyFavorite  myFavorite = new MyFavorite();
+        if(ToolUtil.isNotEmpty(securityUtil.getCurrUser().getId())){
+            myFavorite = this.getOne(new QueryWrapper<MyFavorite>().lambda().eq(MyFavorite::getGoodId,id)
+                    .eq(MyFavorite::getGoodTypeEnum,goodTypeEnum)
+                    .eq(MyFavorite::getCreateBy,securityUtil.getCurrUser().getId())
+            );
+        }
+        return (myFavorite != null ? 1 : 0);
+    }
+
 
     /**
      * 获取我的收藏数量
@@ -119,40 +170,13 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
     @Override
     public Long getMyFavoriteNum() {
         List<MyFavorite> list = this.list(new QueryWrapper<MyFavorite>().lambda()
-                .eq(MyFavorite::getGoodTypeEnum, GoodTypeEnum.GOOD)
+//                .eq(MyFavorite::getGoodTypeEnum, GoodTypeEnum.GOOD)
                 .eq(MyFavorite::getCreateBy,securityUtil.getCurrUser().getId()));
             Long num = Long.valueOf(list.size());
         return (num != null ? num : 0);
     }
 
 
-    /**
-     * 查詢我是否关注这个商品
-     * @param id
-     * @return
-     */
-    @Override
-    public Integer getMyFavoriteGood(String id) {
-        MyFavorite myFavorite = this.getOne(Wrappers.<MyFavorite>lambdaQuery()
-                .eq(MyFavorite::getGoodId,id).eq(MyFavorite::getCreateBy,securityUtil.getCurrUser().getId())
-                .eq(MyFavorite::getGoodTypeEnum, GoodTypeEnum.GOOD)
-        );
-        return  (myFavorite != null ? 1 : 0);
-    }
-
-    /**
-     * 查詢我是否关注这个店铺
-     * @param id
-     * @return
-     */
-    @Override
-    public Integer getMyFavoriteShop(String id) {
-        MyFavorite myFavorite = this.getOne(Wrappers.<MyFavorite>lambdaQuery()
-                .eq(MyFavorite::getGoodId,id).eq(MyFavorite::getCreateBy,securityUtil.getCurrUser().getId())
-                .eq(MyFavorite::getGoodTypeEnum, GoodTypeEnum.SHOP)
-        );
-        return  (myFavorite != null ? 1 : 0);
-    }
 
 
 }

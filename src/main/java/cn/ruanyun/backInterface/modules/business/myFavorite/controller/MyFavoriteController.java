@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.myFavorite.controller;
 
+import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
@@ -49,9 +50,9 @@ public class MyFavoriteController {
      * @return
      */
     @PostMapping("/deleteMyFavorite")
-    public Result<Object> deleteMyFavorite(String ids) {
+    public Result<Object> deleteMyFavorite(String goodId, GoodTypeEnum goodTypeEnum) {
 
-        iMyFavoriteService.deleteMyFavorite(ids);
+        iMyFavoriteService.deleteMyFavorite(goodId,goodTypeEnum);
         return new ResultUtil<>().setSuccessMsg("删除成功！");
     }
 
@@ -75,5 +76,25 @@ public class MyFavoriteController {
                 }).orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
 
+
+
+    /**
+     * 获取我的收藏套餐
+     * @param pageVo
+     * @return
+     */
+    @PostMapping("/getMyGoodsPackageFavoriteList")
+    public Result<Object> getMyGoodsPackageFavoriteList(PageVo pageVo) {
+
+        return Optional.ofNullable(iMyFavoriteService.getMyGoodsPackageFavoriteList())
+                .map(goodsPackageVOS -> {
+
+                    Map<String,Object> result = Maps.newHashMap();
+                    result.put("size",goodsPackageVOS.size());
+                    result.put("data", PageUtil.listToPage(pageVo,goodsPackageVOS));
+
+                    return new ResultUtil<>().setData(result,"获取我的收藏套餐列表成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
 
 }

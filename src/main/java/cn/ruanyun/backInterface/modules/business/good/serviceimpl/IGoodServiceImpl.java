@@ -277,13 +277,12 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 //            .setCommonNum(0)
             ;
 
-
             //TODO: 用户的购物车数量
             goodDetailVO.setGoodsCartNum(iShoppingCartService.getGoodsCartNum())
                     //TODO: 店铺数据
                     .setShopList(shopList)
                     //TODO: 是否收藏0否 1收藏
-                    .setFavorite(iMyFavoriteService.getMyFavoriteGood(id))
+                    .setFavorite(iMyFavoriteService.getMyFavorite(id,GoodTypeEnum.GOOD))
                     //TODO: 商品优惠券
                     .setDiscountCouponListVOS(iDiscountCouponService.getDiscountCouponListByGoodsPackageId(id))
                     //TODO: 商品服务类型
@@ -433,6 +432,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
          for (Good g : good) {
              AppForSaleGoodsVO appForSaleGoodsVO  = new AppForSaleGoodsVO();
              ToolUtil.copyProperties(g,appForSaleGoodsVO);
+             appForSaleGoodsVO.setGoodPics(g.getGoodPics().split(",")[0]);
              forSaleGoodsVO.add(appForSaleGoodsVO);
         }
         return forSaleGoodsVO;

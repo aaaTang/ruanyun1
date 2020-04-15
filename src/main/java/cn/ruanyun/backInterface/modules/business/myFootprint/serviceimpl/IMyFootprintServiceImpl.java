@@ -92,7 +92,7 @@ public class IMyFootprintServiceImpl extends ServiceImpl<MyFootprintMapper, MyFo
             myFootprintVO.setId(mf.getId())
                     .setGoodsId(good.getId())
                     .setGoodName(good.getGoodName())
-                    .setGoodPics(good.getGoodPics())
+                    .setGoodPics(good.getGoodPics().split(",")[0])
                     .setGoodNewPrice(good.getGoodNewPrice());
             return myFootprintVO;
         }).collect(Collectors.toList());

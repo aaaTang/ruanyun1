@@ -65,7 +65,8 @@ public class IFollowAttentionServiceImpl extends ServiceImpl<FollowAttentionMapp
       @Override
       public void removeFollowAttention(String ids) {
 
-          CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
+          CompletableFuture.runAsync(() -> this.remove(Wrappers.<FollowAttention>lambdaQuery()
+                  .eq(FollowAttention::getUserId,ids).eq(FollowAttention::getCreateBy,securityUtil.getCurrUser().getId())));
       }
 
     /**
@@ -73,7 +74,6 @@ public class IFollowAttentionServiceImpl extends ServiceImpl<FollowAttentionMapp
      */
     @Override
     public List<GoodFollowAttentionVO> followAttentionList() {
-
            return followAttentionMapper.followAttentionList(securityUtil.getCurrUser().getId());
     }
 
@@ -127,10 +127,13 @@ public class IFollowAttentionServiceImpl extends ServiceImpl<FollowAttentionMapp
      * @return
      */
     @Override
-    public Long getMefansNum() {
+    public Integer getMefansNum(String ids) {
+        if(ToolUtil.isEmpty(ids)){
+            ids= securityUtil.getCurrUser().getId();
+        }
         List<FollowAttention> list = this.list(new QueryWrapper<FollowAttention>().lambda()
-                        .eq(FollowAttention::getUserId,securityUtil.getCurrUser().getId()));
-        Long num = Long.valueOf(list.size());
+                        .eq(FollowAttention::getUserId,ids));
+        Integer num = list.size();
         return (num != null ? num : 0);
     }
 
@@ -146,5 +149,32 @@ public class IFollowAttentionServiceImpl extends ServiceImpl<FollowAttentionMapp
     }
 
 
+    /**
+     * 查詢我是否关注这个商品
+     * @param ids
+     * @return
+     */
+    @Override
+    public Integer getFollowAttentionGood(String ids) {
+
+        FollowAttention followAttention = this.getOne(Wrappers.<FollowAttention>lambdaQuery()
+                .eq(FollowAttention::getUserId,ids).eq(FollowAttention::getCreateBy,securityUtil.getCurrUser().getId())
+        );
+        return  (followAttention != null ? 1 : 0);
+    }
+
+
+    /**
+     * 查詢我是否关注这个店铺
+     * @param id
+     * @return
+     */
+    @Override
+    public Integer getMyFollowAttentionShop(String id) {
+        FollowAttention followAttention = this.getOne(Wrappers.<FollowAttention>lambdaQuery()
+                .eq(FollowAttention::getUserId,id).eq(FollowAttention::getCreateBy,securityUtil.getCurrUser().getId())
+        );
+        return  (followAttention != null ? 1 : 0);
+    }
 
 }
