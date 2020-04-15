@@ -209,7 +209,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         if (orders.size() == 0){
             return new ResultUtil<>().setErrorMsg("该订单不存在!");
         }
-        totalPrice = new BigDecimal(orders.stream().collect(Collectors.summingDouble(Order::getTotalPrice)));
+        totalPrice = BigDecimal.valueOf(orders.stream().mapToDouble(Order::getTotalPrice).sum());
 
         if (payTypeEnum.getCode() == PayTypeEnum.WE_CHAT.getCode()){
 
@@ -219,7 +219,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         }else if (payTypeEnum.getCode() == PayTypeEnum.BALANCE.getCode()){
             User byId = userService.getById(securityUtil.getCurrUser().getId());
             int i = byId.getBalance().compareTo(totalPrice);
-            if(i == -1){
+            if(i < 0){
                 return new ResultUtil<>().setErrorMsg("余额不足!");
             }
             orders.forEach(order -> {
