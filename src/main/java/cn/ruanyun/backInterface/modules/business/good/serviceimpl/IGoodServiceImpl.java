@@ -8,6 +8,7 @@ import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import cn.ruanyun.backInterface.modules.business.comment.service.ICommonService;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
 import cn.ruanyun.backInterface.modules.business.followAttention.pojo.FollowAttention;
 import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
@@ -24,6 +25,7 @@ import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrVa
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
 import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
 import cn.ruanyun.backInterface.modules.business.myFootprint.serviceimpl.IMyFootprintServiceImpl;
+import cn.ruanyun.backInterface.modules.business.orderDetail.service.IOrderDetailService;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
 import com.alibaba.druid.util.StringUtils;
@@ -87,6 +89,12 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     @Autowired
     private IItemAttrValService iItemAttrValService;
 
+    @Autowired
+    private IOrderDetailService orderDetailService;
+
+    @Autowired
+    private ICommonService commonService;
+
 
     @Override
     public void insertOrderUpdateGood(Good good) {
@@ -136,10 +144,10 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                             .orElse("暂无"));
 
                     // TODO: 2020/3/27 其他信息
-                    /*appGoodListVO.setSaleVolume(orderService.getGoodSalesVolume(good.getId()))
-                            .setCommentNum(Optional.ofNullable(commentService.getCommentVOByGoodId(good.getId()))
+                    appGoodListVO.setSaleVolume(orderDetailService.getGoodSalesVolume(good.getId()))
+                            .setCommentNum(Optional.ofNullable(commonService.getCommentVOByGoodId(good.getId()))
                             .map(List::size)
-                            .orElse(0));*/
+                            .orElse(0));
 
                     return appGoodListVO;
 

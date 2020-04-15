@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -66,4 +67,14 @@ public class ICommonServiceImpl extends ServiceImpl<CommonMapper, Common> implem
       public void removeCommon(String ids) {
           CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
       }
+
+    /**
+     * @param id
+     * @return
+     */
+    @Override
+    public List getCommentVOByGoodId(String id) {
+        return  Optional.ofNullable(this.list(Wrappers.<Common>lambdaQuery()
+        .eq(Common::getGoodId,id))).orElse(null);
+    }
 }

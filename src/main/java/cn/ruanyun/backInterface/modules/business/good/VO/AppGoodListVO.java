@@ -65,7 +65,7 @@ public class AppGoodListVO {
     /**
      * 销量
      */
-    private Integer SaleVolume;
+    private Integer SaleVolume = 0;
 
 
 }

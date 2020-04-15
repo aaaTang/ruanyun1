@@ -6,6 +6,7 @@ import cn.ruanyun.backInterface.modules.business.orderDetail.mapper.OrderDetailM
 import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
 import cn.ruanyun.backInterface.modules.business.orderDetail.service.IOrderDetailService;
 import com.alibaba.druid.util.StringUtils;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,12 +14,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
+
+import javax.swing.text.html.Option;
 
 
 /**
@@ -58,4 +63,16 @@ public class IOrderDetailServiceImpl extends ServiceImpl<OrderDetailMapper, Orde
       public void removeOrderDetail(String ids) {
           CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
       }
+
+    /**
+     * 获取销量
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public Integer getGoodSalesVolume(String id) {
+        return this.count(Wrappers.<OrderDetail>lambdaQuery()
+                .eq(OrderDetail::getGoodId,id));
+    }
 }

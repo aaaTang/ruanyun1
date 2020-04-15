@@ -12,17 +12,25 @@ import java.util.List;
 public interface ICommonService extends IService<Common> {
 
 
-      /**
-        * 插入或者更新common
-        * @param common
-       */
-     void insertOrderUpdateCommon(Common common);
+    /**
+     * 插入或者更新common
+     *
+     * @param common
+     */
+    void insertOrderUpdateCommon(Common common);
 
 
+    /**
+     * 移除common
+     *
+     * @param ids
+     */
+    void removeCommon(String ids);
 
-      /**
-       * 移除common
-       * @param ids
-       */
-     void removeCommon(String ids);
+    /**
+     *
+     * @param id
+     * @return
+     */
+    List getCommentVOByGoodId(String id);
 }

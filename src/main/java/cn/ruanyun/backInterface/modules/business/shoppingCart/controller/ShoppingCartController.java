@@ -35,7 +35,7 @@ public class ShoppingCartController {
 
     @PostMapping("/insertShoppingCart")
     public Result<Object> insertShoppingCart(ShoppingCart shoppingCart) {
-        if (!StringUtils.isEmpty(shoppingCart.getAttrSymbolPath())){
+        if (StringUtils.isEmpty(shoppingCart.getAttrSymbolPath())){
             return new ResultUtil<>().setErrorMsg("请选择尺寸！");
         }
         iShoppingCartService.insertShoppingCart(shoppingCart);

@@ -12,17 +12,26 @@ import java.util.List;
 public interface IOrderDetailService extends IService<OrderDetail> {
 
 
-      /**
-        * 插入或者更新orderDetail
-        * @param orderDetail
-       */
-     void insertOrderUpdateOrderDetail(OrderDetail orderDetail);
+    /**
+     * 插入或者更新orderDetail
+     *
+     * @param orderDetail
+     */
+    void insertOrderUpdateOrderDetail(OrderDetail orderDetail);
 
 
+    /**
+     * 移除orderDetail
+     *
+     * @param ids
+     */
+    void removeOrderDetail(String ids);
 
-      /**
-       * 移除orderDetail
-       * @param ids
-       */
-     void removeOrderDetail(String ids);
+
+    /**
+     * 获取销量
+     * @param id
+     * @return
+     */
+    Integer getGoodSalesVolume(String id);
 }
