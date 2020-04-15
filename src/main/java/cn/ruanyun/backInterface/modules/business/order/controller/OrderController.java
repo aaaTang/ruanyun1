@@ -115,7 +115,7 @@ public class OrderController {
                     Map<String,Object> result = Maps.newHashMap();
                     result.put("size",orderListVOS.size());
                     result.put("data", PageUtil.listToPage(pageVo,orderListVOS));
-                    return new ResultUtil<>().setData(result,"获取商品列表成功！");
+                    return new ResultUtil<>().setData(result,"获取订单列表成功！");
                 })
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
@@ -128,8 +128,8 @@ public class OrderController {
     @PostMapping("/getOrderDetailVO")
     public Result<Object> getOrderDetailVO(String id) {
         return Optional.ofNullable(iOrderService.getById(id))
-                .map(good -> new ResultUtil<>().setData(iOrderService.getAppGoodDetail(id),"获取商品详情成功！"))
-                .orElse(new ResultUtil<>().setErrorMsg(201,"不存在该商品！"));
+                .map(good -> new ResultUtil<>().setData(iOrderService.getAppGoodDetail(id),"获取订单详情成功！"))
+                .orElse(new ResultUtil<>().setErrorMsg(201,"不存在该订单！"));
     }
 
 
@@ -141,8 +141,8 @@ public class OrderController {
     @PostMapping("/changeStatus")
     public Result<Object> changeStatus(Order order, PageVo pageVo) {
         return Optional.ofNullable(iOrderService.getById(order))
-                .map(byid -> new ResultUtil<>().setData(iOrderService.changeStatus(order),"获取商品详情成功！"))
-                .orElse(new ResultUtil<>().setErrorMsg(201,"不存在该商品！"));
+                .map(byid -> new ResultUtil<>().setData(iOrderService.changeStatus(order),"操作成功！"))
+                .orElse(new ResultUtil<>().setErrorMsg(201,"不存在该订单！"));
     }
 
 }

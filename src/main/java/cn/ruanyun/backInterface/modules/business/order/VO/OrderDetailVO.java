@@ -1,12 +1,18 @@
 package cn.ruanyun.backInterface.modules.business.order.VO;
 
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
+import cn.ruanyun.backInterface.common.enums.OrderTypeEnum;
+import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
+import cn.ruanyun.backInterface.common.utils.CommonUtil;
+import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @program: xboot-plus
@@ -16,12 +22,55 @@ import java.util.Date;
  **/
 @Data
 @Accessors(chain = true)
-public class OrderDetailVO extends OrderListVO {
+public class OrderDetailVO  {
 
+
+    /**
+     * 订单号
+     */
+    private String orderNum ;
     /**
      * 订单状态
      */
-    private String orderStatus;
+    private String orderStatus ;
+
+    /**
+     * 支付类型
+     */
+    private String payTypeEnum;
+    /**
+     * 总价格
+     */
+    private BigDecimal totalPrice = new BigDecimal(0);
+    /**
+     * 快递单号
+     */
+    private String expressCode;
+
+    /**
+     * 收获地址id
+     */
+    private String addressId;
+    /**
+     * 收货人
+     */
+    private String consignee;
+
+    /**
+     * 收获手机号
+     */
+    private String phone;
+
+    /**
+     * 收获地址
+     */
+    private String address;
+
+
+    /**
+     * 商品信息
+     */
+    private List<OrderDetail> orderDetails;
 
     /**
      * 创建时间

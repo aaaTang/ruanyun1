@@ -297,10 +297,10 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             OrderDetailVO orderDetailVO  = new OrderDetailVO();
             List<OrderDetail> list = orderDetailService.list(Wrappers.<OrderDetail>lambdaQuery()
                     .eq(OrderDetail::getOrderId, id));
-            if (list.size() > 0){
-                ToolUtil.copyProperties(list.get(0),orderDetailVO);
-            }
+            orderDetailVO.setOrderDetails(list);
             ToolUtil.copyProperties(order,orderDetailVO);
+            orderDetailVO.setPayTypeEnum(order.getPayTypeEnum().getValue());
+            orderDetailVO.setOrderStatus(order.getOrderStatus().getCode()+"");
             return orderDetailVO;
         }).orElse(null);
     }
