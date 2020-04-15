@@ -401,6 +401,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                     //2.商品颜色尺寸
                     List<String> itemAttrVals = iItemAttrValService.listByIds(ToolUtil.splitterStr(attrSymbolPath)).stream().map(ItemAttrVal::getAttrValue).collect(Collectors.toList());
                     appGoodOrderVO.setItemAttrKeys(itemAttrVals);
+                    appGoodOrderVO.setAttrSymbolPath(attrSymbolPath);
                     return appGoodOrderVO;
                 }).orElse(null);
     }

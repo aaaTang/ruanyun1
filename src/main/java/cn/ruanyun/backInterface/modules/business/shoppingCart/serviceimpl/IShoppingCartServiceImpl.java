@@ -4,6 +4,7 @@ package cn.ruanyun.backInterface.modules.business.shoppingCart.serviceimpl;
 import cn.ruanyun.backInterface.common.utils.EmptyUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
+import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodOrderVO;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.pojo.ItemAttrKey;
@@ -58,8 +59,10 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
      */
     @Override
     public void insertShoppingCart(ShoppingCart shoppingCart) {
-
-
+        if (!StringUtils.isEmpty(shoppingCart.getGoodId())){
+            AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(shoppingCart.getGoodId(), shoppingCart.getAttrSymbolPath());
+            shoppingCart.setTotalPrice(new BigDecimal(shoppingCart.getCount()).multiply(appGoodOrder.getGoodNewPrice()));
+        }
         shoppingCart.setCreateBy(securityUtil.getCurrUser().getId());
         CompletableFuture.runAsync(() -> {
             if (ToolUtil.isNotEmpty(getShopCartSame(shoppingCart))) {
@@ -67,7 +70,6 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
                 shoppingCartOld.setCount(shoppingCartOld.getCount()+shoppingCart.getCount())
                         .setTotalPrice(getUpdatePrice(shoppingCartOld,shoppingCartOld.getCount().toString()));
                 this.updateById(shoppingCartOld);
-
             } else {
                 this.save(shoppingCart);
             }

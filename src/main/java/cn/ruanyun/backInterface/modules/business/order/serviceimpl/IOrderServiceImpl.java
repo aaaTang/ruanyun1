@@ -266,7 +266,8 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         List<Order> list = this.list(Wrappers.<Order>lambdaQuery()
                 .eq(!StringUtils.isEmpty(order.getUserId()), Order::getUserId, order.getUserId())
                 .eq(Order::getCreateBy, id)
-                .eq(!EmptyUtil.isEmpty(order.getOrderStatus()),Order::getOrderStatus, order.getOrderStatus()));
+                .eq(!EmptyUtil.isEmpty(order.getOrderStatus()),Order::getOrderStatus, order.getOrderStatus())
+                .orderByAsc(Order::getCreateTime));
         return Optional.ofNullable(ToolUtil.setListToNul(list)).map(orders -> {
             List<OrderListVO> orderListVOS = orders.parallelStream().map(orderO ->{
                 OrderListVO orderListVO = new OrderListVO();
@@ -379,34 +380,34 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
      * @param orderShowDTO
      */
     private AppGoodOrderVO getShowOrderVOOne(OrderShowDTO orderShowDTO){
-        AppGoodOrderVO appGoodOrderVO = new AppGoodOrderVO();
         //查询商品信息
         AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(orderShowDTO.getGoodId(),orderShowDTO.getAttrSymbolPath());
-        ToolUtil.copyProperties(appGoodOrder,appGoodOrderVO);
         //查询商品价格
         SizeAndRolor one = sizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery()
-                .eq(SizeAndRolor::getAttrSymbolPath, orderShowDTO.getAddressId())
+                .eq(SizeAndRolor::getAttrSymbolPath, orderShowDTO.getAttrSymbolPath())
                 .eq(SizeAndRolor::getGoodsId, orderShowDTO.getGoodId()));
 
         if (EmptyUtil.isNotEmpty(one)){
-            appGoodOrderVO.setGoodNewPrice(one.getGoodPrice()).setGoodPic(one.getPic()).setIntegral(one.getInventory());
-
+            appGoodOrder.setGoodNewPrice(one.getGoodPrice()).setGoodPic(one.getPic()).setIntegral(one.getInventory());
         }
-        appGoodOrderVO.setBuyCount(orderShowDTO.getCount());
+        appGoodOrder.setBuyCount(orderShowDTO.getCount());
+
+        //处理属性配置
+        appGoodOrder.setItemAttrKeys(iItemAttrValService.listByIds(ToolUtil.splitterStr(orderShowDTO.getAttrSymbolPath())).parallelStream().map(ItemAttrVal::getAttrValue).collect(Collectors.toList()));
 
         if (!StringUtils.isEmpty(orderShowDTO.getDiscountCouponId())){
             //处理优惠券信息 订单的价格是否满足
             DiscountVO detailById = discountMyService.getDetailById(orderShowDTO.getDiscountCouponId());
-            int i = detailById.getFullMoney().compareTo(new BigDecimal(appGoodOrderVO.getBuyCount()).multiply(appGoodOrderVO.getGoodNewPrice()));
+            int i = detailById.getFullMoney().compareTo(new BigDecimal(appGoodOrder.getBuyCount()).multiply(appGoodOrder.getGoodNewPrice()));
             if (i == -1){
-                appGoodOrderVO.setDiscountMyId(detailById.getId());
+                appGoodOrder.setDiscountMyId(detailById.getId());
                 detailById.setId(null);
-                ToolUtil.copyProperties(detailById,appGoodOrderVO);
+                ToolUtil.copyProperties(detailById,appGoodOrder);
             }
         }
 
 
-        return appGoodOrderVO;
+        return appGoodOrder;
     }
 
     /**
@@ -417,7 +418,6 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         AppGoodOrderVO appGoodOrderVO = new AppGoodOrderVO();
         //查询商品信息
         AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(shoppingCart.getGoodId(), shoppingCart.getAttrSymbolPath());
-        appGoodOrder.setAttrSymbolPath(shoppingCart.getAttrSymbolPath());
         ToolUtil.copyProperties(appGoodOrder,appGoodOrderVO);
         //查询商品价格
         SizeAndRolor one = sizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery()

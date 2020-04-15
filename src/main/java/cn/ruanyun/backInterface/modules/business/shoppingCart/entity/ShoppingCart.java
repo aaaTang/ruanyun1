@@ -46,5 +46,5 @@ public class ShoppingCart extends RuanyunBaseEntity {
     /**
      * 总价格
      */
-    private BigDecimal totalPrice;
+    private BigDecimal totalPrice = new BigDecimal(0);
 }
