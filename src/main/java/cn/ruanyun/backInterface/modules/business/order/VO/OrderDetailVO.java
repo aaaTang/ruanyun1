@@ -1,10 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.order.VO;
 
-import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
-import cn.ruanyun.backInterface.common.enums.OrderTypeEnum;
-import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
-import cn.ruanyun.backInterface.common.utils.CommonUtil;
-import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
+import cn.ruanyun.backInterface.modules.business.orderDetail.VO.OrderDetailListVO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -22,17 +18,17 @@ import java.util.List;
  **/
 @Data
 @Accessors(chain = true)
-public class OrderDetailVO  {
+public class OrderDetailVO {
 
 
     /**
      * 订单号
      */
-    private String orderNum ;
+    private String orderNum;
     /**
      * 订单状态
      */
-    private String orderStatus ;
+    private String orderStatus;
 
     /**
      * 支付类型
@@ -70,7 +66,7 @@ public class OrderDetailVO  {
     /**
      * 商品信息
      */
-    private List<OrderDetail> orderDetails;
+    private List<OrderDetailListVO> orderDetails;
 
     /**
      * 创建时间

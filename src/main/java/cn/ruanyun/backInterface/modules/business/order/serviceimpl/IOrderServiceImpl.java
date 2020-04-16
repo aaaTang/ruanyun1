@@ -6,16 +6,12 @@ import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
 import cn.ruanyun.backInterface.common.pay.model.PayModel;
 import cn.ruanyun.backInterface.common.pay.service.IPayService;
 import cn.ruanyun.backInterface.common.utils.*;
-import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.business.balance.pojo.Balance;
 import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
-import cn.ruanyun.backInterface.modules.business.discountCoupon.pojo.DiscountCoupon;
-import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
 import cn.ruanyun.backInterface.modules.business.discountMy.VO.DiscountVO;
-import cn.ruanyun.backInterface.modules.business.discountMy.pojo.DiscountMy;
 import cn.ruanyun.backInterface.modules.business.discountMy.service.IDiscountMyService;
 import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodOrderVO;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
@@ -28,10 +24,14 @@ import cn.ruanyun.backInterface.modules.business.itemAttrVal.pojo.ItemAttrVal;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrValService;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderDTO;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderShowDTO;
-import cn.ruanyun.backInterface.modules.business.order.VO.*;
+import cn.ruanyun.backInterface.modules.business.order.VO.GoodsPackageOrderVO;
+import cn.ruanyun.backInterface.modules.business.order.VO.OrderDetailVO;
+import cn.ruanyun.backInterface.modules.business.order.VO.OrderListVO;
+import cn.ruanyun.backInterface.modules.business.order.VO.ShowOrderVO;
 import cn.ruanyun.backInterface.modules.business.order.mapper.OrderMapper;
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
 import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
+import cn.ruanyun.backInterface.modules.business.orderDetail.VO.OrderDetailListVO;
 import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
 import cn.ruanyun.backInterface.modules.business.orderDetail.service.IOrderDetailService;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.entity.ShoppingCart;
@@ -41,23 +41,20 @@ import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRo
 import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.api.client.util.ArrayMap;
 import dm.jdbc.stat.support.json.JSONArray;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 
 /**
@@ -291,7 +288,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                         .eq(OrderDetail::getOrderId, orderO.getId()));
                 if (orderDetailList.size() > 0){
                     ToolUtil.copyProperties(orderDetailList.get(0),orderListVO);
-                    orderListVO.setAttrSymbolPath(iItemAttrValService.listByIds(ToolUtil.splitterStr(orderDetailList.get(0).getAttrSymbolPath())).parallelStream().map(ItemAttrVal::getAttrValue).collect(Collectors.toList()));
+                    orderListVO.setAttrSymbolPath(iItemAttrValService.getItemAttrVals(orderDetailList.get(0).getAttrSymbolPath()));
                 }
                 ToolUtil.copyProperties(orderO,orderListVO);
                 orderListVO.setOrderStatusInt(orderO.getOrderStatus().getCode());
@@ -311,11 +308,12 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     public OrderDetailVO getAppGoodDetail(String id) {
         return Optional.ofNullable(this.getById(id)).map(order -> {
             OrderDetailVO orderDetailVO  = new OrderDetailVO();
-            List<OrderDetail> list = orderDetailService.list(Wrappers.<OrderDetail>lambdaQuery()
-                    .eq(OrderDetail::getOrderId, id));
-            orderDetailVO.setOrderDetails(list);
+            List<OrderDetailListVO> orderListByOrderId = orderDetailService.getOrderListByOrderId(id);
+            orderDetailVO.setOrderDetails(orderListByOrderId);
             ToolUtil.copyProperties(order,orderDetailVO);
-            orderDetailVO.setPayTypeEnum(order.getPayTypeEnum().getValue());
+            if (EmptyUtil.isNotEmpty(order.getPayTypeEnum())){
+                orderDetailVO.setPayTypeEnum(order.getPayTypeEnum().getValue());
+            }
             orderDetailVO.setOrderStatus(order.getOrderStatus().getCode()+"");
             return orderDetailVO;
         }).orElse(null);
@@ -426,7 +424,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         appGoodOrder.setBuyCount(orderShowDTO.getCount());
 
         //处理属性配置
-        appGoodOrder.setItemAttrKeys(iItemAttrValService.listByIds(ToolUtil.splitterStr(orderShowDTO.getAttrSymbolPath())).parallelStream().map(ItemAttrVal::getAttrValue).collect(Collectors.toList()));
+        appGoodOrder.setItemAttrKeys(iItemAttrValService.getItemAttrVals(orderShowDTO.getAttrSymbolPath()));
 
         if (!StringUtils.isEmpty(orderShowDTO.getDiscountCouponId())){
             //处理优惠券信息 订单的价格是否满足

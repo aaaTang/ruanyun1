@@ -12,17 +12,26 @@ import java.util.List;
 public interface IItemAttrValService extends IService<ItemAttrVal> {
 
 
-      /**
-        * 插入或者更新itemAttrVal
-        * @param itemAttrVal
-       */
-     void insertOrderUpdateItemAttrVal(ItemAttrVal itemAttrVal);
+    /**
+     * 插入或者更新itemAttrVal
+     *
+     * @param itemAttrVal
+     */
+    void insertOrderUpdateItemAttrVal(ItemAttrVal itemAttrVal);
 
 
+    /**
+     * 移除itemAttrVal
+     *
+     * @param ids
+     */
+    void removeItemAttrVal(String ids);
 
-      /**
-       * 移除itemAttrVal
-       * @param ids
-       */
-     void removeItemAttrVal(String ids);
+    /**
+     * 通过属性值，获取属性的名字
+     *
+     * @param ids
+     * @return
+     */
+    List<String> getItemAttrVals(String ids);
 }

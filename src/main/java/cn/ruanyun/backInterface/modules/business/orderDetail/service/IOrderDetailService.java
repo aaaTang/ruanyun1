@@ -1,7 +1,8 @@
 package cn.ruanyun.backInterface.modules.business.orderDetail.service;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import cn.ruanyun.backInterface.modules.business.orderDetail.VO.OrderDetailListVO;
 import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
 
@@ -34,4 +35,11 @@ public interface IOrderDetailService extends IService<OrderDetail> {
      * @return
      */
     Integer getGoodSalesVolume(String id);
+
+    /**
+     * 获取订单列表
+     * @param orderId
+     * @return
+     */
+    List<OrderDetailListVO> getOrderListByOrderId(String orderId);
 }

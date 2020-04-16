@@ -35,6 +35,11 @@ public enum AfterSaleStatusEnum {
     /**
      * 货物有问题
      */
+    REVOCATION(-3, "撤销"),
+
+    /**
+     * 货物有问题
+     */
     GOOD_NO_PASS(-2, "货物不完整"),
 
     /**

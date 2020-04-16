@@ -399,7 +399,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                             .orElse("暂无"));
 
                     //2.商品颜色尺寸
-                    List<String> itemAttrVals = iItemAttrValService.listByIds(ToolUtil.splitterStr(attrSymbolPath)).stream().map(ItemAttrVal::getAttrValue).collect(Collectors.toList());
+                    List<String> itemAttrVals = iItemAttrValService.getItemAttrVals(attrSymbolPath);
                     appGoodOrderVO.setItemAttrKeys(itemAttrVals);
                     appGoodOrderVO.setAttrSymbolPath(attrSymbolPath);
                     return appGoodOrderVO;
