@@ -5,56 +5,45 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 /**
  * @program: xboot-plus
- * @description: 订单状态枚举
+ * @description: 退货状态枚举
  * @author: fei
  * @create: 2020-02-13 14:45
  **/
-public enum OrderStatusEnum {
+public enum AfterSaleStatusEnum {
 
 
     /**
-     * 待付款
+     * 申请
      */
-    PRE_PAY(1,"待付款"),
+    APPLY(1, "申请"),
 
     /**
-     * 已付款 app 展示待收货  后台显示待发货
+     * 审核通过
      */
-    PRE_SEND(2,"待发货"),
+    APPLY_PASS(2, "审核通过"),
 
     /**
-     * app 展示待收货  后台显示待评价
+     * 购买者，发货填写快递单号
      */
-    DELIVER_SEND(3,"待收货"),
+    GOOD_DELIVER(3, "发货"),
 
     /**
-     * 待评价
+     * 确认退款
      */
-    PRE_COMMENT(4,"待评价"),
+    FINISH(4, "确认退款"),
 
     /**
-     * 退款售后
+     * 货物有问题
      */
-    SALE_AFTER(5,"退款售后"),
+    GOOD_NO_PASS(-2, "货物不完整"),
 
     /**
-     * 取消订单
+     * 申请审核不通过
      */
-    CANCEL_ORDER(6,"取消订单"),
-
-    /**
-     * 完成订单
-     */
-    IS_COMPLETE(7,"完成订单"),
-
-    /**
-     * 退款完成
-     */
-    RETURN_FINISH(8,"退款完成");
+    APPLY_NO_PASS(-1, "审核不通过");
 
 
-
-     OrderStatusEnum(int code, String value) {
+     AfterSaleStatusEnum(int code, String value) {
         this.code = code;
         this.value = value;
     }

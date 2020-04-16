@@ -3,6 +3,8 @@ package cn.ruanyun.backInterface.modules.business.order.serviceimpl;
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
+import cn.ruanyun.backInterface.common.pay.model.PayModel;
+import cn.ruanyun.backInterface.common.pay.service.IPayService;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
@@ -90,6 +92,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
        private IGoodsPackageService goodsPackageService;
        @Autowired
        private IItemAttrValService iItemAttrValService;
+       @Autowired
+       private IPayService payService;
+
 
        @Override
        public Result<Object> insertOrderUpdateOrder(OrderDTO orderDTO) {
@@ -125,7 +130,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                            .eq(ShoppingCart::getAttrSymbolPath, orderDetail.getAttrSymbolPath())
                            .eq(RuanyunBaseEntity::getCreateBy, orderDetail.getCreateBy())
                    );
-                   shoppingCartService.removeById(one.getId());
+                   if (EmptyUtil.isNotEmpty(one)){
+                       shoppingCartService.removeById(one.getId());
+                   }
 
                    totalPrice = totalPrice + (orderDetail.getBuyCount() * orderDetail.getGoodNewPrice().doubleValue());
                }
@@ -180,6 +187,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
             }
             SizeAndRolor sizeAndRolor = sizeAndRolorService.getOneByAttrSymbolPath(orderDetail.getAttrSymbolPath());
+            sizeAndRolor.setId(null);
             ToolUtil.copyProperties(sizeAndRolor,orderDetail);
             orderDetail.setGoodPics(sizeAndRolor.getPic());
             List<OrderDetail> goodList = goodMap.get(byId.getCreateBy());
@@ -204,19 +212,26 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     public Result<Object> payOrder(String ids, PayTypeEnum payTypeEnum) {
         //统计订单总金额
         BigDecimal totalPrice = new BigDecimal(0);
-        List<String> idList = Arrays.asList(ids.split(","));
-        List<Order> orders = this.listByIds(idList);
+        List<Order> orders = this.listByIds(ToolUtil.splitterStr(ids));
         if (orders.size() == 0){
             return new ResultUtil<>().setErrorMsg("该订单不存在!");
         }
         totalPrice = BigDecimal.valueOf(orders.stream().mapToDouble(Order::getTotalPrice).sum());
 
+        Result<Object> objectResult = new ResultUtil<>().setData(200, "支付成功!");
+
+        //微信
+        PayModel payModel = new PayModel();
+        payModel.setOrderNums(ids);
+        payModel.setTotalPrice(totalPrice);
         if (payTypeEnum.getCode() == PayTypeEnum.WE_CHAT.getCode()){
-
+            objectResult = payService.wxPayMethod(payModel);
+        //支付宝
         }else if (payTypeEnum.getCode() == PayTypeEnum.ALI_PAY.getCode()){
-
+            objectResult = payService.aliPayMethod(payModel);
         //余额支付
         }else if (payTypeEnum.getCode() == PayTypeEnum.BALANCE.getCode()){
+//            payService.accountMoney(orders.get(0));
             User byId = userService.getById(securityUtil.getCurrUser().getId());
             int i = byId.getBalance().compareTo(totalPrice);
             if(i < 0){
@@ -237,8 +252,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                         .setSurplusMoney(byId.getBalance().subtract(new BigDecimal(order.getTotalPrice())));//支付后的余额
                 iBalanceService.insertOrderUpdateBalance(balance1);//添加余额使用明细
             });
+            objectResult = new ResultUtil<>().setData(200, "支付成功!");
         }
-        return new ResultUtil<>().setData(200,"支付成功!");
+        return objectResult;
     }
 
     @Override
@@ -310,17 +326,32 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         //确认发货 确认收货 评价
         Order byId = this.getById(order.getId());
         switch(order.getOrderStatus()){
-            //待发货
+            //已付款
             case PRE_SEND:
+                if (byId.getOrderStatus().equals(OrderStatusEnum.PRE_PAY)){
+                    return new ResultUtil<>().setErrorMsg(202,"该订单未生成");
+                }
+                byId.setPayTypeEnum(order.getPayTypeEnum());
+                break;
+                //待收货
+            case DELIVER_SEND:
+                if (byId.getOrderStatus().equals(OrderStatusEnum.PRE_SEND)){
+                    return new ResultUtil<>().setErrorMsg(202,"该订单未支付");
+                }
                 byId.setExpressCode(order.getExpressCode());
                 break;
-                //待确定
-            case DELIVER_SEND:
-
+            //待确定
+            case PRE_COMMENT:
+                if (byId.getOrderStatus().equals(OrderStatusEnum.DELIVER_SEND)){
+                    return new ResultUtil<>().setErrorMsg(202,"该订单未发货");
+                }
                 break;
+
                 //待评价
             case SALE_AFTER:
-
+                if (byId.getOrderStatus().equals(OrderStatusEnum.PRE_COMMENT)){
+                    return new ResultUtil<>().setErrorMsg(202,"该订单未支付");
+                }
                 break;
                 //取消订单
             case CANCEL_ORDER:
@@ -328,7 +359,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 break;
                 //完成
             case IS_COMPLETE:
-
+                if (byId.getOrderStatus().equals(OrderStatusEnum.SALE_AFTER)){
+                    return new ResultUtil<>().setErrorMsg(202,"该订单未支付");
+                }
                 break;
             default:
                 break;

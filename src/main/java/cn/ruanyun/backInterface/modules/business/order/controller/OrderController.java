@@ -139,7 +139,7 @@ public class OrderController {
      * @return
      */
     @PostMapping("/changeStatus")
-    public Result<Object> changeStatus(Order order, PageVo pageVo) {
+    public Result<Object> changeStatus(Order order) {
         return Optional.ofNullable(iOrderService.getById(order))
                 .map(byid -> new ResultUtil<>().setData(iOrderService.changeStatus(order),"操作成功！"))
                 .orElse(new ResultUtil<>().setErrorMsg(201,"不存在该订单！"));
