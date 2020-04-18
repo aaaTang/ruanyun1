@@ -117,6 +117,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
            double sumPrice = 0d;
            for (String userId: strings) {
                Order order = new Order();
+               order.setOrderStatus(OrderStatusEnum.PRE_PAY);
                order.setUserId(userId);
                double totalPrice = 0d;
                //下单的地址信息

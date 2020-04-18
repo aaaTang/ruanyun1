@@ -32,7 +32,7 @@ public class Order extends RuanyunBaseEntity {
     /**
      * 订单状态
      */
-    private OrderStatusEnum orderStatus = OrderStatusEnum.PRE_PAY;
+    private OrderStatusEnum orderStatus;
     /**
      * 1商品，2套餐
      */
