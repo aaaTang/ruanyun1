@@ -7,6 +7,7 @@ import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
+import cn.ruanyun.backInterface.modules.base.dto.UserUpdateDTO;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
@@ -104,7 +105,8 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
             //4.生成默认用户
             User userNew = new User();
 
-            userNew.setUsername("梵夫莎用户" + CommonUtil.getRandomNum())
+            userNew.setUsername(user.getMobile())
+                    .setNickName("梵夫莎用户" + CommonUtil.getRandomNum())
                     .setPassword(new BCryptPasswordEncoder().encode(user.getPassword()))
                     .setMobile(user.getMobile())
                     .setAvatar(CommonConstant.USER_DEFAULT_AVATAR)
@@ -178,7 +180,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         appUserVO.setMyFansNum(iFollowAttentionService.getMefansNum(null));
         // TODO: 2020/3/13 我的关注数量
         appUserVO.setMyAttentionNum(iFollowAttentionService.getfollowAttentionNum());
-        // TODO: 2020/3/13 我的额度
+        // TODO: 2020/3/13 我的余额
         appUserVO.setMyBalance(user.getBalance());
         // TODO: 2020/4/13 我的性别
         appUserVO.setSex(user.getSex());
@@ -191,15 +193,16 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     }
 
     @Override
-    public Result<Object> updateAppUserInfo(User u){
-        return Optional.ofNullable(super.getById(u.getId()))
+    public Result<Object> updateAppUserInfo(UserUpdateDTO userUpdateDTO){
+        User byId = super.getById(userUpdateDTO.getId());
+        return Optional.ofNullable(byId)
                 .map(user -> {
-                    user.setId(null);
-                    ToolUtil.copyProperties(u,user);
-                    super.saveOrUpdate(user);
-                    //3.可以登录
-                    String token = securityUtil.getToken(user.getUsername(), true);
-                    return new ResultUtil<>().setData(token,"修改成功！");
+                    ToolUtil.copyProperties(userUpdateDTO,byId);
+                    byId.setShopName(userUpdateDTO.getShopName());
+                    super.saveOrUpdate(byId);
+//                    //3.可以登录
+//                    String token = securityUtil.getToken(user.getUsername(), true);
+                    return new ResultUtil<>().setSuccessMsg("修改成功！");
                 }).orElse(new ResultUtil<>().setErrorMsg(201, "当前用户不存在！"));
     }
 

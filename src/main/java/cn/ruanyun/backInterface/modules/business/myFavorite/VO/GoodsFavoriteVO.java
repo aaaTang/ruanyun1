@@ -26,4 +26,10 @@ public class GoodsFavoriteVO {
      * 商品新价格
      */
     private BigDecimal goodNewPrice;
+
+    /**
+     * 店铺名称
+     */
+    private String shopName;
 }
+

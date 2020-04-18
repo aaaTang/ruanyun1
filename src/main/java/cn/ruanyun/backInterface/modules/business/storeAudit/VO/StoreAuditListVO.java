@@ -1,13 +1,8 @@
 package cn.ruanyun.backInterface.modules.business.storeAudit.VO;
 
-import cn.ruanyun.backInterface.common.enums.CheckEnum;
-import cn.ruanyun.backInterface.common.enums.StoreTypeEnum;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
 
 
 /**
@@ -22,7 +17,7 @@ public class StoreAuditListVO {
     /**
      * 姓名或者店铺名称
      */
-    private String username;
+    private String shopName;
 
 
     /**
@@ -46,5 +41,10 @@ public class StoreAuditListVO {
      * 地址
      */
     private String address;
+
+    /**
+     * 手机
+     */
+    private String mobile;
 
 }

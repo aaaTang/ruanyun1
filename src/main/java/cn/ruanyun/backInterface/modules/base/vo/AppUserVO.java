@@ -19,9 +19,9 @@ public class AppUserVO {
 
 
     /**
-     * 用户名
+     * 用戶昵称
      */
-    private String username;
+    private String nickName;
 
     /**
      * 头像
@@ -77,19 +77,19 @@ public class AppUserVO {
     /**
      * 我的关注数量
      */
-    private Long myAttentionNum = 0L;
+    private Integer myAttentionNum;
 
 
     /**
      * 我的余额
      */
-    private BigDecimal myBalance = new BigDecimal(0);
+    private BigDecimal myBalance;
 
 
     /**
      * 我的额度
      */
-    private BigDecimal myLimit = new BigDecimal(0);
+    private BigDecimal myLimit;
 
 
 }

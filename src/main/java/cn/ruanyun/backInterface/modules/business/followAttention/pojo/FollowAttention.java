@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.followAttention.pojo;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
+import cn.ruanyun.backInterface.common.enums.FollowTypeEnum;
 import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -26,4 +27,8 @@ public class FollowAttention extends RuanyunBaseEntity {
      */
     private String userId;
 
+    /**
+     * 关注类型
+     */
+    private FollowTypeEnum followTypeEnum;
 }

@@ -2,6 +2,8 @@ package cn.ruanyun.backInterface.modules.business.goodsPackage.serviceimpl;
 
 import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
 import cn.ruanyun.backInterface.common.enums.DisCouponTypeEnum;
+import cn.ruanyun.backInterface.common.enums.FollowTypeEnum;
+import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
@@ -13,6 +15,8 @@ import cn.ruanyun.backInterface.modules.business.area.mapper.AreaMapper;
 import cn.ruanyun.backInterface.modules.business.area.pojo.Area;
 import cn.ruanyun.backInterface.modules.business.area.service.IAreaService;
 import cn.ruanyun.backInterface.modules.business.bestChoiceShop.mapper.BestShopMapper;
+import cn.ruanyun.backInterface.modules.business.bookingOrder.mapper.BookingOrderMapper;
+import cn.ruanyun.backInterface.modules.business.bookingOrder.service.IBookingOrderService;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.pojo.DiscountCoupon;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
@@ -92,6 +96,9 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     @Resource
     private IFollowAttentionService followAttentionService;
 
+    @Resource
+    private IBookingOrderService iBookingOrderService;
+
 
 
 
@@ -123,20 +130,22 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     /**
      * App查询商家商品详情
      *
-     * @param id
+     * @param ids
      * @return
      */
-    public Result<Object> GetGoodsPackage(String id) {
-        GoodsPackage goodsPackage = this.getById(id);
+    public Result<Object> GetGoodsPackage(String ids) {
+        GoodsPackage goodsPackage = this.getById(ids);
         GoodsPackageParticularsVO goodsPackageParticularsVO = new GoodsPackageParticularsVO();
-        BeanUtils.copyProperties(goodsPackage, goodsPackageParticularsVO);
-        goodsPackageParticularsVO.setStoreAuditVO(storeAuditService.getStoreAudisByid(goodsPackage.getCreateBy()));
-        List<GoodsPackageListVO> goodsPackageListVOS = this.GetGoodsPackageList(null, null, null, goodsPackage.getCreateBy());
-        if (goodsPackageListVOS.size() > 4){
-            goodsPackageListVOS = goodsPackageListVOS.subList(0,4);
+           if(ToolUtil.isNotEmpty(goodsPackage)){
+               BeanUtils.copyProperties(goodsPackage, goodsPackageParticularsVO);
+               goodsPackageParticularsVO.setStoreAuditVO(storeAuditService.getStoreAudisByid(goodsPackage.getCreateBy()));
+           }
+        if(ToolUtil.isNotEmpty(goodsPackageParticularsVO.getId())){
+            return new ResultUtil<>().setData(goodsPackageParticularsVO);
+        }else {
+            return null;
         }
-        goodsPackageParticularsVO.setAppGoodsPackageListVOs(goodsPackageListVOS);
-        return new ResultUtil<>().setData(goodsPackageParticularsVO);
+
     }
 
 
@@ -172,28 +181,36 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
 
             User user = iUserService.getById(ids);//获取店铺详情
             ShopParticularsVO  shopParticularsVO = new ShopParticularsVO();
+        if(ToolUtil.isNotEmpty(user)){
+
             ToolUtil.copyProperties(user,shopParticularsVO);
 
-        //获取店铺通用优惠券
-        List<DiscountCoupon> discountCoupon = iDiscountCouponService.list(new QueryWrapper<DiscountCoupon>().lambda()
-        .eq(DiscountCoupon::getDisCouponType, DisCouponTypeEnum.ALL_USE)
-                .eq(DiscountCoupon::getStoreAuditOid,ids).eq(DiscountCoupon::getPastDue, BooleanTypeEnum.NO));
+            //获取店铺通用优惠券
+            List<DiscountCoupon> discountCoupon = iDiscountCouponService.list(new QueryWrapper<DiscountCoupon>().lambda()
+                    .eq(DiscountCoupon::getDisCouponType, DisCouponTypeEnum.ALL_USE)
+                    .eq(DiscountCoupon::getStoreAuditOid,ids).eq(DiscountCoupon::getPastDue, BooleanTypeEnum.NO));
 
-        List<DiscountCouponListVO> dvo = new ArrayList<>();
-        for (DiscountCoupon dc : discountCoupon) {
-            DiscountCouponListVO vo = new DiscountCouponListVO();
-            ToolUtil.copyProperties(dc,vo);
-            vo.setIsReceive(iDiscountCouponServiceImpl.getDetailById(dc));
-            dvo.add(vo);
+            List<DiscountCouponListVO> dvo = new ArrayList<>();
+            for (DiscountCoupon dc : discountCoupon) {
+                DiscountCouponListVO vo = new DiscountCouponListVO();
+                ToolUtil.copyProperties(dc,vo);
+                vo.setIsReceive(iDiscountCouponServiceImpl.getDetailById(dc));
+                dvo.add(vo);
+            }
+            shopParticularsVO.setDiscountList(dvo);//优惠券
+
+            //TODO::2020/4/13 店铺评分 未处理
+
+            //TODO::2020/4/13 是否关注店铺
+            shopParticularsVO.setFavroite(followAttentionService.getMyFollowAttentionShop(ids, FollowTypeEnum.Follow_SHOP));
+            //TODO::2020/4/13 是否预约店铺
+            shopParticularsVO.setWhetherBookingOrder(iBookingOrderService.getWhetherBookingOrder(ids,securityUtil.getCurrUser().getId()));
+            return shopParticularsVO;
+        }else {
+            return null;
         }
-        shopParticularsVO.setDiscountList(dvo);//优惠券
 
-        //TODO::2020/4/13 店铺评分 未处理
 
-        //TODO::2020/4/13 是否关注店铺
-        shopParticularsVO.setFavroite(followAttentionService.getMyFollowAttentionShop(ids));
-
-        return shopParticularsVO;
     }
 
     /**
@@ -225,7 +242,8 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
      */
     @Override
     public List<ShopDatelistVO> getShopDateList(String username, String shopName, Integer storeType) {
-            return igoodsPackageMapper.getShopDateList(username,shopName,storeType);
+//            return igoodsPackageMapper.getShopDateList(username,shopName,storeType);r
+        return null;
     }
 
     /**
@@ -245,9 +263,14 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
                     .setFollowAttentionNum(followAttentionService.getMefansNum(ids))//获取店铺关注数量
                     //TODO::评论数量 暂无
                      .setEvaluateNum(null)
-                    .setMyFollowAttention(followAttentionService.getFollowAttentionGood(ids))//当前登录用户是否关注这个店铺
-
+                    .setMyFollowAttention(followAttentionService.getMyFollowAttentionShop(ids,FollowTypeEnum.Follow_SHOP))//当前登录用户是否关注这个店铺
             ;
+                if(ToolUtil.isNotEmpty(user.getPic())){
+                    String[] pic = user.getPic().split(",");
+                    shopParticularsParameterVO.setPic(pic[0]);
+                }
+
+
             return shopParticularsParameterVO;
         }else {
             return null;

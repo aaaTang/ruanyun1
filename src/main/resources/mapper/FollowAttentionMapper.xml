@@ -2,48 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.ruanyun.backInterface.modules.business.followAttention.mapper.FollowAttentionMapper">
 
-    <!--获取用户关注的商家列表-->
-    <select id="followAttentionList" resultType="cn.ruanyun.backInterface.modules.business.followAttention.VO.GoodFollowAttentionVO">
-        SELECT
-            f.id,
-            u.id as userId,
-            u.pic,
-            u.username,
-            u.address
-        FROM
-            t_follow_attention f
-        LEFT JOIN t_user_role ur ON ur.user_id = f.user_id
-        LEFT JOIN t_role r ON r.id = ur.role_id
-        LEFT JOIN t_user u ON u.id = ur.user_id
-        WHERE f.create_by = #{ids}
-        AND r.name = '商家' or r.name='个人商家'
-
-    </select>
-
-
-    <!--获取用户关注的用户列表-->
-    <select id="followUserList" resultType="cn.ruanyun.backInterface.modules.business.followAttention.VO.UserFollowAttentionVO">
-        SELECT
-            f.id,
-           	u.id as userid,
-	        u.username,
-	        u.avatar
-        FROM
-            t_follow_attention f
-        LEFT JOIN t_user_role ur ON ur.user_id = f.user_id
-        LEFT JOIN t_role r ON r.id = ur.role_id
-        LEFT JOIN t_user u ON u.id = ur.user_id
-        WHERE  f.create_by = #{ids}
-        AND   r.name = '普通用户'
-    </select>
-
-
     <!--查询我的粉丝-->
     <select id="mefansList" resultType="cn.ruanyun.backInterface.modules.business.followAttention.VO.MefansListVO">
         SELECT
             u.id AS userid,
             u.username,
-            u.avatar
+            u.avatar,
+            f.follow_type_enum AS followTypeEnum
         FROM
             t_follow_attention f
         LEFT JOIN t_user u ON f.create_by = u.id

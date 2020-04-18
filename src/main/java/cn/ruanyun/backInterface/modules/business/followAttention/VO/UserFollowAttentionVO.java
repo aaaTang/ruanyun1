@@ -1,8 +1,10 @@
 package cn.ruanyun.backInterface.modules.business.followAttention.VO;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Data
+@Accessors(chain = true)
 public class UserFollowAttentionVO {
 
     private String id;

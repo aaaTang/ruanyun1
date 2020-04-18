@@ -4,6 +4,9 @@ package cn.ruanyun.backInterface.modules.business.myFavorite.serviceimpl;
 import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
+import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
+import cn.ruanyun.backInterface.modules.base.service.UserService;
 import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodListVO;
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
@@ -42,16 +45,16 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
     @Autowired
     private SecurityUtil securityUtil;
 
-    @Autowired
-
-    @Resource
-    private MyFavoriteMapper myFavoriteMapper;
-
     @Resource
     private GoodMapper goodMapper;
 
     @Resource
     private GoodsPackageMapper goodsPackageMapper;
+
+    @Resource
+    private UserMapper userMapper;
+
+
 
     /**
      * 插入我的收藏
@@ -111,6 +114,8 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
                     if(ToolUtil.isNotEmpty(split)){
                         goodListVO.setGoodPics(split[0]);
                     }
+                    goodListVO.setShopName(Optional.ofNullable(userMapper.selectOne(new QueryWrapper<User>().lambda().eq(User::getId,myFavorite.getGoodId()))).map(User::getShopName)
+                            .orElse(null));
                     return Stream.of(goodListVO);
                 })
                 .collect(Collectors.toList())).orElse(null));

@@ -28,5 +28,4 @@ public class PackageFavotiteVO {
      */
     private String goodIds;
 
-
 }

@@ -23,6 +23,7 @@ public class GoodDTO {
      */
     private Integer filterCondition;
 
+
     private GoodTypeEnum goodTypeEnum;
 
     /**

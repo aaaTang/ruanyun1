@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="cn.ruanyun.backInterface.modules.business.bookingOrder.mapper.bookingOrderMapper">
+<mapper namespace="cn.ruanyun.backInterface.modules.business.bookingOrder.mapper.BookingOrderMapper">
 
     <select id="bookingOrderList" resultType="cn.ruanyun.backInterface.modules.business.bookingOrder.VO.BookingOrderVO">
     select
@@ -10,15 +10,13 @@
         u.avatar,
         u.longitude,
         u.latitude,
-        g.title
+        g.title,
+        g.id AS classId
         from t_booking_order b
         LEFT JOIN t_user u on u.id=b.store_id
         LEFT JOIN t_store_audit s on s.create_by = b.store_id
         LEFT JOIN t_good_category  g on  g.id = s.classification_id
-        WHERE b.store_id = #{ids}
-        <if test="classId != null and classId != ''">
-            and s.classification_id= #{classId}
-        </if>
-            and b.del_flag = 0
+        WHERE b.store_id = #{ids} and b.create_by = #{userId}
+            and b.del_flag = 0 and b.consent = 0
     </select>
 </mapper>

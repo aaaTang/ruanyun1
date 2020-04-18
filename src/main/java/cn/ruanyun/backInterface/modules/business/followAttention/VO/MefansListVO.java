@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.followAttention.VO;
 
+import cn.ruanyun.backInterface.common.enums.FollowTypeEnum;
 import lombok.Data;
 
 @Data
@@ -18,6 +19,10 @@ public class MefansListVO {
      */
     private String avatar;
 
+    /**
+     * 用户类型
+     */
+    private Integer followTypeEnum;
     /**
      * 关注数量
      */

@@ -68,6 +68,4 @@ public class GoodsPackageParticularsVO {
     //商铺信息
     private StoreAuditListVO storeAuditVO;
 
-    //相关推荐
-    private List appGoodsPackageListVOs;
 }

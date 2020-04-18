@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.followAttention.service;
 
+import cn.ruanyun.backInterface.common.enums.FollowTypeEnum;
 import cn.ruanyun.backInterface.modules.business.followAttention.VO.GoodFollowAttentionVO;
 import cn.ruanyun.backInterface.modules.business.followAttention.VO.MefansListVO;
 import cn.ruanyun.backInterface.modules.business.followAttention.VO.UserFollowAttentionVO;
@@ -50,17 +51,17 @@ public interface IFollowAttentionService extends IService<FollowAttention> {
      * 获取我的关注数量
      * @return
      */
-    Long getfollowAttentionNum();
+    Integer getfollowAttentionNum();
 
-    /**
-     * 查詢我是否关注这个商品
-     * @return
-     */
-    Integer getFollowAttentionGood(String ids);
+//    /**
+//     * 查詢我是否关注这个商品
+//     * @return
+//     */
+//    Integer getFollowAttentionGood(String ids);
 
     /**
      * 查詢我是否关注这个店铺
      * @return
      */
-    Integer getMyFollowAttentionShop(String ids);
+    Integer getMyFollowAttentionShop(String ids, FollowTypeEnum followTypeEnum);
 }

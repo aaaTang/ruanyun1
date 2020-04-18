@@ -5,6 +5,7 @@ import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.common.vo.SearchVo;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
+import cn.ruanyun.backInterface.modules.base.dto.UserUpdateDTO;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.vo.AppUserVO;
 import cn.ruanyun.backInterface.modules.base.vo.BackStrictVO;
@@ -53,10 +54,9 @@ public interface IUserService extends IService<User> {
 
     /**
      * 更新app用户信息
-     * @param user
      * @return
      */
-    Result<Object> updateAppUserInfo(User user);
+    Result<Object> updateAppUserInfo(UserUpdateDTO userUpdateDTO);
 
     /*-----------------------后台管理系统模块---------------------------*/
 

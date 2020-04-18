@@ -34,6 +34,12 @@ public class ShopParticularsParameterVO {
     private Integer goodsNum;
 
     /**
+     * 轮播图
+     */
+    @Column(length = 1000)
+    private String  pic ;
+
+    /**
      * 关注数量
      */
     private Integer followAttentionNum;

@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.goodsPackage.VO;
 
+import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.WhetherBookingOrderVO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -63,5 +64,10 @@ public class ShopParticularsVO {
      * 店铺收藏
      */
     private Integer favroite;
+
+    /**
+     * 是否预约
+     */
+    private WhetherBookingOrderVO whetherBookingOrder;
 
 }

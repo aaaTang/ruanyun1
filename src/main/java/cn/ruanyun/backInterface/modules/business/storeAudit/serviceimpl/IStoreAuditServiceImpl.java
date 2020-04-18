@@ -3,6 +3,8 @@ package cn.ruanyun.backInterface.modules.business.storeAudit.serviceimpl;
 import cn.hutool.core.util.ObjectUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.CheckEnum;
+import cn.ruanyun.backInterface.common.enums.FollowTypeEnum;
+import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import cn.ruanyun.backInterface.common.enums.StoreTypeEnum;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
@@ -22,6 +24,8 @@ import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollow
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
+import cn.ruanyun.backInterface.modules.business.myFavorite.entity.MyFavorite;
+import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
 import cn.ruanyun.backInterface.modules.business.storeAudit.DTO.StoreAuditDTO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditListVO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditVO;
@@ -76,6 +80,8 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
     private IFollowAttentionService followAttentionService;
     @Autowired
     private IUserService userService;
+    @Resource
+    private IMyFavoriteService myFavoriteService;
 
 
     @Override
@@ -109,7 +115,7 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
         //获取发布的套餐数量
         storeAuditListVO.setGoodsPackageCuount(goodsPackageService.count(Wrappers.<GoodsPackage>lambdaQuery().eq(GoodsPackage::getCreateBy,id)));
         //获取关注的数量
-        storeAuditListVO.setFollowCount(followAttentionService.count(Wrappers.<FollowAttention>lambdaQuery().eq(FollowAttention::getUserId,id)));
+        storeAuditListVO.setFollowCount(followAttentionService.count(Wrappers.<FollowAttention>lambdaQuery().eq(FollowAttention::getUserId,id).eq(FollowAttention::getFollowTypeEnum, FollowTypeEnum.Follow_SHOP)));
         //获取评论的数量
         storeAuditListVO.setCommonCount(commonService.count(Wrappers.<Common>lambdaQuery().eq(Common::getUserId,id)));
 

@@ -14,11 +14,6 @@ import java.util.List;
  */
 public interface FollowAttentionMapper extends BaseMapper<FollowAttention> {
 
-    List<GoodFollowAttentionVO> followAttentionList(String ids);
-
-
-    List<UserFollowAttentionVO> followUserList(String ids);
-
 
     List<MefansListVO> mefansList(String ids);
 

@@ -69,13 +69,12 @@ public class GoodsPackageController {
 
     /**
      * app查询套餐商品详情
-     * @param id
      * @return
      */
     @PostMapping(value = "/GetGoodsPackage")
-    public Result<Object> GetGoodsPackage(String id){
+    public Result<Object> GetGoodsPackage(String ids){
 
-        return Optional.ofNullable(iGoodsPackageService.GetGoodsPackage(id))
+        return Optional.ofNullable(iGoodsPackageService.GetGoodsPackage(ids))
                 .map(iAppGetGoodsPackage-> {
                     Map<String, Object> result = Maps.newHashMap();
                     result.put("data",  iAppGetGoodsPackage.getResult());

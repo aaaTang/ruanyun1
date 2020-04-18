@@ -3,16 +3,12 @@ package cn.ruanyun.backInterface.common.enums;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+public enum FollowTypeEnum {
 
-/**
- * 订单类型枚举
- */
-public enum GoodTypeEnum {
+    Follow_USER(1,"用户"),
+    Follow_SHOP(2,"店铺");
 
-    GOODSPACKAGE (1,"套餐"),
-    GOOD(2,"商品");
-
-    GoodTypeEnum(int code, String value) {
+    FollowTypeEnum(int code, String value) {
         this.code = code;
         this.value = value;
     }
@@ -33,5 +29,4 @@ public enum GoodTypeEnum {
     @EnumValue
     private final  int code;
     private  String value;
-
 }

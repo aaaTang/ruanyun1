@@ -4,6 +4,7 @@ package cn.ruanyun.backInterface.modules.base.controller.manage;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
+import cn.ruanyun.backInterface.modules.base.dto.UserUpdateDTO;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import lombok.extern.slf4j.Slf4j;
@@ -68,13 +69,12 @@ public class AppUserController {
 
     /**
      * 更新个人信息
-     * @param user
      * @return
      */
     @PostMapping("/updateAppUserInfo")
-    public Result<Object> updateAppUserInfo(User user){
+    public Result<Object> updateAppUserInfo(UserUpdateDTO userUpdateDTO){
 
-        return userService.updateAppUserInfo(user);
+        return userService.updateAppUserInfo(userUpdateDTO);
     }
 
     /**

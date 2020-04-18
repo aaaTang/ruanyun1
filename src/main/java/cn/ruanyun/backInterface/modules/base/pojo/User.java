@@ -36,6 +36,11 @@ public class User extends RuanyunBaseEntity {
     private String username;
 
     /**
+     * 用戶昵称
+     */
+    private String nickName;
+
+    /**
      * 密码
      */
     private String password;

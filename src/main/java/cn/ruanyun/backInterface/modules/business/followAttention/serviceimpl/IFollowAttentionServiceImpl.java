@@ -1,11 +1,17 @@
 package cn.ruanyun.backInterface.modules.business.followAttention.serviceimpl;
 
+import cn.ruanyun.backInterface.common.enums.FollowTypeEnum;
+import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
+import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.business.followAttention.VO.GoodFollowAttentionVO;
 import cn.ruanyun.backInterface.modules.business.followAttention.VO.MefansListVO;
 import cn.ruanyun.backInterface.modules.business.followAttention.VO.UserFollowAttentionVO;
 import cn.ruanyun.backInterface.modules.business.followAttention.mapper.FollowAttentionMapper;
 import cn.ruanyun.backInterface.modules.business.followAttention.pojo.FollowAttention;
 import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
+import cn.ruanyun.backInterface.modules.business.myFavorite.entity.MyFavorite;
+import cn.ruanyun.backInterface.modules.business.myFavorite.mapper.MyFavoriteMapper;
 import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -15,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -44,29 +51,29 @@ public class IFollowAttentionServiceImpl extends ServiceImpl<FollowAttentionMapp
        private SecurityUtil securityUtil;
        @Resource
        private FollowAttentionMapper followAttentionMapper;
+       @Resource
+       private UserMapper userMapper;
+
 
        @Override
        public void insertOrderUpdateFollowAttention(FollowAttention followAttention) {
+           followAttention.setCreateBy(securityUtil.getCurrUser().getId());
+           FollowAttention follow = this.getOne(Wrappers.<FollowAttention>lambdaQuery()
+           .eq(FollowAttention::getCreateBy,securityUtil.getCurrUser().getId())
+                   .eq(FollowAttention::getFollowTypeEnum,followAttention.getFollowTypeEnum())
+                   .eq(FollowAttention::getUserId,followAttention.getUserId())
+           );
+           if(ToolUtil.isEmpty(follow)){
+               this.save(followAttention);
+           }
 
-           if (ToolUtil.isEmpty(followAttention.getCreateBy())) {
-
-                       followAttention.setCreateBy(securityUtil.getCurrUser().getId());
-                   }else {
-
-                       followAttention.setUpdateBy(securityUtil.getCurrUser().getId());
-                   }
-
-
-                   Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(followAttention)))
-                           .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
-                           .toFuture().join();
        }
 
       @Override
       public void removeFollowAttention(String ids) {
 
-          CompletableFuture.runAsync(() -> this.remove(Wrappers.<FollowAttention>lambdaQuery()
-                  .eq(FollowAttention::getUserId,ids).eq(FollowAttention::getCreateBy,securityUtil.getCurrUser().getId())));
+          this.remove(Wrappers.<FollowAttention>lambdaQuery()
+                  .eq(FollowAttention::getUserId,ids).eq(FollowAttention::getCreateBy,securityUtil.getCurrUser().getId()));
       }
 
     /**
@@ -74,25 +81,50 @@ public class IFollowAttentionServiceImpl extends ServiceImpl<FollowAttentionMapp
      */
     @Override
     public List<GoodFollowAttentionVO> followAttentionList() {
-           return followAttentionMapper.followAttentionList(securityUtil.getCurrUser().getId());
+
+        List<FollowAttention> followAttentions = this.list(Wrappers.<FollowAttention>lambdaQuery()
+                .eq(FollowAttention::getFollowTypeEnum, FollowTypeEnum.Follow_SHOP)
+                .eq(FollowAttention::getCreateBy,securityUtil.getCurrUser().getId())
+        );
+
+        List<GoodFollowAttentionVO> goodFollowAttentionVO = followAttentions.parallelStream().map(follow -> {
+            GoodFollowAttentionVO g = new GoodFollowAttentionVO();
+            User user = userMapper.selectById(follow.getUserId());
+            ToolUtil.copyProperties(user,g);
+            return g;
+        }).collect(Collectors.toList());
+           return goodFollowAttentionVO;
+
     }
 
     /**
-     * 获取用户关注的用户列表
+     * 获取我关注的用户列表
      */
     @Override
     public List<UserFollowAttentionVO> followUserList() {
-        //获取用户关注的用户列表
-        List<UserFollowAttentionVO> list =  followAttentionMapper.followUserList(securityUtil.getCurrUser().getId());
+        //获取我关注的用户列表
+        List<FollowAttention> followAttention = this.list(new QueryWrapper<FollowAttention>().lambda()
+        .eq(FollowAttention::getCreateBy,securityUtil.getCurrUser().getId())
+                .eq(FollowAttention::getFollowTypeEnum,FollowTypeEnum.Follow_USER)
+        );
 
-        //获取用户所关注的用户的粉丝数量
-        for(UserFollowAttentionVO userList : list){
-           List<FollowAttention> userData =
-                   this.list(new QueryWrapper<FollowAttention>().lambda()
-                           .eq(FollowAttention::getUserId, userList.getId()));
-           //他的粉丝数量
-            userList.setBeanVermicelliNum(userData.size());
+        List<UserFollowAttentionVO> list = new ArrayList<>();
 
+        if(ToolUtil.isNotEmpty(followAttention)){
+            //获取我所关注的用户的粉丝数量
+            for(FollowAttention userList : followAttention){
+                UserFollowAttentionVO userfollVO = new UserFollowAttentionVO();
+                //获取用户信息
+                User user  = userMapper.selectOne(new QueryWrapper<User>().lambda().eq(User::getId,userList.getUserId()));
+                List<FollowAttention> userData =
+                        this.list(new QueryWrapper<FollowAttention>().lambda()
+                                .eq(FollowAttention::getUserId, userList.getId()));
+
+                userfollVO.setId(user.getId()).setUserid(user.getId()).setAvatar(user.getAvatar()).setUserName(user.getUsername());
+                //他的粉丝数量
+                userfollVO.setBeanVermicelliNum(userData.size());
+                list.add(userfollVO);
+            }
         }
 
         return list;
@@ -111,8 +143,10 @@ public class IFollowAttentionServiceImpl extends ServiceImpl<FollowAttentionMapp
             List<FollowAttention> userData =
                     this.list(new QueryWrapper<FollowAttention>().lambda()
                             .eq(FollowAttention::getUserId, userList.getUserid()));
-            userList.setBeanVermicelliNum((userData.size() < 0 ? userData.size() : 0));
+            userList.setBeanVermicelliNum((userData.size() > 0 ? userData.size() : 0));
 
+            //关注我的人的类型
+            userList.setFollowTypeEnum(userList.getFollowTypeEnum());
             //查询关注我的人，我是否关注他
             FollowAttention followAttention = super.getOne(new QueryWrapper<FollowAttention>().lambda()
                     .eq(FollowAttention::getCreateBy,userList.getUserid()).eq(FollowAttention::getUserId,securityUtil.getCurrUser().getId()));
@@ -142,37 +176,38 @@ public class IFollowAttentionServiceImpl extends ServiceImpl<FollowAttentionMapp
      * @return
      */
     @Override
-    public Long getfollowAttentionNum() {
+    public Integer getfollowAttentionNum() {
         List<FollowAttention> list = this.list(new QueryWrapper<FollowAttention>().lambda().eq(FollowAttention::getCreateBy,securityUtil.getCurrUser().getId()));
-        Long num = Long.valueOf(list.size());
+        Integer num = list.size();
         return (num != null ? num : 0);
     }
 
 
+//    /**
+//     * 查詢我是否关注这个商品
+//     * @param ids
+//     * @return
+//     */
+//    @Override
+//    public Integer getFollowAttentionGood(String ids) {
+//
+//        FollowAttention followAttention = this.getOne(Wrappers.<FollowAttention>lambdaQuery()
+//                .eq(FollowAttention::getUserId,ids).eq(FollowAttention::getCreateBy,securityUtil.getCurrUser().getId())
+//        );
+//        return  (followAttention != null ? 1 : 0);
+//    }
+
+
     /**
-     * 查詢我是否关注这个商品
-     * @param ids
-     * @return
-     */
-    @Override
-    public Integer getFollowAttentionGood(String ids) {
-
-        FollowAttention followAttention = this.getOne(Wrappers.<FollowAttention>lambdaQuery()
-                .eq(FollowAttention::getUserId,ids).eq(FollowAttention::getCreateBy,securityUtil.getCurrUser().getId())
-        );
-        return  (followAttention != null ? 1 : 0);
-    }
-
-
-    /**
-     * 查詢我是否关注这个店铺
+     * 查詢我是否关注这个店铺或者用户
      * @param id
      * @return
      */
     @Override
-    public Integer getMyFollowAttentionShop(String id) {
+    public Integer getMyFollowAttentionShop(String id, FollowTypeEnum followTypeEnum) {
         FollowAttention followAttention = this.getOne(Wrappers.<FollowAttention>lambdaQuery()
                 .eq(FollowAttention::getUserId,id).eq(FollowAttention::getCreateBy,securityUtil.getCurrUser().getId())
+                .eq(FollowAttention::getFollowTypeEnum,followTypeEnum)
         );
         return  (followAttention != null ? 1 : 0);
     }
