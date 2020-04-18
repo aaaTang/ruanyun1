@@ -91,7 +91,7 @@ public class IOrderDetailServiceImpl extends ServiceImpl<OrderDetailMapper, Orde
                     List<OrderDetailListVO> orderDetailVOS = orderDetails.parallelStream().map(orderDetail -> {
                         OrderDetailListVO orderDetailVO = new OrderDetailListVO();
                         ToolUtil.copyProperties(orderDetail,orderDetailVO);
-                        orderDetailVO.setAttrSymbolPath(itemAttrValService.getItemAttrVals(orderDetail.getAttrSymbolPath()));
+                        orderDetailVO.setItemAttrKeys(itemAttrValService.getItemAttrVals(orderDetail.getAttrSymbolPath()));
                         return orderDetailVO;
                     }).collect(Collectors.toList());
                     return orderDetailVOS;

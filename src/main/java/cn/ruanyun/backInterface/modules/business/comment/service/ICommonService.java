@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.comment.service;
 
+import cn.ruanyun.backInterface.modules.business.comment.VO.CommontVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.comment.pojo.Common;
 
@@ -33,4 +34,11 @@ public interface ICommonService extends IService<Common> {
      * @return
      */
     List getCommentVOByGoodId(String id);
+
+    /**
+     *
+     * @param common
+     * @return
+     */
+    List<CommontVO> getCommonList(Common common);
 }

@@ -13,6 +13,7 @@ import cn.ruanyun.backInterface.modules.business.order.VO.ShowOrderVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -54,11 +55,45 @@ public interface IOrderService extends IService<Order> {
      */
     ShowOrderVO showOrder(OrderShowDTO orderShowDTO);
 
+    /**
+     * 下单之前获取订单的信息  直接购买套餐商品
+     * @param orderShowDTO
+     * @return
+     */
     Object showGoodsPackageOrder(OrderShowDTO orderShowDTO);
 
+    /**
+     * 获取 我的订单
+     * @param order
+     * @return
+     */
     List<OrderListVO> getOrderList(Order order);
 
+    /**
+     * 获取订单详情
+     * @param id
+     * @return
+     */
     Object getAppGoodDetail(String id);
 
+    /**
+     * 改变订单状态  取消订单 确认收货
+     * @param order
+     * @return
+     */
     Object changeStatus(Order order);
+
+    /**
+     * 微信回调
+     * @param request
+     * @return
+     */
+    String wxPayNotify(HttpServletRequest request);
+
+    /**
+     * 支付宝回调
+     * @param request
+     * @return
+     */
+    String aliPayNotify(HttpServletRequest request);
 }

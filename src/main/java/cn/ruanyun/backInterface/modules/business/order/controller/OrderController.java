@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -129,7 +130,7 @@ public class OrderController {
     public Result<Object> getOrderDetailVO(String id) {
         return Optional.ofNullable(iOrderService.getById(id))
                 .map(good -> new ResultUtil<>().setData(iOrderService.getAppGoodDetail(id),"获取订单详情成功！"))
-                .orElse(new ResultUtil<>().setErrorMsg(201,"不存在该订单！"));
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
 
 
@@ -142,7 +143,30 @@ public class OrderController {
     public Result<Object> changeStatus(Order order) {
         return Optional.ofNullable(iOrderService.getById(order))
                 .map(byid -> new ResultUtil<>().setData(iOrderService.changeStatus(order),"操作成功！"))
-                .orElse(new ResultUtil<>().setErrorMsg(201,"不存在该订单！"));
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
+
+    /**
+     * @param request
+     * @Description TD: 微信回调地址 异步通知
+     * @Return java.lang.String
+     * @Author sangsang
+     * @Date 2020/2/11 11:56
+     **/
+    @RequestMapping(value = "/wxPayNotify", method = {RequestMethod.POST, RequestMethod.GET})
+    public String wxReturnUrl(HttpServletRequest request) {
+        return iOrderService.wxPayNotify(request);
+    }
+
+    /**
+     * 支付宝回调
+     * @param request
+     * @return
+     */
+    @RequestMapping(value = "/aliPayNotify", method = {RequestMethod.POST, RequestMethod.GET})
+    public String aliReturnUrl(HttpServletRequest request) {
+        return iOrderService.aliPayNotify(request);
+    }
+
 
 }

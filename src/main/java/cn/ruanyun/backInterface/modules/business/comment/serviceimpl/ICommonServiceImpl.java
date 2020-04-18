@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.comment.serviceimpl;
 
+import cn.ruanyun.backInterface.modules.business.comment.VO.CommontVO;
 import cn.ruanyun.backInterface.modules.business.comment.mapper.CommonMapper;
 import cn.ruanyun.backInterface.modules.business.comment.pojo.Common;
 import cn.ruanyun.backInterface.modules.business.comment.service.ICommonService;
@@ -69,6 +70,7 @@ public class ICommonServiceImpl extends ServiceImpl<CommonMapper, Common> implem
       }
 
     /**
+     * 通过商品id获取评论信息
      * @param id
      * @return
      */
@@ -76,5 +78,15 @@ public class ICommonServiceImpl extends ServiceImpl<CommonMapper, Common> implem
     public List getCommentVOByGoodId(String id) {
         return  Optional.ofNullable(this.list(Wrappers.<Common>lambdaQuery()
         .eq(Common::getGoodId,id))).orElse(null);
+    }
+
+    /**
+     *
+     * @param common
+     * @return
+     */
+    @Override
+    public List<CommontVO> getCommonList(Common common) {
+        return null;
     }
 }

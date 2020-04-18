@@ -1,8 +1,13 @@
 package cn.ruanyun.backInterface.modules.business.order.serviceimpl;
 
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
+import cn.ruanyun.backInterface.common.pay.common.alipay.AliPayUtilTool;
+import cn.ruanyun.backInterface.common.pay.common.alipay.AlipayConfig;
+import cn.ruanyun.backInterface.common.pay.common.wxpay.WeChatConfig;
 import cn.ruanyun.backInterface.common.pay.model.PayModel;
 import cn.ruanyun.backInterface.common.pay.service.IPayService;
 import cn.ruanyun.backInterface.common.utils.*;
@@ -20,7 +25,6 @@ import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.entity.HarvestAddress;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.service.IHarvestAddressService;
-import cn.ruanyun.backInterface.modules.business.itemAttrVal.pojo.ItemAttrVal;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrValService;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderDTO;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderShowDTO;
@@ -40,9 +44,13 @@ import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
 import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSON;
+import com.alipay.api.internal.util.AlipaySignature;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.api.client.util.ArrayMap;
+import com.ijpay.core.enums.SignType;
+import com.ijpay.core.kit.HttpKit;
+import com.ijpay.core.kit.WxPayKit;
 import dm.jdbc.stat.support.json.JSONArray;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +59,7 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -217,10 +226,11 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
         Result<Object> objectResult = new ResultUtil<>().setData(200, "支付成功!");
 
-        //微信
+
         PayModel payModel = new PayModel();
         payModel.setOrderNums(ids);
         payModel.setTotalPrice(totalPrice);
+        //微信
         if (payTypeEnum.getCode() == PayTypeEnum.WE_CHAT.getCode()){
             objectResult = payService.wxPayMethod(payModel);
         //支付宝
@@ -319,6 +329,11 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         }).orElse(null);
     }
 
+    /**
+     *
+     * @param order
+     * @return
+     */
     @Override
     public Object changeStatus(Order order) {
         //确认发货 确认收货 评价
@@ -345,11 +360,8 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 }
                 break;
 
-                //待评价
+                //退款售后
             case SALE_AFTER:
-                if (byId.getOrderStatus().equals(OrderStatusEnum.PRE_COMMENT)){
-                    return new ResultUtil<>().setErrorMsg(202,"该订单未支付");
-                }
                 break;
                 //取消订单
             case CANCEL_ORDER:
@@ -369,6 +381,8 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         this.updateById(byId);
         return null;
     }
+
+
 
     /**
      * 下单展示
@@ -424,8 +438,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         appGoodOrder.setBuyCount(orderShowDTO.getCount());
 
         //处理属性配置
-        appGoodOrder.setItemAttrKeys(iItemAttrValService.getItemAttrVals(orderShowDTO.getAttrSymbolPath()));
-
+//        appGoodOrder.setItemAttrKeys(iItemAttrValService.getItemAttrVals(orderShowDTO.getAttrSymbolPath()));
         if (!StringUtils.isEmpty(orderShowDTO.getDiscountCouponId())){
             //处理优惠券信息 订单的价格是否满足
             DiscountVO detailById = discountMyService.getDetailById(orderShowDTO.getDiscountCouponId());
@@ -489,4 +502,110 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         return sumPrice;
     }
 
+
+    /**
+     * 微信回调
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public String wxPayNotify(HttpServletRequest request) {
+        String xmlMsg = HttpKit.readData(request);
+        log.warn("微信支付回调消息参数=\n" + xmlMsg);
+        Map<String, String> params = WxPayKit.xmlToMap(xmlMsg);
+
+        String returnCode = params.get("return_code");
+        //获取创建时候的 商户订单号（唯一就行）
+        String orderNo = params.get("out_trade_no");
+
+        Map<String, String> xml;
+
+        // 注意重复通知的情况，同一订单号可能收到多次通知，请注意一定先判断订单状态
+        List<Order> orders = this.listByIds(ToolUtil.splitterStr(orderNo));
+        String panduan = panduan(orders);
+        if (StringUtils.isEmpty(panduan)) return panduan;
+        // 注意此处签名方式需与统一下单的签名类型一致
+        if (WxPayKit.verifyNotify(params, WeChatConfig.KEY, SignType.HMACSHA256)) {
+            if (WxPayKit.codeIsOk(returnCode)) {
+                this.settingOrder(orders);
+                // 发送通知等
+                xml = new HashMap<String, String>(2);
+                xml.put("return_code", "200");
+                xml.put("return_msg", "回调成功");
+                return WxPayKit.toXml(xml);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 支付宝回调
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public String aliPayNotify(HttpServletRequest request) {
+            Map<String, String> params = AliPayUtilTool.toMap(request);
+            log.warn("支付宝回调消息参数=\n" + JSONUtil.toJsonPrettyStr(params));
+            JSONObject object = new JSONObject();
+            try {
+    //			boolean verifyResult = AlipaySignature.rsaCheckV1(params, "支付公钥", "UTF-8", "RSA2");
+                boolean verifyResult = AlipaySignature.rsaCheckV1(params, AlipayConfig.ALIPAY_PUBLIC_KEY, AlipayConfig.CHARSET, AlipayConfig.SIGN_TYPE);
+                String orderTradeStatus = params.get("trade_status");//付款状态
+                String out_trade_no = params.get("out_trade_no");
+                String TRADE_SUCCESS = "TRADE_SUCCESS";
+                if (orderTradeStatus.equals(TRADE_SUCCESS)) {
+                    // TODO 请在这里加上商户的业务逻辑程序代码 异步通知可能出现订单重复通知 需要做去重处理
+                    List<Order> orders = this.listByIds(ToolUtil.splitterStr(out_trade_no));
+                    String panduan = panduan(orders);
+                    if (StringUtils.isEmpty(panduan)) return panduan;
+                    object.put("return_code", "200");
+                    object.put("return_msg", "支付宝notify_url 验证成功 succcess");
+                    return object.toString();
+                } else {
+                    System.out.println("notify_url 验证失败");
+                    // TODO
+                    object.put("return_code", "-1");
+                    object.put("return_msg", "notify_url 验证失败，请重新下单");
+                    return object.toString();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                object.put("return_code", "-1");
+                object.put("return_msg", "请重新下单");
+                return object.toString();
+            }
+    }
+
+
+    /***
+     * 支付宝、微信回调 处理订单
+     */
+    private String panduan(List<Order> orders){
+        Set<OrderStatusEnum> collect = orders.parallelStream().map(Order::getOrderStatus).collect(Collectors.toSet());
+        if (collect.size() == 1 && !collect.contains(OrderStatusEnum.PRE_PAY)) {
+            Map<String,String> xml = new HashMap<>(2);
+            xml.put("return_code", "-1");
+            xml.put("return_msg", "订单状态失效或已支付，请重新下单");
+            return WxPayKit.toXml(xml);
+        }
+        return null;
+    }
+
+    /***
+     * 支付宝、微信回调 处理订单
+     */
+    private void settingOrder(List<Order> orders){
+        for (int i = 0; i < orders.size(); i++) {
+            Order order = orders.get(i);
+            //更新订单信息
+            order.setOrderStatus(OrderStatusEnum.PRE_SEND);
+            this.updateById(order);
+            //移除票劵信息
+//        this.removeShopTicket(order);
+        }
+
+    }
 }
