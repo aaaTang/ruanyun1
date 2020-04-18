@@ -30,4 +30,9 @@ public class SelectStore extends RuanyunBaseEntity {
      */
     private String userId;
 
+    /**
+     * 是否严选，0否，1是
+     */
+    private Integer strict = 0;
+
 }

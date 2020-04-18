@@ -21,7 +21,11 @@ import cn.ruanyun.backInterface.modules.business.comment.pojo.Common;
 import cn.ruanyun.backInterface.modules.business.comment.service.ICommonService;
 import cn.ruanyun.backInterface.modules.business.followAttention.pojo.FollowAttention;
 import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
+import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
+import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
+import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
+import cn.ruanyun.backInterface.modules.business.goodService.pojo.GoodService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
 import cn.ruanyun.backInterface.modules.business.myFavorite.entity.MyFavorite;
@@ -80,8 +84,8 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
     private IFollowAttentionService followAttentionService;
     @Autowired
     private IUserService userService;
-    @Resource
-    private IMyFavoriteService myFavoriteService;
+    @Autowired
+    private IGoodService iGoodService;
 
 
     @Override
@@ -113,7 +117,7 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
         ToolUtil.copyProperties(byId,storeAuditListVO);
 
         //获取发布的套餐数量
-        storeAuditListVO.setGoodsPackageCuount(goodsPackageService.count(Wrappers.<GoodsPackage>lambdaQuery().eq(GoodsPackage::getCreateBy,id)));
+        storeAuditListVO.setGoodsPackageCuount(iGoodService.count(Wrappers.<Good>lambdaQuery().eq(Good::getCreateBy,id).eq(Good::getTypeEnum,GoodTypeEnum.GOODSPACKAGE)));
         //获取关注的数量
         storeAuditListVO.setFollowCount(followAttentionService.count(Wrappers.<FollowAttention>lambdaQuery().eq(FollowAttention::getUserId,id).eq(FollowAttention::getFollowTypeEnum, FollowTypeEnum.Follow_SHOP)));
         //获取评论的数量

@@ -31,40 +31,7 @@ public class GoodsPackageController {
     private IGoodsPackageService iGoodsPackageService;
 
 
-   /**
-     * 更新或者插入数据
-     * @param goodsPackage
-     * @return
-    */
-    @PostMapping(value = "/insertOrderUpdateGoodsPackage")
-    public Result<Object> insertOrderUpdateGoodsPackage(GoodsPackage goodsPackage){
 
-        try {
-            iGoodsPackageService.insertOrderUpdateGoodsPackage(goodsPackage);
-            return new ResultUtil<>().setSuccessMsg("插入或者更新成功!");
-        }catch (Exception e) {
-
-            return new ResultUtil<>().setErrorMsg(201, e.getMessage());
-        }
-    }
-
-
-    /**
-     * 移除数据
-     * @param ids
-     * @return
-    */
-    @PostMapping(value = "/removeGoodsPackage")
-    public Result<Object> removeGoodsPackage(String ids){
-
-        try {
-            iGoodsPackageService.removeGoodsPackage(ids);
-            return new ResultUtil<>().setSuccessMsg("移除成功！");
-        }catch (Exception e) {
-
-            return new ResultUtil<>().setErrorMsg(201, e.getMessage());
-        }
-    }
 
 
     /**
@@ -84,22 +51,6 @@ public class GoodsPackageController {
     }
 
 
-    /**
-     * 后端查询套餐全部数据
-     * @return
-     */
-    @PostMapping(value = "/BackGoodsPackageList")
-    public Result<Object> BackGoodsPackageList(PageVo pageVo){
-
-        return Optional.ofNullable(iGoodsPackageService.BackGoodsPackageList())
-                .map(iBackGoodsPackageList-> {
-                    Map<String, Object> result = Maps.newHashMap();
-                    result.put("size",  iBackGoodsPackageList.size());
-                    result.put("data",  PageUtil.listToPage(pageVo,iBackGoodsPackageList));
-                    return new ResultUtil<>().setData(result, "获取后端查询商品全部数据成功！");
-
-                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
-    }
 
 
     /**

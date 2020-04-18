@@ -299,6 +299,19 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
         }).orElse(null);
     }
 
+    /******************************************首页一级分类下的商品列表---开始**************************************************/
+
+    /**
+     * 获取一级分类下的所有商品和套餐以及按地区查询
+     * @return
+     */
+    @Override
+    public List<AppGoodAndPackageListVO> getAppGoodAndPackageList(GoodDTO goodDTO) {
+        return null;
+    }
+
+    /******************************************首页一级分类下的商品列表---结束**************************************************/
+
     @Override
     public AppGoodInfoVO getAppGoodInfo(String id) {
 
@@ -440,6 +453,8 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
         }
         return forSaleGoodsVO;
     }
+
+
 
 
 }

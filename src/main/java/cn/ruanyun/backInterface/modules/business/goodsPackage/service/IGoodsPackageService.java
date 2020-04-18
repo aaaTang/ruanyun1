@@ -15,19 +15,7 @@ import java.util.List;
 public interface IGoodsPackageService extends IService<GoodsPackage> {
 
 
-      /**
-        * 插入或者更新goodsPackage
-        * @param goodsPackage
-       */
-     void insertOrderUpdateGoodsPackage(GoodsPackage goodsPackage);
 
-
-
-      /**
-       * 移除goodsPackage
-       * @param ids
-       */
-     void removeGoodsPackage(String ids);
 
     /**
      * App查询商家商品详情
@@ -41,10 +29,7 @@ public interface IGoodsPackageService extends IService<GoodsPackage> {
      */
     List<GoodsPackageListVO>  GetGoodsPackageList(String classId, String areaId,Integer newPrice ,String createBy);
 
-    /**
-     * 后端查询商品全部数据
-     */
-    List<GoodsPackage> BackGoodsPackageList();
+
     /**
      * 获取App店铺详情数据成功
      */

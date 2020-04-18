@@ -102,7 +102,24 @@ public class GoodController {
     }
 
 
-
+    /**
+     * 获取一级分类下的所有商品和套餐以及按地区查询
+     * @param goodDTO
+     * @param pageVo
+     * @return
+     */
+    @PostMapping("/getAppGoodAndPackageList")
+    public Result<Object> getAppGoodAndPackageList(GoodDTO goodDTO, PageVo pageVo) {
+        goodDTO.setGoodTypeEnum(GoodTypeEnum.GOOD);
+        return Optional.ofNullable(iGoodService.getAppGoodAndPackageList(goodDTO))
+                .map(goodAndPackageList -> {
+                    Map<String,Object> result = Maps.newHashMap();
+                    result.put("size",goodAndPackageList.size());
+                    result.put("data", PageUtil.listToPage(pageVo,goodAndPackageList));
+                    return new ResultUtil<>().setData(result,"获取一级分类下的所有商品和套餐以及按地区查询列表成功！");
+                })
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
 
 
     /**

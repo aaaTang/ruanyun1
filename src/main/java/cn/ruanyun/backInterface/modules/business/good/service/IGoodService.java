@@ -54,6 +54,12 @@ public interface IGoodService extends IService<Good> {
 
 
     /**
+     * 获取一级分类下的所有商品和套餐以及按地区查询
+     * @return
+     */
+    List<AppGoodAndPackageListVO> getAppGoodAndPackageList(GoodDTO goodDTO);
+
+    /**
      * 获取商品购买信息
      * @param id
      * @return
@@ -114,5 +120,6 @@ public interface IGoodService extends IService<Good> {
 
 
     List<AppForSaleGoodsVO> getAppForSaleGoods(String ids);
+
 
 }

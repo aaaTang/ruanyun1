@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.persistence.Column;
+import java.math.BigDecimal;
 
 @Data
 @Accessors(chain = true)
@@ -20,11 +21,11 @@ public class AppGoodsPackageListVO {
     /**
      * 商品价格
      */
-    private String newPrice;
+    private BigDecimal newPrice;
     /**
      * 旧价格
      */
-    private String oldPrice;
+    private BigDecimal oldPrice;
     /**
      * 套餐图片
      */

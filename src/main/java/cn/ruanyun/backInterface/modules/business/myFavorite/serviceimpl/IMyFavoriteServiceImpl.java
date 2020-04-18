@@ -55,7 +55,6 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
     private UserMapper userMapper;
 
 
-
     /**
      * 插入我的收藏
      *
@@ -141,11 +140,17 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
         CompletableFuture<List<PackageFavotiteVO>> goodVOList = myFavoriteList.thenApplyAsync(myFavorites ->
                 myFavorites.map(myFavorites1 -> myFavorites1.parallelStream().flatMap(myFavorite -> {
                     PackageFavotiteVO goodListVO= new PackageFavotiteVO();
-                    GoodsPackage goodsPackage = goodsPackageMapper.selectById(myFavorite.getGoodId());
-                    ToolUtil.copyProperties(goodsPackage,goodListVO);
-                    String[] split = goodsPackage.getPics().split(",");
+                    Good goodsPackage = goodMapper.selectById(myFavorite.getGoodId());
+                    goodListVO.setId(goodsPackage.getId())
+                    .setGoodsName(goodsPackage.getGoodName())//套餐名称
+                    .setGoodIds(goodsPackage.getId())//商品的ids
+                    .setNewPrice(goodsPackage.getGoodNewPrice())//新价格
+                    .setShopName(Optional.ofNullable(userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getId,goodsPackage.getCreateBy()))).map(User::getShopName)
+                            .orElse(null))//店铺名称
+                    ;
+                    String[] split = goodsPackage.getGoodPics().split(",");
                     if(ToolUtil.isNotEmpty(split)){
-                        goodListVO.setPics(split[0]);
+                        goodListVO.setPics(split[0]);//套餐图片
                     }
                     return Stream.of(goodListVO);
                 })

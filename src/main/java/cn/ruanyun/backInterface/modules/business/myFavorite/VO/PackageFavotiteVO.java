@@ -1,10 +1,13 @@
 package cn.ruanyun.backInterface.modules.business.myFavorite.VO;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import javax.persistence.Column;
+import java.math.BigDecimal;
 
 @Data
+@Accessors(chain = true)
 public class PackageFavotiteVO {
 
     private String id;
@@ -21,11 +24,15 @@ public class PackageFavotiteVO {
     /**
      * 新价格
      */
-    private String newPrice;
+    private BigDecimal newPrice;
 
     /**
      * 商品的ids
      */
     private String goodIds;
 
+    /**
+     * 店铺名称
+     */
+    private String shopName;
 }
