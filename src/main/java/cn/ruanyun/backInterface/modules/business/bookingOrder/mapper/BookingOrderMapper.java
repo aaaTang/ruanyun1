@@ -10,5 +10,5 @@ import cn.ruanyun.backInterface.modules.business.bookingOrder.pojo.BookingOrder;
  */
 public interface BookingOrderMapper extends BaseMapper<BookingOrder> {
 
-    BookingOrderVO bookingOrderList(String ids,String userId);
+    BookingOrderVO bookingOrderList (String ids,String userId);
 }
