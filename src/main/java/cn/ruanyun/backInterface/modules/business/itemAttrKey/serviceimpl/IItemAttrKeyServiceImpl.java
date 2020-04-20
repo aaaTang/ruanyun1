@@ -3,11 +3,15 @@ package cn.ruanyun.backInterface.modules.business.itemAttrKey.serviceimpl;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.mapper.ItemAttrKeyMapper;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.pojo.ItemAttrKey;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.service.IItemAttrKeyService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -51,4 +55,13 @@ public class IItemAttrKeyServiceImpl extends ServiceImpl<ItemAttrKeyMapper, Item
 
           CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
       }
+
+    @Override
+    public List getItemAttrKeyList(String classId) {
+        return Optional.ofNullable(this.list(new QueryWrapper<ItemAttrKey>().lambda()
+                .eq(ToolUtil.isNotEmpty(classId),ItemAttrKey::getClassId,classId)
+        )).orElse(null);
+    }
+
+
 }

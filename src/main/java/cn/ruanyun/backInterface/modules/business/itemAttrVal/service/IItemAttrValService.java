@@ -34,4 +34,11 @@ public interface IItemAttrValService extends IService<ItemAttrVal> {
      * @return
      */
     List<String> getItemAttrVals(String ids);
+
+
+    /**
+     * 获取规格属性值列表
+     * @return
+     */
+    List getItemAttrValList(String keyId);
 }

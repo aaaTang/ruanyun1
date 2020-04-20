@@ -4,12 +4,15 @@ import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.pojo.ItemAttrKey;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.service.IItemAttrKeyService;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author z
@@ -62,5 +65,21 @@ public class ItemAttrKeyController {
         }
     }
 
+
+    /**
+     * 获取规格列表
+     * @return
+     */
+    @PostMapping(value = "/getItemAttrKeyList")
+    public Result<Object> getItemAttrKeyList(String classId){
+
+        return Optional.ofNullable(iItemAttrKeyService.getItemAttrKeyList(classId))
+                .map(getItemAttrKey-> {
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("data",  getItemAttrKey);
+                    return new ResultUtil<>().setData(result, "获取规格列表数据成功！");
+
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+    }
 
 }

@@ -25,4 +25,7 @@ public interface IItemAttrKeyService extends IService<ItemAttrKey> {
        * @param ids
        */
      void removeItemAttrKey(String ids);
+
+
+     List getItemAttrKeyList(String classId);
 }

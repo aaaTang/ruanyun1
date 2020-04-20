@@ -4,12 +4,15 @@ import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.pojo.ItemAttrVal;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrValService;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author z
@@ -60,6 +63,22 @@ public class ItemAttrValController {
 
             return new ResultUtil<>().setErrorMsg(201, e.getMessage());
         }
+    }
+
+    /**
+     * 获取规格属性值列表
+     * @return
+     */
+    @PostMapping(value = "/getItemAttrValList")
+    public Result<Object> getItemAttrValList(String keyId){
+
+        return Optional.ofNullable(iItemAttrValService.getItemAttrValList(keyId))
+                .map(getItemAttrKey-> {
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("data",  getItemAttrKey);
+                    return new ResultUtil<>().setData(result, "获取规格属性值列表成功！");
+
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
     }
 
 }
