@@ -2,6 +2,8 @@ package cn.ruanyun.backInterface.modules.business.comment.serviceimpl;
 
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.utils.*;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.business.comment.DTO.CommentDTO;
 import cn.ruanyun.backInterface.modules.business.comment.VO.CommentVO;
 import cn.ruanyun.backInterface.modules.business.comment.mapper.CommentMapper;
@@ -11,6 +13,7 @@ import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.grade.pojo.Grade;
 import cn.ruanyun.backInterface.modules.business.grade.service.IGradeService;
+import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrValService;
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
 import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
 import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
@@ -28,6 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -50,11 +55,17 @@ public class ICommentServiceImpl extends ServiceImpl<CommentMapper, Comment> imp
     private IGradeService gradeService;
     @Autowired
     private IGoodService goodService;
+    @Autowired
+    private IUserService userService;
+    @Autowired
+    private IOrderDetailService orderDetailService;
+    @Autowired
+    private IItemAttrValService iItemAttrValService;
 
 
     @Override
     public void insertOrderUpdateComment(CommentDTO commentDTO) {
-        JSONArray jsonArray = new JSONArray(commentDTO.getComment());
+        JSONArray jsonArray = new JSONArray(commentDTO.getComments());
         String userId = "";
         for (int i = 0; i <jsonArray.length(); i++) {
             Comment comment = JSON.parseObject(jsonArray.get(i).toString(), Comment.class);
@@ -87,7 +98,7 @@ public class ICommentServiceImpl extends ServiceImpl<CommentMapper, Comment> imp
         orderService.changeStatus(order);
         //添加商铺评分
         Grade grade = new Grade();
-        grade.setStartLevel(Integer.parseInt(commentDTO.getStartLevel()));
+        grade.setStartLevel(Double.parseDouble(commentDTO.getStartLevel()));
         grade.setUserId(userId);
         gradeService.save(grade);
 
@@ -111,12 +122,44 @@ public class ICommentServiceImpl extends ServiceImpl<CommentMapper, Comment> imp
     }
 
     /**
-     *
+     * 商家，商品获取商品评论
      * @param comment
      * @return
      */
     @Override
     public List<CommentVO> getCommentList(Comment comment) {
-        return null;
+        List<Comment> list = this.list(Wrappers.<Comment>lambdaQuery()
+                .eq(StringUtils.isNotBlank(comment.getGoodId()), Comment::getGoodId, comment.getGoodId())
+                .eq(StringUtils.isNotBlank(comment.getUserId()), Comment::getUserId, comment.getUserId()));
+        return Optional.ofNullable(ToolUtil.setListToNul(list)).map(comments -> {
+            List<CommentVO> commentVOS = comments.parallelStream().map(comment1 -> {
+               return this.getCommentVO(comment1.getId());
+            }).collect(Collectors.toList());
+            return commentVOS;
+        }).orElse(null);
+    }
+
+
+    public CommentVO getCommentVO(String id){
+        return Optional.ofNullable(this.getById(id)).map(comment -> {
+            CommentVO commentVO = new CommentVO();
+            ToolUtil.copyProperties(comment,commentVO);
+            commentVO.setId(comment.getId());
+            //处理评论人的名字跟头像
+            User byId = userService.getById(comment.getCreateBy());
+            commentVO.setAvatar(byId.getAvatar());
+            commentVO.setUsername(byId.getUsername());
+            //处理下单的规格
+            OrderDetail one = orderDetailService.getOne(Wrappers.<OrderDetail>lambdaQuery()
+                    .eq(OrderDetail::getGoodId, comment.getGoodId())
+                    .eq(OrderDetail::getOrderId, comment.getOrderId()));
+            commentVO.setItemAttrKeys(iItemAttrValService.getItemAttrVals(one.getAttrSymbolPath()));
+
+            //处理商家后台的回复
+            commentVO.setReply(Optional.ofNullable(this.getOne(Wrappers.<Comment>lambdaQuery().eq(Comment::getPid, comment.getId()))).map(comment3 ->{
+                        return this.getCommentVO(comment3.getId()).getContent();
+                    }).orElse(null));
+            return commentVO;
+        }).orElse(null);
     }
 }

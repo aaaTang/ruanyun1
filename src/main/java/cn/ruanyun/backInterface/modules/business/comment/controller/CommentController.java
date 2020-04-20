@@ -1,16 +1,21 @@
 package cn.ruanyun.backInterface.modules.business.comment.controller;
 
+import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.comment.DTO.CommentDTO;
 import cn.ruanyun.backInterface.modules.business.comment.pojo.Comment;
 import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
+import com.google.api.client.util.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author wj
@@ -58,4 +63,21 @@ public class CommentController {
         }
     }
 
+    /**
+     * app 商品获取评论 商家获取评论
+     * @param comment
+     * @param pageVo
+     * @return
+     */
+    @PostMapping("/getAppCommonList")
+    public Result<Object> getAppGoodList(Comment comment, PageVo pageVo) {
+        return Optional.ofNullable(iCommentService.getCommentList(comment))
+                .map(commentListVOS -> {
+                    Map<String,Object> result = Maps.newHashMap();
+                    result.put("size",commentListVOS.size());
+                    result.put("data", PageUtil.listToPage(pageVo,commentListVOS));
+                    return new ResultUtil<>().setData(result,"获取商品列表成功！");
+                })
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
 }

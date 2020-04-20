@@ -33,7 +33,7 @@ public interface IGoodsPackageService extends IService<GoodsPackage> {
     /**
      * 获取App店铺详情数据成功
      */
-    ShopParticularsVO getShopParticulars(String ids);
+    ShopParticularsVO getShopParticulars(String ids,String longitude,String latitude);
 
     /**
      * 查询商家精选套餐

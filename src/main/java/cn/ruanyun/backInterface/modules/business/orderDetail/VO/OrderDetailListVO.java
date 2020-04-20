@@ -29,6 +29,11 @@ public class OrderDetailListVO  {
     private BigDecimal goodNewPrice;
 
     /**
+     * 商品新价格
+     */
+    private String goodId;
+
+    /**
      * 积分
      */
     private Integer integral;

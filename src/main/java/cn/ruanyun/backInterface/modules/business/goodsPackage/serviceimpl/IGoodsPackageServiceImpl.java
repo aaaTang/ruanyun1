@@ -30,6 +30,7 @@ import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.*;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.mapper.GoodsPackageMapper;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
+import cn.ruanyun.backInterface.modules.business.grade.service.IGradeService;
 import cn.ruanyun.backInterface.modules.business.myFavorite.mapper.MyFavoriteMapper;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
 import cn.ruanyun.backInterface.modules.business.storeAudit.mapper.StoreAuditMapper;
@@ -101,6 +102,9 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     @Resource
     private GoodMapper goodMapper;
 
+    @Autowired
+    private IGradeService gradeService;
+
 
 
 
@@ -113,7 +117,6 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     public Result<Object> GetGoodsPackage(String ids) {
         Good goodsPackage = goodMapper.selectById(ids);
 
-        List list = new ArrayList();
         GoodsPackageParticularsVO goodsPackageParticularsVO = new GoodsPackageParticularsVO();
            if(ToolUtil.isNotEmpty(goodsPackage)){
                goodsPackageParticularsVO.setId(goodsPackage.getId())
@@ -121,17 +124,12 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
                .setPics(goodsPackage.getGoodPics())//套餐图片
                .setNewPrice(goodsPackage.getGoodNewPrice())//新价格
                .setOldPrice(goodsPackage.getGoodOldPrice())//旧价格
-
-                       .setCommodityDetails(goodsPackage.getProductsIntroduction())
-
-            /*   .setProductsIntroduction(goodsPackage.getProductsIntroduction())//商品介绍
+               .setProductsIntroduction(goodsPackage.getProductsIntroduction())//商品介绍
                .setProductLightspot(goodsPackage.getProductLightspot())//商品亮点
                .setShootCharacteristics(goodsPackage.getShootCharacteristics())//拍摄特色
                .setGraphicDetails(goodsPackage.getGraphicDetails())//图文详情
-
-
                .setPurchaseNotes(goodsPackage.getPurchaseNotes())//购买须知
-               .setWarmPrompt(goodsPackage.getWarmPrompt())//温馨提示*/
+               .setWarmPrompt(goodsPackage.getWarmPrompt())//温馨提示
                .setStoreAuditVO(storeAuditService.getStoreAudisByid(goodsPackage.getCreateBy()))//商铺信息
                ;
            }
@@ -173,36 +171,38 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     /**
      * 获取App店铺详情数据成功
      */
-    public ShopParticularsVO getShopParticulars(String ids){
+    public ShopParticularsVO getShopParticulars(String ids,String longitude,String latitude){
 
-            User user = iUserService.getById(ids);//获取店铺详情
-            ShopParticularsVO  shopParticularsVO = new ShopParticularsVO();
-        if(ToolUtil.isNotEmpty(user)){
+        User user = iUserService.getById(ids);//获取店铺详情
+        ShopParticularsVO shopParticularsVO = new ShopParticularsVO();
+        if (ToolUtil.isNotEmpty(user)) {
 
-            ToolUtil.copyProperties(user,shopParticularsVO);
+            ToolUtil.copyProperties(user, shopParticularsVO);
 
             //获取店铺通用优惠券
             List<DiscountCoupon> discountCoupon = iDiscountCouponService.list(new QueryWrapper<DiscountCoupon>().lambda()
                     .eq(DiscountCoupon::getDisCouponType, DisCouponTypeEnum.ALL_USE)
-                    .eq(DiscountCoupon::getStoreAuditOid,ids).eq(DiscountCoupon::getPastDue, BooleanTypeEnum.NO));
+                    .eq(DiscountCoupon::getStoreAuditOid, ids).eq(DiscountCoupon::getPastDue, BooleanTypeEnum.NO));
 
             List<DiscountCouponListVO> dvo = new ArrayList<>();
             for (DiscountCoupon dc : discountCoupon) {
                 DiscountCouponListVO vo = new DiscountCouponListVO();
-                ToolUtil.copyProperties(dc,vo);
+                ToolUtil.copyProperties(dc, vo);
                 vo.setIsReceive(iDiscountCouponServiceImpl.getDetailById(dc));
                 dvo.add(vo);
             }
             shopParticularsVO.setDiscountList(dvo);//优惠券
 
             //TODO::2020/4/13 店铺评分 未处理
-
+            shopParticularsVO.setScore(gradeService.getShopScore(ids));
             //TODO::2020/4/13 是否关注店铺
             shopParticularsVO.setFavroite(followAttentionService.getMyFollowAttentionShop(ids, FollowTypeEnum.Follow_SHOP));
             //TODO::2020/4/13 是否预约店铺
-            shopParticularsVO.setWhetherBookingOrder(iBookingOrderService.getWhetherBookingOrder(ids,securityUtil.getCurrUser().getId()));
+            shopParticularsVO.setWhetherBookingOrder(iBookingOrderService.getWhetherBookingOrder(ids, securityUtil.getCurrUser().getId()));
+            // TODO: 2020/4/20 距离
+            shopParticularsVO.setDistance(LocationUtils.getDistance(longitude, latitude, user.getLongitude(), user.getLatitude()) + "");
             return shopParticularsVO;
-        }else {
+        } else {
             return null;
         }
 

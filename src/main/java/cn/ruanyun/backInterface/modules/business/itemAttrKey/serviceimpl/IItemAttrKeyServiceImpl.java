@@ -1,12 +1,8 @@
 package cn.ruanyun.backInterface.modules.business.itemAttrKey.serviceimpl;
 
-import cn.ruanyun.backInterface.modules.business.itemAttrKey.VO.ItemAttrKeyVO;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.mapper.ItemAttrKeyMapper;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.pojo.ItemAttrKey;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.service.IItemAttrKeyService;
-import cn.ruanyun.backInterface.modules.business.itemAttrVal.VO.ItemAttrValVO;
-import cn.ruanyun.backInterface.modules.business.itemAttrVal.mapper.ItemAttrValMapper;
-import cn.ruanyun.backInterface.modules.business.itemAttrVal.pojo.ItemAttrVal;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.api.client.util.ArrayMap;

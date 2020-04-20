@@ -27,6 +27,6 @@ public class Grade extends RuanyunBaseEntity {
     /**
      * 星星数
      */
-    private Integer startLevel;
+    private Double startLevel;
 
 }

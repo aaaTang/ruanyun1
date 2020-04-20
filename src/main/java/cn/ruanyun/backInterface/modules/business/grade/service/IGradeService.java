@@ -12,17 +12,25 @@ import java.util.List;
 public interface IGradeService extends IService<Grade> {
 
 
-      /**
-        * 插入或者更新grade
-        * @param grade
-       */
-     void insertOrderUpdateGrade(Grade grade);
+    /**
+     * 插入或者更新grade
+     *
+     * @param grade
+     */
+    void insertOrderUpdateGrade(Grade grade);
 
 
+    /**
+     * 移除grade
+     *
+     * @param ids
+     */
+    void removeGrade(String ids);
 
-      /**
-       * 移除grade
-       * @param ids
-       */
-     void removeGrade(String ids);
+    /**
+     * 计算商铺评分
+     * @param ids
+     * @return
+     */
+    String getShopScore(String ids);
 }

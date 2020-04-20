@@ -377,9 +377,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 break;
                 //完成
             case IS_COMPLETE:
-                if (!byId.getOrderStatus().equals(OrderStatusEnum.SALE_AFTER)){
+               /* if (!byId.getOrderStatus().equals(OrderStatusEnum.SALE_AFTER)){
                     return new ResultUtil<>().setErrorMsg(202,"该订单未支付");
-                }
+                }*/
                 break;
             default:
                 break;
