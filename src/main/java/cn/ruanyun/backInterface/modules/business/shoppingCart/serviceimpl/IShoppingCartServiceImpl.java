@@ -9,6 +9,8 @@ import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.pojo.ItemAttrKey;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.service.IItemAttrKeyService;
+import cn.ruanyun.backInterface.modules.business.itemAttrVal.pojo.ItemAttrVal;
+import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrValService;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.VO.ShoppingCartVO;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.entity.ShoppingCart;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.mapper.ShoppingCartMapper;
@@ -50,7 +52,7 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
     @Autowired
     private ISizeAndRolorService iSizeAndRolorService;
     @Autowired
-    private IItemAttrKeyService itemAttrKeyService;
+    private IItemAttrValService itemAttrValService;
 
     /**
      * 加入购物车
@@ -126,9 +128,9 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
 
                     ShoppingCartVO shoppingCartVO = new ShoppingCartVO();
 
-                    if (StringUtils.isEmpty(shoppingCart.getAttrSymbolPath())){
+                    if (!StringUtils.isEmpty(shoppingCart.getAttrSymbolPath())){
                         //处理属性信息
-                        List<String> itemAttrKeys = itemAttrKeyService.listByIds(ToolUtil.splitterStr(shoppingCart.getAttrSymbolPath())).stream().map(ItemAttrKey::getAttrName).collect(Collectors.toList());
+                        List<String> itemAttrKeys = itemAttrValService.listByIds(ToolUtil.splitterStr(shoppingCart.getAttrSymbolPath())).stream().map(ItemAttrVal::getAttrValue).collect(Collectors.toList());
                         shoppingCartVO.setItemAttrKeys(itemAttrKeys);
                     }
 

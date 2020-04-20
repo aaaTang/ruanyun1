@@ -177,9 +177,12 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
             //将商品是一个店铺的归类
             Good byId = goodService.getById(orderDetail.getGoodId());
-            byId.setId(null);
-            ToolUtil.copyProperties(byId, orderDetail);
-
+            if (EmptyUtil.isNotEmpty(byId)){
+                byId.setId(null);
+                ToolUtil.copyProperties(byId, orderDetail);
+                List<String> strings = ToolUtil.splitterStr(byId.getGoodPics());
+                orderDetail.setGoodPics(strings.get(0));
+            }
             if (!StringUtils.isEmpty(orderDetail.getDiscountMyId())){
                 //处理商品优惠卷信息
                 DiscountVO detailById = discountMyService.getDetailById(orderDetail.getDiscountMyId());
@@ -193,10 +196,14 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 }
 
             }
-            SizeAndRolor sizeAndRolor = sizeAndRolorService.getOneByAttrSymbolPath(orderDetail.getAttrSymbolPath());
-            sizeAndRolor.setId(null);
-            ToolUtil.copyProperties(sizeAndRolor,orderDetail);
-            orderDetail.setGoodPics(sizeAndRolor.getPic());
+            if (StringUtils.isEmpty(orderDetail.getAttrSymbolPath())){
+                SizeAndRolor sizeAndRolor = sizeAndRolorService.getOneByAttrSymbolPath(orderDetail.getAttrSymbolPath());
+                if (EmptyUtil.isNotEmpty(sizeAndRolor)){
+                    sizeAndRolor.setId(null);
+                    ToolUtil.copyProperties(sizeAndRolor,orderDetail);
+                    orderDetail.setGoodPics(sizeAndRolor.getPic());
+                }
+            }
             List<OrderDetail> goodList = goodMap.get(byId.getCreateBy());
             if (EmptyUtil.isEmpty(goodList)) {
                 ArrayList<OrderDetail> orderDetails = new ArrayList<>();
@@ -291,7 +298,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 .eq(!StringUtils.isEmpty(order.getUserId()), Order::getUserId, order.getUserId())
                 .eq(Order::getCreateBy, id)
                 .eq(!EmptyUtil.isEmpty(order.getOrderStatus()),Order::getOrderStatus, order.getOrderStatus())
-                .orderByAsc(Order::getCreateTime));
+                .orderByDesc(Order::getCreateTime));
         return Optional.ofNullable(ToolUtil.setListToNul(list)).map(orders -> {
             List<OrderListVO> orderListVOS = orders.parallelStream().map(orderO ->{
                 OrderListVO orderListVO = new OrderListVO();
@@ -349,14 +356,14 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 break;
                 //待收货
             case DELIVER_SEND:
-                if (byId.getOrderStatus().equals(OrderStatusEnum.PRE_SEND)){
+                if (!byId.getOrderStatus().equals(OrderStatusEnum.PRE_SEND)){
                     return new ResultUtil<>().setErrorMsg(202,"该订单未支付");
                 }
                 byId.setExpressCode(order.getExpressCode());
                 break;
             //待确定
             case PRE_COMMENT:
-                if (byId.getOrderStatus().equals(OrderStatusEnum.DELIVER_SEND)){
+                if (!byId.getOrderStatus().equals(OrderStatusEnum.DELIVER_SEND)){
                     return new ResultUtil<>().setErrorMsg(202,"该订单未发货");
                 }
                 break;
@@ -370,7 +377,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 break;
                 //完成
             case IS_COMPLETE:
-                if (byId.getOrderStatus().equals(OrderStatusEnum.SALE_AFTER)){
+                if (!byId.getOrderStatus().equals(OrderStatusEnum.SALE_AFTER)){
                     return new ResultUtil<>().setErrorMsg(202,"该订单未支付");
                 }
                 break;
