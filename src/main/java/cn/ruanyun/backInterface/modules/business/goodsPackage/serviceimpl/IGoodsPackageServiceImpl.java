@@ -113,6 +113,7 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     public Result<Object> GetGoodsPackage(String ids) {
         Good goodsPackage = goodMapper.selectById(ids);
 
+        List list = new ArrayList();
         GoodsPackageParticularsVO goodsPackageParticularsVO = new GoodsPackageParticularsVO();
            if(ToolUtil.isNotEmpty(goodsPackage)){
                goodsPackageParticularsVO.setId(goodsPackage.getId())
@@ -120,12 +121,17 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
                .setPics(goodsPackage.getGoodPics())//套餐图片
                .setNewPrice(goodsPackage.getGoodNewPrice())//新价格
                .setOldPrice(goodsPackage.getGoodOldPrice())//旧价格
-               .setProductsIntroduction(goodsPackage.getProductsIntroduction())//商品介绍
+
+                       .setCommodityDetails(goodsPackage.getProductsIntroduction())
+
+            /*   .setProductsIntroduction(goodsPackage.getProductsIntroduction())//商品介绍
                .setProductLightspot(goodsPackage.getProductLightspot())//商品亮点
                .setShootCharacteristics(goodsPackage.getShootCharacteristics())//拍摄特色
                .setGraphicDetails(goodsPackage.getGraphicDetails())//图文详情
+
+
                .setPurchaseNotes(goodsPackage.getPurchaseNotes())//购买须知
-               .setWarmPrompt(goodsPackage.getWarmPrompt())//温馨提示
+               .setWarmPrompt(goodsPackage.getWarmPrompt())//温馨提示*/
                .setStoreAuditVO(storeAuditService.getStoreAudisByid(goodsPackage.getCreateBy()))//商铺信息
                ;
            }
