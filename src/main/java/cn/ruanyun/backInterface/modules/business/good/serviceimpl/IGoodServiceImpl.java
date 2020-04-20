@@ -6,9 +6,8 @@ import cn.ruanyun.backInterface.common.utils.EmptyUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
-import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
-import cn.ruanyun.backInterface.modules.business.comment.service.ICommonService;
+import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
 import cn.ruanyun.backInterface.modules.business.followAttention.pojo.FollowAttention;
 import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
@@ -19,15 +18,14 @@ import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
 import cn.ruanyun.backInterface.modules.business.goodService.service.IGoodServiceService;
-import cn.ruanyun.backInterface.modules.business.itemAttrKey.pojo.ItemAttrKey;
-import cn.ruanyun.backInterface.modules.business.itemAttrVal.pojo.ItemAttrVal;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrValService;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
 import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
 import cn.ruanyun.backInterface.modules.business.myFootprint.serviceimpl.IMyFootprintServiceImpl;
 import cn.ruanyun.backInterface.modules.business.orderDetail.service.IOrderDetailService;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
-import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
+import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
+import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
 import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -93,7 +91,10 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     private IOrderDetailService orderDetailService;
 
     @Autowired
-    private ICommonService commonService;
+    private ICommentService commentService;
+
+    @Autowired
+    private ISizeAndRolorService sizeAndRolorService;
 
 
     @Override
@@ -145,7 +146,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
                     // TODO: 2020/3/27 其他信息
                     appGoodListVO.setSaleVolume(orderDetailService.getGoodSalesVolume(good.getId()))
-                            .setCommentNum(Optional.ofNullable(commonService.getCommentVOByGoodId(good.getId()))
+                            .setCommentNum(Optional.ofNullable(commentService.getCommentVOByGoodId(good.getId()))
                             .map(List::size)
                             .orElse(0));
 
@@ -407,11 +408,17 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                     AppGoodOrderVO appGoodOrderVO = new AppGoodOrderVO();
                     ToolUtil.copyProperties(good, appGoodOrderVO);
                     appGoodOrderVO.setGoodId(good.getId());
-
                     //1.商品图片
                     appGoodOrderVO.setGoodPic(Optional.ofNullable(ToolUtil.setListToNul(ToolUtil.splitterStr(good.getGoodPics())))
                             .map(pics -> pics.get(0))
                             .orElse("暂无"));
+
+                    //处理商品价格
+                    SizeAndRolor one = sizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery().eq(SizeAndRolor::getAttrSymbolPath, attrSymbolPath));
+                    if (EmptyUtil.isNotEmpty(one)){
+                        appGoodOrderVO.setGoodNewPrice(one.getGoodPrice());
+                        appGoodOrderVO.setGoodPic(one.getPic());
+                    }
 
                     //2.商品颜色尺寸
                     List<String> itemAttrVals = iItemAttrValService.getItemAttrVals(attrSymbolPath);

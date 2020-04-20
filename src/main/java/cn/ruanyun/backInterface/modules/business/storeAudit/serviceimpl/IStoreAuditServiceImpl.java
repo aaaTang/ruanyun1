@@ -4,7 +4,6 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.CheckEnum;
 import cn.ruanyun.backInterface.common.enums.FollowTypeEnum;
-import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import cn.ruanyun.backInterface.common.enums.StoreTypeEnum;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
@@ -17,8 +16,8 @@ import cn.ruanyun.backInterface.modules.base.service.mybatis.IRoleService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.business.area.service.IAreaService;
-import cn.ruanyun.backInterface.modules.business.comment.pojo.Common;
-import cn.ruanyun.backInterface.modules.business.comment.service.ICommonService;
+import cn.ruanyun.backInterface.modules.business.comment.pojo.Comment;
+import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
 import cn.ruanyun.backInterface.modules.business.followAttention.pojo.FollowAttention;
 import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
@@ -28,7 +27,6 @@ import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCateg
 import cn.ruanyun.backInterface.modules.business.goodService.pojo.GoodService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
-import cn.ruanyun.backInterface.modules.business.myFavorite.entity.MyFavorite;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
 import cn.ruanyun.backInterface.modules.business.storeAudit.DTO.StoreAuditDTO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditListVO;
@@ -40,7 +38,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.index.engine.Engine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,7 +76,7 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
     @Autowired
     private IGoodsPackageService goodsPackageService;
     @Autowired
-    private ICommonService commonService;
+    private ICommentService commentService;
     @Autowired
     private IFollowAttentionService followAttentionService;
     @Autowired
@@ -121,7 +118,7 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
         //获取关注的数量
         storeAuditListVO.setFollowCount(followAttentionService.count(Wrappers.<FollowAttention>lambdaQuery().eq(FollowAttention::getUserId,id).eq(FollowAttention::getFollowTypeEnum, FollowTypeEnum.Follow_SHOP)));
         //获取评论的数量
-        storeAuditListVO.setCommonCount(commonService.count(Wrappers.<Common>lambdaQuery().eq(Common::getUserId,id)));
+        storeAuditListVO.setCommonCount(commentService.count(Wrappers.<Comment>lambdaQuery().eq(Comment::getUserId,id)));
 
         return storeAuditListVO;
     }

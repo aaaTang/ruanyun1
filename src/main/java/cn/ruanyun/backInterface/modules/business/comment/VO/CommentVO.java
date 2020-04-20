@@ -15,7 +15,7 @@ import java.util.Date;
  **/
 @Data
 @Accessors(chain = true)
-public class CommontVO {
+public class CommentVO {
 
     private String id;
 
@@ -55,6 +55,6 @@ public class CommontVO {
     /**
      * 回复
      */
-    private CommontVO reply;
+    private CommentVO reply;
 
 }
