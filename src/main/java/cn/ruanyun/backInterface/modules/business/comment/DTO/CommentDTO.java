@@ -20,7 +20,7 @@ public class CommentDTO {
     /**
      * 商品评论内容 包含，商品id,内容，星星，照片
      */
-    private String comment;
+    private String comments;
 
     /**
      * 商家id

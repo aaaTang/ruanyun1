@@ -200,12 +200,6 @@ public class IGoodCategoryServiceImpl extends ServiceImpl<GoodCategoryMapper, Go
               .PARENT_ID.equals(goodCategory.getParentId())).orElse(false);
     }
 
-    @Override
-    public Map<String, Object> getWebGoodCategoryList() {
-
-        return null;
-    }
-
     /**
      * 获取分组数据
      * @return

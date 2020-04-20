@@ -87,11 +87,15 @@ public class GoodsPackageController {
 
     /**
      * 获取App店铺详情
+     * @param ids
+     * @param longitude 经度
+     * @param latitude  纬度
+     * @return
      */
     @PostMapping(value = "/getShopParticulars")
-    public Result<Object> getShopParticulars(String ids){
+    public Result<Object> getShopParticulars(String ids,String longitude,String latitude){
 
-        return Optional.ofNullable(iGoodsPackageService.getShopParticulars(ids))
+        return Optional.ofNullable(iGoodsPackageService.getShopParticulars(ids,longitude,latitude))
                 .map(iShopParticulars-> {
                     Map<String, Object> result = Maps.newHashMap();
                     result.put("data",  iShopParticulars);

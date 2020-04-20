@@ -40,6 +40,11 @@ public class ShopParticularsVO {
     private String latitude;
 
     /**
+     * 距离
+     */
+    private String distance;
+
+    /**
      * 轮播图
      */
     @Column(length = 1000)

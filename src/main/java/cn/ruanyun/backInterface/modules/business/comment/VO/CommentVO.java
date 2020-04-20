@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @program: ruanyun-plus
@@ -42,7 +43,12 @@ public class CommentVO {
     /**
      * 照片
      */
-    private String goodName;
+    private String pics;
+
+    /**
+     * 规格
+     */
+    private List<String> itemAttrKeys;
 
     /**
      * 评价时间
@@ -55,6 +61,6 @@ public class CommentVO {
     /**
      * 回复
      */
-    private CommentVO reply;
+    private String reply;
 
 }

@@ -20,13 +20,16 @@ public class ItemAttrKey extends RuanyunBaseEntity {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 分类id
+     * 商品id
      */
-    private String classId;
+    private String goodsId;
 
     /**
      * 商品属性名称
      */
     private String attrName;
+
+
+
 
 }
