@@ -128,8 +128,8 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
                .setWarmPrompt(goodsPackage.getWarmPrompt())//温馨提示
                .setStoreAuditVO(storeAuditService.getStoreAudisByid(goodsPackage.getCreateBy()))//商铺信息
                ;
-
            }
+
         if(ToolUtil.isNotEmpty(goodsPackageParticularsVO.getId())){
             return new ResultUtil<>().setData(goodsPackageParticularsVO);
         }else {

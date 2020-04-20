@@ -109,6 +109,8 @@ public class IBookingOrderServiceImpl extends ServiceImpl<BookingOrderMapper, Bo
 
         if(ToolUtil.isNotEmpty(bookingOrder)){
             ToolUtil.copyProperties(bookingOrder,whetherBookingOrderVO);
+        }else {
+            whetherBookingOrderVO.setConsent(-1);
         }
         return whetherBookingOrderVO;
     }

@@ -442,7 +442,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     @Override
     public  List<AppForSaleGoodsVO> getAppForSaleGoods(String ids) {
         //查询商家创建的商品
-        List<Good> good =this.list(new QueryWrapper<Good>().lambda().eq(Good::getCreateBy,ids));
+        List<Good> good =this.list(new QueryWrapper<Good>().lambda().eq(Good::getCreateBy,ids).eq(Good::getTypeEnum,GoodTypeEnum.GOOD));
 
         List<AppForSaleGoodsVO> forSaleGoodsVO = new ArrayList<>();
          for (Good g : good) {
