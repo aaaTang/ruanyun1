@@ -3,10 +3,12 @@ package cn.ruanyun.backInterface.modules.business.goodCategory.service;
 
 import cn.ruanyun.backInterface.modules.business.goodCategory.VO.GoodCategoryListVO;
 import cn.ruanyun.backInterface.modules.business.goodCategory.VO.GoodCategoryVO;
+import cn.ruanyun.backInterface.modules.business.goodCategory.VO.WebGoodCategoryVO;
 import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -68,4 +70,10 @@ public interface IGoodCategoryService extends IService<GoodCategory> {
      */
     Boolean judgeGoodCategoryHaveParent(String id);
 
+
+    /**
+     * WEB获取分类列表
+     * @return
+     */
+    Map<String,Object> getWebGoodCategoryList();
 }

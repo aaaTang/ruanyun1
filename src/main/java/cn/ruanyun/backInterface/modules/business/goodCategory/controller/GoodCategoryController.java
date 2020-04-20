@@ -104,4 +104,16 @@ public class GoodCategoryController {
     }
 
 
+    /**
+     * WEB获取分类列表
+     * @return
+     */
+    @PostMapping("/getWebGoodCategoryList")
+    public Result<Object> getWebGoodCategoryList() {
+        return Optional.ofNullable(iGoodCategoryService.getWebGoodCategoryList())
+                .map(goodCategoryVOS -> new ResultUtil<>().setData(goodCategoryVOS,"获取分类数据成功！"))
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
+
+
 }
