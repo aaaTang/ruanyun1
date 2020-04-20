@@ -4,6 +4,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.CheckEnum;
 import cn.ruanyun.backInterface.common.enums.FollowTypeEnum;
+import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import cn.ruanyun.backInterface.common.enums.StoreTypeEnum;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
@@ -114,7 +115,7 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
         ToolUtil.copyProperties(byId,storeAuditListVO);
 
         //获取发布的套餐数量
-        storeAuditListVO.setGoodsPackageCuount(iGoodService.count(Wrappers.<Good>lambdaQuery().eq(Good::getCreateBy,id).eq(Good::getTypeEnum,GoodTypeEnum.GOODSPACKAGE)));
+        storeAuditListVO.setGoodsPackageCuount(iGoodService.count(Wrappers.<Good>lambdaQuery().eq(Good::getCreateBy,id).eq(Good::getTypeEnum, GoodTypeEnum.GOODSPACKAGE)));
         //获取关注的数量
         storeAuditListVO.setFollowCount(followAttentionService.count(Wrappers.<FollowAttention>lambdaQuery().eq(FollowAttention::getUserId,id).eq(FollowAttention::getFollowTypeEnum, FollowTypeEnum.Follow_SHOP)));
         //获取评论的数量

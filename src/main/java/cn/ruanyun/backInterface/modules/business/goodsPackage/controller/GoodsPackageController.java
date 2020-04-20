@@ -31,9 +31,6 @@ public class GoodsPackageController {
     private IGoodsPackageService iGoodsPackageService;
 
 
-
-
-
     /**
      * app查询套餐商品详情
      * @return
