@@ -23,9 +23,13 @@ import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
 import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
 import cn.ruanyun.backInterface.modules.business.myFootprint.service.IMyFootprintService;
+import cn.ruanyun.backInterface.modules.rongyun.service.IRongyunService;
+import cn.ruanyun.backInterface.modules.weChat.DTO.RongyunUser;
+import cn.ruanyun.backInterface.modules.weChat.service.IweChatService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -42,6 +46,7 @@ import java.util.stream.Stream;
  * @author fei
  */
 @Service
+@Slf4j
 public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
 
     @Autowired
@@ -67,6 +72,9 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
     @Autowired
     private IFollowAttentionService iFollowAttentionService;
+
+    @Autowired
+    private IRongyunService rongyunService;
 
 
     @Override
@@ -122,6 +130,12 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                     userRole.setUserId(user1.getId());
                     userRole.setRoleId(roleService.getIdByRoleName(CommonConstant.DEFAULT_ROLE));
                     userRoleService.save(userRole);
+                }),
+
+                CompletableFuture.runAsync(() -> {
+
+                    rongyunService.addUser(user1.getId(), user1.getUsername(), user1.getAvatar());
+                    log.info("处理融云token成功！");
                 })
 
                 // TODO: 2020/3/13 处理分销
@@ -188,6 +202,9 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         appUserVO.setWeddingDay(user.getWeddingDay());
         // TODO: 2020/4/13 个人简介
         appUserVO.setIndividualResume(user.getIndividualResume());
+
+        //获取融云im token
+        appUserVO.setImToken(user.getImToken());
         return appUserVO;
 
     }
