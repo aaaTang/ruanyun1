@@ -83,7 +83,7 @@ public class GoodController {
 
 
     /**
-     * 获取 普通商品列表
+     * 获取普通商品列表
      * @param goodDTO
      * @param pageVo
      * @return
@@ -92,10 +92,10 @@ public class GoodController {
     public Result<Object> getAppGoodList(GoodDTO goodDTO, PageVo pageVo) {
         goodDTO.setGoodTypeEnum(GoodTypeEnum.GOOD);
         return Optional.ofNullable(iGoodService.getAppGoodList(goodDTO))
-                .map(goodListVOS -> {
+                .map(igoodList -> {
                     Map<String,Object> result = Maps.newHashMap();
-                    result.put("size",goodListVOS.size());
-                    result.put("data", PageUtil.listToPage(pageVo,goodListVOS));
+                    result.put("size",igoodList.size());
+                    result.put("data", PageUtil.listToPage(pageVo,igoodList));
                     return new ResultUtil<>().setData(result,"获取商品列表成功！");
                 })
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
@@ -103,20 +103,18 @@ public class GoodController {
 
 
     /**
-     * 获取一级分类下的所有商品和套餐以及按地区查询
-     * @param goodDTO
+     * 获取首页一级分类下的所有商品
      * @param pageVo
      * @return
      */
-    @PostMapping("/getAppGoodAndPackageList")
-    public Result<Object> getAppGoodAndPackageList(GoodDTO goodDTO, PageVo pageVo) {
-        goodDTO.setGoodTypeEnum(GoodTypeEnum.GOOD);
-        return Optional.ofNullable(iGoodService.getAppGoodAndPackageList(goodDTO))
-                .map(goodAndPackageList -> {
+    @PostMapping("/getAppOneClassGoodList")
+    public Result<Object> getAppGoodAndPackageList(String classId, PageVo pageVo) {
+        return Optional.ofNullable(iGoodService.getAppOneClassGoodList(classId))
+                .map(oneClassGoodList -> {
                     Map<String,Object> result = Maps.newHashMap();
-                    result.put("size",goodAndPackageList.size());
-                    result.put("data", PageUtil.listToPage(pageVo,goodAndPackageList));
-                    return new ResultUtil<>().setData(result,"获取一级分类下的所有商品和套餐以及按地区查询列表成功！");
+                    result.put("size",oneClassGoodList.size());
+                    result.put("data", PageUtil.listToPage(pageVo,oneClassGoodList));
+                    return new ResultUtil<>().setData(result,"获取首页一级分类下的所有商品列表成功！");
                 })
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }

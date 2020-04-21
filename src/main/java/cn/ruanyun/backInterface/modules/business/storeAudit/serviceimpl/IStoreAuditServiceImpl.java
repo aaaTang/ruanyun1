@@ -11,6 +11,7 @@ import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IRoleService;
@@ -21,14 +22,10 @@ import cn.ruanyun.backInterface.modules.business.comment.pojo.Comment;
 import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
 import cn.ruanyun.backInterface.modules.business.followAttention.pojo.FollowAttention;
 import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
-import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
-import cn.ruanyun.backInterface.modules.business.goodService.pojo.GoodService;
-import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
-import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
 import cn.ruanyun.backInterface.modules.business.storeAudit.DTO.StoreAuditDTO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditListVO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditVO;
@@ -82,6 +79,8 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
     private IFollowAttentionService followAttentionService;
     @Autowired
     private IUserService userService;
+    @Resource
+    private UserMapper userMapper;
     @Autowired
     private IGoodService iGoodService;
 
@@ -142,6 +141,11 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
                            userRole.setRoleId(roleService.getIdByRoleName(CommonConstant.STORE));
                        }
                        userRoleService.save(userRole);
+
+                       User user = new User();
+                       user.setId(storeAudit1.getCreateBy());
+                       user.setAreaId(storeAudit1.getAreaId());
+                       userMapper.updateById(user);
                    }else {
                        // TODO: 2020/3/27  审核失败，极光推送
                    }

@@ -125,4 +125,9 @@ public class User extends RuanyunBaseEntity {
      * im的token
      */
     private String imToken;
+
+    /**
+     * 区域id
+     */
+    private String areaId;
 }

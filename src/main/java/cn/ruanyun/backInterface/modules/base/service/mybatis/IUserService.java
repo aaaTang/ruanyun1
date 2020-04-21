@@ -1,9 +1,7 @@
 package cn.ruanyun.backInterface.modules.base.service.mybatis;
 
 
-import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.common.vo.SearchVo;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.dto.UserUpdateDTO;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
@@ -12,7 +10,6 @@ import cn.ruanyun.backInterface.modules.base.vo.BackStrictVO;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.springframework.data.domain.Page;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -172,4 +169,5 @@ public interface IUserService extends IService<User> {
      * @return
      */
     String getUserIdByUserPic(String createBy);
+
 }

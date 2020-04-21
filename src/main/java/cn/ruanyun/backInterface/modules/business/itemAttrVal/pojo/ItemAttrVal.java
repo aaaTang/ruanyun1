@@ -24,10 +24,6 @@ public class ItemAttrVal extends RuanyunBaseEntity {
      */
     private String attrId;
     /**
-     * 商品id
-     */
-    private String goodsId;
-    /**
      * 规格属性名称
      */
     private String attrValue;

@@ -4,6 +4,7 @@ package cn.ruanyun.backInterface.modules.base.service;
 
 
 import cn.ruanyun.backInterface.base.RuanyunBaseService;
+import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
 
@@ -34,4 +35,6 @@ public interface UserRoleService extends RuanyunBaseService<UserRole,String> {
      * @param userId
      */
     void deleteByUserId(String userId);
+
+
 }

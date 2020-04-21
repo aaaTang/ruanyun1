@@ -3,6 +3,7 @@ package cn.ruanyun.backInterface.modules.business.itemAttrVal.serviceimpl;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.mapper.ItemAttrValMapper;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.pojo.ItemAttrVal;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrValService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,4 +66,18 @@ public class IItemAttrValServiceImpl extends ServiceImpl<ItemAttrValMapper, Item
             return itemAttrVals.parallelStream().map(ItemAttrVal::getAttrValue).collect(Collectors.toList());
         }).orElse(null);
     }
+
+
+    /**
+     * 获取规格属性值列表
+     * @return
+     */
+    @Override
+    public List getItemAttrValList(String keyId) {
+        return Optional.ofNullable(this.list(new QueryWrapper<ItemAttrVal>().lambda()
+            .eq(ToolUtil.isNotEmpty(keyId),ItemAttrVal::getAttrId,keyId)
+        )).orElse(null);
+    }
+
+
 }

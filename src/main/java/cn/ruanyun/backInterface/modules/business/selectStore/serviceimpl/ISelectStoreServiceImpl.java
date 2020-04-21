@@ -1,12 +1,13 @@
 package cn.ruanyun.backInterface.modules.business.selectStore.serviceimpl;
 
-import cn.ruanyun.backInterface.common.utils.EmptyUtil;
+import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
+import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.selectStore.VO.SelectStoreListVO;
 import cn.ruanyun.backInterface.modules.business.selectStore.mapper.SelectStoreMapper;
 import cn.ruanyun.backInterface.modules.business.selectStore.pojo.SelectStore;
 import cn.ruanyun.backInterface.modules.business.selectStore.service.ISelectStoreService;
-import com.alibaba.druid.sql.visitor.functions.If;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -25,6 +27,8 @@ import reactor.core.scheduler.Schedulers;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
+
+import javax.annotation.Resource;
 
 
 /**
@@ -42,6 +46,8 @@ public class ISelectStoreServiceImpl extends ServiceImpl<SelectStoreMapper, Sele
 
     @Autowired
     private IUserService userService;
+    @Resource
+    private GoodMapper goodMapper;
 
     @Override
     public void insertOrderUpdateSelectStore(SelectStore selectStore) {
@@ -71,12 +77,21 @@ public class ISelectStoreServiceImpl extends ServiceImpl<SelectStoreMapper, Sele
 
                     Optional.ofNullable(userService.getById(selectStore.getUserId()))
                             .ifPresent(user ->
-
                                     selectStoreListVO.setAvatar(user.getPic().split(",")[0])
                                     .setUsername(user.getShopName())
                                     .setId(user.getId())
-                                    .setLowPrice(selectStore.getLowPrice())
+
                             );
+                    List<Good> good = goodMapper.selectList(Wrappers.<Good>lambdaQuery()
+                            .eq(Good::getTypeEnum, GoodTypeEnum.GOOD)
+                            .eq(Good::getCreateBy,selectStore.getUserId())
+                            .orderByAsc(Good::getGoodNewPrice)
+                    );
+                    if(good.size()>0){
+                        selectStoreListVO.setLowPrice(good.get(0).getGoodNewPrice());
+                    }else {
+                        selectStoreListVO.setLowPrice(new BigDecimal(0));
+                    }
 
                     return Stream.of(selectStoreListVO);
                 }).collect(Collectors.toList()))

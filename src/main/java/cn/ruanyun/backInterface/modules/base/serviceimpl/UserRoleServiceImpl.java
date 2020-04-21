@@ -2,6 +2,7 @@ package cn.ruanyun.backInterface.modules.base.serviceimpl;
 
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import cn.ruanyun.backInterface.modules.base.mapper.UserDao;
 import cn.ruanyun.backInterface.modules.base.mapper.UserRoleDao;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
@@ -58,4 +59,8 @@ public class UserRoleServiceImpl implements UserRoleService {
     public void deleteByUserId(String userId) {
         userRoleDao.deleteByUserId(userId);
     }
+
+
+
+
 }

@@ -43,6 +43,10 @@ public class AppGoodListVO {
      */
     private String username;
 
+    /**
+     * 用户ID
+     */
+    private String userId;
 
     /**
      * 用户头像

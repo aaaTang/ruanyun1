@@ -21,11 +21,6 @@ public class SelectStore extends RuanyunBaseEntity {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 最低价格
-     */
-    private BigDecimal lowPrice;
-
-    /**
      * 严选商家id
      */
     private String userId;

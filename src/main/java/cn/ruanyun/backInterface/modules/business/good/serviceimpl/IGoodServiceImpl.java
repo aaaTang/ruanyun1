@@ -2,10 +2,17 @@ package cn.ruanyun.backInterface.modules.business.good.serviceimpl;
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
+import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import cn.ruanyun.backInterface.common.utils.EmptyUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
+import cn.ruanyun.backInterface.modules.base.mapper.mapper.RoleMapper;
+import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
+import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserRoleMapper;
+import cn.ruanyun.backInterface.modules.base.pojo.Role;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
+import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
@@ -16,8 +23,10 @@ import cn.ruanyun.backInterface.modules.business.good.VO.*;
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
+import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
 import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
 import cn.ruanyun.backInterface.modules.business.goodService.service.IGoodServiceService;
+import cn.ruanyun.backInterface.modules.business.grade.service.IGradeService;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrValService;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
 import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
@@ -39,10 +48,7 @@ import reactor.core.scheduler.Schedulers;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -62,6 +68,9 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
     @Autowired
     private IUserService userService;
+
+    @Resource
+    private UserMapper userMapper;
 
     @Autowired
     private IMyFootprintServiceImpl iMyFootprintService;
@@ -95,6 +104,21 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
     @Autowired
     private ISizeAndRolorService sizeAndRolorService;
+
+    @Resource
+    private UserRoleMapper userRoleMapper;
+
+    @Resource
+    private RoleMapper roleMapper;
+
+    @Autowired
+    private IGradeService gradeService;
+
+    @Resource
+    private GoodMapper goodMapper;
+
+
+
 
 
     @Override
@@ -135,7 +159,8 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
                     //1.店铺信息
                     Optional.ofNullable(userService.getById(good.getCreateBy()))
-                            .ifPresent(user -> ToolUtil.copyProperties(user, appGoodListVO));
+                            .ifPresent(user -> ToolUtil.copyProperties(user, appGoodListVO.setUserId(user.getId()))
+                            );
 
                     //2.商品信息
                     ToolUtil.copyProperties(good,appGoodListVO);
@@ -146,6 +171,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
                     // TODO: 2020/3/27 其他信息
                     appGoodListVO.setSaleVolume(orderDetailService.getGoodSalesVolume(good.getId()))
+                            .setGrade(Double.parseDouble(gradeService.getShopScore(good.getCreateBy())))
                             .setCommentNum(Optional.ofNullable(commentService.getCommentVOByGoodId(good.getId()))
                             .map(List::size)
                             .orElse(0));
@@ -224,22 +250,61 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
      */
     public List<Good> getGoodList(GoodDTO goodDTO) {
 
-        // 1.默认条件构造器
-        LambdaQueryWrapper<Good> wrappers = Wrappers.<Good>lambdaQuery()
-                .eq(!StringUtils.isEmpty(goodDTO.getGoodCategoryId()),Good::getGoodCategoryId,goodDTO.getGoodCategoryId())
-                .eq(!EmptyUtil.isEmpty(goodDTO.getGoodTypeEnum()),Good::getTypeEnum, goodDTO.getGoodTypeEnum())
-                .eq(!StringUtils.isEmpty(goodDTO.getStoreId()),Good::getCreateBy, goodDTO.getStoreId());
+        if(ToolUtil.isEmpty(goodDTO.getAreaId())){
+            // 1.默认条件构造器
+            LambdaQueryWrapper<Good> wrappers =  Wrappers.<Good>lambdaQuery()
+                    .eq(!StringUtils.isEmpty(goodDTO.getGoodCategoryId()),Good::getGoodCategoryId,goodDTO.getGoodCategoryId())
+                    .eq(!EmptyUtil.isEmpty(goodDTO.getGoodTypeEnum()),Good::getTypeEnum, goodDTO.getGoodTypeEnum())
+                    .eq(!StringUtils.isEmpty(goodDTO.getStoreId()),Good::getCreateBy, goodDTO.getStoreId());
 
-        //2.筛选条件
-        if (ToolUtil.isNotEmpty(goodDTO
-                .getPriceHigh()) && ToolUtil.isNotEmpty(goodDTO.getPriceLow())) {
+            //2.筛选条件
+            if (ToolUtil.isNotEmpty(goodDTO
+                    .getPriceHigh()) && ToolUtil.isNotEmpty(goodDTO.getPriceLow())) {
 
-            //2.1只查询价格区间的
-            wrappers.lt(Good::getGoodNewPrice,goodDTO.getPriceHigh())
-                    .gt(Good::getGoodNewPrice,goodDTO.getPriceLow());
+                //2.1只查询价格区间的
+                wrappers.lt(Good::getGoodNewPrice,goodDTO.getPriceHigh())
+                        .gt(Good::getGoodNewPrice,goodDTO.getPriceLow());
+
+            }
+            return ToolUtil.setListToNul(this.list(wrappers));
+
+        }else if(ToolUtil.isNotEmpty(goodDTO.getAreaId())){
+            //首先获取商家和个人商家
+                //1查询角色表是商家和个人商家的所有数据
+            List<Role> roles = roleMapper.selectList(Wrappers.<Role>lambdaQuery()
+                    .eq(Role::getName,CommonConstant.STORE).or().eq(Role::getName,CommonConstant.PER_STORE));
+
+            List<UserRole> userRoles= new ArrayList<>();
+            for (Role role : roles) {
+                //2.获取角色权限表的用户id
+                List<UserRole> selectList = userRoleMapper.selectList(Wrappers.<UserRole>lambdaQuery().eq(UserRole::getRoleId, role.getId()));
+                for (UserRole userRole : selectList) { userRoles.add(userRole);}}
+
+            List<User> userList = new ArrayList<>();
+            for (UserRole userRole : userRoles) {
+                //查询区域的商家或者店铺
+                User u = userMapper.selectOne(new QueryWrapper<User>().lambda().eq(User::getId,userRole.getUserId()).eq(User::getAreaId,goodDTO.getAreaId()));
+                if(ToolUtil.isNotEmpty(u)){ userList.add(u);}
+            }
+
+            List<Good> goods = new ArrayList<>();
+            for (User user : userList) {
+                List<Good> g = goodMapper.selectList(new QueryWrapper<Good>().lambda()
+                        .eq(!StringUtils.isEmpty(goodDTO.getGoodCategoryId()),Good::getGoodCategoryId,goodDTO.getGoodCategoryId())
+                        .eq(!EmptyUtil.isEmpty(goodDTO.getGoodTypeEnum()),Good::getTypeEnum, goodDTO.getGoodTypeEnum())
+                        .eq(Good::getCreateBy, user.getId())
+                        .lt(ToolUtil.isNotEmpty(goodDTO.getPriceHigh())&&ToolUtil.isNotEmpty(goodDTO.getPriceLow()),Good::getGoodNewPrice,goodDTO.getPriceHigh())
+                        .gt(ToolUtil.isNotEmpty(goodDTO.getPriceHigh())&&ToolUtil.isNotEmpty(goodDTO.getPriceLow()),Good::getGoodNewPrice,goodDTO.getPriceLow()));
+                for (Good good : g) {
+                    goods.add(good);
+                }
+            }
+            return Optional.ofNullable(goods).orElse(null);
 
         }
-        return ToolUtil.setListToNul(this.list(wrappers));
+
+
+        return null;
 
     }
 
@@ -300,18 +365,34 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
         }).orElse(null);
     }
 
-    /******************************************首页一级分类下的商品列表---开始**************************************************/
 
     /**
-     * 获取一级分类下的所有商品和套餐以及按地区查询
+     * 获取首页一级分类下的所有商品
      * @return
      */
     @Override
-    public List<AppGoodAndPackageListVO> getAppGoodAndPackageList(GoodDTO goodDTO) {
-        return null;
+    public List<AppOneClassGoodListVO> getAppOneClassGoodList(String classId) {
+
+
+      List<GoodCategory> goodCategoryList = goodCategoryMapper.selectList(new QueryWrapper<GoodCategory>().lambda()
+              .eq(ToolUtil.isNotEmpty(classId),GoodCategory::getParentId,classId)
+      );
+
+      List<AppOneClassGoodListVO> list = new ArrayList<>();
+
+        for (GoodCategory goodCategory : goodCategoryList) {
+            List<Good> goods = goodMapper.selectList(new QueryWrapper<Good>().lambda().eq(Good::getGoodCategoryId,goodCategory.getId()));
+            for (Good good : goods) {
+              AppGoodListVO appGoodListVO = getAppGoodListVO(good.getId());
+                AppOneClassGoodListVO oneClassGoodListVO = new AppOneClassGoodListVO();
+                ToolUtil.copyProperties(appGoodListVO,oneClassGoodListVO);
+                list.add(oneClassGoodListVO);
+            }
+        }
+
+        return list;
     }
 
-    /******************************************首页一级分类下的商品列表---结束**************************************************/
 
     @Override
     public AppGoodInfoVO getAppGoodInfo(String id) {
@@ -432,18 +513,38 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
     @Override
     public List<PcGoodListVO> PCgoodsList(){
-        List<Good> list = this.list(new QueryWrapper<Good>().lambda()
-                .eq(Good::getCreateBy, securityUtil.getCurrUser().getId()));
-        List<PcGoodListVO> pcGoodList = list.parallelStream().map(pcGoods->{
-            PcGoodListVO pc = new PcGoodListVO();
-            String goodCategory = goodCategoryMapper.selectById(pcGoods.getGoodCategoryId()).getTitle();
-            pc.setGoodCategoryName(goodCategory);
+        List<Good> list = new ArrayList<>();
 
-            ToolUtil.copyProperties(pcGoods , pc);
-            return  pc;
-        }).collect(Collectors.toList());
+        String userRole = this.getRoleUserList(securityUtil.getCurrUser().getId());
+        if(ToolUtil.isEmpty(userRole)){
+            return null;
+        }else
+        //当前角色是个人商家或者入驻商家
+        if(userRole.equals(CommonConstant.PER_STORE)||userRole.equals(CommonConstant.STORE)){
+           list = this.list(new QueryWrapper<Good>().lambda()
+                    .eq(Good::getCreateBy, securityUtil.getCurrUser().getId())
+                   .orderByDesc(Good::getCreateTime)
+           );
+        }else if (userRole.equals(CommonConstant.ADMIN)){
+           list = this.list(new QueryWrapper<Good>().lambda()
+                   .orderByDesc(Good::getCreateTime));
+        }
 
-        return pcGoodList;
+       if(ToolUtil.isNotEmpty(list)){
+           List<PcGoodListVO> pcGoodList = list.parallelStream().map(pcGoods->{
+               PcGoodListVO pc = new PcGoodListVO();
+               String goodCategory = goodCategoryMapper.selectById(pcGoods.getGoodCategoryId()).getTitle();
+               pc.setGoodCategoryName(goodCategory);
+
+               ToolUtil.copyProperties(pcGoods , pc);
+               return  pc;
+           }).collect(Collectors.toList());
+
+           return pcGoodList;
+       }else {
+           return null;
+       }
+
     }
 
     @Override
@@ -462,6 +563,25 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     }
 
 
+    /**
+     * 查询角色权限
+     * @return
+     */
+    @Override
+    public String getRoleUserList(String userId) {
+        UserRole userRole = userRoleMapper.selectOne(new QueryWrapper<UserRole>().lambda()
+                .eq(UserRole::getUserId,userId)
+        );
 
+       if(ToolUtil.isNotEmpty(userRole)){
+           return  Optional.ofNullable(roleMapper.selectOne(new QueryWrapper<Role>().lambda()
+                   .eq(ToolUtil.isNotEmpty(userRole),Role::getId,userRole.getRoleId())))
+                   .map(Role::getName)
+                   .orElse(null);
+       }else {
+           return null;
+       }
+
+    }
 
 }

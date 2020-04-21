@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.good.service;
 
+import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import cn.ruanyun.backInterface.modules.business.good.DTO.GoodDTO;
 import cn.ruanyun.backInterface.modules.business.good.VO.*;
 import cn.ruanyun.backInterface.modules.business.myFavorite.VO.GoodsFavoriteVO;
@@ -54,10 +55,10 @@ public interface IGoodService extends IService<Good> {
 
 
     /**
-     * 获取一级分类下的所有商品和套餐以及按地区查询
+     * 获取首页一级分类下的所有商品
      * @return
      */
-    List<AppGoodAndPackageListVO> getAppGoodAndPackageList(GoodDTO goodDTO);
+    List<AppOneClassGoodListVO> getAppOneClassGoodList(String classId);
 
     /**
      * 获取商品购买信息
@@ -120,6 +121,9 @@ public interface IGoodService extends IService<Good> {
 
 
     List<AppForSaleGoodsVO> getAppForSaleGoods(String ids);
-
-
+    /**
+     * 查询角色下的所有用户
+     * @return
+     */
+    String getRoleUserList(String userId);
 }

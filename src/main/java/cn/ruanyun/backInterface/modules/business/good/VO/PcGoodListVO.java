@@ -1,7 +1,9 @@
 package cn.ruanyun.backInterface.modules.business.good.VO;
 
+import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import lombok.Data;
 
+import javax.persistence.Column;
 import java.math.BigDecimal;
 
 @Data
@@ -9,10 +11,12 @@ public class PcGoodListVO {
 
 
     private  String id;
+    private GoodTypeEnum typeEnum;
+
     /**
-     * 分类名称
+     * 分类id
      */
-    private String goodCategoryName;
+    private String goodCategoryId;
 
 
     /**
@@ -44,27 +48,48 @@ public class PcGoodListVO {
      */
     private BigDecimal goodNewPrice;
 
-
-    /**
-     * 颜色数据
-     */
-    private String colorIds;
-
-
-    /**
-     * 尺寸信息
-     */
-    private String sizeIds;
-
-
-    /**
-     * 商品库存
-     */
-    private Integer inventory;
-
-
     /**
      * 积分
      */
     private Integer integral;
+
+    /**
+     * 商品介绍
+     */
+    private String productsIntroduction;
+
+
+    /**
+     * 商品亮点
+     */
+    private String productLightspot;
+
+
+    /**
+     * 拍摄特色
+     */
+    private String shootCharacteristics;
+
+    /**
+     * 图文详情
+     */
+    @Column(length = 1000)
+    private String graphicDetails;
+
+
+    /**
+     * 购买须知
+     */
+    private String purchaseNotes;
+
+
+    /**
+     * 温馨提示
+     */
+    private String warmPrompt;
+
+    /***
+     * 分类名称
+     */
+    private String goodCategoryName;
 }
