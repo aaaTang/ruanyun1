@@ -22,8 +22,8 @@ public class AlipayConfig {
 	public static final String ALIPAY_PUBLIC_KEY= "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvB08MFXzM8pn1xmetQaTpm673ZDa1Q/C7X9pJUikMxjXX0yXFe6E3cC82WxaKq7IYCtHhC8RrM2hkbC0MszR+69hgYoUi1+FbJ5LZupeQLra1OlG8+gFoX4y6z2Ix+Kolvl5loxwnGHiZiduopwVh9CNiqAnTA+pKEv1dkrIrE6K/a/w9Jfsqj72OoQnwG6euKy+Ab9d7mL6/Cnw/+Ue2oMLhAv1Uqls/38KZPeV8kLk0UXenzp6tqombMVixl3T69oCnuO2Squmcc4pOVshG/3sw3NPWlP4/HNHwFpI+iIXbmfZDhQiU0Rqyc4WZorpIx4D97ysQOLWylJSljsoxQIDAQAB";
 	// 服务器  异步通知
 //	public static final String NOTIFY_URL= "http://localhost:8888/xboot/alipay/alipayNotifyNotice.action";
-//	public static final String NOTIFY_URL= "http://101.37.116.11:8888/ruanyun/order/aliPayNotify";
-	public static final String NOTIFY_URL= "http://n27829.natappfree.cc/ruanyun/order/aliPayNotify";
+	public static final String NOTIFY_URL= "http://121.196.28.116:8083/ruanyun/order/aliPayNotify";
+//	public static final String NOTIFY_URL= "http://vpd8ra.natappfree.cc/ruanyun/order/aliPayNotify";
 
 	// 页面跳转  同步通知
 	public static final String RETURN_URL= "http://localhost:8888/xboot/alipay/alipayReturnNotice.action";

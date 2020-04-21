@@ -1,11 +1,8 @@
 package cn.ruanyun.backInterface.modules.rongyun.service;
 
 import cn.ruanyun.backInterface.common.exception.RuanyunException;
-import cn.ruanyun.backInterface.modules.rongyun.pojo.MediaMessage;
-import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.rongyun.pojo.Rongyun;
-import io.rong.messages.BaseMessage;
-import io.rong.models.CheckOnlineResult;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * 融云接口

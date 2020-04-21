@@ -147,8 +147,10 @@ public class ICommentServiceImpl extends ServiceImpl<CommentMapper, Comment> imp
             commentVO.setId(comment.getId());
             //处理评论人的名字跟头像
             User byId = userService.getById(comment.getCreateBy());
-            commentVO.setAvatar(byId.getAvatar());
-            commentVO.setUsername(byId.getUsername());
+            if (EmptyUtil.isNotEmpty(byId)){
+                commentVO.setAvatar(byId.getAvatar());
+                commentVO.setUsername(byId.getUsername());
+            }
             //处理下单的规格
             OrderDetail one = orderDetailService.getOne(Wrappers.<OrderDetail>lambdaQuery()
                     .eq(OrderDetail::getGoodId, comment.getGoodId())
