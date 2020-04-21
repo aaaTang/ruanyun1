@@ -3,7 +3,6 @@ package cn.ruanyun.backInterface.modules.weChat.service;
 
 
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.modules.weChat.DTO.RongyunUser;
 import cn.ruanyun.backInterface.modules.weChat.entity.WeChat;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -35,5 +34,4 @@ public interface IweChatService extends IService<WeChat> {
      * @return
      */
     String getOpenId();
-
 }

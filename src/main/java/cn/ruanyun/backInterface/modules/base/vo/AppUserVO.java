@@ -92,9 +92,4 @@ public class AppUserVO {
     private BigDecimal myLimit;
 
 
-    /**
-     * im的token
-     */
-    private String imToken;
-
 }

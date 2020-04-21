@@ -59,7 +59,8 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
            }
            if (ToolUtil.isEmpty(orderAfterSale.getCreateBy())) {
                OrderAfterSale one = this.getOne(Wrappers.<OrderAfterSale>lambdaQuery()
-                       .eq(OrderAfterSale::getOrderId, orderAfterSale.getOrderId()));
+                       .eq(OrderAfterSale::getOrderId, orderAfterSale.getOrderId())
+                        .ne(OrderAfterSale::getStatus,AfterSaleStatusEnum.REVOCATION));
                if (EmptyUtil.isNotEmpty(one)){
                     return new ResultUtil<>().setErrorMsg(202,"该订单已申请售后！");
                }
@@ -92,6 +93,7 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
     @Override
     public Object changeStatus(OrderAfterSale orderAfterSale) {
         OrderAfterSale byId = this.getById(orderAfterSale.getId());
+        Order order = new Order();
         switch(orderAfterSale.getStatus()){
             //申请
             case APPLY:
@@ -105,7 +107,6 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
                 break;
             //确认退款
             case FINISH:
-                Order order = new Order();
                 order.setId(byId.getOrderId());
                 order.setOrderStatus(OrderStatusEnum.RETURN_FINISH);
                 orderService.changeStatus(order);
@@ -118,15 +119,16 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
                 break;
             //撤销
             case REVOCATION:
-                Order order1 = new Order();
-                order1.setOrderStatus(byId.getOrderStatus());
-                orderService.changeStatus(order1);
+                order = orderService.getById(byId.getOrderId());
+                order.setOrderStatus(byId.getOrderStatus());
+                order.setId(byId.getOrderId());
+                orderService.updateById(order);
                 break;
             default:
                 break;
         }
         byId.setStatus(orderAfterSale.getStatus());
-
+        this.updateById(orderAfterSale);
         return null;
     }
 
@@ -138,7 +140,10 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
      */
     @Override
     public Object getByOrderId(String orderId) {
-        return Optional.ofNullable(this.getOne(Wrappers.<OrderAfterSale>lambdaQuery().eq(OrderAfterSale::getOrderId,orderId))).map(orderAfterSale -> {
+        return Optional.ofNullable(this.getOne(Wrappers.<OrderAfterSale>lambdaQuery()
+                .eq(OrderAfterSale::getOrderId,orderId)
+                .ne(OrderAfterSale::getStatus,AfterSaleStatusEnum.REVOCATION)
+        )).map(orderAfterSale -> {
             OrderAfterSaleVO orderAfterSaleVO = new OrderAfterSaleVO();
             ToolUtil.copyProperties(orderAfterSale,orderAfterSaleVO);
             orderAfterSaleVO.setStatusCode(orderAfterSale.getStatus().getCode());

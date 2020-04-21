@@ -242,7 +242,6 @@ ignored:
     - /ruanyun/selectStore/getSelectStoreList #获取严选商家列表
     - /ruanyun/order/aliPayNotify
     - /ruanyun/order/aliPayNotify
-    - /ruanyun/rongyun/getToken
 # Actuator
 management:
   health:
@@ -299,3 +298,4 @@ logging:
     max-history: 7
     # 每个文件最大大小
     max-size: 5MB
+

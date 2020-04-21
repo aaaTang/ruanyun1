@@ -121,7 +121,6 @@ public class User extends RuanyunBaseEntity {
      */
     private String shopName;
 
-
     /**
      * im的token
      */

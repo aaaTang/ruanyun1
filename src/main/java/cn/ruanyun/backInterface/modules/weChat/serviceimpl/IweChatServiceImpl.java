@@ -6,8 +6,6 @@ import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
-import cn.ruanyun.backInterface.modules.weChat.DTO.RongyunUser;
 import cn.ruanyun.backInterface.modules.weChat.entity.WeChat;
 import cn.ruanyun.backInterface.modules.weChat.mapper.WeChatMapper;
 import cn.ruanyun.backInterface.modules.weChat.service.IweChatService;
@@ -33,26 +31,30 @@ import java.util.Optional;
 public class IweChatServiceImpl extends ServiceImpl<WeChatMapper, WeChat> implements IweChatService {
 
 
+    /*@Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private Environment environment;*/
+
     @Autowired
     private WixinListener wixinListener;
 
     @Autowired
     private SecurityUtil securityUtil;
 
-    @Autowired
-    private IUserService userService;
-
-    /**
-     * 微信appId
+    /*
+    微信appId
      */
     @Value("${ruanyun.social.weixin.appId}")
     private String appId;
 
-    /**
-     * 微信appKey
+    /*
+    微信appKey
      */
     @Value("${ruanyun.social.weixin.secret}")
     private String secret;
+
 
 
     @Override
@@ -83,6 +85,18 @@ public class IweChatServiceImpl extends ServiceImpl<WeChatMapper, WeChat> implem
 
         String openid = JSONObject.parseObject(result).getString("openid");
 
+       // String token = wixinListener.resolveOpenId(openid);
+       /* //发送到消息队列
+        rabbitTemplate.setMessageConverter(new Jackson2JsonMessageConverter());
+        rabbitTemplate.setExchange(environment.getProperty("param.weixin.exchange"));
+        rabbitTemplate.setRoutingKey(Objects.requireNonNull(environment.getProperty("param.weixin.key")));*/
+
+        /*String openid = JSONObject.parseObject(result).getString("openid");
+        Message message = MessageBuilder.withBody(openid.getBytes(StandardCharsets.UTF_8))
+                .setDeliveryMode(MessageDeliveryMode.PERSISTENT).build();
+
+        rabbitTemplate.send(message);
+        log.info("发送消息队列成功！");*/
         return new ResultUtil<>().setData(openid,"获取openid成功！");
     }
 
@@ -107,5 +121,4 @@ public class IweChatServiceImpl extends ServiceImpl<WeChatMapper, WeChat> implem
             .map(WeChat::getOpenId)
             .orElse(null);
     }
-
 }

@@ -23,7 +23,7 @@ import java.io.UnsupportedEncodingException;
 @Api(description = "微信管理接口")
 @RequestMapping("/ruanyun/weChat")
 @Transactional
-public class weChatController {
+public class              weChatController {
 
     @Autowired
     private IweChatService iweChatService;

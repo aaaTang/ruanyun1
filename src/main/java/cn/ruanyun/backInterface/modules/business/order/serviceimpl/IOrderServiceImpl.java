@@ -568,7 +568,13 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                     // TODO 请在这里加上商户的业务逻辑程序代码 异步通知可能出现订单重复通知 需要做去重处理
                     List<Order> orders = this.listByIds(ToolUtil.splitterStr(out_trade_no));
                     String panduan = panduan(orders);
-                    if (StringUtils.isEmpty(panduan)) return panduan;
+                    if (!StringUtils.isEmpty(panduan)) return panduan;
+                    //处理订单状态
+                    for (int i = 0; i < orders.size(); i++) {
+                        Order order = orders.get(i);
+                        order.setOrderStatus(OrderStatusEnum.PRE_SEND);
+                        this.updateById(order);
+                    }
                     object.put("return_code", "200");
                     object.put("return_msg", "支付宝notify_url 验证成功 succcess");
                     return object.toString();
