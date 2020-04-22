@@ -47,6 +47,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import javax.annotation.Resource;
+import javax.swing.*;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -164,10 +165,10 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
                     //2.商品信息
                     ToolUtil.copyProperties(good,appGoodListVO);
-
-                    appGoodListVO.setGoodPic(Optional.ofNullable(ToolUtil.setListToNul(ToolUtil.splitterStr(good.getGoodPics())))
-                            .map(pics -> pics.get(0))
-                            .orElse("暂无"));
+                    String[] pic =  good.getGoodPics().split(",");
+                        if(ToolUtil.isNotEmpty(pic)){
+                            appGoodListVO.setGoodPic(pic[0]);
+                        }
 
                     // TODO: 2020/3/27 其他信息
                     appGoodListVO.setSaleVolume(orderDetailService.getGoodSalesVolume(good.getId()))
@@ -393,6 +394,44 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
         return list;
     }
 
+    /**
+     * App模糊查询商品接口
+     * @return
+     */
+    @Override
+    public List AppGoodList(String name) {
+
+        //模糊查询商品
+        List<Good> goods = this.list(new QueryWrapper<Good>().lambda()
+                .like(Good::getGoodName,name)
+        );
+
+        List<AppGoodListVO> appGoodListVOList = goods.parallelStream().map(good -> {
+            AppGoodListVO appGoodListVO = new AppGoodListVO();
+
+            //1.店铺信息
+            Optional.ofNullable(userService.getById(good.getCreateBy()))
+                    .ifPresent(user -> ToolUtil.copyProperties(user, appGoodListVO.setUserId(user.getId())));
+
+            //2.商品信息
+            ToolUtil.copyProperties(good,appGoodListVO);
+            String[] pic =  good.getGoodPics().split(",");
+            if(ToolUtil.isNotEmpty(pic)){appGoodListVO.setGoodPic(pic[0]);}
+
+            appGoodListVO.setGrade(Double.parseDouble(gradeService.getShopScore(good.getCreateBy())))
+                    .setSaleVolume(orderDetailService.getGoodSalesVolume(good.getId()))
+                    .setCommentNum(Optional.ofNullable(commentService.getCommentVOByGoodId(good.getId()))
+                            .map(List::size)
+                            .orElse(0));
+
+            return appGoodListVO;
+
+        }).collect(Collectors.toList());
+
+        if(ToolUtil.isNotEmpty(appGoodListVOList)){ return appGoodListVOList; }else {return null;}
+
+    }
+
 
     @Override
     public AppGoodInfoVO getAppGoodInfo(String id) {
@@ -501,7 +540,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                         appGoodOrderVO.setGoodPic(one.getPic());
                     }
 
-                    //2.商品颜色尺寸
+                    //2.商品规格
                     List<String> itemAttrVals = iItemAttrValService.getItemAttrVals(attrSymbolPath);
                     appGoodOrderVO.setItemAttrKeys(itemAttrVals);
                     appGoodOrderVO.setAttrSymbolPath(attrSymbolPath);

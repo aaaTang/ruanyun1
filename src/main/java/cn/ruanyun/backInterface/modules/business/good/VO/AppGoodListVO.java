@@ -31,7 +31,6 @@ public class AppGoodListVO {
      */
     private String goodPic;
 
-
     /**
      * 商品新价格
      */

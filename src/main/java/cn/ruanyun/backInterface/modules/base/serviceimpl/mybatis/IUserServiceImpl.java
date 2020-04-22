@@ -169,10 +169,12 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         ToolUtil.copyProperties(securityUtil.getCurrUser(), appUserVO);
 
         User user = this.getById(securityUtil.getCurrUser().getId());
+        ToolUtil.copyProperties(user, appUserVO);
         //当前角色
         appUserVO.setRoleName(Optional.ofNullable(roleService.getRolesByRoleIds(userRoleService.getRoleIdsByUserId(securityUtil.getCurrUser()
                 .getId()))).map(roles -> roles.get(0).getName()).orElse("暂无！"));
 
+        appUserVO.setMyBalance(user.getBalance());
         // TODO: 2020/3/13 我的收藏数量
         appUserVO.setMyCollectNum(iMyFavoriteService.getMyFavoriteNum());
         // TODO: 2020/3/13 我的足迹数量
@@ -181,14 +183,15 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         appUserVO.setMyFansNum(iFollowAttentionService.getMefansNum(null));
         // TODO: 2020/3/13 我的关注数量
         appUserVO.setMyAttentionNum(iFollowAttentionService.getfollowAttentionNum());
-        // TODO: 2020/3/13 我的余额
-        appUserVO.setMyBalance(user.getBalance());
-        // TODO: 2020/4/13 我的性别
-        appUserVO.setSex(user.getSex());
-        // TODO: 2020/4/13 我的婚期
-        appUserVO.setWeddingDay(user.getWeddingDay());
-        // TODO: 2020/4/13 个人简介
-        appUserVO.setIndividualResume(user.getIndividualResume());
+
+//        // TODO: 2020/3/13 我的余额
+//        appUserVO.setMyBalance(user.getBalance());
+//        // TODO: 2020/4/13 我的性别
+//        appUserVO.setSex(user.getSex());
+//        // TODO: 2020/4/13 我的婚期
+//        appUserVO.setWeddingDay(user.getWeddingDay());
+//        // TODO: 2020/4/13 个人简介
+//        appUserVO.setIndividualResume(user.getIndividualResume());
         return appUserVO;
 
     }

@@ -121,6 +121,24 @@ public class GoodController {
 
 
     /**
+     * App模糊查询商品接口
+     * @param pageVo
+     * @return
+     */
+    @PostMapping("/AppGoodList")
+    public Result<Object> AppGoodList(String name, PageVo pageVo) {
+        return Optional.ofNullable(iGoodService.AppGoodList(name))
+                .map(appGoodList -> {
+                    Map<String,Object> result = Maps.newHashMap();
+                    result.put("size",appGoodList.size());
+                    result.put("data", PageUtil.listToPage(pageVo,appGoodList));
+                    return new ResultUtil<>().setData(result,"App模糊查询商品接口列表成功！");
+                })
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
+
+
+    /**
      * 获取商品详情
      * @param id
      * @return

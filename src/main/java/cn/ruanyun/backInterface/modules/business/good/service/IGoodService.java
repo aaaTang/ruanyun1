@@ -60,6 +60,13 @@ public interface IGoodService extends IService<Good> {
      */
     List<AppOneClassGoodListVO> getAppOneClassGoodList(String classId);
 
+
+    /**
+     * App模糊查询商品接口
+     * @return
+     */
+    List AppGoodList(String name);
+
     /**
      * 获取商品购买信息
      * @param id

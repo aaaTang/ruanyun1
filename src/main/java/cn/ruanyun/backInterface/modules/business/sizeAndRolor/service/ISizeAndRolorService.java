@@ -5,6 +5,7 @@ import cn.ruanyun.backInterface.modules.business.sizeAndRolor.VO.inventoryVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,4 +48,11 @@ public interface ISizeAndRolorService extends IService<SizeAndRolor> {
      * @return
      */
     SizeAndRolor getOneByAttrSymbolPath(String attrSymbolPath);
+
+
+    /**
+     * WEB按商品获取库存
+     * @return
+     */
+    List getWebInventory(String ids,String goodsId);
 }

@@ -99,4 +99,21 @@ public class SizeAndRolorController {
                 }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
     }
 
+
+    /**
+     * WEB按商品获取库存
+     * @return
+     */
+    @PostMapping(value = "/getWebInventory")
+    public Result<Object> getWebInventory(String ids,String goodsId){
+
+        return Optional.ofNullable(iSizeAndRolorService.getWebInventory(ids,goodsId))
+                .map(sizeAndRolor-> {
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("data",  sizeAndRolor);
+                    return new ResultUtil<>().setData(result, "WEB按商品获取库存成功！");
+
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+    }
+
 }

@@ -96,10 +96,11 @@ public class IAdvertisingServiceImpl extends ServiceImpl<AdvertisingMapper, Adve
     @Override
     public List<Advertising> BackGetAdvertisingList(String advertisingType, String advertisingJumpType) {
 
-
         return this.list(new QueryWrapper<Advertising>().lambda()
                 .eq(EmptyUtil.isNotEmpty(advertisingType), Advertising::getAdvertisingType, advertisingType)
-                .eq(EmptyUtil.isNotEmpty(advertisingJumpType), Advertising::getAdvertisingJumpType, advertisingJumpType));
+                .eq(EmptyUtil.isNotEmpty(advertisingJumpType), Advertising::getAdvertisingJumpType, advertisingJumpType)
+                .orderByDesc(Advertising::getCreateTime)
+        );
 
     }
 }

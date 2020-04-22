@@ -38,23 +38,23 @@ public class GoodsPackageParticularsVO {
      * 商品介绍
      */
     private String productsIntroduction;
-
-    /**
+/*
+    *//**
      * 商品亮点
-     */
+     *//*
     private String productLightspot;
 
-    /**
+    *//**
      * 拍摄特色
-     */
+     *//*
     private String shootCharacteristics;
 
 
-    /**
+    *//**
      * 图文详情
-     */
+     *//*
     @Column(length = 1000)
-    private String graphicDetails;
+    private String graphicDetails;*/
 
     /**
      * 购买须知
@@ -64,7 +64,7 @@ public class GoodsPackageParticularsVO {
     /**
      * 温馨提示
      */
-    private String warmPrompt;
+//    private String warmPrompt;
 
     //商铺信息
     private StoreAuditListVO storeAuditVO;
