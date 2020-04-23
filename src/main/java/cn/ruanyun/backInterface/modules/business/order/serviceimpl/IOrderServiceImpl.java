@@ -1,6 +1,5 @@
 package cn.ruanyun.backInterface.modules.business.order.serviceimpl;
 
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
@@ -44,6 +43,7 @@ import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
 import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -200,7 +200,8 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 SizeAndRolor sizeAndRolor = sizeAndRolorService.getOneByAttrSymbolPath(orderDetail.getAttrSymbolPath());
                 if (EmptyUtil.isNotEmpty(sizeAndRolor)){
                     sizeAndRolor.setId(null);
-                    ToolUtil.copyProperties(sizeAndRolor,orderDetail);
+                    orderDetail.setIntegral(sizeAndRolor.getInventory());
+                    orderDetail.setGoodNewPrice(sizeAndRolor.getGoodPrice());
                     orderDetail.setGoodPics(sizeAndRolor.getPic());
                 }
             }
