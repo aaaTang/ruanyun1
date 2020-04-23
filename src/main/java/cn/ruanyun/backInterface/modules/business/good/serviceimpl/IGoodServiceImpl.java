@@ -403,8 +403,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
         //模糊查询商品
         List<Good> goods = this.list(new QueryWrapper<Good>().lambda()
-                .like(Good::getGoodName,name)
-        );
+                .like(Good::getGoodName,name));
 
         List<AppGoodListVO> appGoodListVOList = goods.parallelStream().map(good -> {
             AppGoodListVO appGoodListVO = new AppGoodListVO();
@@ -425,7 +424,6 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                             .orElse(0));
 
             return appGoodListVO;
-
         }).collect(Collectors.toList());
 
         if(ToolUtil.isNotEmpty(appGoodListVOList)){ return appGoodListVOList; }else {return null;}
