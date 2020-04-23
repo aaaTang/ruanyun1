@@ -156,11 +156,16 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
         return shopCartVos.join();
     }
 
+    /**
+     * 获取购物车数量
+     * @return
+     */
     @Override
     public Integer getGoodsCartNum() {
         List<ShoppingCart> shoppingCart = this.list(new QueryWrapper<ShoppingCart>().lambda().eq(ShoppingCart::getCreateBy,securityUtil.getCurrUser().getId()));
         return Optional.ofNullable(shoppingCart.size()).orElse(null);
     }
+
 
     @Override
     public void changeCount(String id,Integer count) {

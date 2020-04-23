@@ -97,4 +97,21 @@ public class ShoppingCartController {
         return new ResultUtil<>().setData(null,"修改成功！");
     }
 
+
+
+    /**
+     * 我的购物车数量
+     * @return
+     */
+    @PostMapping("/getGoodsCartNum")
+    public Result<Object> getGoodsCartNum() {
+
+        Map<String,Object> result = Maps.newHashMap();
+        result.put("size", iShoppingCartService.getGoodsCartNum());
+        return new ResultUtil<>().setData(result,"获取我的购物车数据成功！");
+    }
+
+
+
+
 }

@@ -38,8 +38,12 @@ public interface IShoppingCartService extends IService<ShoppingCart> {
      */
     List<ShoppingCartVO> shoppingCartVOList(String ids);
 
-
+    /**
+     * 获取购物车数量
+     * @return
+     */
     Integer getGoodsCartNum();
+
 
     void changeCount(String id,Integer count);
 }
