@@ -31,6 +31,5 @@ public class RuanyunApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(RuanyunApplication.class, args);
-
     }
 }
