@@ -139,6 +139,23 @@ public class ICommentServiceImpl extends ServiceImpl<CommentMapper, Comment> imp
         }).orElse(null);
     }
 
+    /***
+     * 后台回复评论
+     * @param comment
+     */
+    @Override
+    public void replyComment(Comment comment) {
+        if (ToolUtil.isEmpty(comment.getCreateBy())) {
+            comment.setCreateBy(securityUtil.getCurrUser().getId());
+
+        } else {
+            comment.setUpdateBy(securityUtil.getCurrUser().getId());
+        }
+        Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(comment)))
+                .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
+                .toFuture().join();
+    }
+
 
     public CommentVO getCommentVO(String id){
         return Optional.ofNullable(this.getById(id)).map(comment -> {

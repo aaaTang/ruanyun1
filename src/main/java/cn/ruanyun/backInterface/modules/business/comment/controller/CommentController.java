@@ -46,6 +46,21 @@ public class CommentController {
         }
     }
 
+    /**
+     * 后台回复评论
+     * @return
+     */
+    @PostMapping(value = "/replyComment")
+    public Result<Object> replyComment(Comment comment){
+        try {
+            iCommentService.replyComment(comment);
+            return new ResultUtil<>().setSuccessMsg("插入或者更新成功!");
+        }catch (Exception e) {
+
+            return new ResultUtil<>().setErrorMsg(201, e.getMessage());
+        }
+    }
+
 
     /**
      * 移除数据

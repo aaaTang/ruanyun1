@@ -22,6 +22,8 @@ public interface ICommentService extends IService<Comment> {
     void insertOrderUpdateComment(CommentDTO commentDTO);
 
 
+
+
     /**
      * 移除comment
      *
@@ -42,4 +44,10 @@ public interface ICommentService extends IService<Comment> {
      * @return
      */
     List<CommentVO> getCommentList(Comment comment);
+
+    /***
+     * 后台回复评论
+     * @param comment
+     */
+    void replyComment(Comment comment);
 }
