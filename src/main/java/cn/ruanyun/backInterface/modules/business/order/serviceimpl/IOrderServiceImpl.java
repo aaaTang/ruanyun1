@@ -39,6 +39,7 @@ import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
 import cn.ruanyun.backInterface.modules.business.orderDetail.service.IOrderDetailService;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.entity.ShoppingCart;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
+import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
 import com.alibaba.druid.util.StringUtils;
@@ -59,6 +60,7 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.*;
@@ -94,6 +96,8 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
        private IDiscountMyService discountMyService;
        @Autowired
        private ISizeAndRolorService sizeAndRolorService;
+       @Resource
+       private SizeAndRolorMapper sizeAndRolorMapper;
        @Autowired
        private IGoodsPackageService goodsPackageService;
        @Autowired
@@ -154,8 +158,6 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                        .toFuture().join();
                ids += ","+order.getId();
                sumPrice += order.getTotalPrice();
-
-
 
            }
            Map<String,Object> map = new ArrayMap<>();

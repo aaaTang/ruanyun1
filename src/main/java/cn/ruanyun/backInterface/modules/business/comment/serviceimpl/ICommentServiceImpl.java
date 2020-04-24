@@ -166,13 +166,15 @@ public class ICommentServiceImpl extends ServiceImpl<CommentMapper, Comment> imp
             User byId = userService.getById(comment.getCreateBy());
             if (EmptyUtil.isNotEmpty(byId)){
                 commentVO.setAvatar(byId.getAvatar());
-                commentVO.setUsername(byId.getUsername());
+                commentVO.setNickName(byId.getNickName());
             }
             //处理下单的规格
             OrderDetail one = orderDetailService.getOne(Wrappers.<OrderDetail>lambdaQuery()
                     .eq(OrderDetail::getGoodId, comment.getGoodId())
                     .eq(OrderDetail::getOrderId, comment.getOrderId()));
-            commentVO.setItemAttrKeys(iItemAttrValService.getItemAttrVals(one.getAttrSymbolPath()));
+            if(ToolUtil.isNotEmpty(one)){
+                commentVO.setItemAttrKeys(iItemAttrValService.getItemAttrVals(one.getAttrSymbolPath()));
+            }
 
             //处理商家后台的回复
             commentVO.setReply(Optional.ofNullable(this.getOne(Wrappers.<Comment>lambdaQuery().eq(Comment::getPid, comment.getId()))).map(comment3 ->{

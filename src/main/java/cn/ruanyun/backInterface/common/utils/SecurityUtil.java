@@ -85,6 +85,7 @@ public class SecurityUtil {
                     .getRoleIdsByUserId(iuserService.getUserIdByName(username))))
                     .ifPresent(permissions -> permissions.parallelStream().forEach(permission -> {
 
+
                         if(CommonConstant.PERMISSION_OPERATION.equals(permission.getType())
                                 && StrUtil.isNotBlank(permission.getTitle())
                                 && StrUtil.isNotBlank(permission.getPath())) {

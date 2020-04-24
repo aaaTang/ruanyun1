@@ -345,11 +345,8 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
             //TODO: 评论数量
 //            .setCommonNum(0)
             ;
-
-            //TODO: 用户的购物车数量
-            goodDetailVO.setGoodsCartNum(iShoppingCartService.getGoodsCartNum())
-                    //TODO: 店铺数据
-                    .setShopList(shopList)
+            //TODO: 店铺数据
+            goodDetailVO.setShopList(shopList)
                     //TODO: 是否收藏0否 1收藏
                     .setFavorite(iMyFavoriteService.getMyFavorite(id,GoodTypeEnum.GOOD))
                     //TODO: 商品优惠券
@@ -425,9 +422,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
             return appGoodListVO;
         }).collect(Collectors.toList());
-
         if(ToolUtil.isNotEmpty(appGoodListVOList)){ return appGoodListVOList; }else {return null;}
-
     }
 
 

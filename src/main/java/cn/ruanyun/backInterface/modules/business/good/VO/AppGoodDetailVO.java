@@ -53,12 +53,6 @@ public class  AppGoodDetailVO {
      */
     private String goodDetails;
 
-
-    /**
-     * 购物车数量
-     */
-    private Integer goodsCartNum;
-
     /**
      * 店铺数据
      */

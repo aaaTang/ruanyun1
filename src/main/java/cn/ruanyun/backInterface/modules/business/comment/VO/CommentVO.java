@@ -23,7 +23,7 @@ public class CommentVO {
     /**
      * 姓名
      */
-    private String username;
+    private String nickName;
 
     /**
      * 头像

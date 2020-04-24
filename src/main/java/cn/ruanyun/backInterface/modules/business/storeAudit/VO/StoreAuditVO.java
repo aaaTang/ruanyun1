@@ -2,13 +2,9 @@ package cn.ruanyun.backInterface.modules.business.storeAudit.VO;
 
 import cn.ruanyun.backInterface.common.enums.CheckEnum;
 import cn.ruanyun.backInterface.common.enums.StoreTypeEnum;
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;

@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.giveLike.pojo;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
+import cn.ruanyun.backInterface.common.enums.UserGiveLikeTypeEnum;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -20,9 +21,16 @@ public class GiveLike extends RuanyunBaseEntity {
     private static final long serialVersionUID = 1L;
 
 
-    /**
-     * 动态视频id
-     */
-    private String dynamicVideoId;
 
+    private UserGiveLikeTypeEnum userGiveLikeTypeEnum;
+
+    /**
+     * 喜欢数量
+     */
+    private Integer likeNum;
+
+    /**
+     * 不喜欢数量
+     */
+    private Integer dislikeNum;
 }

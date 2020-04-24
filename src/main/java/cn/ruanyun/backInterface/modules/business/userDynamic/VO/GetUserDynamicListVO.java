@@ -1,4 +1,4 @@
-package cn.ruanyun.backInterface.modules.business.dynamicVideo.VO;
+package cn.ruanyun.backInterface.modules.business.userDynamic.VO;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -9,46 +9,41 @@ import java.util.Date;
 
 @Data
 @Accessors(chain = true)
-public class DynamicVideoListVO {
+public class GetUserDynamicListVO {
 
     private String id;
     /**
-     * 标题
+     * 用户id
+     */
+    private String userId;
+    /**
+     * 用户名称
+     */
+    private String nickName;
+    /**
+     * 用户头像
+     */
+    private String avatar;
+    /**
+     * 动态内容
      */
     private String title;
     /**
-     * 视频，图片，文字
+     * 动态图片
      */
-    private String video;
-
+    private String pic;
     /**
      * 创建时间
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date createTime;
-
     /**
-     * 喜欢数量
+     * 点赞数量
      */
-    private Integer likeNum;
-
+    private Date giveLikeNum;
     /**
-     * 用户id
+     *评论数量
      */
-    private String userid;
-
-    /**
-     * 用户名称
-     */
-    private String username;
-
-    /**
-     * 用户头像
-     */
-    private String avatar;
-
-
-
-
+    private Integer commentNum;
 }

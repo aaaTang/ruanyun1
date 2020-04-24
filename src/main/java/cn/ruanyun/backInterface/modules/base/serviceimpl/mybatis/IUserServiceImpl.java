@@ -23,10 +23,12 @@ import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
 import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
 import cn.ruanyun.backInterface.modules.business.myFootprint.service.IMyFootprintService;
+import cn.ruanyun.backInterface.modules.rongyun.service.IRongyunService;
 import com.aliyuncs.ram.model.v20150501.ListVirtualMFADevicesResponse;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.api.client.util.ArrayMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -68,6 +71,9 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
     @Autowired
     private IFollowAttentionService iFollowAttentionService;
+
+    @Autowired
+    private IRongyunService iRongyunService;
 
 
     @Override
@@ -123,7 +129,11 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                     userRole.setUserId(user1.getId());
                     userRole.setRoleId(roleService.getIdByRoleName(CommonConstant.DEFAULT_ROLE));
                     userRoleService.save(userRole);
+
+                    //注册融云im服务通讯
+                    iRongyunService.addUser(user1.getId(),user1.getNickName(),user1.getAvatar());
                 })
+
 
                 // TODO: 2020/3/13 处理分销
         ));
@@ -151,10 +161,16 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
             return new ResultUtil<>().setErrorMsg(202, "密码不一致！");
         }
 
+        Map<Object,String> map = new ArrayMap<>();
         //3.可以登录
         String token = securityUtil.getToken(userGet.getUsername(), true);
+        map.put("userToken",token);
+        map.put("nickName",userGet.getNickName());
+        map.put("avatar",userGet.getAvatar());
+        map.put("userId",userGet.getId());
+        map.put("imToken",userGet.getImToken());
 
-        return new ResultUtil<>().setData(token, "登录成功！");
+        return new ResultUtil<>().setData(map, "登录成功！");
     }
 
     @Override
