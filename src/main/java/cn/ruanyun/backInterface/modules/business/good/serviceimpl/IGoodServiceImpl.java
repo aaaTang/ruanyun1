@@ -536,6 +536,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                     if (EmptyUtil.isNotEmpty(one)){
                         appGoodOrderVO.setGoodNewPrice(one.getGoodPrice());
                         appGoodOrderVO.setGoodPic(one.getPic());
+                        appGoodOrderVO.setIntegral(one.getInventory());
                     }
 
                     //2.商品规格

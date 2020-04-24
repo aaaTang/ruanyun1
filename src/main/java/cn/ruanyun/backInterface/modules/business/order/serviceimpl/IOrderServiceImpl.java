@@ -196,7 +196,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 }
 
             }
-            if (StringUtils.isEmpty(orderDetail.getAttrSymbolPath())){
+            if (!StringUtils.isEmpty(orderDetail.getAttrSymbolPath())){
                 SizeAndRolor sizeAndRolor = sizeAndRolorService.getOneByAttrSymbolPath(orderDetail.getAttrSymbolPath());
                 if (EmptyUtil.isNotEmpty(sizeAndRolor)){
                     sizeAndRolor.setId(null);
@@ -473,12 +473,12 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(shoppingCart.getGoodId(), shoppingCart.getAttrSymbolPath());
         ToolUtil.copyProperties(appGoodOrder,appGoodOrderVO);
         //查询商品价格
-        SizeAndRolor one = sizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery()
+        /*SizeAndRolor one = sizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery()
                 .eq(SizeAndRolor::getAttrSymbolPath, shoppingCart.getAttrSymbolPath())
                 .eq(SizeAndRolor::getGoodsId, shoppingCart.getGoodId()));
         if (EmptyUtil.isNotEmpty(one)){
             appGoodOrderVO.setGoodNewPrice(one.getGoodPrice()).setGoodPic(one.getPic()).setIntegral(one.getInventory());
-        }
+        }*/
         appGoodOrderVO.setBuyCount(shoppingCart.getCount());
         //获取这个人，这个商品 能用的优惠券
         String goodId = shoppingCart.getGoodId();
