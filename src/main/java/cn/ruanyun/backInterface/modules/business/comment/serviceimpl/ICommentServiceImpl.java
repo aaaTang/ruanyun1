@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.comment.serviceimpl;
 
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
@@ -183,4 +184,19 @@ public class ICommentServiceImpl extends ServiceImpl<CommentMapper, Comment> imp
             return commentVO;
         }).orElse(null);
     }
+
+    /**
+     * 计算商品评分
+     */
+    @Override
+    public String getGoodScore(String ids) {
+        List<Comment> list = this.list(Wrappers.<Comment>lambdaQuery().eq(Comment::getGoodId, ids).eq(Comment::getPid, CommonConstant.PARENT_ID));
+        return Optional.ofNullable(ToolUtil.setListToNul(list)).map(comments -> {
+            double score = 0;
+            score = list.stream().mapToDouble(Comment::getStartLevel).sum()/comments.size();
+            return score+"";
+        }).orElse("0");
+
+    }
+
 }

@@ -6,6 +6,7 @@ import cn.ruanyun.backInterface.common.enums.FollowTypeEnum;
 import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.serviceimpl.mybatis.IUserServiceImpl;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
@@ -37,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -52,6 +54,8 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
 
     @Autowired
     private SecurityUtil securityUtil;
+    @Resource
+    private UserMapper userMapper;
     @Resource
     private IUserServiceImpl iUserService;
     @Resource
@@ -186,25 +190,24 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
      * 查询商家精选套餐
      */
     @Override
-    public List<AppGoodsPackageListVO> AppGoodsPackageList(String ids){
+    public List<AppGoodsPackageListVO> AppGoodsPackageList(String ids,String name){
 
         List<Good>  goodsPackage = goodMapper.selectList(new QueryWrapper<Good>().lambda()
-                .eq(Good::getCreateBy,ids).eq(Good::getTypeEnum,GoodTypeEnum.GOODSPACKAGE));
+                .eq(ToolUtil.isNotEmpty(ids),Good::getCreateBy,ids)
+                .like(ToolUtil.isNotEmpty(name),Good::getGoodName,name)
+                .eq(Good::getTypeEnum,GoodTypeEnum.GOODSPACKAGE));
 
         List<AppGoodsPackageListVO> appGoodsPackageList = new ArrayList<>();
 
         for (Good gPackage : goodsPackage) {
             AppGoodsPackageListVO appGoodsVO = new AppGoodsPackageListVO();
-            appGoodsVO.setId(gPackage.getId())
-            .setGoodsName(gPackage.getGoodName())
-            .setNewPrice(gPackage.getGoodNewPrice())
-            .setOldPrice(gPackage.getGoodOldPrice());
+            appGoodsVO.setId(gPackage.getId()).setNickName(Optional.ofNullable(userMapper.selectById(gPackage.getCreateBy())).map(User::getNickName).orElse(null))
+            .setGoodsName(gPackage.getGoodName()).setNewPrice(gPackage.getGoodNewPrice()).setOldPrice(gPackage.getGoodOldPrice());
             String[] pic  = gPackage.getGoodPics().split(",");
             if(ToolUtil.isNotEmpty(pic)){
                 appGoodsVO.setPics(pic[0]);
             }
             appGoodsPackageList.add(appGoodsVO);
-
         }
         return appGoodsPackageList;
     }

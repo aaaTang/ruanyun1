@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.good.service;
 
+import cn.ruanyun.backInterface.common.enums.SearchTypesEnum;
 import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import cn.ruanyun.backInterface.modules.business.good.DTO.GoodDTO;
 import cn.ruanyun.backInterface.modules.business.good.VO.*;
@@ -65,7 +66,7 @@ public interface IGoodService extends IService<Good> {
      * App模糊查询商品接口
      * @return
      */
-    List AppGoodList(String name);
+    List AppGoodList(String name,SearchTypesEnum searchTypesEnum);
 
     /**
      * 获取商品购买信息
@@ -75,6 +76,11 @@ public interface IGoodService extends IService<Good> {
     AppGoodInfoVO getAppGoodInfo(String id);
 
 
+    /**
+     * 获取搜索的商家和套餐
+     * @return
+     */
+    List getShopAndPackage(String name);
     /**
      * 获取商品第一张图片
      * @param id

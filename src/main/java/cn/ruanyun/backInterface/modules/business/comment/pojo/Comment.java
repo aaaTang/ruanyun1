@@ -48,7 +48,7 @@ public class Comment extends RuanyunBaseEntity {
     /**
      * 评价星级
      */
-    private String startLevel;
+    private Double startLevel;
 
     /**
      * 评价内容

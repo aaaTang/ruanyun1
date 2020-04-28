@@ -15,6 +15,10 @@ public class AppGoodsPackageListVO {
      */
     private String id;
     /**
+     * 店铺名称
+     */
+    private String nickName;
+    /**
      * 商品名称
      */
     private String goodsName;

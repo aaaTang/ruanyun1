@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.good.controller;
 
 import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
+import cn.ruanyun.backInterface.common.enums.SearchTypesEnum;
 import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
@@ -108,8 +109,8 @@ public class GoodController {
      * @return
      */
     @PostMapping("/AppGoodList")
-    public Result<Object> AppGoodList(String name, PageVo pageVo) {
-        return Optional.ofNullable(iGoodService.AppGoodList(name))
+    public Result<Object> AppGoodList(String name, PageVo pageVo, SearchTypesEnum searchTypesEnum) {
+        return Optional.ofNullable(iGoodService.AppGoodList(name,searchTypesEnum))
                 .map(appGoodList -> {
                     Map<String,Object> result = Maps.newHashMap();
                     result.put("size",appGoodList.size());

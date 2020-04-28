@@ -15,8 +15,6 @@ import java.util.List;
 public interface IGoodsPackageService extends IService<GoodsPackage> {
 
 
-
-
     /**
      * App查询商家商品详情
      * @param ids
@@ -37,7 +35,7 @@ public interface IGoodsPackageService extends IService<GoodsPackage> {
     /**
      * 查询商家精选套餐
      */
-    List<AppGoodsPackageListVO> AppGoodsPackageList(String ids);
+    List<AppGoodsPackageListVO> AppGoodsPackageList(String ids,String name);
 
     /**
      * 修改店铺详情
