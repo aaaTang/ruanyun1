@@ -124,13 +124,12 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
                 .list(Wrappers.<Area>lambdaQuery()
                         .isNotNull(Area::getAreaIndex)
                         .eq(Area::getStatus, CommonConstant.STATUS_NORMAL)
-                        .orderByAsc(Area::getSortOrder)
-                        .orderByDesc(Area::getAreaIndex)))))
+                        .orderByAsc(Area::getSortOrder)))))
 
                 .thenApplyAsync(areas -> areas.map(areaList -> areaList.parallelStream().collect(Collectors.groupingBy(Area::getAreaIndex))))
                 .thenApplyAsync(areaIndexEnumListMap -> areaIndexEnumListMap.map(areaIndexEnumList -> {
 
-                    List<AppAreaListVO> appAreaListVOS = Lists.newArrayList();
+                    List<AppAreaListVO> appAreaListVos = Lists.newArrayList();
 
                     areaIndexEnumList.forEach((k, v) -> {
 
@@ -143,10 +142,10 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
                                     return Stream.of(appAreaVO);
                                 }).collect(Collectors.toList()));
 
-                        appAreaListVOS.add(appAreaListVO);
+                        appAreaListVos.add(appAreaListVO);
                     });
 
-                    return appAreaListVOS;
+                    return appAreaListVos;
                 }).orElse(null))).toFuture().join();
     }
 

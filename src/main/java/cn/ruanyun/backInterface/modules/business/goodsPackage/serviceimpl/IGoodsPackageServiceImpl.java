@@ -6,16 +6,9 @@ import cn.ruanyun.backInterface.common.enums.FollowTypeEnum;
 import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.serviceimpl.mybatis.IUserServiceImpl;
-import cn.ruanyun.backInterface.modules.base.vo.AppUserVO;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
-import cn.ruanyun.backInterface.modules.business.area.mapper.AreaMapper;
-import cn.ruanyun.backInterface.modules.business.area.pojo.Area;
-import cn.ruanyun.backInterface.modules.business.area.service.IAreaService;
-import cn.ruanyun.backInterface.modules.business.bestChoiceShop.mapper.BestShopMapper;
-import cn.ruanyun.backInterface.modules.business.bookingOrder.mapper.BookingOrderMapper;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.service.IBookingOrderService;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.pojo.DiscountCoupon;
@@ -25,7 +18,6 @@ import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollow
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.serviceimpl.IGoodServiceImpl;
-import cn.ruanyun.backInterface.modules.business.goodsIntroduce.pojo.GoodsIntroduce;
 import cn.ruanyun.backInterface.modules.business.goodsIntroduce.service.IGoodsIntroduceService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.DTO.ShopParticularsDTO;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.*;
@@ -33,36 +25,19 @@ import cn.ruanyun.backInterface.modules.business.goodsPackage.mapper.GoodsPackag
 import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
 import cn.ruanyun.backInterface.modules.business.grade.service.IGradeService;
-import cn.ruanyun.backInterface.modules.business.myFavorite.mapper.MyFavoriteMapper;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
-import cn.ruanyun.backInterface.modules.business.storeAudit.mapper.StoreAuditMapper;
-import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
 import cn.ruanyun.backInterface.modules.business.storeAudit.service.IStoreAuditService;
-import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.qcloud.cos.transfer.Copy;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
-
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
-
-import javax.annotation.Resource;
-import javax.persistence.Convert;
-
-import static jdk.nashorn.api.scripting.ScriptUtils.convert;
 
 
 /**
@@ -111,6 +86,7 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
      * @param ids
      * @return
      */
+    @Override
     public Result<Object> GetGoodsPackage(String ids) {
         Good goodsPackage = goodMapper.selectById(ids);
 
@@ -141,7 +117,8 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     /**
      * App分类商家商品筛选
      */
-    public List<GoodsPackageListVO> GetGoodsPackageList(String classId,String areaId,Integer newPrice,String createBy){
+    @Override
+    public List<GoodsPackageListVO> GetGoodsPackageList(String classId, String areaId, Integer newPrice, String createBy){
         List<GoodsPackage> list= this.list(new QueryWrapper<GoodsPackage>().lambda()
                 .eq(EmptyUtil.isNotEmpty(classId),GoodsPackage::getClassId,classId)
                 .eq(EmptyUtil.isNotEmpty(areaId),GoodsPackage::getAreaId,areaId)
@@ -166,7 +143,8 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     /**
      * 获取App店铺详情数据成功
      */
-    public ShopParticularsVO getShopParticulars(String ids,String longitude,String latitude){
+    @Override
+    public ShopParticularsVO getShopParticulars(String ids, String longitude, String latitude){
 
         User user = iUserService.getById(ids);//获取店铺详情
         ShopParticularsVO shopParticularsVO = new ShopParticularsVO();
@@ -207,6 +185,7 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     /**
      * 查询商家精选套餐
      */
+    @Override
     public List<AppGoodsPackageListVO> AppGoodsPackageList(String ids){
 
         List<Good>  goodsPackage = goodMapper.selectList(new QueryWrapper<Good>().lambda()
@@ -233,6 +212,7 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     /**
      * 修改店铺详情
      */
+    @Override
     public void UpdateShopParticulars(ShopParticularsDTO shopParticularsDTO){
         igoodsPackageMapper.UpdateShopParticulars(shopParticularsDTO);
     }

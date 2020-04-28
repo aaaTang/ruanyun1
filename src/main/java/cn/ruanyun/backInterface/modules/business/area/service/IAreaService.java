@@ -51,6 +51,11 @@ public interface IAreaService extends IService<Area> {
      */
      List<AppAreaVO> getAppHotAreaList();
 
-    //向上查询详细地址
+
+    /**
+     * 向上查询详细地址
+     * @param id
+     * @return
+     */
     String getAddress(String id);
 }
