@@ -19,6 +19,10 @@ public class StoreAuditListVO {
      */
     private String shopName;
 
+    /**
+     * 店铺图片
+     */
+    private String avatar;
 
     /**
      * 套餐数量

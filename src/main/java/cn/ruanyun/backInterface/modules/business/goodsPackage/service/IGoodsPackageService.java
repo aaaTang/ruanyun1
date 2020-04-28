@@ -29,7 +29,6 @@ public interface IGoodsPackageService extends IService<GoodsPackage> {
      */
     List<GoodsPackageListVO>  GetGoodsPackageList(String classId, String areaId,Integer newPrice ,String createBy);
 
-
     /**
      * 获取App店铺详情数据成功
      */

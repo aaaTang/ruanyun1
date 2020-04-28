@@ -25,6 +25,8 @@ import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollow
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.serviceimpl.IGoodServiceImpl;
+import cn.ruanyun.backInterface.modules.business.goodsIntroduce.pojo.GoodsIntroduce;
+import cn.ruanyun.backInterface.modules.business.goodsIntroduce.service.IGoodsIntroduceService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.DTO.ShopParticularsDTO;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.*;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.mapper.GoodsPackageMapper;
@@ -36,6 +38,7 @@ import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteS
 import cn.ruanyun.backInterface.modules.business.storeAudit.mapper.StoreAuditMapper;
 import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
 import cn.ruanyun.backInterface.modules.business.storeAudit.service.IStoreAuditService;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -74,36 +77,30 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
 
     @Autowired
     private SecurityUtil securityUtil;
-
     @Resource
     private IUserServiceImpl iUserService;
-
     @Resource
     private GoodsPackageMapper igoodsPackageMapper;
-
     @Autowired
     private IStoreAuditService storeAuditService;
-
     @Resource
     private IDiscountCouponService iDiscountCouponService;
-
     @Resource
     private IDiscountCouponServiceImpl iDiscountCouponServiceImpl;
-
     @Resource
     private IGoodServiceImpl iGoodService;
-
     @Resource
     private IFollowAttentionService followAttentionService;
-
     @Resource
     private IBookingOrderService iBookingOrderService;
-
     @Resource
     private GoodMapper goodMapper;
-
     @Autowired
     private IGradeService gradeService;
+    @Autowired
+    private IGoodsIntroduceService iGoodsIntroduceService;
+    @Autowired
+    private IMyFavoriteService iMyFavoriteService;
 
 
 
@@ -124,16 +121,12 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
                .setPics(goodsPackage.getGoodPics())//套餐图片
                .setNewPrice(goodsPackage.getGoodNewPrice())//新价格
                .setOldPrice(goodsPackage.getGoodOldPrice())//旧价格
-
-              /* .setProductsIntroduction(goodsPackage.getProductsIntroduction())//商品介绍
-               .setProductLightspot(goodsPackage.getProductLightspot())//商品亮点
-               .setShootCharacteristics(goodsPackage.getShootCharacteristics())//拍摄特色
-               .setGraphicDetails(goodsPackage.getGraphicDetails())//图文详情*/
-                .setProductsIntroduction(goodsPackage.getProductsIntroduction())//商品介绍
-               .setPurchaseNotes(goodsPackage.getPurchaseNotes())//购买须知
-               /*.setWarmPrompt(goodsPackage.getWarmPrompt())//温馨提示*/
+               .setMyFavorite(iMyFavoriteService.getMyFavorite(goodsPackage.getId(),GoodTypeEnum.GOODSPACKAGE))//是否收藏套餐
+               .setProductsIntroduction(iGoodsIntroduceService.goodsIntroduceList(null,goodsPackage.getId(),1))//商品介绍
+               .setPurchaseNotes(iGoodsIntroduceService.goodsIntroduceList(null,goodsPackage.getId(),2))//购买须知
                .setStoreAuditVO(storeAuditService.getStoreAudisByid(goodsPackage.getCreateBy()))//商铺信息
                ;
+
            }
 
         if(ToolUtil.isNotEmpty(goodsPackageParticularsVO.getId())){

@@ -39,24 +39,6 @@ public class GoodController {
     @PostMapping(value = "/insertOrderUpdateGood")
     public Result<Object> insertOrderUpdateGood(Good good){
         try {
-            good.setTypeEnum(GoodTypeEnum.GOOD);
-            iGoodService.insertOrderUpdateGood(good);
-            return new ResultUtil<>().setSuccessMsg("插入或者更新成功!");
-        }catch (Exception e) {
-
-            return new ResultUtil<>().setErrorMsg(201, e.getMessage());
-        }
-    }
-
-    /**
-     * 更新或者插入数据 套餐商品
-     * @param good
-     * @return
-     */
-    @PostMapping(value = "/insertOrderUpdateGoodsPackage")
-    public Result<Object> insertOrderUpdateGoodsPackage(Good good){
-        try {
-            good.setTypeEnum(GoodTypeEnum.GOODSPACKAGE);
             iGoodService.insertOrderUpdateGood(good);
             return new ResultUtil<>().setSuccessMsg("插入或者更新成功!");
         }catch (Exception e) {

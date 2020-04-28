@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.goodsPackage.VO;
 
+import cn.ruanyun.backInterface.modules.business.goodsIntroduce.VO.GoodsIntroduceVO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditListVO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditVO;
 import lombok.Data;
@@ -37,34 +38,17 @@ public class GoodsPackageParticularsVO {
     /**
      * 商品介绍
      */
-    private String productsIntroduction;
-/*
-    *//**
-     * 商品亮点
-     *//*
-    private String productLightspot;
-
-    *//**
-     * 拍摄特色
-     *//*
-    private String shootCharacteristics;
-
-
-    *//**
-     * 图文详情
-     *//*
-    @Column(length = 1000)
-    private String graphicDetails;*/
+    private List<GoodsIntroduceVO> productsIntroduction;
 
     /**
      * 购买须知
      */
-    private String purchaseNotes;
+    private List<GoodsIntroduceVO> purchaseNotes;
 
     /**
-     * 温馨提示
+     * 是否收藏此套餐
      */
-//    private String warmPrompt;
+    private Integer myFavorite;
 
     //商铺信息
     private StoreAuditListVO storeAuditVO;
