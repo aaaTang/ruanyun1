@@ -1,5 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.balance.service;
 
+import cn.ruanyun.backInterface.common.vo.PageVo;
+import cn.ruanyun.backInterface.modules.business.balance.VO.AppBalanceVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.balance.pojo.Balance;
 
@@ -25,4 +27,11 @@ public interface IBalanceService extends IService<Balance> {
        * @param ids
        */
      void removeBalance(String ids);
+
+    /**
+     * app 获取用户明细
+     * @return
+     */
+    AppBalanceVO getAppBalance(PageVo pageVo);
+
 }

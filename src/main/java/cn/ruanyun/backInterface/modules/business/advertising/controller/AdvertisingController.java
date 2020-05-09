@@ -67,7 +67,7 @@ public class AdvertisingController {
     /**
      * App查询广告数据列表
      * @param advertisingType 1.开屏,  2.轮播
-     * @param advertisingJumpType  1.编辑详情页  2.H5网页链接  3.活动页面  4.商家店铺首页
+     * @param advertisingJumpType  1.编辑详情页  2.H5网页链接  3.活动页面  4.商家店铺首页  5.商品详情
      * @return
      */
     @PostMapping(value = "/APPgetAdvertisingList")

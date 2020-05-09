@@ -34,7 +34,7 @@ public interface IBookingOrderService extends IService<BookingOrder> {
      List<BookingOrderVO> bookingOrderList(String classId);
 
     /**
-     * 按店铺id和用户id查询数据
+     * 查詢我是否预约这个店铺
      * @param storeId
      * @param userid
      * @return

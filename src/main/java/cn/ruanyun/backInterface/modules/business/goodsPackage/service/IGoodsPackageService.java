@@ -38,6 +38,10 @@ public interface IGoodsPackageService extends IService<GoodsPackage> {
     List<AppGoodsPackageListVO> AppGoodsPackageList(String ids,String name);
 
     /**
+     * 查询商家推荐套餐
+     */
+    List AppGoodsRecommendPackageList(String ids);
+    /**
      * 修改店铺详情
      */
     void UpdateShopParticulars(ShopParticularsDTO shopParticularsDTO);
@@ -51,4 +55,6 @@ public interface IGoodsPackageService extends IService<GoodsPackage> {
      * 获取App店铺详情参数
      */
     ShopParticularsParameterVO getShopParticularsParameter(String ids);
+
+
 }

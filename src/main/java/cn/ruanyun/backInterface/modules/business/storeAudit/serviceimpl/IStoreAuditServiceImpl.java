@@ -145,6 +145,7 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
                        User user = new User();
                        user.setId(storeAudit1.getCreateBy());
                        user.setAreaId(storeAudit1.getAreaId());
+                       user.setClassId(storeAudit1.getClassificationId());
                        userMapper.updateById(user);
                    }else {
                        // TODO: 2020/3/27  审核失败，极光推送

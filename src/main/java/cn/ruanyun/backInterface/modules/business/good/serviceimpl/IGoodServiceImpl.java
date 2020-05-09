@@ -26,6 +26,7 @@ import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
 import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
 import cn.ruanyun.backInterface.modules.business.goodService.service.IGoodServiceService;
+import cn.ruanyun.backInterface.modules.business.goodsIntroduce.service.IGoodsIntroduceService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
 import cn.ruanyun.backInterface.modules.business.grade.service.IGradeService;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrValService;
@@ -68,61 +69,44 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
     @Autowired
     private SecurityUtil securityUtil;
-
     @Autowired
     private IUserService userService;
-
     @Resource
     private UserMapper userMapper;
-
     @Autowired
     private IMyFootprintServiceImpl iMyFootprintService;
-
     @Resource
     private GoodCategoryMapper goodCategoryMapper;
-
     @Autowired
     private ISearchHistoryService iSearchHistoryService;
-
     @Autowired
     private IFollowAttentionService iFollowAttentionService;
-
     @Autowired
     private IMyFavoriteService iMyFavoriteService;
-
     @Autowired
     private IDiscountCouponService iDiscountCouponService;
-
     @Autowired
     private IGoodServiceService iGoodServiceService;
-
     @Autowired
     private IGoodsPackageService iGoodsPackageService;
-
     @Autowired
     private IItemAttrValService iItemAttrValService;
-
     @Autowired
     private IOrderDetailService orderDetailService;
-
     @Autowired
     private ICommentService commentService;
-
     @Autowired
     private ISizeAndRolorService sizeAndRolorService;
-
     @Resource
     private UserRoleMapper userRoleMapper;
-
     @Resource
     private RoleMapper roleMapper;
-
     @Autowired
     private IGradeService gradeService;
-
     @Resource
     private GoodMapper goodMapper;
-
+    @Resource
+    private IGoodsIntroduceService iGoodsIntroduceService;
 
 
 
@@ -413,7 +397,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
        if(searchTypesEnum.equals(SearchTypesEnum.GOODS)){//商品
            //模糊查询商品
            List<Good> goods = this.list(new QueryWrapper<Good>().lambda()
-                   .like(Good::getGoodName,name));
+                   .like(ToolUtil.isNotEmpty(name),Good::getGoodName,name).eq(Good::getTypeEnum,GoodTypeEnum.GOOD));
 
            List<AppGoodListVO> appGoodListVOList = goods.parallelStream().map(good -> {
                AppGoodListVO appGoodListVO = new AppGoodListVO();
@@ -488,6 +472,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
             for (Good good : g) {
                 AppGoodInfoVO appGoodInfoVO = new AppGoodInfoVO();
                 ToolUtil.copyProperties(good,appGoodInfoVO);
+                appGoodInfoVOList.add(appGoodInfoVO);
             }
             shopAndPackageVO.setAppGoodInfo(appGoodInfoVOList);
         }
@@ -594,10 +579,14 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                         appGoodOrderVO.setIntegral(one.getInventory());
                     }
 
-                    //2.商品规格
-                    List<String> itemAttrVals = iItemAttrValService.getItemAttrVals(attrSymbolPath);
-                    appGoodOrderVO.setItemAttrKeys(itemAttrVals);
-                    appGoodOrderVO.setAttrSymbolPath(attrSymbolPath);
+                    if(ToolUtil.isNotEmpty(attrSymbolPath)){
+                        //2.商品规格
+                        List<String> itemAttrVals = iItemAttrValService.getItemAttrVals(attrSymbolPath);
+                        appGoodOrderVO.setItemAttrKeys(itemAttrVals);
+                        appGoodOrderVO.setAttrSymbolPath(attrSymbolPath);
+                    }
+
+
                     return appGoodOrderVO;
                 }).orElse(null);
     }
@@ -616,20 +605,24 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
         if(userRole.equals(CommonConstant.PER_STORE)||userRole.equals(CommonConstant.STORE)){
            list = this.list(new QueryWrapper<Good>().lambda()
                     .eq(Good::getCreateBy, securityUtil.getCurrUser().getId())
+                    .eq(Good::getTypeEnum, GoodTypeEnum.GOOD)
                    .orderByDesc(Good::getCreateTime)
            );
         }else if (userRole.equals(CommonConstant.ADMIN)){
            list = this.list(new QueryWrapper<Good>().lambda()
+                   .eq(Good::getTypeEnum, GoodTypeEnum.GOOD)
                    .orderByDesc(Good::getCreateTime));
         }
 
        if(ToolUtil.isNotEmpty(list)){
            List<PcGoodListVO> pcGoodList = list.parallelStream().map(pcGoods->{
                PcGoodListVO pc = new PcGoodListVO();
-               String goodCategory = goodCategoryMapper.selectById(pcGoods.getGoodCategoryId()).getTitle();
-               pc.setGoodCategoryName(goodCategory);
-
-               ToolUtil.copyProperties(pcGoods , pc);
+               if(ToolUtil.isNotEmpty(pcGoods.getGoodCategoryId())){
+                   //分类名称
+                   String goodCategory = goodCategoryMapper.selectById(pcGoods.getGoodCategoryId()).getTitle();
+                   pc.setGoodCategoryName(goodCategory);
+                   ToolUtil.copyProperties(pcGoods , pc);
+               }
                return  pc;
            }).collect(Collectors.toList());
 
@@ -639,6 +632,54 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
        }
 
     }
+
+    /**
+     * PC获取商家的套餐列表
+     * @return
+     */
+    @Override
+    public List PCgoodsPackageList() {
+        List<Good> list = new ArrayList<>();
+
+        String userRole = this.getRoleUserList(securityUtil.getCurrUser().getId());
+        if(ToolUtil.isEmpty(userRole)){
+            return null;
+        }else
+            //当前角色是个人商家或者入驻商家
+            if(userRole.equals(CommonConstant.PER_STORE)||userRole.equals(CommonConstant.STORE)){
+                list = this.list(new QueryWrapper<Good>().lambda()
+                        .eq(Good::getCreateBy, securityUtil.getCurrUser().getId())
+                        .eq(Good::getTypeEnum, GoodTypeEnum.GOODSPACKAGE)
+                        .orderByDesc(Good::getCreateTime)
+                );
+            }else if (userRole.equals(CommonConstant.ADMIN)){
+                list = this.list(new QueryWrapper<Good>().lambda()
+                        .eq(Good::getTypeEnum, GoodTypeEnum.GOODSPACKAGE)
+                        .orderByDesc(Good::getCreateTime));
+            }
+
+        if(ToolUtil.isNotEmpty(list)){
+            List<PcGoodsPackageListVO> pcGoodsPackageListVO = list.parallelStream().map(pcGoodsPackage->{
+                PcGoodsPackageListVO pc = new PcGoodsPackageListVO();
+                if(ToolUtil.isNotEmpty(pcGoodsPackage.getGoodCategoryId())){
+                    //分类名称
+                    String goodCategory = goodCategoryMapper.selectById(pcGoodsPackage.getGoodCategoryId()).getTitle();
+                    pc.setGoodCategoryName(goodCategory);
+                    ToolUtil.copyProperties(pcGoodsPackage , pc);
+                }
+                pc.setProductsIntroduction(iGoodsIntroduceService.goodsIntroduceList(null,pcGoodsPackage.getId(),1))//商品介绍
+                        .setPurchaseNotes(iGoodsIntroduceService.goodsIntroduceList(null,pcGoodsPackage.getId(),2));//购买须知
+                return  pc;
+            }).collect(Collectors.toList());
+
+            return pcGoodsPackageListVO;
+        }else {
+            return null;
+        }
+    }
+
+
+
 
     @Override
     public  List<AppForSaleGoodsVO> getAppForSaleGoods(String ids) {
@@ -676,5 +717,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
        }
 
     }
+
+
 
 }

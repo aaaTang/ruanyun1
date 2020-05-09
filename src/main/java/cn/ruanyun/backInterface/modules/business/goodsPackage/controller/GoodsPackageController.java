@@ -82,6 +82,23 @@ public class GoodsPackageController {
     }
 
 
+    /**
+     * 查询商家推荐套餐
+     * ids  店铺id
+     */
+    @PostMapping(value = "/AppGoodsRecommendPackageList")
+    public Result<Object> AppGoodsRecommendPackageList(PageVo pageVo, String ids){
+        return Optional.ofNullable(iGoodsPackageService.AppGoodsRecommendPackageList(ids))
+                .map(appGoodsRecommendPackageList-> {
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("size",  appGoodsRecommendPackageList.size());
+                    result.put("data",  PageUtil.listToPage(pageVo, appGoodsRecommendPackageList));
+                    return new ResultUtil<>().setData(result, "查询商家推荐套餐成功！");
+
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+    }
+
+
 
     /*****************************************************分割线****商家店铺******************************************************/
 

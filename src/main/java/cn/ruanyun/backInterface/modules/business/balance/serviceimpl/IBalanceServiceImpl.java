@@ -1,21 +1,32 @@
 package cn.ruanyun.backInterface.modules.business.balance.serviceimpl;
 
+import cn.ruanyun.backInterface.common.utils.PageUtil;
+import cn.ruanyun.backInterface.common.vo.PageVo;
+import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import cn.ruanyun.backInterface.modules.business.balance.VO.AppBalanceVO;
+import cn.ruanyun.backInterface.modules.business.balance.VO.BalanceVO;
 import cn.ruanyun.backInterface.modules.business.balance.mapper.BalanceMapper;
 import cn.ruanyun.backInterface.modules.business.balance.pojo.Balance;
 import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
+
+import javax.annotation.Resource;
 
 
 /**
@@ -32,6 +43,8 @@ public class IBalanceServiceImpl extends ServiceImpl<BalanceMapper, Balance> imp
        private SecurityUtil securityUtil;
        @Autowired
        private IUserService userService;
+       @Resource
+       private UserMapper userMapper;
 
        @Override
        public void insertOrderUpdateBalance(Balance balance) {
@@ -59,4 +72,37 @@ public class IBalanceServiceImpl extends ServiceImpl<BalanceMapper, Balance> imp
 
           CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
       }
+
+    /**
+     * app 获取用户明细
+     * @return
+     */
+    @Override
+    public AppBalanceVO getAppBalance(PageVo pageVo) {
+
+        List<Balance> balanceList = this.list(new QueryWrapper<Balance>().lambda()
+            .eq(Balance::getCreateBy,securityUtil.getCurrUser().getId())
+        );
+
+        AppBalanceVO appBalanceVO = new AppBalanceVO();
+        List<BalanceVO> balanceVOList = new ArrayList<>();
+        for (Balance balance : balanceList) {
+            BalanceVO bvo = new BalanceVO();
+            String totalPrice = "";
+            if(balance.getStatus().equals(2)){
+                totalPrice="-"+balance.getTotalPrice();
+            }else {
+                totalPrice="+"+balance.getTotalPrice();}
+            bvo.setId(balance.getId()).setCreateTime(balance.getCreateTime())
+                    .setTotalPrice(totalPrice).setTitle("购买商品");
+            balanceVOList.add(bvo);
+        }
+        appBalanceVO.setBalance(Optional.ofNullable(userMapper.selectById(securityUtil.getCurrUser().getId())).map(User::getBalance).orElse(new BigDecimal(0)));
+        appBalanceVO.setBalanceVOList(PageUtil.listToPage(pageVo,balanceVOList));
+
+        return appBalanceVO;
+    }
+
+
+
 }

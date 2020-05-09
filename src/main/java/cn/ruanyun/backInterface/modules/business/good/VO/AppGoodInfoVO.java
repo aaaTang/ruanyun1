@@ -4,6 +4,8 @@ import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
+
 
 /**
  * @program: ruanyun
@@ -28,10 +30,15 @@ public class AppGoodInfoVO {
     /**
      * 商品图片
      */
-    private String goodPic;
+    private String goodPics;
 
     /**
      * 商品类型
      */
-    private GoodTypeEnum typeEnum;
+    private String typeEnum;
+
+    /**
+     * 商品新价格
+     */
+    private BigDecimal goodNewPrice;
 }

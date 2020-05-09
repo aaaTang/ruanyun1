@@ -23,7 +23,10 @@ import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
 import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
 import cn.ruanyun.backInterface.modules.business.myFootprint.service.IMyFootprintService;
+import cn.ruanyun.backInterface.modules.business.userRelationship.pojo.UserRelationship;
+import cn.ruanyun.backInterface.modules.business.userRelationship.service.IUserRelationshipService;
 import cn.ruanyun.backInterface.modules.rongyun.service.IRongyunService;
+import com.alibaba.druid.util.StringUtils;
 import com.aliyuncs.ram.model.v20150501.ListVirtualMFADevicesResponse;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -35,6 +38,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -74,6 +78,10 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
     @Autowired
     private IRongyunService iRongyunService;
+
+    @Autowired
+    private IUserRelationshipService iUserRelationshipService;
+
 
 
     @Override
@@ -132,6 +140,23 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
                     //注册融云im服务通讯
                     iRongyunService.addUser(user1.getId(),user1.getNickName(),user1.getAvatar());
+
+                    //建立用户与邀请人关系
+                    if(ToolUtil.isNotEmpty(user.getInvitationCode())){
+                        //取邀请人的id
+                        String userid = Optional.ofNullable(this.getOne(Wrappers.<User>lambdaQuery().eq(User::getInvitationCode,user.getInvitationCode())))
+                                .map(User::getId).orElse(null);
+
+                        if(!StringUtils.isEmpty(userid)){
+                            UserRelationship userRelationship = new UserRelationship();
+                            userRelationship.setCreateBy(user1.getId());
+                            userRelationship.setParentUserid(userid);
+                            userRelationship.setCreateTime(new Date());
+
+                            iUserRelationshipService.insertOrderUpdateUserRelationship(userRelationship);
+                        }
+                    }
+
                 })
 
 

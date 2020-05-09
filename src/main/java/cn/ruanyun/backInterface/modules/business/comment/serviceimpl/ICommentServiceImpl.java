@@ -173,7 +173,7 @@ public class ICommentServiceImpl extends ServiceImpl<CommentMapper, Comment> imp
             OrderDetail one = orderDetailService.getOne(Wrappers.<OrderDetail>lambdaQuery()
                     .eq(OrderDetail::getGoodId, comment.getGoodId())
                     .eq(OrderDetail::getOrderId, comment.getOrderId()));
-            if(ToolUtil.isNotEmpty(one)){
+            if(ToolUtil.isNotEmpty(one)&&ToolUtil.isNotEmpty(one.getAttrSymbolPath())){
                 commentVO.setItemAttrKeys(iItemAttrValService.getItemAttrVals(one.getAttrSymbolPath()));
             }
 

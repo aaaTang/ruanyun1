@@ -139,4 +139,10 @@ public interface IGoodService extends IService<Good> {
      * @return
      */
     String getRoleUserList(String userId);
+
+    /**
+     * PC获取商家的套餐列表
+     * @return
+     */
+    List PCgoodsPackageList();
 }

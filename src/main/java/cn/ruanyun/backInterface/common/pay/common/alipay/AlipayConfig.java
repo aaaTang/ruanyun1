@@ -40,9 +40,9 @@ public class AlipayConfig {
 	//	支付宝网关  注意：沙箱测试环境，正式环境为：https://openapi.alipay.com/gateway.do  测试沙箱:https://openapi.alipaydev.com/gateway.do
 	public static final String GATEWAY_URL= "https://openapi.alipay.com/gateway.do";
 
-	public static final String BODY="阜阳生鲜订单支付";
+	public static final String BODY="梵莎夫订单支付";
 
-	public static final String SUBJECT="生鲜订单";
+	public static final String SUBJECT="梵莎夫订单";
 
 
 }

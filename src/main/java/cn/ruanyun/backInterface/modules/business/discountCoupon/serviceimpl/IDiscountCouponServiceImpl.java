@@ -173,7 +173,7 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
                         .eq(DiscountMy::getCreateBy, userId)
                         .eq(DiscountMy::getDiscountCouponId, discountCoupon.getId())
         );
-       return EmptyUtil.isEmpty(one);
+       return EmptyUtil.isNotEmpty(one);
 
     }
 

@@ -187,4 +187,20 @@ public class GoodController {
         }
 
 
+    /**
+     * PC获取商家的套餐列表
+     * @param pageVo
+     * @return
+     */
+    @PostMapping("/PCgoodsPackageList")
+    public Result<Object> PCgoodsPackageList(PageVo pageVo) {
+        return Optional.ofNullable(iGoodService.PCgoodsPackageList())
+                .map(goodsPackageList -> {
+                    Map<String,Object> result = Maps.newHashMap();
+                    result.put("size",goodsPackageList.size());
+                    result.put("data", PageUtil.listToPage(pageVo,goodsPackageList));
+                    return new ResultUtil<>().setData(result,"PC获取商家的套餐列表成功！");
+                })
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
 }

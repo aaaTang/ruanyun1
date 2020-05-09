@@ -37,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -209,6 +210,31 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
             }
             appGoodsPackageList.add(appGoodsVO);
         }
+        return appGoodsPackageList;
+    }
+
+    @Override
+    public List AppGoodsRecommendPackageList(String ids) {
+
+        List<Good>  goodsPackage = goodMapper.selectList(new QueryWrapper<Good>().lambda()
+                .eq(ToolUtil.isNotEmpty(ids),Good::getCreateBy,ids)
+                .eq(Good::getTypeEnum,GoodTypeEnum.GOODSPACKAGE)
+        );
+
+        List<AppGoodsPackageListVO> appGoodsPackageList = new ArrayList<>();
+
+        for (Good gPackage : goodsPackage) {
+            AppGoodsPackageListVO appGoodsVO = new AppGoodsPackageListVO();
+            appGoodsVO.setId(gPackage.getId()).setNickName(Optional.ofNullable(userMapper.selectById(gPackage.getCreateBy())).map(User::getNickName).orElse(null))
+                    .setShopId(gPackage.getCreateBy())
+                    .setGoodsName(gPackage.getGoodName()).setNewPrice(gPackage.getGoodNewPrice()).setOldPrice(gPackage.getGoodOldPrice());
+            String[] pic  = gPackage.getGoodPics().split(",");
+            if(ToolUtil.isNotEmpty(pic)){
+                appGoodsVO.setPics(pic[0]);
+            }
+            appGoodsPackageList.add(appGoodsVO);
+        }
+        Collections.shuffle(appGoodsPackageList);
         return appGoodsPackageList;
     }
 

@@ -66,7 +66,7 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
 
 
     public DiscountVO getDetailById(String id){
-        return Optional.ofNullable(this.getById(id))
+        return Optional.ofNullable(this.getOne(Wrappers.<DiscountMy>lambdaQuery().eq(DiscountMy::getDiscountCouponId,id)))
                 .map(discountMy -> {
                     DiscountVO discountVO = new DiscountVO();
                     DiscountCoupon byId = discountService.getById(discountMy.getDiscountCouponId());

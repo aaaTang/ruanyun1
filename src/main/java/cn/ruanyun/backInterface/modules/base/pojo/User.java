@@ -130,4 +130,10 @@ public class User extends RuanyunBaseEntity {
      * 区域id
      */
     private String areaId;
+    /**
+     * 分类服务类型
+     */
+    private String classId;
+
+
 }
