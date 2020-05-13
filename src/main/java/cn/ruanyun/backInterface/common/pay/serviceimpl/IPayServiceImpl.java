@@ -70,19 +70,23 @@ public class IPayServiceImpl implements IPayService {
 	@Override
 	public Result<Object> aliPayMethod(PayModel payModel) {
 		AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();
+
 		model.setBody(AlipayConfig.BODY);
 		model.setSubject(AlipayConfig.SUBJECT);
 		model.setOutTradeNo(payModel.getOrderNums());
 		model.setTimeoutExpress("15m");
-//		model.setTotalAmount(payModel.getTotalPrice() +"");
 		model.setTotalAmount("0.01");
+
 		try {
+
 			AlipayTradeAppPayResponse response = AliPayUtilTool.getResponse(model);
 			if (response.isSuccess()) {
+
 				Map<String, Object> map = new HashMap<>();
 				map.put("paySign", response.getBody());
 				return new ResultUtil<>().setData(map);
 			} else {
+
 				return new ResultUtil<>().setErrorMsg("fail");
 			}
 		} catch (AlipayApiException e) {

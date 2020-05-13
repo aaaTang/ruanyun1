@@ -50,6 +50,7 @@ import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
 import cn.ruanyun.backInterface.modules.business.userRelationship.mapper.UserRelationshipMapper;
 import cn.ruanyun.backInterface.modules.business.userRelationship.pojo.UserRelationship;
+import cn.ruanyun.backInterface.modules.business.userRelationship.service.IUserRelationshipService;
 import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -116,6 +117,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     private IOrderMessageService iOrderMessageService;
     @Resource
     private OrderDetailMapper orderDetailMapper;
+    @Autowired
+    private IUserRelationshipService userRelationshipService;
+
 
 
     @Override
@@ -243,9 +247,10 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     @Override
     public Result<Object> payOrder(String ids, PayTypeEnum payTypeEnum) {
         //统计订单总金额
-        BigDecimal totalPrice = new BigDecimal(0);
+        BigDecimal totalPrice;
         List<Order> orders = this.listByIds(ToolUtil.splitterStr(ids));
         if (orders.size() == 0) {
+
             return new ResultUtil<>().setErrorMsg("该订单不存在!");
         }
         totalPrice = BigDecimal.valueOf(orders.stream().mapToDouble(Order::getTotalPrice).sum());
@@ -257,6 +262,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         payModel.setTotalPrice(totalPrice);
         //微信
         if (payTypeEnum.getCode() == PayTypeEnum.WE_CHAT.getCode()) {
+
             objectResult = payService.wxPayMethod(payModel);
             //支付宝
         } else if (payTypeEnum.getCode() == PayTypeEnum.ALI_PAY.getCode()) {
@@ -366,6 +372,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     public Object changeStatus(Order order) {
         //确认发货 确认收货 评价
         Order byId = this.getById(order.getId());
+
         switch (order.getOrderStatus()) {
             //已付款
             case PRE_SEND:
@@ -374,6 +381,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 }
                 byId.setPayTypeEnum(order.getPayTypeEnum());
                 break;
+
             //待收货
             case DELIVER_SEND:
                 if (!byId.getOrderStatus().equals(OrderStatusEnum.PRE_SEND)) {
@@ -381,6 +389,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 }
                 byId.setExpressCode(order.getExpressCode());
                 break;
+
             //待确定
             case PRE_COMMENT:
                 if (!byId.getOrderStatus().equals(OrderStatusEnum.DELIVER_SEND)) {
@@ -391,16 +400,15 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             //退款售后
             case SALE_AFTER:
                 break;
+
             //取消订单
             case CANCEL_ORDER:
-
                 break;
+
             //完成
             case IS_COMPLETE:
-               /* if (!byId.getOrderStatus().equals(OrderStatusEnum.SALE_AFTER)){
-                    return new ResultUtil<>().setErrorMsg(202,"该订单未支付");
-                }*/
                 break;
+
             default:
                 break;
         }
@@ -417,12 +425,6 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 .setTime(new Date())
                 .setCreateBy(byId.getCreateBy());
         iOrderMessageService.insertOrderUpdateOrderMessage(orderMessage);
-
-        //分销
-        if (byId.getOrderStatus().equals(OrderStatusEnum.DELIVER_SEND)) {
-            this.distribution(byId);
-        }
-
         return null;
     }
 
@@ -570,16 +572,22 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
         // 注意重复通知的情况，同一订单号可能收到多次通知，请注意一定先判断订单状态
         List<Order> orders = this.listByIds(ToolUtil.splitterStr(orderNo));
-        String panduan = panduan(orders);
-        if (StringUtils.isEmpty(panduan)) return panduan;
+        String result = judge(orders);
+        if (ToolUtil.isNotEmpty(result)) {
+
+            return result;
+        }
         // 注意此处签名方式需与统一下单的签名类型一致
         if (WxPayKit.verifyNotify(params, WeChatConfig.KEY, SignType.HMACSHA256)) {
             if (WxPayKit.codeIsOk(returnCode)) {
+
                 this.settingOrder(orders);
+
                 // 发送通知等
-                xml = new HashMap<String, String>(2);
+                xml = new HashMap<>(2);
                 xml.put("return_code", "200");
                 xml.put("return_msg", "回调成功");
+
                 return WxPayKit.toXml(xml);
             }
         }
@@ -598,33 +606,45 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         log.warn("支付宝回调消息参数=\n" + JSONUtil.toJsonPrettyStr(params));
         JSONObject object = new JSONObject();
         try {
-            //			boolean verifyResult = AlipaySignature.rsaCheckV1(params, "支付公钥", "UTF-8", "RSA2");
+
             boolean verifyResult = AlipaySignature.rsaCheckV1(params, AlipayConfig.ALIPAY_PUBLIC_KEY, AlipayConfig.CHARSET, AlipayConfig.SIGN_TYPE);
-            String orderTradeStatus = params.get("trade_status");//付款状态
-            String out_trade_no = params.get("out_trade_no");
-            String TRADE_SUCCESS = "TRADE_SUCCESS";
-            if (orderTradeStatus.equals(TRADE_SUCCESS)) {
+
+            //付款状态
+            String tradeStatus = params.get("trade_status");
+            String outTradeNo = params.get("out_trade_no");
+            String tradeSuccess = "TRADE_SUCCESS";
+
+            if (tradeStatus.equals(tradeSuccess)) {
+
                 // TODO 请在这里加上商户的业务逻辑程序代码 异步通知可能出现订单重复通知 需要做去重处理
-                List<Order> orders = this.listByIds(ToolUtil.splitterStr(out_trade_no));
-                String panduan = panduan(orders);
-                if (!StringUtils.isEmpty(panduan)) return panduan;
+                List<Order> orders = this.listByIds(ToolUtil.splitterStr(outTradeNo));
+                String result = judge(orders);
+                if (ToolUtil.isNotEmpty(result)) {
+
+                    return result;
+                }
+
                 //处理订单状态
-                for (int i = 0; i < orders.size(); i++) {
-                    Order order = orders.get(i);
+                for (Order order : orders) {
+
                     order.setOrderStatus(OrderStatusEnum.PRE_SEND);
                     this.updateById(order);
                 }
+
                 object.put("return_code", "200");
                 object.put("return_msg", "支付宝notify_url 验证成功 succcess");
-                return object.toString();
+
             } else {
+
                 System.out.println("notify_url 验证失败");
                 // TODO
                 object.put("return_code", "-1");
                 object.put("return_msg", "notify_url 验证失败，请重新下单");
-                return object.toString();
             }
+            return object.toString();
+
         } catch (Exception e) {
+
             e.printStackTrace();
             object.put("return_code", "-1");
             object.put("return_msg", "请重新下单");
@@ -636,7 +656,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     /***
      * 支付宝、微信回调 处理订单
      */
-    private String panduan(List<Order> orders) {
+    private String judge(List<Order> orders) {
         Set<OrderStatusEnum> collect = orders.parallelStream().map(Order::getOrderStatus).collect(Collectors.toSet());
         if (collect.size() == 1 && !collect.contains(OrderStatusEnum.PRE_PAY)) {
             Map<String, String> xml = new HashMap<>(2);
@@ -651,14 +671,21 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
      * 支付宝、微信回调 处理订单
      */
     private void settingOrder(List<Order> orders) {
-        for (int i = 0; i < orders.size(); i++) {
-            Order order = orders.get(i);
+
+        orders.parallelStream().forEach(order ->  {
+
             //更新订单信息
             order.setOrderStatus(OrderStatusEnum.PRE_SEND);
             this.updateById(order);
+
+
+            // TODO: 2020/5/13 0013 处理分账逻辑
+
+
             //移除票劵信息
-//        this.removeShopTicket(order);
-        }
+            // this.removeShopTicket(order);
+
+        });
 
     }
     /*****************************************************后端模块开始*************************************************************/
@@ -668,114 +695,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
     /*****************************************************分销模块开始*************************************************************/
 
-    @Autowired
-    private DictDataService dictDataService;
-    @Resource
-    private UserRelationshipMapper userRelationshipMapper;
 
-
-    /**
-     * 分销
-     * byId  订单详情
-     */
-    private void distribution(Order byId) {
-
-        BigDecimal totalPrice = new BigDecimal(byId.getTotalPrice());
-        //首先查询平台和商家的分账比例（比如1:9）
-        DictData dictData = dictDataService.get("270668348755283968");
-        String[] value = dictData.getValue().split(":");//商家和平台比例
-        //分账不为空
-        if (ToolUtil.isNotEmpty(dictData)&&value.length==2) {
-            //平台比例
-            BigDecimal terraceRatio = new BigDecimal(value[0]);
-            //商家比例
-            BigDecimal shopRatio = new BigDecimal(value[1]);
-            //总比例
-            BigDecimal totalProportion = terraceRatio.add(shopRatio);
-
-
-            //商家的钱
-            BigDecimal shopTotalPrice = this.getPrice(totalPrice,totalProportion,shopRatio);
-            //平台的钱
-            BigDecimal terraceTotalPrice = this.getPrice(totalPrice,totalProportion,terraceRatio);
-            //推荐用户的钱
-            BigDecimal userRecommendTotalPrice = new BigDecimal(0);
-            //普通用户的钱
-            BigDecimal userTotalPrice = new BigDecimal(0);
-
-            //查詢是否有邀請人
-            UserRelationship userRelationship = userRelationshipMapper.selectOne(Wrappers.<UserRelationship>lambdaQuery()
-                    .eq(UserRelationship::getCreateBy,byId.getCreateBy()));
-            //判断邀请人是否为空
-            if(ToolUtil.isNotEmpty(userRelationship)){
-
-                //推荐人比例
-                BigDecimal userRecommendRatio = new BigDecimal(0);
-                //消费者比例
-                BigDecimal userRatio = new BigDecimal(0);
-              String roleName = goodService.getRoleUserList(userRelationship.getParentUserid());//查询邀请人的角色
-                if(roleName.equals(CommonConstant.STORE)||roleName.equals(CommonConstant.STORE)){//邀请人是商家或者个人商家
-                    DictData shopDictData = dictDataService.get("270760115399823360");
-                    String[] shopvalue = shopDictData.getValue().split(":");//二级分账(平台，推荐人(商家)，消费者)
-                    if(shopvalue.length==3){
-                        //平台比例
-                        terraceRatio=new BigDecimal(shopvalue[0]);
-                        //商家比例
-                        shopRatio=new BigDecimal(shopvalue[1]);
-                        //用户比例
-                        userRatio=new BigDecimal(shopvalue[2]);
-                        //总比例
-                        totalProportion= terraceRatio.add(shopRatio.add(userRatio));
-
-                        //商家推荐的钱
-                        shopTotalPrice = shopTotalPrice.add(this.getPrice(terraceTotalPrice,totalProportion,shopRatio));
-                        //用户返还的钱
-                        userTotalPrice=this.getPrice(terraceTotalPrice,totalProportion,userRatio);
-                        //平台重新分配的钱
-                        terraceTotalPrice=this.getPrice(terraceTotalPrice,totalProportion,terraceRatio);
-                    }
-                }else if(roleName.equals(CommonConstant.DEFAULT_ROLE)){//邀请人是普通用户
-                    DictData userDictData = dictDataService.get("270760077613338624");
-                    String[] uservalue = userDictData.getValue().split(":");//二级分账(平台，推荐人(消费者)，消费者)
-                    if(uservalue.length==3){
-                        //平台比例
-                        terraceRatio=new BigDecimal(uservalue[0]);
-                        //消费者比例
-                        userRecommendRatio=new BigDecimal(uservalue[1]);
-                        //用户比例
-                        userRatio=new BigDecimal(uservalue[2]);
-                        //总比例
-                        totalProportion= terraceRatio.add(userRecommendRatio.add(userRatio));
-
-                        //消费者推荐的钱
-                        userRecommendTotalPrice=this.getPrice(terraceTotalPrice,totalProportion,userRecommendRatio);
-                        //用户返还的钱
-                        userTotalPrice=this.getPrice(terraceTotalPrice,totalProportion,userRatio);
-                        //平台重新分配的钱
-                        terraceTotalPrice=this.getPrice(terraceTotalPrice,totalProportion,terraceRatio);
-                    }
-                }
-
-                this.transferAccounts(shopTotalPrice,terraceTotalPrice,userRecommendTotalPrice,userTotalPrice,byId.getPayTypeEnum());
-
-                System.out.println(shopTotalPrice+"商家的钱");
-                System.out.println(terraceTotalPrice+"平台的钱");
-                System.out.println(userRecommendTotalPrice+"推荐用户的钱");
-                System.out.println(userTotalPrice+"普通用户的钱");
-
-            }else {//邀请人是空，那就把钱分给平台是商家
-
-                this.transferAccounts(shopTotalPrice,terraceTotalPrice,userRecommendTotalPrice,userTotalPrice,byId.getPayTypeEnum());
-                //TODO::
-                System.out.println(shopTotalPrice+"商家的钱");
-                System.out.println(terraceTotalPrice+"平台的钱");
-                System.out.println(userRecommendTotalPrice+"推荐用户的钱");
-                System.out.println(userTotalPrice+"普通用户的钱");
-            }
-
-        }
-
-    }
 
 
 

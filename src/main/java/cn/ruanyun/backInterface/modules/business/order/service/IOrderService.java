@@ -36,10 +36,10 @@ public interface IOrderService extends IService<Order> {
     /**
      * 支付
      *
-     * @param id
+     * @param ids
      * @param payTypeEnum
      */
-    Result<Object> payOrder(String id, PayTypeEnum payTypeEnum);
+    Result<Object> payOrder(String ids, PayTypeEnum payTypeEnum);
 
     /**
      * 移除order
