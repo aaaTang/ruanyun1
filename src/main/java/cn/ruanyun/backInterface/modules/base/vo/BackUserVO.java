@@ -237,7 +237,7 @@ public class BackUserVO {
     /**
      * 微信账号
      */
-    private String WechatAccount;
+    private String wechatAccount;
 
     /**
      *是否严选 0：不是 1：是

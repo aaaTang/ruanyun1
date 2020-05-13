@@ -59,9 +59,6 @@ public class BackUserController {
         return new ResultUtil<>().setData(securityUtil.getCurrUser(), "获取个人信息成功！");
     }
 
-
-
-
     /**
      * 重置密码
      * @param userIds
