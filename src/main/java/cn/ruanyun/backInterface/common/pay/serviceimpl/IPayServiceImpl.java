@@ -1,30 +1,26 @@
 package cn.ruanyun.backInterface.common.pay.serviceimpl;
 
 import cn.hutool.core.util.RandomUtil;
-import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
-import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
 import cn.ruanyun.backInterface.common.pay.common.alipay.AliPayUtilTool;
 import cn.ruanyun.backInterface.common.pay.common.alipay.AlipayConfig;
 import cn.ruanyun.backInterface.common.pay.common.wxpay.WeChatConfig;
+import cn.ruanyun.backInterface.common.pay.dto.TransferDto;
+import cn.ruanyun.backInterface.common.pay.model.PayModel;
 import cn.ruanyun.backInterface.common.pay.service.IPayService;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
-import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.modules.base.pojo.User;
-import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
-import cn.ruanyun.backInterface.modules.business.balance.pojo.Balance;
-import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
-import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayFundTransToaccountTransferModel;
+import com.alipay.api.domain.AlipayFundTransUniTransferModel;
 import com.alipay.api.domain.AlipayTradeAppPayModel;
+import com.alipay.api.domain.Participant;
 import com.alipay.api.request.AlipayTradeRefundRequest;
+import com.alipay.api.response.AlipayFundTransUniTransferResponse;
 import com.alipay.api.response.AlipayTradeAppPayResponse;
 import com.alipay.api.response.AlipayTradeRefundResponse;
-import cn.ruanyun.backInterface.common.pay.model.PayModel;
 import com.ijpay.core.enums.SignType;
 import com.ijpay.core.kit.HttpKit;
 import com.ijpay.core.kit.WxPayKit;
@@ -33,7 +29,6 @@ import com.ijpay.wxpay.WxPayApiConfig;
 import com.ijpay.wxpay.WxPayApiConfigKit;
 import com.ijpay.wxpay.model.UnifiedOrderModel;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,15 +46,6 @@ import java.util.Map;
 @Service
 @Transactional
 public class IPayServiceImpl implements IPayService {
-
-	@Autowired
-	private IUserService userService;
-	@Autowired
-	private IBalanceService iBalanceService;
-	@Autowired
-	private SecurityUtil securityUtil;
-	@Autowired
-	private IOrderService orderService;
 
 	/**
 	 * 支付宝支付
@@ -95,16 +81,63 @@ public class IPayServiceImpl implements IPayService {
 		return new ResultUtil<>().setErrorMsg("fail");
 	}
 
+	@Override
+	public String aliPayTransfer(TransferDto transferDto) throws AlipayApiException {
+
+		AlipayFundTransUniTransferModel model = new AlipayFundTransUniTransferModel ();
+
+		//1.封装实体
+		model.setOutBizNo(transferDto.getOrderNo());
+		model.setBizScene("DIRECT_TRANSFER");
+		model.setTransAmount(transferDto.getAmount().toString());
+		model.setProductCode("STD_RED_PACKET");
+
+		//2.付款方账户
+		Participant payer = new Participant();
+
+		//标识类型，ALIPAY_USER_ID：支付宝的会员ID ALIPAY_LOGON_ID：支付宝登录号，邮箱、手机等
+		payer.setIdentityType("ALIPAY_LOGON_ID");
+
+		//支付宝账号
+		payer.setIdentity("合肥翰飞科技有限公司");
+
+		payer.setName("平台账户");
+
+		model.setPayerInfo(payer);
+
+		//3.收款方账户
+		Participant payee=new Participant();
+
+		//标识类型，ALIPAY_USER_ID：支付宝的会员ID ALIPAY_LOGON_ID：支付宝登录号，邮箱、手机等
+		payee.setIdentityType("ALIPAY_LOGON_ID");
+
+		//支付宝账号
+		payee.setIdentity("m13865911804@163.com");
+
+		//标识类型为ALIPAY_LOGON_ID需设置name
+		payee.setName("商家收款方");
+
+		model.setPayeeInfo(payee);
+
+
+		AlipayFundTransUniTransferResponse response=AliPayUtilTool.getTransferResponse(model);
+
+		return response.getMsg();
+
+	}
+
 	/**
 	 * 微信支付
 	 *
-	 * @param payModel
-	 * @return
+	 * @param payModel 支付模型
+	 * @return Result<Object>
 	 */
 	@Override
 	public Result<Object> wxPayMethod(PayModel payModel) {
+
+
 		WxPayApiConfig wxPayApiConfig = WxPayApiConfigKit.getWxPayApiConfig();
-//		WxPayApiConfig wxPayApiConfig = this.getApiConfig();
+
 		Map<String, String> params = UnifiedOrderModel
 				.builder()
 				//"应用ID"
@@ -221,7 +254,7 @@ public class IPayServiceImpl implements IPayService {
 	 */
 	@Override
 	public Result<Object> aliRefundNotify(Order order) {
-		BigDecimal discountPrice = new BigDecimal(order.getTotalPrice());
+		BigDecimal discountPrice = order.getTotalPrice();
 		String totalAmount = discountPrice.toString();
 		AlipayFundTransToaccountTransferModel model = new AlipayFundTransToaccountTransferModel();
 		model.setOutBizNo(order.getOrderNum());

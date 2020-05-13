@@ -39,7 +39,7 @@ public interface IOrderService extends IService<Order> {
      * @param ids
      * @param payTypeEnum
      */
-    Result<Object> payOrder(String ids, PayTypeEnum payTypeEnum);
+    Result<Object> payOrder(String ids, PayTypeEnum payTypeEnum, String payPassword);
 
     /**
      * 移除order
@@ -83,6 +83,15 @@ public interface IOrderService extends IService<Order> {
      */
     Object changeStatus(Order order);
 
+
+    /**
+     * 确认收货
+     * @param orderId 订单id
+     * @return Result<Object>
+     */
+    Result<Object> confirmReceive(String orderId);
+
+
     /**
      * 微信回调
      * @param request
@@ -96,6 +105,5 @@ public interface IOrderService extends IService<Order> {
      * @return
      */
     String aliPayNotify(HttpServletRequest request);
-
 
 }

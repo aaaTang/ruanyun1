@@ -54,7 +54,7 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
            }
            if (StringUtils.isNotBlank(orderAfterSale.getOrderId())){
                Order byId = orderService.getById(orderAfterSale.getOrderId());
-               orderAfterSale.setTotalPrice(new BigDecimal(byId.getTotalPrice()));
+               orderAfterSale.setTotalPrice(byId.getTotalPrice());
                orderAfterSale.setOrderStatus(byId.getOrderStatus());
            }
            if (ToolUtil.isEmpty(orderAfterSale.getCreateBy())) {
@@ -69,7 +69,7 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
                order.setId(orderAfterSale.getOrderId());
                order.setOrderStatus(OrderStatusEnum.SALE_AFTER);
                orderService.changeStatus(order);
-               orderAfterSale.setTotalPrice(new BigDecimal(orderService.getById(orderAfterSale.getOrderId()).getTotalPrice()));
+               orderAfterSale.setTotalPrice(orderService.getById(orderAfterSale.getOrderId()).getTotalPrice());
            } else {
                orderAfterSale.setStatus(AfterSaleStatusEnum.APPLY);
                orderAfterSale.setUpdateBy(userId);

@@ -92,4 +92,10 @@ public class AppUserVO {
     private BigDecimal myLimit;
 
 
+    /**
+     * 手机
+     */
+    private String mobile;
+
+
 }

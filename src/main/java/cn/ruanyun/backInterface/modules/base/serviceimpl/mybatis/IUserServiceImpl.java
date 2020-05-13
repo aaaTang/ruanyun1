@@ -17,11 +17,9 @@ import cn.ruanyun.backInterface.modules.base.service.mybatis.IRolePermissionServ
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IRoleService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
-import cn.ruanyun.backInterface.modules.base.vo.AppUserVO;
-import cn.ruanyun.backInterface.modules.base.vo.BackStrictVO;
-import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
-import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
+import cn.ruanyun.backInterface.modules.base.vo.*;
 import cn.ruanyun.backInterface.modules.business.area.service.IAreaService;
+import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
 import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
 import cn.ruanyun.backInterface.modules.business.good.serviceimpl.IGoodServiceImpl;
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
@@ -45,10 +43,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -89,6 +84,12 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     private IAreaService iAreaService;
     @Resource
     private StoreAuditMapper storeAuditMapper;
+
+    @Autowired
+    private IBalanceService balanceService;
+
+    @Autowired
+    private IUserRelationshipService userRelationshipService;
 
 
     @Override
@@ -569,6 +570,76 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     @Override
     public BackUserVO getBackUserParticulars(String userId,UserTypeEnum userTypeEnum) {
         return this.getBackUserVO(userId, UserTypeEnum.STORE);
+    }
+
+    @Override
+    public List<UserProfitVO> getUserProfitList() {
+
+        return Optional.ofNullable(ToolUtil.setListToNul(this.list()))
+                .map(users -> users.parallelStream().filter(user -> ToolUtil.isNotEmpty(userRelationshipService
+                .getUserRelationshipListByUserId(user.getId()))).flatMap(user -> {
+
+                    UserProfitVO userProfitVO = new UserProfitVO();
+                    ToolUtil.copyProperties(user, userProfitVO);
+                    balanceService.getProfitByUserId(user.getId());
+
+                    return Stream.of(userProfitVO);
+                }).sorted(Comparator.comparing(UserProfitVO::getTotalProfitMoney))
+                        .collect(Collectors.toList()))
+
+                .orElse(null);
+
+    }
+
+    @Override
+    public Result<Object> setPayPassword(UserPayPasswordVo userPayPasswordVo) {
+
+        // redis 存储 短信code
+        String redisCode = RedisUtil.getStr(CommonConstant.PRE_SMS.concat(securityUtil.getCurrUser().getMobile()));
+
+        if (ToolUtil.isNotEmpty(redisCode)) {
+
+            if (ObjectUtil.equal(userPayPasswordVo.getCode(), redisCode)) {
+
+                User user = this.getById(securityUtil.getCurrUser().getId());
+
+                user.setPayPassword(new BCryptPasswordEncoder().encode(userPayPasswordVo.getPayPassword()));
+                this.updateById(user);
+
+                return new ResultUtil<>().setSuccessMsg("设置支付密码成功！");
+            }else {
+
+                return new ResultUtil<>().setErrorMsg(202, "验证码不一致");
+            }
+        }else {
+
+            return new ResultUtil<>().setErrorMsg(201, "验证码失效！");
+        }
+    }
+
+    @Override
+    public Result<Object> updatePayPassword(UserPayPasswordVo userPayPasswordVo) {
+
+        User user = this.getById(securityUtil.getCurrUser().getId());
+
+        if (ToolUtil.isNotEmpty(user.getPayPassword())) {
+
+            if (new BCryptPasswordEncoder().matches(userPayPasswordVo.getOldPayPassword(), user.getPayPassword())) {
+
+                user.setPayPassword(userPayPasswordVo.getPayPassword());
+                this.updateById(user);
+
+                return new ResultUtil<>().setSuccessMsg("设置支付密码成功!");
+
+            }else {
+
+                return new ResultUtil<>().setErrorMsg(202, "密码不一致!");
+            }
+
+        }else {
+
+            return new ResultUtil<>().setErrorMsg(201, "暂未设置支付密码！");
+        }
     }
 
 

@@ -25,4 +25,21 @@ public interface IUserRelationshipService extends IService<UserRelationship> {
        * @param ids
        */
      void removeUserRelationship(String ids);
+
+
+    /**
+     * 获取推荐人id
+     * @param userId
+     * @return
+     */
+    String getRelationUser(String userId);
+
+
+    /**
+     * 查看我的下级
+     * @param userId 用户id
+     * @return List<UserRelationship>
+     */
+    List<UserRelationship> getUserRelationshipListByUserId(String userId);
+
 }

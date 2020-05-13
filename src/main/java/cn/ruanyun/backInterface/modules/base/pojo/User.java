@@ -90,7 +90,6 @@ public class User extends RuanyunBaseEntity {
      * 用户头像
      */
     @Column(length = 1000)
-//    private String avatar = CommonConstant.USER_DEFAULT_AVATAR;
     private String avatar;
 
     /**
@@ -147,4 +146,9 @@ public class User extends RuanyunBaseEntity {
      * 微信账号
      */
     private String wechatAccount;
+
+    /**
+     * 余额支付密码
+     */
+    private String payPassword;
 }

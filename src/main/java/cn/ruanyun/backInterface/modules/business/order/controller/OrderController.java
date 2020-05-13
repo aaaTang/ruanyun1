@@ -57,9 +57,9 @@ public class OrderController {
      * @return
      */
     @PostMapping(value = "/orderPay")
-    public Result<Object> orderPay(String id , PayTypeEnum payTypeEnum){
+    public Result<Object> orderPay(String id , PayTypeEnum payTypeEnum, String payPassword){
         try {
-            return iOrderService.payOrder(id,payTypeEnum);
+            return iOrderService.payOrder(id, payTypeEnum, payPassword);
         }catch (Exception e) {
             return new ResultUtil<>().setErrorMsg(201, e.getMessage());
         }
@@ -169,26 +169,14 @@ public class OrderController {
     }
 
 
-
-    /*************************************************后端管理开始*****************************************************/
-
-
     /**
-     * 后端获取商家订单信息列表
-     * @param order
-     * @param pageVo
-     * @return
+     * 确认收货
+     * @param orderId 订单id
+     * @return  Result<Object>
      */
-//    @PostMapping("/getPcMyOrderList")
-//    public Result<Object> getPcMyOrderList(Order order, PageVo pageVo) {
-//        return Optional.ofNullable(iOrderService.getPcMyOrderList(order))
-//                .map(pcMyorderListVOS -> {
-//                    Map<String,Object> result = Maps.newHashMap();
-//                    result.put("size",pcMyorderListVOS.size());
-//                    result.put("data", PageUtil.listToPage(pageVo,pcMyorderListVOS));
-//                    return new ResultUtil<>().setData(result,"后端获取商家订单信息列表成功！");
-//                })
-//                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
-//    }
-    /*************************************************后端管理结束*****************************************************/
+    @PostMapping("/confirmReceive")
+    public Result<Object> confirmReceive(String orderId) {
+
+        return iOrderService.confirmReceive(orderId);
+    }
 }

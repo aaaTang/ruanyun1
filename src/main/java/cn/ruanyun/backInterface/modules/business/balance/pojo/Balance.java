@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.balance.pojo;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
+import cn.ruanyun.backInterface.common.enums.AddOrSubtractTypeEnum;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -22,35 +23,20 @@ public class Balance extends RuanyunBaseEntity {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * 标题
+     */
+    private String title;
+
 
     /**
-     * 1订单
+     * 加减
      */
-    private Integer type;
-    /**
-     * 1加 2减
-     */
-    private Integer status;
+    private AddOrSubtractTypeEnum addOrSubtractTypeEnum;
+
 
     /**
-     * 订单id
+     * 金额
      */
-    private String tableOid;
-
-    /**
-     * 价格
-     */
-    private BigDecimal totalPrice;
-
-    /**
-     * 付钱之前的余额
-     */
-    private BigDecimal payMoney;
-
-    /**
-     * 付钱之后的余额
-     */
-    private BigDecimal surplusMoney;
-
-
+    private BigDecimal price;
 }

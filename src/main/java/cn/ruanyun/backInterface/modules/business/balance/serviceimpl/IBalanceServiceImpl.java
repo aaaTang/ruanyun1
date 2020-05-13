@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.balance.serviceimpl;
 
+import cn.ruanyun.backInterface.common.enums.AddOrSubtractTypeEnum;
 import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
@@ -11,6 +12,7 @@ import cn.ruanyun.backInterface.modules.business.balance.mapper.BalanceMapper;
 import cn.ruanyun.backInterface.modules.business.balance.pojo.Balance;
 import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
@@ -41,68 +46,58 @@ public class IBalanceServiceImpl extends ServiceImpl<BalanceMapper, Balance> imp
 
        @Autowired
        private SecurityUtil securityUtil;
-       @Autowired
-       private IUserService userService;
-       @Resource
-       private UserMapper userMapper;
 
        @Override
        public void insertOrderUpdateBalance(Balance balance) {
+
            if (ToolUtil.isEmpty(balance.getCreateBy())) {
+
                balance.setCreateBy(securityUtil.getCurrUser().getId());
            } else {
+
                balance.setUpdateBy(securityUtil.getCurrUser().getId());
            }
+
            Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(balance)))
                    .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
                    .toFuture().join();
-           User byId = userService.getById(balance.getCreateBy());
-
-           //1加 2减
-           if (balance.getStatus() == 1){
-               byId.setBalance(byId.getBalance().add(balance.getTotalPrice()));
-           }else{
-               byId.setBalance(byId.getBalance().subtract(balance.getTotalPrice()));
-           }
-           userService.updateById(byId);
        }
 
       @Override
-      public void removeBalance(String ids) {
+       public void removeBalance(String ids) {
 
           CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
-      }
+       }
 
     /**
      * app 获取用户明细
-     * @return
+     * @return List<AppBalanceVO>
      */
     @Override
-    public AppBalanceVO getAppBalance(PageVo pageVo) {
+    public List<AppBalanceVO> getAppBalance(PageVo pageVo) {
 
-        List<Balance> balanceList = this.list(new QueryWrapper<Balance>().lambda()
-            .eq(Balance::getCreateBy,securityUtil.getCurrUser().getId())
-        );
+        return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<Balance>lambdaQuery()
+                .eq(Balance::getCreateBy, securityUtil.getCurrUser().getId())
+                .orderByDesc(Balance::getCreateTime))))
+        .map(balances -> balances.parallelStream().flatMap(balance -> {
 
-        AppBalanceVO appBalanceVO = new AppBalanceVO();
-        List<BalanceVO> balanceVOList = new ArrayList<>();
-        for (Balance balance : balanceList) {
-            BalanceVO bvo = new BalanceVO();
-            String totalPrice = "";
-            if(balance.getStatus().equals(2)){
-                totalPrice="-"+balance.getTotalPrice();
-            }else {
-                totalPrice="+"+balance.getTotalPrice();}
-            bvo.setId(balance.getId()).setCreateTime(balance.getCreateTime())
-                    .setTotalPrice(totalPrice).setTitle("购买商品");
-            balanceVOList.add(bvo);
-        }
-        appBalanceVO.setBalance(Optional.ofNullable(userMapper.selectById(securityUtil.getCurrUser().getId())).map(User::getBalance).orElse(new BigDecimal(0)));
-        appBalanceVO.setBalanceVOList(PageUtil.listToPage(pageVo,balanceVOList));
+            AppBalanceVO appBalanceVO = new AppBalanceVO();
+            ToolUtil.copyProperties(balance, appBalanceVO);
+            return Stream.of(appBalanceVO);
 
-        return appBalanceVO;
+        }).collect(Collectors.toList()))
+        .orElse(null);
     }
 
+    @Override
+    public BigDecimal getProfitByUserId(String userId) {
+
+        return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<Balance>lambdaQuery()
+                .eq(Balance::getAddOrSubtractTypeEnum, AddOrSubtractTypeEnum.ADD)
+                .eq(Balance::getCreateBy, userId))))
+        .map(balances -> balances.parallelStream().map(Balance::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add))
+        .orElse(new BigDecimal(0));
+    }
 
 
 }

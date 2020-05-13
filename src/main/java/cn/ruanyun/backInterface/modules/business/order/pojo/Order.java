@@ -72,12 +72,4 @@ public class Order extends RuanyunBaseEntity {
      * 收获地址
      */
     private String address;
-
-
-    public double getTotalPrice(){
-        return this.totalPrice.doubleValue();
-    }
-
-
-
 }

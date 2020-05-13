@@ -1,12 +1,18 @@
 package cn.ruanyun.backInterface.modules.base.controller.manage;
 
 
+import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.dto.UserUpdateDTO;
+import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import cn.ruanyun.backInterface.modules.base.vo.UserPayPasswordVo;
+import cn.ruanyun.backInterface.modules.base.vo.UserProfitVO;
+import jdk.nashorn.internal.ir.Optimistic;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 
 /**
@@ -93,6 +100,51 @@ public class AppUserController {
     public Result<Object> getAccountBalance(String userId){
 
         return new ResultUtil<>().setData(userService.getAccountBalance(userId), "获取账户余额成功！");
+
+    }
+
+
+    /**
+     * 设置-忘记支付密码
+     * @param userPayPasswordVo
+     * @return
+     */
+    @PostMapping("/setPayPassword")
+    public Result<Object> setPayPassword(UserPayPasswordVo userPayPasswordVo) {
+
+        return userService.setPayPassword(userPayPasswordVo);
+    }
+
+
+    /**
+     * 更新支付密码
+     * @param userPayPasswordVo
+     * @return
+     */
+    @PostMapping("/updatePayPassword")
+    public Result<Object> updatePayPassword(UserPayPasswordVo userPayPasswordVo) {
+
+        return userService.updatePayPassword(userPayPasswordVo);
+    }
+
+
+    /**
+     * 获取龙虎排行榜
+     * @param pageVo
+     * @return
+     */
+    @PostMapping("/getUserProfitList")
+    public Result<Object> getUserProfitList(PageVo pageVo) {
+
+        return Optional.ofNullable(userService.getUserProfitList())
+                .map(userProfitVos -> {
+
+                    DataVo<UserProfitVO> result = new DataVo<>();
+                    result.setTotalNumber(userProfitVos.size())
+                            .setDataResult(PageUtil.listToPage(pageVo, userProfitVos));
+
+                    return new ResultUtil<>().setData(result, "获取龙湖排行榜成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
 
     }
 

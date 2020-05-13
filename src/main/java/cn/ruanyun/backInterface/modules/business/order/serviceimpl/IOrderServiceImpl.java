@@ -3,11 +3,14 @@ package cn.ruanyun.backInterface.modules.business.order.serviceimpl;
 import cn.hutool.json.JSONUtil;
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.enums.AddOrSubtractTypeEnum;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
+import cn.ruanyun.backInterface.common.enums.ProfitTypeEnum;
 import cn.ruanyun.backInterface.common.pay.common.alipay.AliPayUtilTool;
 import cn.ruanyun.backInterface.common.pay.common.alipay.AlipayConfig;
 import cn.ruanyun.backInterface.common.pay.common.wxpay.WeChatConfig;
+import cn.ruanyun.backInterface.common.pay.dto.TransferDto;
 import cn.ruanyun.backInterface.common.pay.model.PayModel;
 import cn.ruanyun.backInterface.common.pay.service.IPayService;
 import cn.ruanyun.backInterface.common.utils.*;
@@ -43,6 +46,7 @@ import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
 import cn.ruanyun.backInterface.modules.business.orderDetail.service.IOrderDetailService;
 import cn.ruanyun.backInterface.modules.business.orderMessage.pojo.OrderMessage;
 import cn.ruanyun.backInterface.modules.business.orderMessage.service.IOrderMessageService;
+import cn.ruanyun.backInterface.modules.business.profitPercent.service.IProfitPercentService;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.entity.ShoppingCart;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
@@ -54,6 +58,7 @@ import cn.ruanyun.backInterface.modules.business.userRelationship.service.IUserR
 import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -65,6 +70,7 @@ import com.ijpay.core.kit.WxPayKit;
 import dm.jdbc.stat.support.json.JSONArray;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
@@ -102,8 +108,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     private IOrderDetailService orderDetailService;
     @Autowired
     private IUserService userService;
-    @Autowired
-    private IBalanceService iBalanceService;
+
     @Autowired
     private IDiscountMyService discountMyService;
     @Autowired
@@ -120,6 +125,12 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     private OrderDetailMapper orderDetailMapper;
     @Autowired
     private IUserRelationshipService userRelationshipService;
+
+    @Autowired
+    private IBalanceService balanceService;
+
+    @Autowired
+    private IProfitPercentService profitPercentService;
 
 
 
@@ -177,7 +188,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                     .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
                     .toFuture().join();
             ids += "," + order.getId();
-            sumPrice += order.getTotalPrice();
+            sumPrice += order.getTotalPrice().doubleValue();
 
         }
         Map<String, Object> map = new ArrayMap<>();
@@ -246,7 +257,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
      * @param payTypeEnum
      */
     @Override
-    public Result<Object> payOrder(String ids, PayTypeEnum payTypeEnum) {
+    public Result<Object> payOrder(String ids, PayTypeEnum payTypeEnum, String payPassword) {
         //统计订单总金额
         BigDecimal totalPrice;
         List<Order> orders = this.listByIds(ToolUtil.splitterStr(ids));
@@ -254,7 +265,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
             return new ResultUtil<>().setErrorMsg("该订单不存在!");
         }
-        totalPrice = BigDecimal.valueOf(orders.stream().mapToDouble(Order::getTotalPrice).sum());
+        totalPrice = orders.parallelStream().map(Order::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Result<Object> objectResult = new ResultUtil<>().setData(200, "支付成功!");
 
@@ -265,34 +276,57 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         if (payTypeEnum.getCode() == PayTypeEnum.WE_CHAT.getCode()) {
 
             objectResult = payService.wxPayMethod(payModel);
+
             //支付宝
         } else if (payTypeEnum.getCode() == PayTypeEnum.ALI_PAY.getCode()) {
+
             objectResult = payService.aliPayMethod(payModel);
+
             //余额支付
         } else if (payTypeEnum.getCode() == PayTypeEnum.BALANCE.getCode()) {
-//            payService.accountMoney(orders.get(0));
-            User byId = userService.getById(securityUtil.getCurrUser().getId());
-            int i = byId.getBalance().compareTo(totalPrice);
-            if (i < 0) {
-                return new ResultUtil<>().setErrorMsg("余额不足!");
-            }
-            orders.forEach(order -> {
-                order.setOrderStatus(OrderStatusEnum.PRE_SEND);
-                order.setPayTypeEnum(payTypeEnum);
-                this.updateById(order);
 
-                // 生成账单流水
-                Balance balance1 = new Balance();
-                balance1.setTotalPrice(new BigDecimal(order.getTotalPrice()))
-                        .setType(1)
-                        .setStatus(2)
-                        .setTableOid(ids)
-                        .setTotalPrice(new BigDecimal(order.getTotalPrice()))
-                        .setPayMoney(byId.getBalance())
-                        .setSurplusMoney(byId.getBalance().subtract(new BigDecimal(order.getTotalPrice())));//支付后的余额
-                iBalanceService.insertOrderUpdateBalance(balance1);//添加余额使用明细
-            });
-            objectResult = new ResultUtil<>().setData(200, "支付成功!");
+            User byId = userService.getById(securityUtil.getCurrUser().getId());
+
+            if (new BCryptPasswordEncoder().matches(payPassword, byId.getPayPassword())) {
+
+                int i = byId.getBalance().compareTo(totalPrice);
+                if (i < 0) {
+
+                    return new ResultUtil<>().setErrorMsg("余额不足!");
+                }
+                orders.forEach(order -> {
+
+                    //1.改变订单状态
+                    order.setOrderStatus(OrderStatusEnum.PRE_SEND);
+                    order.setPayTypeEnum(payTypeEnum);
+                    this.updateById(order);
+
+                    //2.减少用户余额,记录明细
+                    Optional.ofNullable(userService.getById(order.getCreateBy()))
+                            .ifPresent(user -> {
+
+                                user.setBalance(user.getBalance().subtract(order.getTotalPrice()));
+                                userService.updateById(user);
+
+                                //生成余额明细
+                                Balance balance = new Balance();
+                                balance.setTitle("购买商品")
+                                        .setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.SUB)
+                                        .setPrice(order.getTotalPrice())
+                                        .setCreateBy(order.getCreateBy());
+                                balanceService.save(balance);
+                            });
+
+                    //3. 处理回调
+                    resolveOrderTwoProfit(order.getId());
+                });
+                objectResult = new ResultUtil<>().setData(200, "支付成功!");
+            }else {
+
+                return new ResultUtil<>().setErrorMsg("支付密码不一致！");
+            }
+
+
         }
         return objectResult;
     }
@@ -427,6 +461,23 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 .setCreateBy(byId.getCreateBy());
         iOrderMessageService.insertOrderUpdateOrderMessage(orderMessage);
         return null;
+    }
+
+    @Override
+    public Result<Object> confirmReceive(String orderId) {
+
+        return Optional.ofNullable(this.getById(orderId)).map(order -> {
+
+            //1. 更改订单状态
+            order.setOrderStatus(OrderStatusEnum.PRE_COMMENT);
+            this.updateById(order);
+
+
+            //2. 处理分销逻辑
+            resolveOrderTwoProfit(orderId);
+
+            return new ResultUtil<>().setSuccessMsg("确认收获成功！");
+        }).orElse(new ResultUtil<>().setErrorMsg(201, "该订单不存在！"));
     }
 
 
@@ -625,12 +676,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                     return result;
                 }
 
-                //处理订单状态
-                for (Order order : orders) {
+                // 处理回调逻辑
+                resolveOrderOneProfit(orders);
 
-                    order.setOrderStatus(OrderStatusEnum.PRE_SEND);
-                    this.updateById(order);
-                }
 
                 object.put("return_code", "200");
                 object.put("return_msg", "支付宝notify_url 验证成功 succcess");
@@ -653,7 +701,6 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         }
     }
 
-
     /***
      * 支付宝、微信回调 处理订单
      */
@@ -667,6 +714,128 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         }
         return null;
     }
+
+
+    /**
+     * 处理订单回调逻辑
+     * @param orders 订单集合
+     */
+    private void resolveOrderOneProfit(List<Order> orders) {
+
+
+        orders.parallelStream().forEach(order -> {
+
+            //1. 处理订单状态
+            order.setOrderStatus(OrderStatusEnum.PRE_SEND);
+            this.updateById(order);
+
+            //2. 平台按照比例转账到商家支付宝账户
+
+            TransferDto transferDto = new TransferDto();
+
+            //2.1 商家的支付宝账户
+            transferDto.setAliPayAcount(Optional.ofNullable(userService.getById(order.getUserId()))
+            .map(User::getAlipayAccount).orElse(null));
+
+            //2.2 需要支付给商家的钱款
+            transferDto.setAmount(profitPercentService.getProfitPercentLimitOne(ProfitTypeEnum.FIRST)
+            .getStoreProfit().multiply(order.getTotalPrice()));
+
+            //3. 转账操作
+            try {
+               String result = payService.aliPayTransfer(transferDto);
+
+               log.info("处理支付宝转账回调信息" + result);
+
+            } catch (AlipayApiException e) {
+                e.printStackTrace();
+            }
+
+        });
+    }
+
+    /**
+     * 处理二级分销
+     * @param orderId
+     */
+    public void resolveOrderTwoProfit(String orderId) {
+
+
+        Optional.ofNullable(this.getById(orderId)).ifPresent(order -> {
+
+            //1. 计算当前订单平台预留的资金
+
+            BigDecimal currentProfitAmount = order.getTotalPrice().multiply(profitPercentService
+            .getProfitPercentLimitOne(ProfitTypeEnum.FIRST).getPlatformProfit());
+
+            //2. 然后根据比例进行分佣
+
+              //2.1 分佣当前消费者的佣金提成
+              Optional.ofNullable(userService.getById(order.getCreateBy())).ifPresent(user -> {
+
+                  //消费者应该分的佣金
+                  BigDecimal personProfitMoney = currentProfitAmount.multiply(profitPercentService
+                          .getProfitPercentLimitOne(ProfitTypeEnum.TWO).getPersonProfit());
+
+                  ThreadPoolUtil.getPool().execute(() -> {
+
+                      user.setBalance(user.getBalance().add(personProfitMoney));
+                      userService.updateById(user);
+
+                      log.info("消费者分佣成功！当前分佣金额" + personProfitMoney);
+                  });
+
+                  //2.2 记录余额明细
+                  ThreadPoolUtil.getPool().execute(() -> {
+
+                      Balance balance = new Balance();
+                      balance.setTitle("佣金到账")
+                              .setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.ADD)
+                              .setPrice(personProfitMoney)
+                              .setCreateBy(order.getCreateBy());
+                      balanceService.save(balance);
+
+                      log.info("记录明细成功！");
+                  });
+
+              });
+
+            //2.2. 分佣推荐人的佣金
+            Optional.ofNullable(userRelationshipService.getRelationUser(order.getCreateBy()))
+                    .flatMap(userId -> Optional.ofNullable(userService.getById(userId)))
+                    .ifPresent(user -> {
+
+                        //推荐人应该分的佣金
+                        BigDecimal personProfitMoney = currentProfitAmount.multiply(profitPercentService
+                                .getProfitPercentLimitOne(ProfitTypeEnum.TWO).getRecommendProfit());
+
+                        ThreadPoolUtil.getPool().execute(() -> {
+
+                            user.setBalance(user.getBalance().add(personProfitMoney));
+                            userService.updateById(user);
+
+                            log.info("推荐人分佣成功！当前分佣金额" + personProfitMoney);
+                        });
+
+                        //2.2 记录余额明细
+                        ThreadPoolUtil.getPool().execute(() -> {
+
+                            Balance balance = new Balance();
+                            balance.setTitle("佣金到账")
+                                    .setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.ADD)
+                                    .setPrice(personProfitMoney)
+                                    .setCreateBy(user.getId());
+                            balanceService.save(balance);
+
+                            log.info("记录明细成功！");
+                        });
+
+                    });
+        });
+
+
+    }
+
 
     /***
      * 支付宝、微信回调 处理订单
@@ -699,89 +868,11 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             if(userRole.equals(CommonConstant.ADMIN)){
                 List<Order> orderList = this.list();
 
-
-
-
-
             }
-
-
-
         }
-
-
-
-
-
-
-
-
-
         return  null;
     }*/
-
-
-
-    /*****************************************************后端模块結束*************************************************************/
-
-            //移除票劵信息
-            // this.removeShopTicket(order);
-
         });
 
     }
-    /*****************************************************后端模块开始*************************************************************/
-
-
-
-
-    /*****************************************************分销模块开始*************************************************************/
-
-
-
-
-
-    /**
-     * 计算金额
-     * @param totalPrice 总价格
-     * @param totalProportion 总比例
-     * @param ratio 按比例计算金额
-     * @return
-     */
-    private BigDecimal getPrice(BigDecimal totalPrice,BigDecimal totalProportion ,BigDecimal ratio){
-        BigDecimal money = new BigDecimal(0);
-            money = (totalPrice.divide (totalProportion)).multiply(ratio);
-        return money;
-    }
-
-    /**
-     * 订单转账
-     * @param shopTotalPrice 商家的钱
-     * @param terraceTotalPrice 平台的钱
-     * @param userRecommendTotalPrice 推荐用户的钱
-     * @param userTotalPrice 普通用户的钱
-     * @param payTypeEnum 支付类型    WE_CHAT(1,"微信支付"),ALI_PAY(2,"支付宝支付"), BALANCE(3, "余额支付")
-     * @return
-     */
-    private String transferAccounts(BigDecimal shopTotalPrice,BigDecimal terraceTotalPrice,BigDecimal userRecommendTotalPrice,BigDecimal userTotalPrice,PayTypeEnum payTypeEnum){
-
-        if(payTypeEnum.equals(PayTypeEnum.BALANCE)){
-            //TODO::余额转账
-        }else if(payTypeEnum.equals(PayTypeEnum.ALI_PAY)){
-            //TODO::支付宝转账
-        }else if(payTypeEnum.equals(PayTypeEnum.WE_CHAT)){
-            //TODO::微信转账
-        }
-        return null;
-    }
-
-
-/*****************************************************分销模块结束*************************************************************/
-
-
-
-
-
-
-
 }

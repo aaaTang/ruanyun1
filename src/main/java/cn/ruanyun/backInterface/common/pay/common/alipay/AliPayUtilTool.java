@@ -6,6 +6,7 @@ import com.alipay.api.AlipayClient;
 import com.alipay.api.AlipayObject;
 import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.AlipayFundTransToaccountTransferModel;
+import com.alipay.api.domain.AlipayFundTransUniTransferModel;
 import com.alipay.api.domain.AlipayTradeAppPayModel;
 import com.alipay.api.request.AlipayFundTransToaccountTransferRequest;
 import com.alipay.api.request.AlipayFundTransUniTransferRequest;
@@ -31,6 +32,7 @@ public class AliPayUtilTool {
 
 
 	/**
+	 * 支付宝支付
 	 * @Description TD: 传入model参数，获取阿里支付的响应参数(APP支付)
 	 * @param model
 	 * @Return com.alipay.api.response.AlipayTradeAppPayResponse
@@ -39,12 +41,27 @@ public class AliPayUtilTool {
 	 **/
 	public static AlipayTradeAppPayResponse getResponse(AlipayTradeAppPayModel model) throws AlipayApiException {
 		AlipayTradeAppPayRequest alipayRequest = new AlipayTradeAppPayRequest();
-//		alipayRequest.setReturnUrl(AlipayConfig.RETURN_URL);
 		alipayRequest.setNotifyUrl(AlipayConfig.NOTIFY_URL);
 		alipayRequest.setBizModel(model);
 		AlipayClient  alipayClient = new DefaultAlipayClient(AlipayConfig.GATEWAY_URL, AlipayConfig.APP_ID, AlipayConfig.MERCHANT_PRIVATE_KEY, AlipayConfig.FORMAT, AlipayConfig.CHARSET, AlipayConfig.ALIPAY_PUBLIC_KEY, AlipayConfig.SIGN_TYPE); ;
 		return alipayClient.sdkExecute(alipayRequest);
 	}
+
+	/**
+	 *支付宝转账
+	 * @param model 实体
+	 * @return AlipayFundTransUniTransferResponse
+	 * @throws AlipayApiException 异常
+	 */
+	public static AlipayFundTransUniTransferResponse getTransferResponse(AlipayFundTransUniTransferModel model) throws AlipayApiException {
+		AlipayFundTransUniTransferRequest request=new AlipayFundTransUniTransferRequest();
+		request.setBizModel(model);
+		AlipayClient  alipayClient = new DefaultAlipayClient(AlipayConfig.GATEWAY_URL,
+				AlipayConfig.APP_ID, AlipayConfig.MERCHANT_PRIVATE_KEY, AlipayConfig.FORMAT,
+				AlipayConfig.CHARSET, AlipayConfig.ALIPAY_PUBLIC_KEY, AlipayConfig.SIGN_TYPE); ;
+		return alipayClient.sdkExecute(request);
+	}
+
 
 	public static void main(String[] args) throws AlipayApiException {
 //		AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();

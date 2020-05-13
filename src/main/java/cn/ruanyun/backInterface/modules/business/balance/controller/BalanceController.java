@@ -4,6 +4,8 @@ import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
+import cn.ruanyun.backInterface.modules.business.balance.VO.AppBalanceVO;
 import cn.ruanyun.backInterface.modules.business.balance.pojo.Balance;
 import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
 import cn.ruanyun.backInterface.modules.business.comment.pojo.Comment;
@@ -71,12 +73,18 @@ public class BalanceController {
 
     /**
      * app 获取用户明细
-     * @return
+     * @return Result<Object>
      */
     @PostMapping("/getAppBalance")
     public Result<Object> getAppBalance(PageVo pageVo) {
         return Optional.ofNullable(iBalanceService.getAppBalance(pageVo))
-                .map(harvestAddressVO -> new ResultUtil<>().setData(iBalanceService.getAppBalance(pageVo),"获取用户明细成功！"))
+                .map(appBalanceVos -> {
+
+                    DataVo<AppBalanceVO> result = new DataVo<>();
+                    result.setDataResult(PageUtil.listToPage(pageVo, appBalanceVos))
+                            .setTotalNumber(appBalanceVos.size());
+                    return new ResultUtil<>().setData(result,"获取我的余额明细成功！");
+                })
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
 

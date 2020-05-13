@@ -6,10 +6,7 @@ import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.dto.UserUpdateDTO;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
-import cn.ruanyun.backInterface.modules.base.vo.AppUserVO;
-import cn.ruanyun.backInterface.modules.base.vo.BackStrictVO;
-import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
-import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
+import cn.ruanyun.backInterface.modules.base.vo.*;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.math.BigDecimal;
@@ -175,6 +172,28 @@ public interface IUserService extends IService<User> {
      * @return
      */
     BackUserVO getBackUserParticulars(String userId,UserTypeEnum userTypeEnum);
+
+
+    /**
+     * 获取龙虎榜排名列表
+     * @return
+     */
+    List<UserProfitVO> getUserProfitList();
+
+
+    /**
+     * 设置支付密码
+     * @param userPayPasswordVo 实体
+     */
+    Result<Object> setPayPassword(UserPayPasswordVo userPayPasswordVo);
+
+
+    /**
+     * 修改支付密码
+     * @param userPayPasswordVo 实体
+     * @return Result<Object>
+     */
+    Result<Object> updatePayPassword(UserPayPasswordVo userPayPasswordVo);
 
 
 }
