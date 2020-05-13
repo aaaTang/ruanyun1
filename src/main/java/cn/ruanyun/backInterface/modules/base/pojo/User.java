@@ -59,7 +59,10 @@ public class User extends RuanyunBaseEntity {
      * 地址
      */
     private String address;
-
+    /**
+     * 邮箱
+     */
+    private String email;
     /**
      * 婚期
      */
@@ -130,4 +133,18 @@ public class User extends RuanyunBaseEntity {
      * 区域id
      */
     private String areaId;
+    /**
+     * 分类服务类型
+     */
+    private String classId;
+
+    /**
+     * 支付宝账号
+     */
+    private String alipayAccount;
+
+    /**
+     * 微信账号
+     */
+    private String WechatAccount;
 }

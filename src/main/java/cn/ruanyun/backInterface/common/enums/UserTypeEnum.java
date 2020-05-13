@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
  **/
 public enum UserTypeEnum {
 
-    DEFAULT_ROLE(1,"默认普通用户"),
+    DEFAULT_ROLE(1,"普通用户"),
     STORE(2,"商家用户"),
     ADMIN(3, "ROLE_ADMIN"),
     PER_STORE(4, "个人商家");

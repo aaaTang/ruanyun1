@@ -49,7 +49,7 @@ public interface IAreaService extends IService<Area> {
      * 获取app热门区域列表
      * @return
      */
-     List<AppAreaVO> getAppHotAreaList();
+    List<AppAreaVO> getAppHotAreaList();
 
 
     /**
@@ -58,4 +58,13 @@ public interface IAreaService extends IService<Area> {
      * @return
      */
     String getAddress(String id);
+
+
+    /**
+     * 查询地区名称
+     * @param id
+     * @return
+     */
+    String getAddressName(String id);
+
 }

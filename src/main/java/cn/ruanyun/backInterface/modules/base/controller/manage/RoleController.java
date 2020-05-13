@@ -5,14 +5,8 @@ import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.modules.base.pojo.Role;
-import cn.ruanyun.backInterface.modules.base.pojo.RoleDepartment;
-import cn.ruanyun.backInterface.modules.base.pojo.RolePermission;
-import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
-import cn.ruanyun.backInterface.modules.base.service.RoleDepartmentService;
-import cn.ruanyun.backInterface.modules.base.service.RolePermissionService;
-import cn.ruanyun.backInterface.modules.base.service.RoleService;
-import cn.ruanyun.backInterface.modules.base.service.UserRoleService;
+import cn.ruanyun.backInterface.modules.base.pojo.*;
+import cn.ruanyun.backInterface.modules.base.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -45,23 +39,25 @@ public class RoleController {
     @Autowired
     private RoleDepartmentService roleDepartmentService;
 
+    @Autowired
+    private PermissionService permissionService;
 
 
     @Autowired
     private StringRedisTemplate redisTemplate;
 
     @RequestMapping(value = "/getAllList", method = RequestMethod.GET)
-    public Result<Object> roleGetAll(){
+    public Result<Object> roleGetAll() {
 
         List<Role> list = roleService.getAll();
         return new ResultUtil<>().setData(list);
     }
 
     @RequestMapping(value = "/getAllByPage", method = RequestMethod.GET)
-    public Result<Page<Role>> getRoleByPage(@ModelAttribute PageVo page){
+    public Result<Page<Role>> getRoleByPage(@ModelAttribute PageVo page) {
 
         Page<Role> list = roleService.findAll(PageUtil.initPage(page));
-        for(Role role : list.getContent()){
+        for (Role role : list.getContent()) {
             // 角色拥有权限
             List<RolePermission> permissions = rolePermissionService.findByRoleId(role.getId());
             role.setPermissions(permissions);
@@ -72,12 +68,48 @@ public class RoleController {
         return new ResultUtil<Page<Role>>().setData(list);
     }
 
+    @RequestMapping(value = "/addAdminRolePermission", method = RequestMethod.GET)
+    public Result<Object> addAdminRolePermission() {
+
+//        Page<Role> list = roleService.findAll(PageUtil.initPage(page));
+//        for(Role role : list.getContent()){
+//            // 角色拥有权限
+//            List<RolePermission> permissions = rolePermissionService.findByRoleId(role.getId());
+//            role.setPermissions(permissions);
+//            // 角色拥有数据权限
+//            List<RoleDepartment> departments = roleDepartmentService.findByRoleId(role.getId());
+//            role.setDepartments(departments);
+//        }
+//        return new ResultUtil<Page<Role>>().setData(list);
+
+//        List<Permission> all = permissionService.getAll();
+//        permissionService.getAll().forEach(one ->{
+//            RolePermission rp = new RolePermission();
+//            rp.setPermissionId(one.getId());
+//            rp.setRoleId("未知");
+//        });
+//        for (Permission one : all) {
+//            RolePermission rp = new RolePermission();
+//            rp.setPermissionId(one.getId());
+//            rp.setRoleId("496138616573952");
+//            rolePermissionService.save(rp);
+//        }
+
+
+
+//        return new ResultUtil<Object>().setData(all,"yes");
+        return null;
+
+
+    }
+
+
     @RequestMapping(value = "/setDefault", method = RequestMethod.POST)
     public Result<Object> setDefault(@RequestParam String id,
-                                     @RequestParam Boolean isDefault){
+                                     @RequestParam Boolean isDefault) {
 
         Role role = roleService.get(id);
-        if(role==null){
+        if (role == null) {
             return new ResultUtil<>().setErrorMsg("角色不存在");
         }
         role.setDefaultRole(isDefault);
@@ -87,12 +119,12 @@ public class RoleController {
 
     @RequestMapping(value = "/editRolePerm", method = RequestMethod.POST)
     public Result<Object> editRolePerm(@RequestParam String roleId,
-                                       @RequestParam(required = false) String[] permIds){
+                                       @RequestParam(required = false) String[] permIds) {
 
         //删除其关联权限
         rolePermissionService.deleteByRoleId(roleId);
         //分配新权限
-        for(String permId : permIds){
+        for (String permId : permIds) {
             RolePermission rolePermission = new RolePermission();
             rolePermission.setRoleId(roleId);
             rolePermission.setPermissionId(permId);
@@ -117,7 +149,7 @@ public class RoleController {
     @RequestMapping(value = "/editRoleDep", method = RequestMethod.POST)
     public Result<Object> editRoleDep(@RequestParam String roleId,
                                       @RequestParam Integer dataType,
-                                      @RequestParam(required = false) String[] depIds){
+                                      @RequestParam(required = false) String[] depIds) {
 
         Role r = roleService.get(roleId);
         r.setDataType(dataType);
@@ -125,7 +157,7 @@ public class RoleController {
         // 删除其关联数据权限
         roleDepartmentService.deleteByRoleId(roleId);
         // 分配新数据权限
-        for(String depId : depIds){
+        for (String depId : depIds) {
             RoleDepartment roleDepartment = new RoleDepartment();
             roleDepartment.setRoleId(roleId);
             roleDepartment.setDepartmentId(depId);
@@ -143,14 +175,14 @@ public class RoleController {
     }
 
     @RequestMapping(value = "/save", method = RequestMethod.POST)
-    public Result<Role> save(@ModelAttribute Role role){
+    public Result<Role> save(@ModelAttribute Role role) {
 
         Role r = roleService.save(role);
         return new ResultUtil<Role>().setData(r);
     }
 
     @RequestMapping(value = "/edit", method = RequestMethod.POST)
-    public Result<Role> edit(@ModelAttribute Role entity){
+    public Result<Role> edit(@ModelAttribute Role entity) {
 
         Role r = roleService.update(entity);
         //手动批量删除缓存
@@ -164,15 +196,15 @@ public class RoleController {
     }
 
     @RequestMapping(value = "/delAllByIds/{ids}", method = RequestMethod.DELETE)
-    public Result<Object> delByIds(@PathVariable String[] ids){
+    public Result<Object> delByIds(@PathVariable String[] ids) {
 
-        for(String id:ids){
+        for (String id : ids) {
             List<UserRole> list = userRoleService.findByRoleId(id);
-            if(list!=null&&list.size()>0){
+            if (list != null && list.size() > 0) {
                 return new ResultUtil<>().setErrorMsg("删除失败，包含正被用户使用关联的角色");
             }
         }
-        for(String id:ids){
+        for (String id : ids) {
             roleService.delete(id);
             //删除关联菜单权限
             rolePermissionService.deleteByRoleId(id);

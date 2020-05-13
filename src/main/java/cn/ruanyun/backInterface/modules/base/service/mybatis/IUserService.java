@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.base.service.mybatis;
 
 
+import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.dto.UserUpdateDTO;
@@ -78,7 +79,7 @@ public interface IUserService extends IService<User> {
      * 获取商家用户
      * @return
      */
-    List<BackStrictVO> getBackUserStoreList(UserDTO userDTO);
+    List<BackUserVO> getBackUserStoreList(UserDTO userDTO);
 
 
     /**
@@ -153,7 +154,7 @@ public interface IUserService extends IService<User> {
     /**
      * 获取账户余额
      */
-    BigDecimal getAccountBalance();
+    BigDecimal getAccountBalance(String userId);
 
     /**
      * 获取店铺名称
@@ -170,4 +171,9 @@ public interface IUserService extends IService<User> {
      */
     String getUserIdByUserPic(String createBy);
 
+    /**
+     * 后端获取用户详情
+     * @return
+     */
+    BackUserVO getBackUserParticulars(String userId,UserTypeEnum userTypeEnum);
 }

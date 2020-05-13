@@ -1,11 +1,21 @@
 package cn.ruanyun.backInterface.modules.business.bookingOrder.serviceimpl;
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.BookingOrderVO;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.WhetherBookingOrderVO;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.mapper.BookingOrderMapper;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.pojo.BookingOrder;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.service.IBookingOrderService;
+import cn.ruanyun.backInterface.modules.business.comment.mapper.CommentMapper;
+import cn.ruanyun.backInterface.modules.business.comment.pojo.Comment;
+import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
+import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
+import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
+import cn.ruanyun.backInterface.modules.business.grade.mapper.GradeMapper;
+import cn.ruanyun.backInterface.modules.business.grade.pojo.Grade;
+import cn.ruanyun.backInterface.modules.business.grade.service.IGradeService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -16,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -38,9 +49,17 @@ public class IBookingOrderServiceImpl extends ServiceImpl<BookingOrderMapper, Bo
 
        @Autowired
        private SecurityUtil securityUtil;
-
        @Resource
-       private BookingOrderMapper bookingOrderMapper;
+       private UserMapper userMapper;
+       @Resource
+       private GoodCategoryMapper goodCategoryMapper;
+        @Autowired
+        private IGradeService gradeService;
+        @Resource
+        private GradeMapper gradeMapper;
+        @Autowired
+        private ICommentService commentService;
+
 
        @Override
        public void insertOrderUpdatebookingOrder(BookingOrder bookingOrder) {
@@ -79,25 +98,52 @@ public class IBookingOrderServiceImpl extends ServiceImpl<BookingOrderMapper, Bo
             //TODO::先查询预约的所有数据
             List<BookingOrder> bookingOrder  = this.list(new QueryWrapper<BookingOrder>().lambda()
                     .eq(BookingOrder::getCreateBy,securityUtil.getCurrUser().getId()));
+
             List<BookingOrderVO> bookingOrderVO =new ArrayList<>();
 
                if(ToolUtil.isNotEmpty(bookingOrder)){//TODO::数据不为空
                    for (BookingOrder order : bookingOrder) {
-                       if(ToolUtil.isNotEmpty(classId)){//TODO::传过来的classId不为空
-                           //TODO::筛选出等于classId的数据
-                           BookingOrderVO dvo = (bookingOrderMapper.bookingOrderList(order.getStoreId(),securityUtil.getCurrUser().getId()).getClassId() == classId ? bookingOrderMapper.bookingOrderList(order.getStoreId(),securityUtil.getCurrUser().getId()) : null);
-                           if(ToolUtil.isNotEmpty(dvo)){bookingOrderVO.add(dvo);}
-                       }else {
-                           //TODO::classId是空的时候拿出全部数据
-                           bookingOrderVO.add(bookingOrderMapper.bookingOrderList(order.getStoreId(),securityUtil.getCurrUser().getId()));
+                       BookingOrderVO booking = new BookingOrderVO();
+                       String consent = "";
+                       if(order.getConsent().equals(0)){
+                           consent+="等待商家同意预约！";
+                       }else if(order.getConsent().equals(1)){
+                           consent+="商家同意预约！";
+                       }else if(order.getConsent().equals(-1)){
+                           consent+="商家拒绝预约！";
                        }
-
+                       booking.setTimeDetail("预约时间:"+order.getBookingTime()+consent);
+                     //获取店铺基本数据
+                     User user =  userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getId,order.getStoreId()));
+                     ToolUtil.copyProperties(user,booking);
+                     //获取分类名称
+                     booking.setTitle(Optional.ofNullable(goodCategoryMapper.selectById(user.getClassId())).map(GoodCategory::getTitle).orElse(null));
+                       booking.setScore(Double.parseDouble(gradeService.getShopScore(order.getStoreId())))//评分
+                               .setCommentNum(Optional.ofNullable(gradeMapper.selectList(new QueryWrapper<Grade>().lambda().eq(Grade::getUserId,order.getStoreId())))//评论数量
+                                       .map(List::size)
+                                       .orElse(0));
+                       if(ToolUtil.isNotEmpty(classId)){
+                           if(ToolUtil.isNotEmpty(booking.getClassId()) && booking.getClassId().equals(classId)){
+                               bookingOrderVO.add(booking);
+                           }
+                       }else{
+                           bookingOrderVO.add(booking);
+                       }
                    }
                }
            return bookingOrderVO;
 
         }
 
+
+
+
+    /**
+     * 查詢我是否预约这个店铺
+     * @param storeId
+     * @param userid
+     * @return
+     */
     @Override
     public WhetherBookingOrderVO getWhetherBookingOrder(String storeId, String userid) {
 

@@ -72,9 +72,19 @@ public class IAdvertisingServiceImpl extends ServiceImpl<AdvertisingMapper, Adve
      */
     @Override
     public List<AppAdvertisingListVO> APPgetAdvertisingList(String advertisingType, String advertisingJumpType) {
+        String jumpType = null;
+        if (ToolUtil.isNotEmpty(advertisingJumpType)) {
+            if (advertisingJumpType.equals("3")) {
+                jumpType = "3,4";
+            } else {
+                jumpType = advertisingJumpType;
+            }
+        }
+        List<Advertising> list = this.list(new QueryWrapper<Advertising>().lambda()
+              .eq(EmptyUtil.isNotEmpty(advertisingType), Advertising::getAdvertisingType, advertisingType)
 
-        List<Advertising> list = this.list(new QueryWrapper<Advertising>().lambda().eq(EmptyUtil.isNotEmpty(advertisingType),Advertising::getAdvertisingType, advertisingType)
-                .eq(EmptyUtil.isNotEmpty(advertisingJumpType),Advertising::getAdvertisingJumpType, advertisingJumpType));
+              .inSql(ToolUtil.isNotEmpty(jumpType), Advertising::getAdvertisingJumpType, jumpType)
+        );
 
         List<AppAdvertisingListVO> appAdvertisingListVOS = list.parallelStream().map(advertising -> {
             AppAdvertisingListVO advertisingListVO = new AppAdvertisingListVO();

@@ -65,9 +65,15 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
        @Override
        public void insertOrderUpdateSizeAndRolor(SizeAndRolor sizeAndRolor) {
 
-           if (ToolUtil.isEmpty(sizeAndRolor.getCreateBy())) {
+           SizeAndRolor size = super.getOne(new QueryWrapper<SizeAndRolor>().lambda()
+                   .eq(SizeAndRolor::getAttrSymbolPath,sizeAndRolor.getAttrSymbolPath())
+                   .eq(SizeAndRolor::getGoodsId,sizeAndRolor.getGoodsId())
+                   .eq(SizeAndRolor::getCreateBy,securityUtil.getCurrUser().getId()));
+
+           if (ToolUtil.isEmpty(size)) {
                sizeAndRolor.setCreateBy(securityUtil.getCurrUser().getId());
            } else {
+               sizeAndRolor.setId(size.getId());
                sizeAndRolor.setUpdateBy(securityUtil.getCurrUser().getId());
            }
            Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(sizeAndRolor)))

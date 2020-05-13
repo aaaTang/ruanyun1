@@ -1,7 +1,10 @@
 package cn.ruanyun.backInterface.modules.business.good.VO;
 
+import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import lombok.Data;
 import lombok.experimental.Accessors;
+
+import java.math.BigDecimal;
 
 
 /**
@@ -27,24 +30,15 @@ public class AppGoodInfoVO {
     /**
      * 商品图片
      */
-    private String goodPic;
+    private String goodPics;
 
+    /**
+     * 商品类型
+     */
+    private String typeEnum;
 
-//    /**
-//     * 尺寸
-//     */
-//    private List<SizeInfoVO> sizes;
-//
-//
-//    /**
-//     * 颜色
-//     */
-//    private List<ColorInfoVO> colors;
-//
-//
-//    /**
-//     * 商品库存
-//     */
-//    private Integer inventory;
-
+    /**
+     * 商品新价格
+     */
+    private BigDecimal goodNewPrice;
 }

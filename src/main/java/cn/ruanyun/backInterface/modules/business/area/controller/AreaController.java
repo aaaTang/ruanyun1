@@ -86,6 +86,22 @@ public class AreaController {
 
 
     /**
+     * 获取热门城市
+     */
+    @PostMapping("/getAppHotAreaList")
+    public Result<Object> getAppHotAreaList() {
+        return Optional.ofNullable(iAreaService.getAppHotAreaList())
+                .map(appHotAreaList -> {
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("data", appHotAreaList);
+                    return new ResultUtil<>().setData(result, "获取热门城市成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+    }
+
+
+
+
+    /**
      * 获取app区域数据
      * @param pageNumber
      * @param pageSize

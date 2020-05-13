@@ -33,4 +33,10 @@ public interface ISelectStoreService extends IService<SelectStore> {
      * @return
      */
     List<SelectStoreListVO> getSelectStoreList();
+
+
+    /**
+     * 查询商家是否是严选商家
+     */
+    Integer getSelectStore(String userId);
 }

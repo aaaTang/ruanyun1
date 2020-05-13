@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.good.service;
 
+import cn.ruanyun.backInterface.common.enums.SearchTypesEnum;
 import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import cn.ruanyun.backInterface.modules.business.good.DTO.GoodDTO;
 import cn.ruanyun.backInterface.modules.business.good.VO.*;
@@ -25,9 +26,8 @@ public interface IGoodService extends IService<Good> {
 
       /**
        * 移除good
-       * @param ids
        */
-     void removeGood(String ids);
+     void removeGood(String  id);
 
 
     /**
@@ -65,7 +65,7 @@ public interface IGoodService extends IService<Good> {
      * App模糊查询商品接口
      * @return
      */
-    List AppGoodList(String name);
+    List AppGoodList(String name,SearchTypesEnum searchTypesEnum);
 
     /**
      * 获取商品购买信息
@@ -75,6 +75,11 @@ public interface IGoodService extends IService<Good> {
     AppGoodInfoVO getAppGoodInfo(String id);
 
 
+    /**
+     * 获取搜索的商家和套餐
+     * @return
+     */
+    List getShopAndPackage(String name);
     /**
      * 获取商品第一张图片
      * @param id
@@ -124,7 +129,7 @@ public interface IGoodService extends IService<Good> {
      * 获取商家的商品列表
      * @return
      */
-    List<PcGoodListVO> PCgoodsList();
+    List<PcGoodListVO> PCgoodsList(GoodDTO goodDTO);
 
 
     List<AppForSaleGoodsVO> getAppForSaleGoods(String ids);
@@ -133,4 +138,18 @@ public interface IGoodService extends IService<Good> {
      * @return
      */
     String getRoleUserList(String userId);
+
+    /**
+     * PC获取商家的套餐列表
+     * @return
+     */
+    List PCgoodsPackageList(GoodDTO goodDTO);
+
+    /**
+     * 后端获取商品详情
+     * @param id
+     * @return
+     */
+    PcGoodListVO PCgoodParticulars(String id);
+
 }

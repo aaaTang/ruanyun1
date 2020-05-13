@@ -50,4 +50,9 @@ public interface ICommentService extends IService<Comment> {
      * @param comment
      */
     void replyComment(Comment comment);
+
+    /**
+     * 计算商品评分
+     */
+    String getGoodScore(String ids);
 }

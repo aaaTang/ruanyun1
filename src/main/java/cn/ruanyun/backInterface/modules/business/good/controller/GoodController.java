@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.good.controller;
 
 import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
+import cn.ruanyun.backInterface.common.enums.SearchTypesEnum;
 import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
@@ -50,14 +51,13 @@ public class GoodController {
 
     /**
      * 移除数据
-     * @param ids
      * @return
     */
     @PostMapping(value = "/removeGood")
-    public Result<Object> removeGood(String ids){
+    public Result<Object> removeGood(String  id){
         try {
-            iGoodService.removeGood(ids);
-            return new ResultUtil<>().setSuccessMsg("移除成功！");
+            iGoodService.removeGood(id);
+            return new ResultUtil<>().setSuccessMsg("冻结商品成功！");
         }catch (Exception e) {
             return new ResultUtil<>().setErrorMsg(201, e.getMessage());
         }
@@ -108,8 +108,8 @@ public class GoodController {
      * @return
      */
     @PostMapping("/AppGoodList")
-    public Result<Object> AppGoodList(String name, PageVo pageVo) {
-        return Optional.ofNullable(iGoodService.AppGoodList(name))
+    public Result<Object> AppGoodList(String name, PageVo pageVo, SearchTypesEnum searchTypesEnum) {
+        return Optional.ofNullable(iGoodService.AppGoodList(name,searchTypesEnum))
                 .map(appGoodList -> {
                     Map<String,Object> result = Maps.newHashMap();
                     result.put("size",appGoodList.size());
@@ -167,6 +167,7 @@ public class GoodController {
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
 
+    /****************************************************后端管理接口********************************************************/
 
     /**
      * PC获取商家的商品列表
@@ -174,8 +175,8 @@ public class GoodController {
      * @return
      */
      @PostMapping("/PCgoodsList")
-        public Result<Object> PCgoodsList(PageVo pageVo) {
-            return Optional.ofNullable(iGoodService.PCgoodsList())
+        public Result<Object> PCgoodsList(GoodDTO goodDTO,PageVo pageVo) {
+            return Optional.ofNullable(iGoodService.PCgoodsList(goodDTO))
                     .map(goodsList -> {
                         Map<String,Object> result = Maps.newHashMap();
                         result.put("size",goodsList.size());
@@ -185,5 +186,33 @@ public class GoodController {
                     .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
         }
 
+
+    /**
+     * PC获取商家的套餐列表
+     * @param pageVo
+     * @return
+     */
+    @PostMapping("/PCgoodsPackageList")
+    public Result<Object> PCgoodsPackageList(GoodDTO goodDTO,PageVo pageVo) {
+        return Optional.ofNullable(iGoodService.PCgoodsPackageList(goodDTO))
+                .map(goodsPackageList -> {
+                    Map<String,Object> result = Maps.newHashMap();
+                    result.put("size",goodsPackageList.size());
+                    result.put("data", PageUtil.listToPage(pageVo,goodsPackageList));
+                    return new ResultUtil<>().setData(result,"PC获取商家的套餐列表成功！");
+                })
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
+
+
+    /**
+     * 后端获取商品详情
+     * @param id
+     * @return
+     */
+    @PostMapping("/PCgoodParticulars")
+    public Result<Object> PCgoodParticulars(String id) {
+        return new ResultUtil<>().setData(iGoodService.PCgoodParticulars(id),"获取商品详情成功！");
+    }
 
 }

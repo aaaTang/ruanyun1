@@ -55,7 +55,7 @@ public class BackUserInfo {
     /**
      * 用户类型 0普通用户 1管理员
      */
-    private Integer type;
+    private String type;
 
     /**
      * 状态 默认0正常 -1拉黑

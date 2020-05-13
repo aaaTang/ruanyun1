@@ -30,8 +30,6 @@ public class ShowOrderVO {
      */
     private BigDecimal sumMoney;
 
-
-
     /**
      * 积分
      */

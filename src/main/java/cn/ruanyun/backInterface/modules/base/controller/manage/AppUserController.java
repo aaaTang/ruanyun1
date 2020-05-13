@@ -90,9 +90,10 @@ public class AppUserController {
      * 获取账户余额
      */
     @PostMapping("/getAccountBalance")
-    public BigDecimal getAccountBalance(){
+    public Result<Object> getAccountBalance(String userId){
 
-        return userService.getAccountBalance();
+        return new ResultUtil<>().setData(userService.getAccountBalance(userId), "获取账户余额成功！");
+
     }
 
 }

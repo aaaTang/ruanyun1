@@ -2,6 +2,7 @@ package cn.ruanyun.backInterface.modules.base.controller.manage;
 
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
@@ -167,6 +168,17 @@ public class BackUserController {
                     return new ResultUtil<>().setData(result, "获取普通消费者列表成功！");
                 }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
     }
+
+    /**
+     * 后端获取用户详情
+     * @return
+     */
+    @PostMapping("/getBackUserParticulars")
+    public Result<Object> getBackUserParticulars(String userId, UserTypeEnum userTypeEnum) {
+
+        return new ResultUtil<>().setData(iUserService.getBackUserParticulars(userId,userTypeEnum), "获取个人信息成功！");
+    }
+
 
     /**
      * 获取后台个人商家列表

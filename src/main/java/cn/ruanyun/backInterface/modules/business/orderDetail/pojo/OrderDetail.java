@@ -58,7 +58,7 @@ public class OrderDetail extends RuanyunBaseEntity {
     private Integer buyCount;
 
     /**
-     * 购买数量
+     *
      */
     private String discountMyId;
 

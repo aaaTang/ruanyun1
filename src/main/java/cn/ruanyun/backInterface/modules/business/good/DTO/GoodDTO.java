@@ -16,6 +16,8 @@ import java.math.BigDecimal;
 @Accessors(chain = true)
 public class GoodDTO {
 
+
+    private String id;
     /**
      * 销量升序 1，销量降序2
      * 价格升序3，价格价格4
@@ -53,4 +55,14 @@ public class GoodDTO {
      * 区域id
      */
     private String areaId;
+
+    /**
+     * 商品名称
+     */
+    private String goodName;
+
+    /**
+     * 商家名称
+     */
+    private String shopName;
 }

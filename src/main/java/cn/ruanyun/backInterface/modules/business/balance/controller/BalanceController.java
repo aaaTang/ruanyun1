@@ -1,15 +1,21 @@
 package cn.ruanyun.backInterface.modules.business.balance.controller;
 
+import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.balance.pojo.Balance;
 import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
+import cn.ruanyun.backInterface.modules.business.comment.pojo.Comment;
+import com.google.api.client.util.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author zhu
@@ -60,6 +66,18 @@ public class BalanceController {
 
             return new ResultUtil<>().setErrorMsg(201, e.getMessage());
         }
+    }
+
+
+    /**
+     * app 获取用户明细
+     * @return
+     */
+    @PostMapping("/getAppBalance")
+    public Result<Object> getAppBalance(PageVo pageVo) {
+        return Optional.ofNullable(iBalanceService.getAppBalance(pageVo))
+                .map(harvestAddressVO -> new ResultUtil<>().setData(iBalanceService.getAppBalance(pageVo),"获取用户明细成功！"))
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
 
 }

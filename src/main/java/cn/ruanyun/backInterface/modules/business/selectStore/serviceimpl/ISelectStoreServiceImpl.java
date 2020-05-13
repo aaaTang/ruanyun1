@@ -97,4 +97,15 @@ public class ISelectStoreServiceImpl extends ServiceImpl<SelectStoreMapper, Sele
                 }).collect(Collectors.toList()))
                 .orElse(null);
     }
+
+    @Override
+    public Integer getSelectStore(String userId) {
+
+        return Optional.ofNullable(super.getOne(Wrappers.<SelectStore>lambdaQuery()
+                .eq(SelectStore::getUserId,userId)))
+                .map(SelectStore::getStrict)
+                .orElse(0);
+    }
+
+
 }

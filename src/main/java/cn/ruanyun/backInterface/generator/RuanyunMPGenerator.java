@@ -25,19 +25,19 @@ public class RuanyunMPGenerator {
      * 实体类名
      * 建议仅需修改
      */
-    private static final String className = "Rongyun";
+    private static final String className = "UserRelationship";
 
     /**
      * 类说明描述
      * 建议仅需修改
      */
-    private static final String description = "融云";
+    private static final String description = "用户关联管理";
 
     /**
      * 作者名
      * 建议仅需修改
      */
-    private static final String author = "fei";
+    private static final String author = "z";
 
     /**
      * 数据库表名前缀
@@ -54,31 +54,31 @@ public class RuanyunMPGenerator {
      * 实体类对应包
      * (文件自动生成至该包下)
      */
-    private static final String entityPackage = "cn.ruanyun.backInterface.modules.rongyun.pojo";
+    private static final String entityPackage = "cn.ruanyun.backInterface.modules.business.userRelationship.pojo";
 
     /**
      * dao对应包
      * (文件自动生成至该包下)
      */
-    private static final String daoPackage = "cn.ruanyun.backInterface.modules.rongyun.mapper";
+    private static final String daoPackage = "cn.ruanyun.backInterface.modules.business.userRelationship.mapper";
 
     /**
      * service对应包
      * (文件自动生成至该包下)
      */
-    private static final String servicePackage = "cn.ruanyun.backInterface.modules.rongyun.service";
+    private static final String servicePackage = "cn.ruanyun.backInterface.modules.business.userRelationship.service";
 
     /**
      * serviceImpl对应包
      * (文件自动生成至该包下)
      */
-    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.rongyun.serviceimpl";
+    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.business.userRelationship.serviceimpl";
 
     /**
      * controller对应包
      * (文件自动生成至该包下)
      */
-    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.rongyun.controller";
+    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.business.userRelationship.controller";
 
     /**
      * 运行该主函数即可生成代码

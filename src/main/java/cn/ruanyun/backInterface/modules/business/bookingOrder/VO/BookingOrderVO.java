@@ -53,5 +53,11 @@ public class BookingOrderVO {
     /**
      * 店铺评分
      */
-    private Integer score;
+    private Double score;
+
+    /**
+     * 预约状态
+     */
+    private String timeDetail;
+
 }

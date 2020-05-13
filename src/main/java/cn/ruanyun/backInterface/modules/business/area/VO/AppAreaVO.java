@@ -21,4 +21,8 @@ public class AppAreaVO {
     private String title;
 
 
+    /**
+     * 城市下的店铺数量
+     */
+    private Integer count;
 }
