@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -124,9 +125,11 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
                 .list(Wrappers.<Area>lambdaQuery()
                         .isNotNull(Area::getAreaIndex)
                         .eq(Area::getStatus, CommonConstant.STATUS_NORMAL)
-                        .orderByAsc(Area::getSortOrder)))))
+                        .orderByAsc(Area::getSortOrder)
+                        .orderByAsc(Area::getAreaIndex)))))
 
-                .thenApplyAsync(areas -> areas.map(areaList -> areaList.parallelStream().collect(Collectors.groupingBy(Area::getAreaIndex))))
+                .thenApplyAsync(areas -> areas.map(areaList -> areaList.stream()
+                        .collect(Collectors.groupingBy(Area::getAreaIndex))))
                 .thenApplyAsync(areaIndexEnumListMap -> areaIndexEnumListMap.map(areaIndexEnumList -> {
 
                     List<AppAreaListVO> appAreaListVos = Lists.newArrayList();
