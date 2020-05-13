@@ -173,6 +173,11 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
         return address;
     }
 
+    @Override
+    public String getAddressName(String id) {
+        return null;
+    }
+
     //拼接详细地址
     public String spliceAddress(String address, String id) {
         Area area = super.getById(id);

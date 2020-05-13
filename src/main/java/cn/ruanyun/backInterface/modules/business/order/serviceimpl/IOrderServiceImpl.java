@@ -684,7 +684,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
     /**
      * 获取商家订单列表
-     */
+     *//*
     private List PCgetShopOrderList(){
 
         //查询登录用户的权限
@@ -718,7 +718,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
 
         return  null;
-    }
+    }*/
 
 
 
