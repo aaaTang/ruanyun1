@@ -1,17 +1,12 @@
 package cn.ruanyun.backInterface.modules.business.area.serviceimpl;
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
-import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
-import cn.ruanyun.backInterface.modules.base.pojo.Role;
-import cn.ruanyun.backInterface.modules.base.pojo.User;
-import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
 import cn.ruanyun.backInterface.modules.business.area.VO.AppAreaListVO;
 import cn.ruanyun.backInterface.modules.business.area.VO.AppAreaVO;
 import cn.ruanyun.backInterface.modules.business.area.VO.BackAreaVO;
 import cn.ruanyun.backInterface.modules.business.area.mapper.AreaMapper;
 import cn.ruanyun.backInterface.modules.business.area.pojo.Area;
 import cn.ruanyun.backInterface.modules.business.area.service.IAreaService;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
@@ -20,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -32,8 +27,6 @@ import reactor.core.scheduler.Schedulers;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
-
-import javax.annotation.Resource;
 
 
 /**
@@ -49,8 +42,6 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
 
     @Autowired
     private SecurityUtil securityUtil;
-    @Resource
-    private UserMapper userMapper;
 
     @Override
     public void insertOrderUpdateArea(Area area) {
@@ -134,9 +125,11 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
                 .list(Wrappers.<Area>lambdaQuery()
                         .isNotNull(Area::getAreaIndex)
                         .eq(Area::getStatus, CommonConstant.STATUS_NORMAL)
-                        .orderByAsc(Area::getSortOrder)))))
+                        .orderByAsc(Area::getSortOrder)
+                        .orderByAsc(Area::getAreaIndex)))))
 
-                .thenApplyAsync(areas -> areas.map(areaList -> areaList.parallelStream().collect(Collectors.groupingBy(Area::getAreaIndex))))
+                .thenApplyAsync(areas -> areas.map(areaList -> areaList.stream()
+                        .collect(Collectors.groupingBy(Area::getAreaIndex))))
                 .thenApplyAsync(areaIndexEnumListMap -> areaIndexEnumListMap.map(areaIndexEnumList -> {
 
                     List<AppAreaListVO> appAreaListVos = Lists.newArrayList();
@@ -162,26 +155,8 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
     @Override
     public List<AppAreaVO> getAppHotAreaList() {
 
-        List<Area> areaList = this.list();
-
-        List<AppAreaVO> appAreaVO = new ArrayList<>();
-        for (Area area : areaList) {
-            AppAreaVO areaVO = new AppAreaVO();
-            areaVO.setId(area.getId());
-            areaVO.setTitle(area.getTitle());
-            areaVO.setCount(Optional.ofNullable(userMapper.selectList(
-                    new QueryWrapper<User>().lambda().eq(User::getAreaId,area.getId())).size()).orElse(0));
-            appAreaVO.add(areaVO);
-        }
-        AppAreaVO areaVO = appAreaVO.get(0);
-         for (int i= 0;i<appAreaVO.size();i++){
-                if(areaVO.getCount()<appAreaVO.get(i).getCount()){
-                        areaVO = appAreaVO.get(i);
-                }
-         }
-         List<AppAreaVO> appArea = new ArrayList<>();
-        appArea.add(areaVO);
-        return appArea;
+        // TODO: 2020/3/13 热门未写
+        return null;
     }
 
     @Override
@@ -196,11 +171,6 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
             }
         }
         return address;
-    }
-
-    @Override
-    public String getAddressName(String id) {
-        return Optional.ofNullable(super.getById(id)).map(Area::getTitle).orElse(null);
     }
 
     //拼接详细地址
