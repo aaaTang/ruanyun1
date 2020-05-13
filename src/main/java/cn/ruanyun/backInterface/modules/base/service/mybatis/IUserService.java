@@ -58,7 +58,6 @@ public interface IUserService extends IService<User> {
 
     /*-----------------------后台管理系统模块---------------------------*/
 
-
     /**
      * 后台管理系统添加用户
      * @param user
@@ -176,4 +175,6 @@ public interface IUserService extends IService<User> {
      * @return
      */
     BackUserVO getBackUserParticulars(String userId,UserTypeEnum userTypeEnum);
+
+
 }

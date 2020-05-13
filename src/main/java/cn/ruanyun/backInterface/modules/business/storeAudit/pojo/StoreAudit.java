@@ -104,5 +104,5 @@ public class StoreAudit extends RuanyunBaseEntity {
     /**
      * 微信账号
      */
-    private String WechatAccount;
+    private String wechatAccount;
 }

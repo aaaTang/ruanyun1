@@ -54,6 +54,7 @@ import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.internal.util.AlipaySignature;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.api.client.util.ArrayMap;
@@ -664,6 +665,47 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     /*****************************************************后端模块开始*************************************************************/
 
 
+    /**
+     * 获取商家订单列表
+     */
+    private List PCgetShopOrderList(){
+
+        //查询登录用户的权限
+        String userRole = goodService.getRoleUserList(securityUtil.getCurrUser().getId());
+
+        //判断权限是否为空
+        if(ToolUtil.isNotEmpty(userRole)){
+
+            return null;
+        }else {
+
+            if(userRole.equals(CommonConstant.ADMIN)){
+                List<Order> orderList = this.list();
+
+
+
+
+
+            }
+
+
+
+        }
+
+
+
+
+
+
+
+
+
+        return  null;
+    }
+
+
+
+    /*****************************************************后端模块結束*************************************************************/
 
 
     /*****************************************************分销模块开始*************************************************************/
