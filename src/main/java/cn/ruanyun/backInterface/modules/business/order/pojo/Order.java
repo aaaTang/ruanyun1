@@ -34,11 +34,11 @@ public class Order extends RuanyunBaseEntity {
      */
     private OrderStatusEnum orderStatus;
     /**
-     * 1商品，2套餐
+     * 订单类型枚举
      */
     private OrderTypeEnum typeEnum;
     /**
-     * 1商品，2套餐
+     * 商家id
      */
     private String userId;
     /**

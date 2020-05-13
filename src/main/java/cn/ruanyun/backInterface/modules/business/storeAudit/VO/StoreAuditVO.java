@@ -49,7 +49,7 @@ public class StoreAuditVO {
 
 
     /**
-     * 所在城市id
+     * 所在城市名称
      */
     private String areaName;
 
@@ -81,5 +81,15 @@ public class StoreAuditVO {
      * 审核意见
      */
     private String checkAdvice;
+
+    /**
+     * 支付宝账号
+     */
+    private String alipayAccount;
+
+    /**
+     * 微信账号
+     */
+    private String WechatAccount;
 
 }

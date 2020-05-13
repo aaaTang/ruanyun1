@@ -51,14 +51,13 @@ public class GoodController {
 
     /**
      * 移除数据
-     * @param ids
      * @return
     */
     @PostMapping(value = "/removeGood")
-    public Result<Object> removeGood(String ids){
+    public Result<Object> removeGood(String  id){
         try {
-            iGoodService.removeGood(ids);
-            return new ResultUtil<>().setSuccessMsg("移除成功！");
+            iGoodService.removeGood(id);
+            return new ResultUtil<>().setSuccessMsg("冻结商品成功！");
         }catch (Exception e) {
             return new ResultUtil<>().setErrorMsg(201, e.getMessage());
         }
@@ -168,6 +167,7 @@ public class GoodController {
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
 
+    /****************************************************后端管理接口********************************************************/
 
     /**
      * PC获取商家的商品列表
@@ -175,8 +175,8 @@ public class GoodController {
      * @return
      */
      @PostMapping("/PCgoodsList")
-        public Result<Object> PCgoodsList(PageVo pageVo) {
-            return Optional.ofNullable(iGoodService.PCgoodsList())
+        public Result<Object> PCgoodsList(GoodDTO goodDTO,PageVo pageVo) {
+            return Optional.ofNullable(iGoodService.PCgoodsList(goodDTO))
                     .map(goodsList -> {
                         Map<String,Object> result = Maps.newHashMap();
                         result.put("size",goodsList.size());
@@ -193,8 +193,8 @@ public class GoodController {
      * @return
      */
     @PostMapping("/PCgoodsPackageList")
-    public Result<Object> PCgoodsPackageList(PageVo pageVo) {
-        return Optional.ofNullable(iGoodService.PCgoodsPackageList())
+    public Result<Object> PCgoodsPackageList(GoodDTO goodDTO,PageVo pageVo) {
+        return Optional.ofNullable(iGoodService.PCgoodsPackageList(goodDTO))
                 .map(goodsPackageList -> {
                     Map<String,Object> result = Maps.newHashMap();
                     result.put("size",goodsPackageList.size());
@@ -203,4 +203,16 @@ public class GoodController {
                 })
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
+
+
+    /**
+     * 后端获取商品详情
+     * @param id
+     * @return
+     */
+    @PostMapping("/PCgoodParticulars")
+    public Result<Object> PCgoodParticulars(String id) {
+        return new ResultUtil<>().setData(iGoodService.PCgoodParticulars(id),"获取商品详情成功！");
+    }
+
 }

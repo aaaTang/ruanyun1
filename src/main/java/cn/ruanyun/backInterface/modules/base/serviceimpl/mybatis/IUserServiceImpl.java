@@ -9,6 +9,7 @@ import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.dto.UserUpdateDTO;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
+import cn.ruanyun.backInterface.modules.base.pojo.Role;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
 import cn.ruanyun.backInterface.modules.base.service.UserService;
@@ -20,9 +21,15 @@ import cn.ruanyun.backInterface.modules.base.vo.AppUserVO;
 import cn.ruanyun.backInterface.modules.base.vo.BackStrictVO;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
+import cn.ruanyun.backInterface.modules.business.area.service.IAreaService;
 import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
+import cn.ruanyun.backInterface.modules.business.good.serviceimpl.IGoodServiceImpl;
+import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
 import cn.ruanyun.backInterface.modules.business.myFootprint.service.IMyFootprintService;
+import cn.ruanyun.backInterface.modules.business.selectStore.service.ISelectStoreService;
+import cn.ruanyun.backInterface.modules.business.storeAudit.mapper.StoreAuditMapper;
+import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
 import cn.ruanyun.backInterface.modules.business.userRelationship.pojo.UserRelationship;
 import cn.ruanyun.backInterface.modules.business.userRelationship.service.IUserRelationshipService;
 import cn.ruanyun.backInterface.modules.rongyun.service.IRongyunService;
@@ -54,34 +61,34 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
     @Autowired
     private UserService userService;
-
     @Autowired
     private IUserRoleService userRoleService;
-
     @Autowired
     private SecurityUtil securityUtil;
-
     @Autowired
     private IRoleService roleService;
-
     @Autowired
     private IRolePermissionService rolePermissionService;
-
     @Autowired
     private IMyFavoriteService iMyFavoriteService;
-
     @Autowired
     private IMyFootprintService iMyFootprintService;
-
     @Autowired
     private IFollowAttentionService iFollowAttentionService;
-
     @Autowired
     private IRongyunService iRongyunService;
-
     @Autowired
     private IUserRelationshipService iUserRelationshipService;
-
+    @Autowired
+    private IGoodServiceImpl iGoodService;
+    @Autowired
+    private ISelectStoreService iSelectStoreService;
+    @Autowired
+    private IGoodCategoryService iGoodCategoryService;
+    @Autowired
+    private IAreaService iAreaService;
+    @Resource
+    private StoreAuditMapper storeAuditMapper;
 
 
     @Override
@@ -255,14 +262,14 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     public Result<Object> addUser(User user, String roleIds) {
 
         if(ToolUtil.isEmpty(user.getUsername()) || ToolUtil.isEmpty(user.getPassword())){
-            return new ResultUtil<>().setErrorMsg("缺少必需表单字段");
+            return new ResultUtil<>().setErrorMsg("缺少账号密码不能为空！");
         }
 
 
         if (ToolUtil.isNotEmpty(super.getOne(Wrappers.<User>lambdaQuery()
             .eq(User::getUsername, user.getUsername())))) {
 
-            return new ResultUtil<>().setErrorMsg("名字重复！");
+            return new ResultUtil<>().setErrorMsg("账号名称重复！");
         }
 
         String encryptPass = new BCryptPasswordEncoder().encode(user.getPassword());
@@ -272,7 +279,8 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
           UserRole userRole = new UserRole();
           userRole.setUserId(user.getId());
-          userRole.setRoleId(roleService.getIdByRoleName(CommonConstant.ADMIN));
+//          userRole.setRoleId(roleService.getIdByRoleName(CommonConstant.ADMIN));
+          userRole.setRoleId(roleIds);
           userRoleService.save(userRole);
 
           return new ResultUtil<>().setSuccessMsg("添加成功！");
@@ -285,23 +293,30 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     public List<BackUserVO> getBackUserAdminList(UserDTO userDTO) {
 
         return Optional.ofNullable(getUserList(UserTypeEnum.ADMIN))
-                .map(users -> users.parallelStream().flatMap(user -> Stream.of(getBackUserVO(user.getId())))
+                .map(users -> users.parallelStream().flatMap(user -> Stream.of(getBackUserVO(user.getId(),UserTypeEnum.ADMIN)))
                 .collect(Collectors.toList()))
                 .orElse(null);
 
     }
 
     @Override
-    public List<BackStrictVO> getBackUserStoreList(UserDTO userDTO) {
+    public List<BackUserVO> getBackUserStoreList(UserDTO userDTO) {
 
-        return null;
+        return Optional.ofNullable(getUserList(UserTypeEnum.STORE))
+                .map(users -> users.parallelStream().map(user -> (getBackUserVO(user.getId(),UserTypeEnum.STORE)))
+                        .filter(pcGood-> pcGood.getNickName().contains(ToolUtil.isNotEmpty(userDTO.getUsername())?userDTO.getUsername():pcGood.getNickName()))
+                        .filter(pcGood-> pcGood.getMobile().contains(ToolUtil.isNotEmpty(userDTO.getMobile())?userDTO.getMobile():pcGood.getMobile()))
+                        .filter(pcGood-> pcGood.getAddress().contains(ToolUtil.isNotEmpty(userDTO.getAddress())?userDTO.getAddress():pcGood.getAddress()))
+                        .filter(pcGood-> pcGood.getIsBest().equals(ToolUtil.isNotEmpty(userDTO.getIsBest())?userDTO.getIsBest():pcGood.getIsBest()))
+                        .collect(Collectors.toList()))
+                .orElse(null);
     }
 
     @Override
     public List<BackUserVO> getBackUserCommonList(UserDTO userDTO) {
 
         return Optional.ofNullable(getUserList(UserTypeEnum.DEFAULT_ROLE))
-                .map(users -> users.parallelStream().flatMap(user -> Stream.of(getBackUserVO(user.getId())))
+                .map(users -> users.parallelStream().flatMap(user -> Stream.of(getBackUserVO(user.getId(),UserTypeEnum.DEFAULT_ROLE)))
                         .collect(Collectors.toList()))
                 .orElse(null);
     }
@@ -310,7 +325,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     public List<BackUserVO> getBackUserPersonStoreList(UserDTO userDTO) {
 
         return Optional.ofNullable(getUserList(UserTypeEnum.PER_STORE))
-                .map(users -> users.parallelStream().flatMap(user -> Stream.of(getBackUserVO(user.getId())))
+                .map(users -> users.parallelStream().flatMap(user -> Stream.of(getBackUserVO(user.getId(),UserTypeEnum.PER_STORE)))
                         .collect(Collectors.toList()))
                 .orElse(null);
     }
@@ -370,14 +385,26 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
      * @param userId
      * @return
      */
-    public BackUserVO getBackUserVO(String userId) {
+    public BackUserVO getBackUserVO(String userId ,UserTypeEnum userTypeEnum) {
 
         BackUserVO backUserVO = new BackUserVO();
 
-        Optional.ofNullable(super.getById(userId))
-                .ifPresent(user -> ToolUtil.copyProperties(user, backUserVO));
+        Optional.ofNullable(this.getById(userId))
+                .ifPresent(user -> {
+                    ToolUtil.copyProperties(user, backUserVO);
+                    if(userTypeEnum.equals(UserTypeEnum.STORE)||userTypeEnum.equals(UserTypeEnum.PER_STORE)){
+                        backUserVO.setIsBest(iSelectStoreService.getSelectStore(userId));//是否严选
+                        backUserVO.setClassName(iGoodCategoryService.getGoodCategoryName(user.getClassId()));//分类名称
+                        backUserVO.setAreaName(iAreaService.getAddressName(user.getAreaId()));//区域名称
+                        StoreAudit storeAudit = storeAuditMapper.selectOne(Wrappers.<StoreAudit>lambdaQuery()
+                                .eq(StoreAudit::getCreateBy,userId));
+                        backUserVO.setIdCardFront(storeAudit.getIdCardFront());//身份证正面
+                        backUserVO.setIdCardBack(storeAudit.getIdCardBack());//身份证反面
+                        backUserVO.setBusinessCard(storeAudit.getBusinessCard());//营业执照
+                    }
+                });
 
-        return backUserVO;
+            return backUserVO;
     }
 
 
@@ -409,6 +436,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         return Optional.ofNullable(super.getById(u.getId()))
                 .map(user -> {
 
+                    ToolUtil.copyProperties(u,user);
                     super.saveOrUpdate(user);
                     return new ResultUtil<>().setSuccessMsg("修改成功！");
                 }).orElse(new ResultUtil<>().setErrorMsg(201, "当前用户不存在！"));
@@ -463,10 +491,12 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
                     BackUserInfo backUserInfo = new BackUserInfo();
                     ToolUtil.copyProperties(user, backUserInfo);
-
                     //角色
                     backUserInfo.setRoles(roleService.getRolesByRoleIds(userRoleService.getRoleIdsByUserId(user.getId())))
                             .setPermissions(rolePermissionService.getPermissionByRoles(userRoleService.getRoleIdsByUserId(user.getId())));
+
+                    backUserInfo.setType(iGoodService.getRoleUserList(user.getId()));
+
 
                     return backUserInfo;
 
@@ -501,10 +531,16 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     }
 
     @Override
-    public BigDecimal getAccountBalance() {
+    public BigDecimal getAccountBalance(String userId) {
+        String id = null;
+        if(ToolUtil.isNotEmpty(userId)){
+            id = userId;
+        }else {
+            id = securityUtil.getCurrUser().getId();
+        }
 
         return  Optional.ofNullable(super.getOne(Wrappers.<User>lambdaQuery()
-                .eq(User::getId,securityUtil.getCurrUser().getId())))
+                .eq(User::getId,id)))
                 .map(User::getBalance)
                 .orElse(null);
     }
@@ -523,6 +559,15 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                 .eq(User::getId,id)))
                 .map(User::getAvatar)
                 .orElse(null);
+    }
+
+    /**
+     * 后端获取用户详情
+     * @return
+     */
+    @Override
+    public BackUserVO getBackUserParticulars(String userId,UserTypeEnum userTypeEnum) {
+        return this.getBackUserVO(userId, UserTypeEnum.STORE);
     }
 
 

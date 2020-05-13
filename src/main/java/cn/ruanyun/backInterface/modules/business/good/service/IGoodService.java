@@ -26,9 +26,8 @@ public interface IGoodService extends IService<Good> {
 
       /**
        * 移除good
-       * @param ids
        */
-     void removeGood(String ids);
+     void removeGood(String  id);
 
 
     /**
@@ -130,7 +129,7 @@ public interface IGoodService extends IService<Good> {
      * 获取商家的商品列表
      * @return
      */
-    List<PcGoodListVO> PCgoodsList();
+    List<PcGoodListVO> PCgoodsList(GoodDTO goodDTO);
 
 
     List<AppForSaleGoodsVO> getAppForSaleGoods(String ids);
@@ -144,5 +143,13 @@ public interface IGoodService extends IService<Good> {
      * PC获取商家的套餐列表
      * @return
      */
-    List PCgoodsPackageList();
+    List PCgoodsPackageList(GoodDTO goodDTO);
+
+    /**
+     * 后端获取商品详情
+     * @param id
+     * @return
+     */
+    PcGoodListVO PCgoodParticulars(String id);
+
 }

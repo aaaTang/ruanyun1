@@ -1,9 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.goodsPackage.serviceimpl;
 
-import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
-import cn.ruanyun.backInterface.common.enums.DisCouponTypeEnum;
-import cn.ruanyun.backInterface.common.enums.FollowTypeEnum;
-import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
+import cn.ruanyun.backInterface.common.enums.*;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
@@ -134,7 +131,7 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
 
         List<GoodsPackageListVO> goodsPackageListVOS = list.parallelStream().map(goodsPackage -> {
             GoodsPackageListVO goodsPackageListVOList =new GoodsPackageListVO();
-            BackUserVO backUserVO = iUserService.getBackUserVO(goodsPackage.getCreateBy());//查询用户信息
+            BackUserVO backUserVO = iUserService.getBackUserVO(goodsPackage.getCreateBy(), null);//查询用户信息
             goodsPackageListVOList.setUserid(goodsPackage.getCreateBy())
                     .setUserName(backUserVO.getUsername())
                     .setUserPic(backUserVO.getAvatar());

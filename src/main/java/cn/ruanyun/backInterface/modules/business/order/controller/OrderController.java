@@ -169,4 +169,26 @@ public class OrderController {
     }
 
 
+
+    /*************************************************后端管理开始*****************************************************/
+
+
+    /**
+     * 后端获取商家订单信息列表
+     * @param order
+     * @param pageVo
+     * @return
+     */
+//    @PostMapping("/getPcMyOrderList")
+//    public Result<Object> getPcMyOrderList(Order order, PageVo pageVo) {
+//        return Optional.ofNullable(iOrderService.getPcMyOrderList(order))
+//                .map(pcMyorderListVOS -> {
+//                    Map<String,Object> result = Maps.newHashMap();
+//                    result.put("size",pcMyorderListVOS.size());
+//                    result.put("data", PageUtil.listToPage(pageVo,pcMyorderListVOS));
+//                    return new ResultUtil<>().setData(result,"后端获取商家订单信息列表成功！");
+//                })
+//                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+//    }
+    /*************************************************后端管理结束*****************************************************/
 }

@@ -20,6 +20,11 @@ public class UserDTO {
     private String mobile;
 
     /**
+     * 用戶昵称
+     */
+    private String nickName;
+
+    /**
          * 姓名
      */
     private String username;

@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.good.VO;
 
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import lombok.Data;
 
@@ -52,8 +53,22 @@ public class PcGoodListVO {
      */
     private Integer integral;
 
+    /**
+     * 商品是否删除
+     */
+    private Integer delFlag;
     /***
      * 分类名称
      */
     private String goodCategoryName;
+
+    /***
+     * 商家名称
+     */
+    private String shopName;
+
+    /**
+     * 商家状态 默认0正常 -1拉黑
+     */
+    private Integer status;
 }

@@ -20,6 +20,10 @@ public class AlipayConfig {
 
 	// 支付宝公钥,查看地址：https://openhome.alipay.com/platform/keyManage.htm 对应APPID下的支付宝公钥。
 	public static final String ALIPAY_PUBLIC_KEY= "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvB08MFXzM8pn1xmetQaTpm673ZDa1Q/C7X9pJUikMxjXX0yXFe6E3cC82WxaKq7IYCtHhC8RrM2hkbC0MszR+69hgYoUi1+FbJ5LZupeQLra1OlG8+gFoX4y6z2Ix+Kolvl5loxwnGHiZiduopwVh9CNiqAnTA+pKEv1dkrIrE6K/a/w9Jfsqj72OoQnwG6euKy+Ab9d7mL6/Cnw/+Ue2oMLhAv1Uqls/38KZPeV8kLk0UXenzp6tqombMVixl3T69oCnuO2Squmcc4pOVshG/3sw3NPWlP4/HNHwFpI+iIXbmfZDhQiU0Rqyc4WZorpIx4D97ysQOLWylJSljsoxQIDAQAB";
+
+	// 阿里支付应用公钥
+	public static final String ALIPAY_APPLICATION_OF_PUBLIC_KEY= "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAihc37YzMtF9cK9CJYDbQ4EaWFKcO/anQFHGLZQiekK8MtCPAi63vCy+kDjhGSEOk8RasZx9aGKIgCgrF4memlSgnHUy+vOLYbrDkTndQ1734pRkzyJwH2zSOwQ7I7E9CHZ6jxYY++2gesSBfvhTh4v9imDBix1ov/iC5opV9FZsrugJCcPT7ghp9NFDPeXdLVNLVR7+j0h/1CnnRzpm84I4MeCK3ZTa6P/KHYN57NvyKirJg9J7u1n+j7zlzuipCigQO3V/CWt1/tn8z6qxrrCl1W21XEjz29OxY46QCn1rIFVVD5rx66dg7ITtyZ6SMiiW9hyH7OOny8vVaq4+JOQIDAQAB";
+
 	// 服务器  异步通知
 //	public static final String NOTIFY_URL= "http://localhost:8888/xboot/alipay/alipayNotifyNotice.action";
 	public static final String NOTIFY_URL= "http://121.196.28.116:8083/ruanyun/order/aliPayNotify";

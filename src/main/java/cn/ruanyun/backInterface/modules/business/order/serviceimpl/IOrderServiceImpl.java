@@ -177,7 +177,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         }
         Map<String, Object> map = new ArrayMap<>();
         map.put("id", ids.substring(1));
-        map.put("balance", userService.getAccountBalance());
+        map.put("balance", userService.getAccountBalance(null));
         map.put("totalPrice", sumPrice);
         return new ResultUtil<>().setData(map, "插入或者更新成功!");
     }
@@ -661,6 +661,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         }
 
     }
+    /*****************************************************后端模块开始*************************************************************/
+
+
 
 
     /*****************************************************分销模块开始*************************************************************/
@@ -753,12 +756,16 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                     }
                 }
 
+                this.transferAccounts(shopTotalPrice,terraceTotalPrice,userRecommendTotalPrice,userTotalPrice,byId.getPayTypeEnum());
+
                 System.out.println(shopTotalPrice+"商家的钱");
                 System.out.println(terraceTotalPrice+"平台的钱");
                 System.out.println(userRecommendTotalPrice+"推荐用户的钱");
                 System.out.println(userTotalPrice+"普通用户的钱");
 
             }else {//邀请人是空，那就把钱分给平台是商家
+
+                this.transferAccounts(shopTotalPrice,terraceTotalPrice,userRecommendTotalPrice,userTotalPrice,byId.getPayTypeEnum());
                 //TODO::
                 System.out.println(shopTotalPrice+"商家的钱");
                 System.out.println(terraceTotalPrice+"平台的钱");
@@ -769,6 +776,8 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         }
 
     }
+
+
 
     /**
      * 计算金额
@@ -783,8 +792,26 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         return money;
     }
 
+    /**
+     * 订单转账
+     * @param shopTotalPrice 商家的钱
+     * @param terraceTotalPrice 平台的钱
+     * @param userRecommendTotalPrice 推荐用户的钱
+     * @param userTotalPrice 普通用户的钱
+     * @param payTypeEnum 支付类型    WE_CHAT(1,"微信支付"),ALI_PAY(2,"支付宝支付"), BALANCE(3, "余额支付")
+     * @return
+     */
+    private String transferAccounts(BigDecimal shopTotalPrice,BigDecimal terraceTotalPrice,BigDecimal userRecommendTotalPrice,BigDecimal userTotalPrice,PayTypeEnum payTypeEnum){
 
-
+        if(payTypeEnum.equals(PayTypeEnum.BALANCE)){
+            //TODO::余额转账
+        }else if(payTypeEnum.equals(PayTypeEnum.ALI_PAY)){
+            //TODO::支付宝转账
+        }else if(payTypeEnum.equals(PayTypeEnum.WE_CHAT)){
+            //TODO::微信转账
+        }
+        return null;
+    }
 
 
 /*****************************************************分销模块结束*************************************************************/

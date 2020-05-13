@@ -129,9 +129,15 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     }
 
     @Override
-    public void removeGood(String ids) {
-
-        CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
+    public void removeGood(String  id) {
+        Good good = this.getById(id);
+        good.setId(id);
+        if(good.getDelFlag().equals(0)){
+            good.setDelFlag(1);
+        }else {
+            good.setDelFlag(0);
+        }
+        CompletableFuture.runAsync(() -> this.updateById(good));
     }
 
     /**
@@ -593,24 +599,36 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
     /************************************************PC端******************************************************/
 
+    /**
+     * 获取商家的商品列表
+     * @return
+     */
     @Override
-    public List<PcGoodListVO> PCgoodsList(){
+    public List<PcGoodListVO> PCgoodsList(GoodDTO goodDTO){
         List<Good> list = new ArrayList<>();
 
-        String userRole = this.getRoleUserList(securityUtil.getCurrUser().getId());
+        String userId = null;
+        if(ToolUtil.isNotEmpty(goodDTO.getStoreId())){
+            userId= goodDTO.getStoreId();
+        }else {
+            userId= securityUtil.getCurrUser().getId();
+        }
+
+        String userRole = this.getRoleUserList(userId);
         if(ToolUtil.isEmpty(userRole)){
             return null;
         }else
         //当前角色是个人商家或者入驻商家
         if(userRole.equals(CommonConstant.PER_STORE)||userRole.equals(CommonConstant.STORE)){
            list = this.list(new QueryWrapper<Good>().lambda()
-                    .eq(Good::getCreateBy, securityUtil.getCurrUser().getId())
+                    .eq(Good::getCreateBy, userId)
                     .eq(Good::getTypeEnum, GoodTypeEnum.GOOD)
                    .orderByDesc(Good::getCreateTime)
            );
         }else if (userRole.equals(CommonConstant.ADMIN)){
            list = this.list(new QueryWrapper<Good>().lambda()
                    .eq(Good::getTypeEnum, GoodTypeEnum.GOOD)
+                   .like(ToolUtil.isNotEmpty(goodDTO.getGoodName()),Good::getGoodName,goodDTO.getGoodName())
                    .orderByDesc(Good::getCreateTime));
         }
 
@@ -622,15 +640,40 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                    String goodCategory = goodCategoryMapper.selectById(pcGoods.getGoodCategoryId()).getTitle();
                    pc.setGoodCategoryName(goodCategory);
                    ToolUtil.copyProperties(pcGoods , pc);
+                   pc.setShopName(Optional.ofNullable(userMapper.selectById(pcGoods.getCreateBy())).map(User::getShopName).orElse("暂无"));
                }
-               return  pc;
-           }).collect(Collectors.toList());
+               pc.setStatus(Optional.ofNullable(userMapper.selectById(pcGoods.getCreateBy())).map(User::getStatus).orElse(0));
+                   return  pc;
+           })
+             .filter(pcGood-> pcGood.getGoodCategoryId().contains(ToolUtil.isNotEmpty(goodDTO.getGoodCategoryId())?goodDTO.getGoodCategoryId():pcGood.getGoodCategoryId()))
+             .filter(pcGood-> pcGood.getShopName().contains(ToolUtil.isNotEmpty(goodDTO.getShopName())?goodDTO.getShopName():pcGood.getShopName()))
+                   .collect(Collectors.toList());
 
            return pcGoodList;
        }else {
            return null;
        }
+    }
 
+
+    /**
+     * 后端获取商品详情
+     * @param id
+     * @return
+     */
+    @Override
+    public PcGoodListVO PCgoodParticulars(String id) {
+
+        return Optional.ofNullable(this.getById(id))
+                .map(good -> {
+                    PcGoodListVO pcGoodListVO = new PcGoodListVO();
+
+                    ToolUtil.copyProperties(good,pcGoodListVO);
+                    pcGoodListVO.setGoodCategoryName(goodCategoryMapper.selectById(good.getGoodCategoryId()).getTitle());//分类名称
+                    pcGoodListVO.setStatus(Optional.ofNullable(userMapper.selectById(good.getCreateBy())).map(User::getStatus).orElse(0));//商家是否冻结
+                    return pcGoodListVO;
+                })
+                .orElse(null);
     }
 
     /**
@@ -638,22 +681,31 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
      * @return
      */
     @Override
-    public List PCgoodsPackageList() {
+    public List PCgoodsPackageList(GoodDTO goodDTO) {
         List<Good> list = new ArrayList<>();
 
-        String userRole = this.getRoleUserList(securityUtil.getCurrUser().getId());
+        String userId = null;
+        if(ToolUtil.isNotEmpty(goodDTO.getStoreId())){
+            userId= goodDTO.getStoreId();
+        }else {
+            userId= securityUtil.getCurrUser().getId();
+        }
+
+        String userRole = this.getRoleUserList(userId);
         if(ToolUtil.isEmpty(userRole)){
             return null;
         }else
             //当前角色是个人商家或者入驻商家
             if(userRole.equals(CommonConstant.PER_STORE)||userRole.equals(CommonConstant.STORE)){
                 list = this.list(new QueryWrapper<Good>().lambda()
-                        .eq(Good::getCreateBy, securityUtil.getCurrUser().getId())
+                        .eq(Good::getCreateBy, userId)
                         .eq(Good::getTypeEnum, GoodTypeEnum.GOODSPACKAGE)
                         .orderByDesc(Good::getCreateTime)
                 );
             }else if (userRole.equals(CommonConstant.ADMIN)){
                 list = this.list(new QueryWrapper<Good>().lambda()
+                        .eq(ToolUtil.isNotEmpty(goodDTO.getId()),Good::getId,goodDTO.getId())
+                        .like(ToolUtil.isNotEmpty(goodDTO.getGoodName()),Good::getGoodName,goodDTO.getGoodName())
                         .eq(Good::getTypeEnum, GoodTypeEnum.GOODSPACKAGE)
                         .orderByDesc(Good::getCreateTime));
             }
@@ -666,11 +718,17 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                     String goodCategory = goodCategoryMapper.selectById(pcGoodsPackage.getGoodCategoryId()).getTitle();
                     pc.setGoodCategoryName(goodCategory);
                     ToolUtil.copyProperties(pcGoodsPackage , pc);
+                    pc.setShopName(Optional.ofNullable(userMapper.selectById(pcGoodsPackage.getCreateBy())).map(User::getShopName).orElse("暂无"));//店铺名称
                 }
                 pc.setProductsIntroduction(iGoodsIntroduceService.goodsIntroduceList(null,pcGoodsPackage.getId(),1))//商品介绍
                         .setPurchaseNotes(iGoodsIntroduceService.goodsIntroduceList(null,pcGoodsPackage.getId(),2));//购买须知
+
+                pc.setStatus(Optional.ofNullable(userMapper.selectById(pcGoodsPackage.getCreateBy())).map(User::getStatus).orElse(0));
                 return  pc;
-            }).collect(Collectors.toList());
+            }).filter(pcGood-> pcGood.getGoodCategoryId().contains(ToolUtil.isNotEmpty(goodDTO.getGoodCategoryId())?goodDTO.getGoodCategoryId():pcGood.getGoodCategoryId()))
+                    .filter(pcGood-> pcGood.getShopName().contains(ToolUtil.isNotEmpty(goodDTO.getShopName())?goodDTO.getShopName():pcGood.getShopName()))
+
+                    .collect(Collectors.toList());
 
             return pcGoodsPackageListVO;
         }else {

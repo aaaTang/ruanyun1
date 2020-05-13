@@ -62,4 +62,17 @@ public class PcGoodsPackageListVO {
      * 购买须知
      */
     private List purchaseNotes;
+    /**
+     * 商品是否删除
+     */
+    private Integer delFlag;
+    /***
+     * 商家名称
+     */
+    private String shopName;
+
+    /**
+     * 商家状态 默认0正常 -1拉黑
+     */
+    private Integer status;
 }

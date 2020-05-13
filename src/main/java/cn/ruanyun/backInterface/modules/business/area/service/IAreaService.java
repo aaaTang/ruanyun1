@@ -58,4 +58,13 @@ public interface IAreaService extends IService<Area> {
      * @return
      */
     String getAddress(String id);
+
+
+    /**
+     * 查询地区名称
+     * @param id
+     * @return
+     */
+    String getAddressName(String id);
+
 }

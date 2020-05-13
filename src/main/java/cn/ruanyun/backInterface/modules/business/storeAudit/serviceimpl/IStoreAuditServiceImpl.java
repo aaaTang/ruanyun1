@@ -143,9 +143,13 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
                        userRoleService.save(userRole);
 
                        User user = new User();
+                       user.setShopName(storeAudit1.getUsername());
+                       user.setNickName(storeAudit1.getUsername());
                        user.setId(storeAudit1.getCreateBy());
                        user.setAreaId(storeAudit1.getAreaId());
                        user.setClassId(storeAudit1.getClassificationId());
+                       user.setWechatAccount(storeAudit1.getWechatAccount());
+                       user.setAlipayAccount(storeAudit1.getAlipayAccount());
                        userMapper.updateById(user);
                    }else {
                        // TODO: 2020/3/27  审核失败，极光推送

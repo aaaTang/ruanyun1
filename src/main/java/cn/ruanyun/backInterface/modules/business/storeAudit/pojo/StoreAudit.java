@@ -96,4 +96,13 @@ public class StoreAudit extends RuanyunBaseEntity {
      */
     private CheckEnum checkEnum = CheckEnum.PRE_CHECK;
 
+    /**
+     * 支付宝账号
+     */
+    private String alipayAccount;
+
+    /**
+     * 微信账号
+     */
+    private String WechatAccount;
 }

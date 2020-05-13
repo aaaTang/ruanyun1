@@ -5,6 +5,9 @@
 # IntelliJ project files
 .idea
 *.iml
-out
+/out/
+/target/
+/ruanyun-logs/
+.idea/
 gen
 ruanyun-logs
