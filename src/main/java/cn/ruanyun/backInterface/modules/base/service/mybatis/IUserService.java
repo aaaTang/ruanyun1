@@ -196,4 +196,17 @@ public interface IUserService extends IService<User> {
     Result<Object> updatePayPassword(UserPayPasswordVo userPayPasswordVo);
 
 
+    /**
+     * 获取精准客户
+     * @return StoreCustomVo
+     */
+    List<StoreCustomVo> getStoreAccurateCustomer(String storeId);
+
+
+    /**
+     * 获取潜在客户
+     * @return StoreCustomVo
+     */
+    List<StoreCustomVo> getStoreProspectiveCustomer();
+
 }

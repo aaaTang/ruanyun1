@@ -21,6 +21,11 @@ public class MyFootprint extends RuanyunBaseEntity {
 
 
     /**
+     * 商家id
+     */
+    private String storeId;
+
+    /**
      * 商品id
      */
     private String goodsId;

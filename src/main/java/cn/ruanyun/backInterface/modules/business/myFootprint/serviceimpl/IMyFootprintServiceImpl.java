@@ -3,6 +3,7 @@ package cn.ruanyun.backInterface.modules.business.myFootprint.serviceimpl;
 import cn.ruanyun.backInterface.common.utils.EmptyUtil;
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
+import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.myFootprint.VO.MyFootprintVO;
 import cn.ruanyun.backInterface.modules.business.myFootprint.mapper.MyFootprintMapper;
 import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
@@ -47,32 +48,23 @@ public class IMyFootprintServiceImpl extends ServiceImpl<MyFootprintMapper, MyFo
        @Resource
        private GoodMapper iGoodMapper;
 
+       @Autowired
+       private IGoodService goodService;
+
        @Override
        public void insertOrderUpdateMyFootprint(MyFootprint myFootprint) {
 
+           if (ToolUtil.isEmpty(this.getOne(Wrappers.<MyFootprint>lambdaQuery()
+                   .eq(MyFootprint::getGoodsId, myFootprint.getGoodsId())
+                   .eq(MyFootprint::getCreateBy, securityUtil.getCurrUser().getId())))) {
 
-//           if (ToolUtil.isEmpty(myFootprint.getCreateBy())) {
-//
-//                       myFootprint.setCreateBy(securityUtil.getCurrUser().getId());
-//                   }else {
-//
-//                       myFootprint.setUpdateBy(securityUtil.getCurrUser().getId());
-//                   }
-            //查询表中是否存在已有历史记录
-           MyFootprint myf = this.getOne(Wrappers.<MyFootprint>lambdaQuery()
-                   .eq(MyFootprint::getCreateBy,securityUtil.getCurrUser().getId()).eq(MyFootprint::getGoodsId,myFootprint.getGoodsId()));
+               myFootprint.setStoreId(Optional.ofNullable(goodService.getById(myFootprint.getGoodsId()))
+                       .map(Good::getCreateBy).orElse(null));
 
-           if(ToolUtil.isEmpty(myf)){
                myFootprint.setCreateBy(securityUtil.getCurrUser().getId());
-           }else {
-               myFootprint.setCreateTime(new Date());
-               myFootprint.setId(myf.getId());
+               this.save(myFootprint);
+
            }
-
-
-                   Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(myFootprint)))
-                           .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
-                           .toFuture().join();
        }
 
       @Override
@@ -112,8 +104,17 @@ public class IMyFootprintServiceImpl extends ServiceImpl<MyFootprintMapper, MyFo
     @Override
     public Long getMyFootprintNum() {
         List<MyFootprint> list = this.list(new QueryWrapper<MyFootprint>().lambda().eq(MyFootprint::getCreateBy,securityUtil.getCurrUser().getId()));
-        Long num = Long.valueOf(list.size());
-        return (num != null ? num : 0);
+        Long num = (long) list.size();
+        return num;
+    }
+
+    @Override
+    public List<MyFootprint> getMyFootPrintByStoreId(String storeId) {
+
+        return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<MyFootprint>lambdaQuery()
+                .eq(MyFootprint::getStoreId, storeId)
+                .orderByDesc(MyFootprint::getCreateTime))))
+                .orElse(null);
     }
 
 }

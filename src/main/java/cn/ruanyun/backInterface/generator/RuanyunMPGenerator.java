@@ -25,13 +25,13 @@ public class RuanyunMPGenerator {
      * 实体类名
      * 建议仅需修改
      */
-    private static final String className = "ProfitDetail";
+    private static final String className = "StoreIncome";
 
     /**
      * 类说明描述
      * 建议仅需修改
      */
-    private static final String description = "分红明细";
+    private static final String description = "店铺收入";
 
     /**
      * 作者名
@@ -54,31 +54,31 @@ public class RuanyunMPGenerator {
      * 实体类对应包
      * (文件自动生成至该包下)
      */
-    private static final String entityPackage = "cn.ruanyun.backInterface.modules.business.profitDetail.pojo";
+    private static final String entityPackage = "cn.ruanyun.backInterface.modules.business.storeIncome.pojo";
 
     /**
      * dao对应包
      * (文件自动生成至该包下)
      */
-    private static final String daoPackage = "cn.ruanyun.backInterface.modules.business.profitDetail.mapper";
+    private static final String daoPackage = "cn.ruanyun.backInterface.modules.business.storeIncome.mapper";
 
     /**
      * service对应包
      * (文件自动生成至该包下)
      */
-    private static final String servicePackage = "cn.ruanyun.backInterface.modules.business.profitDetail.service";
+    private static final String servicePackage = "cn.ruanyun.backInterface.modules.business.storeIncome.service";
 
     /**
      * serviceImpl对应包
      * (文件自动生成至该包下)
      */
-    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.business.profitDetail.serviceimpl";
+    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.business.storeIncome.serviceimpl";
 
     /**
      * controller对应包
      * (文件自动生成至该包下)
      */
-    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.business.profitDetail.controller";
+    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.business.storeIncome.controller";
 
     /**
      * 运行该主函数即可生成代码

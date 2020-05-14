@@ -51,6 +51,8 @@ import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingC
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
+import cn.ruanyun.backInterface.modules.business.storeIncome.pojo.StoreIncome;
+import cn.ruanyun.backInterface.modules.business.storeIncome.service.IStoreIncomeService;
 import cn.ruanyun.backInterface.modules.business.userRelationship.mapper.UserRelationshipMapper;
 import cn.ruanyun.backInterface.modules.business.userRelationship.pojo.UserRelationship;
 import cn.ruanyun.backInterface.modules.business.userRelationship.service.IUserRelationshipService;
@@ -133,6 +135,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
     @Autowired
     private IProfitDetailService profitDetailService;
+
+    @Autowired
+    private IStoreIncomeService storeIncomeService;
 
 
 
@@ -289,12 +294,16 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
             User byId = userService.getById(securityUtil.getCurrUser().getId());
 
+            if (ToolUtil.isEmpty(byId)) {
+
+                return new ResultUtil<>().setErrorMsg(206, "暂未设置支付密码");
+            }
             if (new BCryptPasswordEncoder().matches(payPassword, byId.getPayPassword())) {
 
                 int i = byId.getBalance().compareTo(totalPrice);
                 if (i < 0) {
 
-                    return new ResultUtil<>().setErrorMsg("余额不足!");
+                    return new ResultUtil<>().setErrorMsg(207, "余额不足");
                 }
                 orders.forEach(order -> {
 
@@ -345,7 +354,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 objectResult = new ResultUtil<>().setData(200, "支付成功!");
             }else {
 
-                return new ResultUtil<>().setErrorMsg(201, "支付密码不一致！");
+                return new ResultUtil<>().setErrorMsg(208, "支付密码不一致！");
             }
         }
         return objectResult;
@@ -721,6 +730,14 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         }
     }
 
+    @Override
+    public List<Order> getOrderListByStoreId(String storeId) {
+
+        return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<Order>lambdaQuery()
+                .eq(Order::getUserId, storeId).orderByDesc(Order::getCreateTime))))
+                .orElse(null);
+    }
+
     /***
      * 支付宝、微信回调 处理订单
      */
@@ -764,6 +781,18 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             //3. 转账操作
             try {
                String result = payService.aliPayTransfer(transferDto);
+
+
+               //3.1 记录商家收入管理明细
+                // TODO: 2020/5/14 0014  转账成功后才进入到保存收入明细环节,目前暂未做处理
+                StoreIncome storeIncome = new StoreIncome();
+                storeIncome.setIncomeMoney(profitPercentService.getProfitPercentLimitOne(ProfitTypeEnum.FIRST)
+                        .getStoreProfit().multiply(order.getTotalPrice()))
+                        .setIncomeType(PayTypeEnum.ALI_PAY)
+                        .setOrderId(order.getId())
+                        .setCreateBy(order.getUserId());
+
+                storeIncomeService.save(storeIncome);
 
                log.info("处理支付宝转账回调信息" + result);
 

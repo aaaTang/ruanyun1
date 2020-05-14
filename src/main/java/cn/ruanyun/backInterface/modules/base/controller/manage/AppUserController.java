@@ -148,4 +148,46 @@ public class AppUserController {
 
     }
 
+
+    /**
+     * 获取精准客户
+     * @param pageVo 分页参数
+     * @return Object
+     */
+    @PostMapping("/getStoreAccurateCustomer")
+    public Result<Object> getStoreAccurateCustomer(PageVo pageVo) {
+
+        return Optional.ofNullable(userService.getStoreAccurateCustomer(null))
+                .map(storeCustomVos -> {
+
+                    DataVo<UserProfitVO> result = new DataVo<>();
+                    result.setTotalNumber(storeCustomVos.size())
+                            .setDataResult(PageUtil.listToPage(pageVo, storeCustomVos));
+
+                    return new ResultUtil<>().setData(result, "获取精准客户数据成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+
+    }
+
+    /**
+     * 获取潜在客户
+     * @param pageVo 分页参数
+     * @return Object
+     */
+    @PostMapping("/getStoreProspectiveCustomer")
+    public Result<Object> getStoreProspectiveCustomer(PageVo pageVo) {
+
+        return Optional.ofNullable(userService.getStoreProspectiveCustomer())
+                .map(storeCustomVos -> {
+
+                    DataVo<UserProfitVO> result = new DataVo<>();
+                    result.setTotalNumber(storeCustomVos.size())
+                            .setDataResult(PageUtil.listToPage(pageVo, storeCustomVos));
+
+                    return new ResultUtil<>().setData(result, "获取潜在客户数据成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+
+    }
+
+
 }

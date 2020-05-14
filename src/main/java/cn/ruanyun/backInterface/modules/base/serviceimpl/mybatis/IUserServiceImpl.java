@@ -9,7 +9,6 @@ import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.dto.UserUpdateDTO;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
-import cn.ruanyun.backInterface.modules.base.pojo.Role;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
 import cn.ruanyun.backInterface.modules.base.service.UserService;
@@ -24,7 +23,10 @@ import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollow
 import cn.ruanyun.backInterface.modules.business.good.serviceimpl.IGoodServiceImpl;
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
+import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
 import cn.ruanyun.backInterface.modules.business.myFootprint.service.IMyFootprintService;
+import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
+import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
 import cn.ruanyun.backInterface.modules.business.selectStore.service.ISelectStoreService;
 import cn.ruanyun.backInterface.modules.business.storeAudit.mapper.StoreAuditMapper;
 import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
@@ -32,11 +34,11 @@ import cn.ruanyun.backInterface.modules.business.userRelationship.pojo.UserRelat
 import cn.ruanyun.backInterface.modules.business.userRelationship.service.IUserRelationshipService;
 import cn.ruanyun.backInterface.modules.rongyun.service.IRongyunService;
 import com.alibaba.druid.util.StringUtils;
-import com.aliyuncs.ram.model.v20150501.ListVirtualMFADevicesResponse;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.api.client.util.ArrayMap;
+import com.google.api.client.util.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -90,6 +92,12 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
     @Autowired
     private IUserRelationshipService userRelationshipService;
+
+    @Autowired
+    private IOrderService orderService;
+
+    @Autowired
+    private IMyFootprintService myFootprintService;
 
 
     @Override
@@ -641,6 +649,79 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
             return new ResultUtil<>().setErrorMsg(201, "暂未设置支付密码！");
         }
+    }
+
+    @Override
+    public List<StoreCustomVo> getStoreAccurateCustomer(String storeId) {
+
+        String currentUserId = ToolUtil.isEmpty(storeId) ? securityUtil.getCurrUser().getId() : storeId;
+
+        return Optional.ofNullable(orderService.getOrderListByStoreId(currentUserId))
+                .map(orders -> {
+
+                    Map<String, List<Order>> data = orders.parallelStream().collect(Collectors.groupingBy(Order::getCreateBy));
+
+                    List<StoreCustomVo> storeCustomVos = Lists.newArrayList();
+                    data.forEach((k , v) -> {
+
+                        StoreCustomVo storeCustomVo = new StoreCustomVo();
+                        Optional.ofNullable(this.getById(k)).ifPresent(user -> {
+
+                            ToolUtil.copyProperties(user, storeCustomVo);
+                            storeCustomVo.setServiceCount(v.size());
+
+                            storeCustomVos.add(storeCustomVo);
+                        });
+                    });
+
+                    return storeCustomVos;
+                }).orElse(null);
+
+    }
+
+    /**
+     * 判断潜在客户不在精准客户中
+     * @param storeCustomVo
+     * @return
+     */
+    public Boolean containCustom(StoreCustomVo storeCustomVo, String currentUserId) {
+
+        return Optional.ofNullable(getStoreAccurateCustomer(currentUserId)).map(storeCustomVos ->
+                !storeCustomVos.parallelStream().map(StoreCustomVo::getId).collect(Collectors.toList())
+                .contains(storeCustomVo.getId())).orElse(true);
+    }
+
+    @Override
+    public List<StoreCustomVo> getStoreProspectiveCustomer() {
+
+        String currentUserId = securityUtil.getCurrUser().getId();
+
+        return Optional.ofNullable(myFootprintService.getMyFootPrintByStoreId(currentUserId))
+                .map(myFootprints -> {
+
+                    Map<String, List<MyFootprint>> data = myFootprints.parallelStream().collect(Collectors.groupingBy(MyFootprint::getCreateBy));
+
+                    List<StoreCustomVo> storeCustomVos = Lists.newArrayList();
+                    data.forEach((k , v) -> {
+
+                        StoreCustomVo storeCustomVo = new StoreCustomVo();
+                        Optional.ofNullable(this.getById(k)).ifPresent(user -> {
+
+                            ToolUtil.copyProperties(user, storeCustomVo);
+
+                            storeCustomVos.add(storeCustomVo);
+                        });
+                    });
+
+                    return storeCustomVos.parallelStream().filter(storeCustomVo -> containCustom(storeCustomVo, currentUserId))
+                            .flatMap(storeCustomVo -> {
+
+                                Optional.ofNullable(this.getById(storeCustomVo.getId()))
+                                        .ifPresent(user -> ToolUtil.copyProperties(user, storeCustomVo));
+
+                                return Stream.of(storeCustomVo);
+                            }).collect(Collectors.toList());
+                }).orElse(null);
     }
 
 

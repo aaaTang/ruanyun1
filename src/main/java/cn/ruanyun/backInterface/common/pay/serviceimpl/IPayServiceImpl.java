@@ -122,7 +122,8 @@ public class IPayServiceImpl implements IPayService {
 
 		AlipayFundTransUniTransferResponse response=AliPayUtilTool.getTransferResponse(model);
 
-		return response.getCode();
+		log.info("当前支付宝的状态是：" + response.getStatus() + response.getOrderId() + response.getOutBizNo() + response.getPayFundOrderId());
+		return response.getBody();
 
 	}
 

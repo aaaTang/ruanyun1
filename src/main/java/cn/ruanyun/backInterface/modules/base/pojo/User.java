@@ -59,10 +59,12 @@ public class User extends RuanyunBaseEntity {
      * 地址
      */
     private String address;
+
     /**
      * 邮箱
      */
     private String email;
+
     /**
      * 婚期
      */

@@ -38,4 +38,12 @@ public interface IMyFootprintService extends IService<MyFootprint> {
      * @return
      */
     Long getMyFootprintNum();
+
+
+    /**
+     * 通过商家id获取我的足迹列表
+     * @return  MyFootprint
+     */
+    List<MyFootprint> getMyFootPrintByStoreId(String storeId);
+
 }

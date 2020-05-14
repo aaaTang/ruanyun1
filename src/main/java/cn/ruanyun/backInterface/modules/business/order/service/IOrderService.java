@@ -106,4 +106,12 @@ public interface IOrderService extends IService<Order> {
      */
     String aliPayNotify(HttpServletRequest request);
 
+
+    /**
+     * 根据商家id查询订单列表
+     * @param storeId 商家id
+     * @return  Order
+     */
+    List<Order> getOrderListByStoreId(String storeId);
+
 }
