@@ -57,8 +57,8 @@ public class AliPayUtilTool {
 		AlipayFundTransUniTransferRequest request=new AlipayFundTransUniTransferRequest();
 		request.setBizModel(model);
 		AlipayClient  alipayClient = new DefaultAlipayClient(AlipayConfig.GATEWAY_URL,
-				AlipayConfig.APP_ID, AlipayConfig.MERCHANT_PRIVATE_KEY, AlipayConfig.FORMAT,
-				AlipayConfig.CHARSET, AlipayConfig.ALIPAY_PUBLIC_KEY, AlipayConfig.SIGN_TYPE); ;
+				"2021001155659575", AlipayConfig.MERCHANT_PRIVATE_KEY, AlipayConfig.FORMAT,
+				"GBK", AlipayConfig.ALIPAY_PUBLIC_KEY, AlipayConfig.SIGN_TYPE); ;
 		return alipayClient.sdkExecute(request);
 	}
 

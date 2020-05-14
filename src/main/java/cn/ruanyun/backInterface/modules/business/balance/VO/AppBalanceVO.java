@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.balance.VO;
 
+import cn.ruanyun.backInterface.common.enums.AddOrSubtractTypeEnum;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -26,6 +27,10 @@ public class AppBalanceVO {
      */
     private String id;
 
+    /**
+     * 加减
+     */
+    private AddOrSubtractTypeEnum addOrSubtractTypeEnum;
 
     /**
      * 标题

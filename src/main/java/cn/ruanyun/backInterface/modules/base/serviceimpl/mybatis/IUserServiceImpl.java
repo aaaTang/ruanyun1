@@ -156,6 +156,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                                 .map(User::getId).orElse(null);
 
                         if(!StringUtils.isEmpty(userid)){
+
                             UserRelationship userRelationship = new UserRelationship();
                             userRelationship.setCreateBy(user1.getId());
                             userRelationship.setParentUserid(userid);
@@ -581,7 +582,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
                     UserProfitVO userProfitVO = new UserProfitVO();
                     ToolUtil.copyProperties(user, userProfitVO);
-                    balanceService.getProfitByUserId(user.getId());
+                    userProfitVO.setTotalProfitMoney(balanceService.getProfitByUserId(user.getId()));
 
                     return Stream.of(userProfitVO);
                 }).sorted(Comparator.comparing(UserProfitVO::getTotalProfitMoney))
@@ -626,7 +627,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
             if (new BCryptPasswordEncoder().matches(userPayPasswordVo.getOldPayPassword(), user.getPayPassword())) {
 
-                user.setPayPassword(userPayPasswordVo.getPayPassword());
+                user.setPayPassword(new BCryptPasswordEncoder().encode(userPayPasswordVo.getPayPassword()));
                 this.updateById(user);
 
                 return new ResultUtil<>().setSuccessMsg("设置支付密码成功!");

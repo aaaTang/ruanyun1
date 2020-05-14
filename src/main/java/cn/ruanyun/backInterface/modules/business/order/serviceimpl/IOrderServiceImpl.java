@@ -3,10 +3,7 @@ package cn.ruanyun.backInterface.modules.business.order.serviceimpl;
 import cn.hutool.json.JSONUtil;
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
-import cn.ruanyun.backInterface.common.enums.AddOrSubtractTypeEnum;
-import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
-import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
-import cn.ruanyun.backInterface.common.enums.ProfitTypeEnum;
+import cn.ruanyun.backInterface.common.enums.*;
 import cn.ruanyun.backInterface.common.pay.common.alipay.AliPayUtilTool;
 import cn.ruanyun.backInterface.common.pay.common.alipay.AlipayConfig;
 import cn.ruanyun.backInterface.common.pay.common.wxpay.WeChatConfig;
@@ -46,6 +43,8 @@ import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
 import cn.ruanyun.backInterface.modules.business.orderDetail.service.IOrderDetailService;
 import cn.ruanyun.backInterface.modules.business.orderMessage.pojo.OrderMessage;
 import cn.ruanyun.backInterface.modules.business.orderMessage.service.IOrderMessageService;
+import cn.ruanyun.backInterface.modules.business.profitDetail.pojo.ProfitDetail;
+import cn.ruanyun.backInterface.modules.business.profitDetail.service.IProfitDetailService;
 import cn.ruanyun.backInterface.modules.business.profitPercent.service.IProfitPercentService;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.entity.ShoppingCart;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
@@ -131,6 +130,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
     @Autowired
     private IProfitPercentService profitPercentService;
+
+    @Autowired
+    private IProfitDetailService profitDetailService;
 
 
 
@@ -318,15 +320,33 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                             });
 
                     //3. 处理回调
-                    resolveOrderTwoProfit(order.getId());
+                    //3.1. 平台按照比例转账到商家支付宝账户
+
+                    TransferDto transfer = new TransferDto();
+
+                    //3.2 商家的支付宝账户
+                    transfer.setAliPayAcount(Optional.ofNullable(userService.getById(order.getUserId()))
+                            .map(User::getAlipayAccount).orElse(null));
+
+                    //3.3 需要支付给商家的钱款
+                    transfer.setAmount(profitPercentService.getProfitPercentLimitOne(ProfitTypeEnum.FIRST)
+                            .getStoreProfit().multiply(order.getTotalPrice()));
+
+                    //3.4 转账操作
+                    try {
+                        String result = payService.aliPayTransfer(transfer);
+
+                        log.info("处理支付宝转账回调信息" + result);
+
+                    } catch (AlipayApiException e) {
+                        e.printStackTrace();
+                    }
                 });
                 objectResult = new ResultUtil<>().setData(200, "支付成功!");
             }else {
 
-                return new ResultUtil<>().setErrorMsg("支付密码不一致！");
+                return new ResultUtil<>().setErrorMsg(201, "支付密码不一致！");
             }
-
-
         }
         return objectResult;
     }
@@ -798,6 +818,21 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                       log.info("记录明细成功！");
                   });
 
+                  //2.3 记录分账明细
+                  ThreadPoolUtil.getPool().execute(() -> {
+
+                      ProfitDetail profitDetail = new ProfitDetail();
+                      profitDetail.setOrderId(order.getId())
+                              .setPayType(PayTypeEnum.BALANCE)
+                              .setProfitMoney(personProfitMoney)
+                              .setProfitStatus(BooleanTypeEnum.YES)
+                              .setCreateBy(order.getCreateBy());
+                      profitDetailService.save(profitDetail);
+
+                      log.info("记录资金流向明细成功！");
+
+                  });
+
               });
 
             //2.2. 分佣推荐人的佣金
@@ -829,6 +864,22 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
                             log.info("记录明细成功！");
                         });
+
+                        //2.3 记录分账明细
+                        ThreadPoolUtil.getPool().execute(() -> {
+
+                            ProfitDetail profitDetail = new ProfitDetail();
+                            profitDetail.setOrderId(order.getId())
+                                    .setPayType(PayTypeEnum.BALANCE)
+                                    .setProfitMoney(personProfitMoney)
+                                    .setProfitStatus(BooleanTypeEnum.YES)
+                                    .setCreateBy(user.getId());
+                            profitDetailService.save(profitDetail);
+
+                            log.info("记录资金流向明细成功！");
+
+                        });
+
 
                     });
         });

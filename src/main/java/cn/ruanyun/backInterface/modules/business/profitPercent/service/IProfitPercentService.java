@@ -1,6 +1,9 @@
 package cn.ruanyun.backInterface.modules.business.profitPercent.service;
 
 import cn.ruanyun.backInterface.common.enums.ProfitTypeEnum;
+import cn.ruanyun.backInterface.common.vo.PageVo;
+import cn.ruanyun.backInterface.modules.business.profitPercent.vo.ProfitPercentVo;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.profitPercent.pojo.ProfitPercent;
 
@@ -25,6 +28,11 @@ public interface IProfitPercentService extends IService<ProfitPercent> {
       */
      void removeProfitPercent(String ids);
 
+    /**
+     * 获取分红列表
+     * @return  List<ProfitPercentVo>
+     */
+    List<ProfitPercentVo> getProfitPercentList();
 
     /**
      * 获取最新的一个分佣数据

@@ -18,7 +18,7 @@ public class UserProfitVO {
     /**
      * 用戶昵称
      */
-    private String username;
+    private String nickName;
 
     /**
      * 头像

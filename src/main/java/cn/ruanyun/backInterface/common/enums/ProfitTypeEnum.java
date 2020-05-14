@@ -21,7 +21,7 @@ public enum ProfitTypeEnum {
     /**
      * 第二成分佣
      */
-    TWO(2,"第二成分佣");
+    TWO(2,"第二层分佣");
 
     ProfitTypeEnum(int code, String value) {
         this.code = code;

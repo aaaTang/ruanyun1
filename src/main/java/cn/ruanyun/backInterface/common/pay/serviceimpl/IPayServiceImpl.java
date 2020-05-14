@@ -89,19 +89,19 @@ public class IPayServiceImpl implements IPayService {
 		//1.封装实体
 		model.setOutBizNo(transferDto.getOrderNo());
 		model.setBizScene("DIRECT_TRANSFER");
-		model.setTransAmount(transferDto.getAmount().toString());
-		model.setProductCode("STD_RED_PACKET");
+		model.setTransAmount(/*transferDto.getAmount().toString()*/ "0.01");
+		model.setProductCode("TRANS_ACCOUNT_NO_PWD");
 
 		//2.付款方账户
 		Participant payer = new Participant();
 
 		//标识类型，ALIPAY_USER_ID：支付宝的会员ID ALIPAY_LOGON_ID：支付宝登录号，邮箱、手机等
-		payer.setIdentityType("ALIPAY_LOGON_ID");
+		payer.setIdentityType("ALIPAY_USER_ID");
 
 		//支付宝账号
-		payer.setIdentity("合肥翰飞科技有限公司");
+		payer.setIdentity("2088831017268525");
 
-		payer.setName("平台账户");
+		payer.setName("合肥翰飞科技有限公司");
 
 		model.setPayerInfo(payer);
 
@@ -115,14 +115,14 @@ public class IPayServiceImpl implements IPayService {
 		payee.setIdentity("m13865911804@163.com");
 
 		//标识类型为ALIPAY_LOGON_ID需设置name
-		payee.setName("商家收款方");
+		payee.setName("于小飞");
 
 		model.setPayeeInfo(payee);
 
 
 		AlipayFundTransUniTransferResponse response=AliPayUtilTool.getTransferResponse(model);
 
-		return response.getMsg();
+		return response.getCode();
 
 	}
 

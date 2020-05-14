@@ -98,4 +98,10 @@ public class AppUserVO {
     private String mobile;
 
 
+    /**
+     * 邀请码
+     */
+    private String invitationCode;
+
+
 }

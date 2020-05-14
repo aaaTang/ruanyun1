@@ -1,7 +1,10 @@
 package cn.ruanyun.backInterface.modules.business.profitPercent.controller;
 
+import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.business.profitPercent.pojo.ProfitPercent;
 import cn.ruanyun.backInterface.modules.business.profitPercent.service.IProfitPercentService;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author z
@@ -61,5 +65,29 @@ public class ProfitPercentController {
             return new ResultUtil<>().setErrorMsg(201, e.getMessage());
         }
     }
+
+
+    /**
+     * 获取分红列表
+     * @param pageVo
+     * @return
+     */
+    @PostMapping("/getProfitPercentList")
+    public Result<Object> getProfitPercentList(PageVo pageVo) {
+
+        return Optional.ofNullable(iProfitPercentService.getProfitPercentList())
+                .map(profitPercentVos -> {
+
+                    DataVo<ProfitPercent> result = new DataVo<>();
+                    result.setTotalNumber(profitPercentVos.size())
+                            .setDataResult(PageUtil.listToPage(pageVo, profitPercentVos));
+
+                    return new ResultUtil<>().setData(result, "获取分红列表成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+
+    }
+
+
+
 
 }
