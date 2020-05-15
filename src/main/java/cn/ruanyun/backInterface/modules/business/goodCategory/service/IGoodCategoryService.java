@@ -68,4 +68,10 @@ public interface IGoodCategoryService extends IService<GoodCategory> {
      */
     Boolean judgeGoodCategoryHaveParent(String id);
 
+    /**
+     * 按分类获取商家列表
+     * @return
+     */
+    List getCategoryShop(String classId,String areaId);
+
 }

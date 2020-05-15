@@ -3,10 +3,12 @@ package cn.ruanyun.backInterface.modules.business.comment.serviceimpl;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.utils.*;
+import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.business.comment.DTO.CommentDTO;
 import cn.ruanyun.backInterface.modules.business.comment.VO.CommentVO;
+import cn.ruanyun.backInterface.modules.business.comment.VO.PcCommentVO;
 import cn.ruanyun.backInterface.modules.business.comment.mapper.CommentMapper;
 import cn.ruanyun.backInterface.modules.business.comment.pojo.Comment;
 import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
@@ -20,6 +22,7 @@ import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
 import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
 import cn.ruanyun.backInterface.modules.business.orderDetail.service.IOrderDetailService;
 import com.alibaba.fastjson.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -29,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -36,6 +40,8 @@ import java.util.stream.Collectors;
 
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+
+import javax.annotation.Resource;
 
 
 /**
@@ -62,6 +68,8 @@ public class ICommentServiceImpl extends ServiceImpl<CommentMapper, Comment> imp
     private IOrderDetailService orderDetailService;
     @Autowired
     private IItemAttrValService iItemAttrValService;
+    @Resource
+    private UserMapper userMapper;
 
 
     @Override
@@ -146,11 +154,20 @@ public class ICommentServiceImpl extends ServiceImpl<CommentMapper, Comment> imp
      */
     @Override
     public void replyComment(Comment comment) {
-        if (ToolUtil.isEmpty(comment.getCreateBy())) {
+
+        //查询商家是否进行过评论
+        Comment cm = this.getOne(Wrappers.<Comment>lambdaQuery()
+                .eq(Comment::getCreateBy,securityUtil.getCurrUser().getId())
+                .eq(Comment::getPid,comment.getPid())
+                .eq(Comment::getDelFlag,CommonConstant.STATUS_NORMAL)
+        );
+
+        if (ToolUtil.isEmpty(cm)) {
             comment.setCreateBy(securityUtil.getCurrUser().getId());
 
         } else {
             comment.setUpdateBy(securityUtil.getCurrUser().getId());
+            comment.setId(cm.getId());
         }
         Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(comment)))
                 .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
@@ -177,8 +194,11 @@ public class ICommentServiceImpl extends ServiceImpl<CommentMapper, Comment> imp
                 commentVO.setItemAttrKeys(iItemAttrValService.getItemAttrVals(one.getAttrSymbolPath()));
             }
 
+            commentVO.setType(0);
             //处理商家后台的回复
             commentVO.setReply(Optional.ofNullable(this.getOne(Wrappers.<Comment>lambdaQuery().eq(Comment::getPid, comment.getId()))).map(comment3 ->{
+                commentVO.setType(1);
+                commentVO.setShopCommentId(comment3.getId());
                         return this.getCommentVO(comment3.getId()).getContent();
                     }).orElse(null));
             return commentVO;
@@ -198,5 +218,42 @@ public class ICommentServiceImpl extends ServiceImpl<CommentMapper, Comment> imp
         }).orElse("0");
 
     }
+
+    @Override
+    public List PcGetGoodsComment(Comment comment) {
+
+      /*  //先查询订单下的用户评论
+        Comment commentList = this.getOne(new QueryWrapper<Comment>().lambda()
+                .eq(Comment::getOrderId,orderId).eq(Comment::getDelFlag,0)
+        );
+        List<PcCommentVO> pcCommentVO = new ArrayList<>();
+
+        PcCommentVO pc = new PcCommentVO();
+        ToolUtil.copyProperties(commentList,pc);
+        pc.setNickName(Optional.ofNullable(userMapper.selectById(commentList.getCreateBy())).map(User::getNickName).orElse("未知"));
+        pc.setAvatar(Optional.ofNullable(userMapper.selectById(commentList.getCreateBy())).map(User::getAvatar).orElse(null));
+
+        pc.setReplyType(1);
+        pcCommentVO.add(pc);
+
+        //获取商家回复评论
+        if(ToolUtil.isNotEmpty(commentList)){
+            Comment commentList2 = this.getOne(new QueryWrapper<Comment>().lambda()
+                    .eq(Comment::getPid,commentList.getId()).eq(Comment::getDelFlag,0)
+            );
+            PcCommentVO pc2 = new PcCommentVO();
+            ToolUtil.copyProperties(commentList2,pc2);
+            pc2.setNickName(Optional.ofNullable(userMapper.selectById(commentList.getCreateBy())).map(User::getNickName).orElse("未知"));
+            pc2.setAvatar(Optional.ofNullable(userMapper.selectById(commentList.getCreateBy())).map(User::getAvatar).orElse(null));
+            pc2.setReplyType(2);
+            pcCommentVO.add(pc2);
+        }
+
+        return pcCommentVO;*/
+
+        return  this.getCommentList(comment);
+    }
+
+
 
 }

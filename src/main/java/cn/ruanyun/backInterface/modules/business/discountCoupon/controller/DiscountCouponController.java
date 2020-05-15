@@ -1,15 +1,19 @@
 package cn.ruanyun.backInterface.modules.business.discountCoupon.controller;
 
+import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.pojo.DiscountCoupon;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -89,6 +93,26 @@ public class DiscountCouponController {
     public Result<Object> getDiscountCouponListByCreatedId(String createBy) {
         return Optional.ofNullable(iDiscountCouponService.getDiscountCouponListByCreateBy(createBy))
                 .map(discountCouponList -> new ResultUtil<>().setData(discountCouponList,"获取列表成功！"))
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
+
+
+    /************************************************后端管理接口********************************************************/
+
+
+    /**
+     * 后端获取优惠券列表
+     * @return
+     */
+    @PostMapping("/PcGetDiscountCouponList")
+    public Result<Object> PcGetDiscountCouponList(PageVo pageVo, String id) {
+        return Optional.ofNullable(iDiscountCouponService.PcGetDiscountCouponList(id))
+                .map(pcDiscountCouponList -> {
+                    Map<String,Object> result = Maps.newHashMap();
+                    result.put("size",pcDiscountCouponList.size());
+                    result.put("data", PageUtil.listToPage(pageVo,pcDiscountCouponList));
+                    return new ResultUtil<>().setData(result,"后端获取优惠券列表成功！");
+                })
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
 

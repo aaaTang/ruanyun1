@@ -1,11 +1,14 @@
 package cn.ruanyun.backInterface.modules.business.goodCategory.controller;
 
 
+import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -104,6 +108,20 @@ public class GoodCategoryController {
     }
 
 
+    /**
+     * 按分类获取商家列表
+     * @return
+     */
+    @PostMapping(value = "/getCategoryShop")
+    public Result<Object> getCategoryShop(PageVo pageVo, String classId,String areaId){
 
+        return Optional.ofNullable(iGoodCategoryService.getCategoryShop(classId,areaId))
+                .map(categoryShop -> {
+                    Map<String,Object> result = Maps.newHashMap();
+                    result.put("size",  categoryShop.size());
+                    result.put("data", PageUtil.listToPage(pageVo,categoryShop));
+                    return new ResultUtil<>().setData(result,"按分类获取商家列表成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
 
 }

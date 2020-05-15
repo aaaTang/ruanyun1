@@ -63,4 +63,16 @@ public class CommentVO {
      */
     private String reply;
 
+    /**
+     * 商家评论id
+     */
+    private String shopCommentId;
+
+    /**
+     * 是否有商家回复
+     */
+    private Integer type;
+
+
+
 }

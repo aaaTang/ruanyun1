@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.goodService.serviceimpl;
 
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.modules.business.goodService.GoodServerVO;
 import cn.ruanyun.backInterface.modules.business.goodService.mapper.GoodServiceMapper;
 import cn.ruanyun.backInterface.modules.business.goodService.pojo.GoodService;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
@@ -55,12 +57,24 @@ public class IGoodServiceServiceImpl extends ServiceImpl<GoodServiceMapper, Good
       @Override
       public void removeGoodService(String ids) {
 
-          CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
+          GoodService goodService = new GoodService();
+           goodService.setId(ids);
+           goodService.setDelFlag(1);
+
+          CompletableFuture.runAsync(() -> this.saveOrUpdate(goodService));
       }
 
+    /**
+     * 按商品获取服务类型数据
+     * @param goodsId
+     * @return
+     */
     @Override
     public List<GoodServerVO> getGoodsServiceList(String goodsId) {
-        List<GoodService> list =this.list(new QueryWrapper<GoodService>().lambda().eq(GoodService::getGoodsId,goodsId));
+        List<GoodService> list =this.list(new QueryWrapper<GoodService>().lambda()
+                .eq(GoodService::getGoodsId,goodsId)
+                .eq(GoodService::getDelFlag,CommonConstant.STATUS_NORMAL)
+        );
 
         List<GoodServerVO> goodsServiceVOS = list.parallelStream().map(goodsService -> {
             GoodServerVO goods = new GoodServerVO();
@@ -69,4 +83,21 @@ public class IGoodServiceServiceImpl extends ServiceImpl<GoodServiceMapper, Good
         }).collect(Collectors.toList());
         return goodsServiceVOS;
     }
+
+    /**
+     * 获取商家自己的公用服务数据
+     * @return
+     */
+    @Override
+    public List getShopServiceList() {
+
+        return Optional.ofNullable(this.list(new QueryWrapper<GoodService>().lambda()
+                .eq(GoodService::getGoodsId,CommonConstant.STATUS_NORMAL)
+                .eq(GoodService::getCreateBy,securityUtil.getCurrUser().getId())
+                .eq(GoodService::getDelFlag, CommonConstant.STATUS_NORMAL)
+                .orderByDesc(GoodService::getCreateTime)
+        )).orElse(null);
+    }
+
+
 }

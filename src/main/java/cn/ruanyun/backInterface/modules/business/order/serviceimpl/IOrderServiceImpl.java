@@ -16,6 +16,8 @@ import cn.ruanyun.backInterface.modules.base.pojo.DictData;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.DictDataService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import cn.ruanyun.backInterface.modules.business.area.VO.AppAreaListVO;
+import cn.ruanyun.backInterface.modules.business.area.pojo.Area;
 import cn.ruanyun.backInterface.modules.business.balance.pojo.Balance;
 import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
 import cn.ruanyun.backInterface.modules.business.discountMy.VO.DiscountVO;
@@ -30,10 +32,8 @@ import cn.ruanyun.backInterface.modules.business.harvestAddress.service.IHarvest
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrValService;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderDTO;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderShowDTO;
-import cn.ruanyun.backInterface.modules.business.order.VO.GoodsPackageOrderVO;
-import cn.ruanyun.backInterface.modules.business.order.VO.OrderDetailVO;
-import cn.ruanyun.backInterface.modules.business.order.VO.OrderListVO;
-import cn.ruanyun.backInterface.modules.business.order.VO.ShowOrderVO;
+import cn.ruanyun.backInterface.modules.business.order.DTO.PcOrderDTO;
+import cn.ruanyun.backInterface.modules.business.order.VO.*;
 import cn.ruanyun.backInterface.modules.business.order.mapper.OrderMapper;
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
 import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
@@ -83,6 +83,9 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 
@@ -126,12 +129,12 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     private OrderDetailMapper orderDetailMapper;
     @Autowired
     private IUserRelationshipService userRelationshipService;
-
     @Autowired
     private IBalanceService balanceService;
-
     @Autowired
     private IProfitPercentService profitPercentService;
+    @Autowired
+    private ISizeAndRolorService iSizeAndRolorService;
 
     @Autowired
     private IProfitDetailService profitDetailService;
@@ -931,28 +934,99 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
             // TODO: 2020/5/13 0013 处理分账逻辑
 
+        });
+
+    }
+
+
+    /*****************************************************后端模块开始*************************************************************/
+
+
     /**
-     * 获取商家订单列表
-     *//*
-    private List PCgetShopOrderList(){
+     * 获取获取订单列表
+     */
+    public List PCgetShopOrderList(PcOrderDTO pcOrderDTO){
 
         //查询登录用户的权限
         String userRole = goodService.getRoleUserList(securityUtil.getCurrUser().getId());
 
         //判断权限是否为空
-        if(ToolUtil.isNotEmpty(userRole)){
+        if(ToolUtil.isEmpty(userRole)){
 
             return null;
         }else {
 
+            //查询订单表
+            List<Order> orderList = new ArrayList<>();
+
+            //登录角色是管理员
             if(userRole.equals(CommonConstant.ADMIN)){
-                List<Order> orderList = this.list();
+
+                //管理员查全部
+                orderList = this.list(new QueryWrapper<Order>().lambda()
+                        .eq(ToolUtil.isNotEmpty(pcOrderDTO.getId()),Order::getId,pcOrderDTO.getId()));//订单id
+
+                //登录是商家或者个人商家
+            }else if(userRole.equals(CommonConstant.STORE)||userRole.equals(CommonConstant.PER_STORE)){
+
+                //查商家自己下的订单
+                orderList = this.list(new QueryWrapper<Order>().lambda().eq(Order::getUserId,securityUtil.getCurrUser().getId())
+                        .eq(ToolUtil.isNotEmpty(pcOrderDTO.getId()),Order::getId,pcOrderDTO.getId()));//订单id
 
             }
+
+            //判断订单表不为空
+            if(ToolUtil.isNotEmpty(orderList)){
+
+                List<PCgetShopOrderListVO> pCgetShopOrderListVO = orderList.parallelStream()
+                        .map(shopOrderList->{
+
+                            PCgetShopOrderListVO shopOrder = new PCgetShopOrderListVO();
+
+                            //订单明细表
+                            OrderDetail orderDetai = orderDetailMapper.selectOne(Wrappers.<OrderDetail>lambdaQuery()
+                                    .eq(OrderDetail::getOrderId,shopOrderList.getId()));
+
+                            ToolUtil.copyProperties(orderDetai,shopOrder);
+
+                            //订单表
+                            ToolUtil.copyProperties(shopOrderList,shopOrder);
+
+                            //店铺名称
+                            shopOrder.setShopName(userService.getUserIdByUserName(shopOrderList.getUserId()));
+
+                            //商家类型
+                            shopOrder.setShopType(goodService.getRoleUserList(shopOrderList.getUserId()));
+
+                            //商品属性
+                            shopOrder.setAttrSymbolPathName(iSizeAndRolorService.attrSymbolPathName(orderDetai.getAttrSymbolPath()));
+
+                            return shopOrder;
+                        })//筛选
+                        .filter(pcOrderVo->pcOrderVo.getShopName().contains(ToolUtil.isNotEmpty(pcOrderDTO.getShopName())?pcOrderDTO.getShopName():pcOrderVo.getShopName()))
+                        .filter(pcOrderVo->pcOrderVo.getGoodName().contains(ToolUtil.isNotEmpty(pcOrderDTO.getGoodName())?pcOrderDTO.getGoodName():pcOrderVo.getGoodName()))
+                        .filter(pcOrderVo->pcOrderVo.getShopType().equals(ToolUtil.isNotEmpty(pcOrderDTO.getCommonConstant())?pcOrderDTO.getCommonConstant():pcOrderVo.getShopType()))
+                        //TODO::订单表支付类型空值
+                        //.filter(pcOrderVo->pcOrderVo.getPayTypeEnum().equals(ToolUtil.isNotEmpty(pcOrderDTO.getPayTypeEnum())?pcOrderDTO.getPayTypeEnum():pcOrderVo.getPayTypeEnum()))
+                        .collect(Collectors.toList());
+
+                return pCgetShopOrderListVO;
+            }else {
+
+                return null;
+            }
+
         }
-        return  null;
-    }*/
-        });
 
     }
+
+
+    /*****************************************************后端模块結束*************************************************************/
+
+
+
+
+
+
+
 }

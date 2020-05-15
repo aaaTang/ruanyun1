@@ -55,4 +55,10 @@ public interface ICommentService extends IService<Comment> {
      * 计算商品评分
      */
     String getGoodScore(String ids);
+
+    /**
+     * 后端按订单获取评论
+     * @return
+     */
+    List PcGetGoodsComment(Comment comment);
 }

@@ -10,6 +10,7 @@ import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.good.DTO.GoodDTO;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderDTO;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderShowDTO;
+import cn.ruanyun.backInterface.modules.business.order.DTO.PcOrderDTO;
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
 import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
 import com.google.api.client.util.Maps;
@@ -29,7 +30,7 @@ import java.util.Optional;
  */
 @Slf4j
 @RestController
-@RequestMapping("/ruanyun/order")
+    @RequestMapping("/ruanyun/order")
 @Transactional
 public class OrderController {
 
@@ -179,4 +180,28 @@ public class OrderController {
 
         return iOrderService.confirmReceive(orderId);
     }
+
+
+    /*************************************************后端管理开始*****************************************************/
+
+
+    /**
+     * 后端获取订单信息列表
+     * @param pageVo
+     * @return
+     */
+    @PostMapping("/PCgetShopOrderList")
+    public Result<Object> PCgetShopOrderList(PcOrderDTO pcOrderDTO, PageVo pageVo) {
+        return Optional.ofNullable(iOrderService.PCgetShopOrderList(pcOrderDTO))
+                .map(pcMyorderListVOS -> {
+                    Map<String,Object> result = Maps.newHashMap();
+                    result.put("size",pcMyorderListVOS.size());
+                    result.put("data", PageUtil.listToPage(pageVo,pcMyorderListVOS));
+                    return new ResultUtil<>().setData(result,"后端获取订单信息列表成功！");
+                })
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
+
+
+    /*************************************************后端管理结束*****************************************************/
 }

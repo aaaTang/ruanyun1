@@ -27,6 +27,19 @@ public interface IGoodServiceService extends IService<GoodService> {
        */
      void removeGoodService(String ids);
 
-
+    /**
+     * 按商品获取服务类型数据
+     * @param goodsId
+     * @return
+     */
      List<GoodServerVO> getGoodsServiceList(String goodsId);
+
+    /**
+     * 获取商家自己的公用服务数据
+     * @return
+     */
+     List getShopServiceList();
+
+
+
 }

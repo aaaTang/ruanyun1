@@ -55,4 +55,12 @@ public interface ISizeAndRolorService extends IService<SizeAndRolor> {
      * @return
      */
     List getWebInventory(String ids,String goodsId);
+
+
+    /**
+     * 查询规格名称
+     * @param id 规格拼接id
+     * @return
+     */
+    String attrSymbolPathName(String id);
 }

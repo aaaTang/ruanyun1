@@ -227,6 +227,7 @@ public interface CommonConstant {
 
     Integer NO = 1;
 
+    Integer AWAIT = -1;
 }
 
 

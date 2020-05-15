@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.discountCoupon.serviceimpl;
 
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.DisCouponTypeEnum;
 import cn.ruanyun.backInterface.common.enums.Disabled;
 import cn.ruanyun.backInterface.common.utils.EmptyUtil;
@@ -10,6 +11,7 @@ import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscoun
 import cn.ruanyun.backInterface.modules.business.discountMy.VO.DiscountVO;
 import cn.ruanyun.backInterface.modules.business.discountMy.pojo.DiscountMy;
 import cn.ruanyun.backInterface.modules.business.discountMy.service.IDiscountMyService;
+import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.VO.HarvestAddressVO;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.entity.HarvestAddress;
 import com.alibaba.druid.util.StringUtils;
@@ -50,7 +52,8 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
        private SecurityUtil securityUtil;
        @Autowired
        private IDiscountMyService discountMyService;
-
+        @Autowired
+        private IGoodService iGoodService;
        @Override
        public void insertOrderUpdateDiscountCoupon(DiscountCoupon discountCoupon) {
            if (ToolUtil.isEmpty(discountCoupon.getCreateBy())) {
@@ -177,7 +180,36 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
 
     }
 
+/**********************************************后端管理接口************************************************************/
 
+    /**
+     * 后端获取优惠券列表
+     * @return
+     */
+    @Override
+    public List PcGetDiscountCouponList(String id) {
+
+        //1.查询用户角色
+        String roleName = iGoodService.getRoleUserList(securityUtil.getCurrUser().getId());
+
+        //判空
+        if(ToolUtil.isNotEmpty(roleName)){
+
+            List<DiscountCoupon> discountCoupons = this.list();
+
+            //2.判断角色管理员还是商家或者个人商家
+            if(roleName.equals(CommonConstant.ADMIN)&&ToolUtil.isNotEmpty(discountCoupons)){ //管理员
+
+
+            }
+
+
+
+        }
+
+
+        return null;
+    }
 
 
 }

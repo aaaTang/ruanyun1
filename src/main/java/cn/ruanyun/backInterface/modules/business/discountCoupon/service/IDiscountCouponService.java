@@ -60,4 +60,9 @@ public interface IDiscountCouponService extends IService<DiscountCoupon> {
 
     List<DiscountCouponListVO>  getDiscountCouponListByCreateBy(String createBy);
 
+    /**
+     * 后端获取优惠券列表
+     * @return
+     */
+    List PcGetDiscountCouponList(String id);
 }

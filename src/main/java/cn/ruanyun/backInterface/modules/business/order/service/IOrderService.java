@@ -6,6 +6,7 @@ import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderDTO;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderShowDTO;
+import cn.ruanyun.backInterface.modules.business.order.DTO.PcOrderDTO;
 import cn.ruanyun.backInterface.modules.business.order.VO.MyOrderVO;
 import cn.ruanyun.backInterface.modules.business.order.VO.OrderDetailVO;
 import cn.ruanyun.backInterface.modules.business.order.VO.OrderListVO;
@@ -113,5 +114,11 @@ public interface IOrderService extends IService<Order> {
      * @return  Order
      */
     List<Order> getOrderListByStoreId(String storeId);
+
+    /**
+     *后端获取订单信息列表
+     */
+    List PCgetShopOrderList(PcOrderDTO pcOrderDTO);
+
 
 }

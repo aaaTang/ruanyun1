@@ -25,4 +25,12 @@ public interface IUserFeedbackService extends IService<UserFeedback> {
        * @param ids
        */
      void removeUserFeedback(String ids);
+
+
+    /**
+     * 后端查询意见反馈列表
+     * @return
+     */
+    List getFeedbackList(String id);
+
 }

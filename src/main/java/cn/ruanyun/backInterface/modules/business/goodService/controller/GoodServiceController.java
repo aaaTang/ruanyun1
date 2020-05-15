@@ -85,4 +85,22 @@ public class GoodServiceController {
     }
 
 
+
+    /**
+     * 获取商家自己的公用服务数据
+     * @return
+     */
+    @PostMapping(value = "/getShopServiceList")
+    public Result<Object> getShopServiceList(){
+
+        return Optional.ofNullable(iGoodServiceService.getShopServiceList())
+                .map(goodServer -> {
+
+                    Map<String,Object> result = Maps.newHashMap();
+                    result.put("data",goodServer);
+                    return new ResultUtil<>().setData(result,"获取商家自己的公用服务数据成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
+
+
 }

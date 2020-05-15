@@ -63,7 +63,7 @@ public class ISelectStoreServiceImpl extends ServiceImpl<SelectStoreMapper, Sele
 
     @Override
     public void removeSelectStore(String ids) {
-        CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
+        this.remove(Wrappers.<SelectStore>lambdaQuery().eq(SelectStore::getUserId,ids));
     }
 
     @Override
@@ -74,10 +74,12 @@ public class ISelectStoreServiceImpl extends ServiceImpl<SelectStoreMapper, Sele
                 .map(selectStores -> selectStores.parallelStream().flatMap(selectStore -> {
 
                     SelectStoreListVO selectStoreListVO = new SelectStoreListVO();
+                    selectStoreListVO.setCreateTime(selectStore.getCreateTime());
 
                     Optional.ofNullable(userService.getById(selectStore.getUserId()))
                             .ifPresent(user ->
-                                    selectStoreListVO.setAvatar(user.getPic().split(",")[0])
+
+                                    selectStoreListVO.setAvatar((ToolUtil.isNotEmpty(user.getPic())?user.getPic().split(",")[0]:""))
                                     .setUsername(user.getShopName())
                                     .setId(user.getId())
 

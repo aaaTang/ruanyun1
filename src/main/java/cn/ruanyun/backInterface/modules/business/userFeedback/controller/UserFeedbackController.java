@@ -1,15 +1,20 @@
 package cn.ruanyun.backInterface.modules.business.userFeedback.controller;
 
+import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.userFeedback.pojo.UserFeedback;
 import cn.ruanyun.backInterface.modules.business.userFeedback.service.IUserFeedbackService;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author z
@@ -61,5 +66,25 @@ public class UserFeedbackController {
             return new ResultUtil<>().setErrorMsg(201, e.getMessage());
         }
     }
+
+
+
+    /**
+     * 后端查询意见反馈列表
+     * @return
+     */
+    @PostMapping(value = "/getFeedbackList")
+    public Result<Object> getFeedbackList(PageVo pageVo, String id){
+
+        return Optional.ofNullable(iUserFeedbackService.getFeedbackList(id))
+                .map(feedbackList-> {
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("size",feedbackList.size());
+                    result.put("data", PageUtil.listToPage(pageVo,feedbackList));
+                    return new ResultUtil<>().setData(result, "查询意见反馈列表成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+    }
+
+
 
 }

@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.order.VO;
 
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.enums.OrderTypeEnum;
 import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
@@ -18,7 +19,6 @@ import java.util.Date;
 @Data
 @Accessors(chain = true)
 public class PCgetShopOrderListVO {
-
     private String id;
 
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
@@ -34,30 +34,18 @@ public class PCgetShopOrderListVO {
      */
     private OrderStatusEnum orderStatus;
     /**
-     * 订单类型枚举
-     */
-    private OrderTypeEnum typeEnum;
-    /**
-     * 商家id
-     */
-    private String userId;
-    /**
      * 支付类型
      */
     private PayTypeEnum payTypeEnum;
     /**
      * 总价格
      */
-    private BigDecimal totalPrice = new BigDecimal(0);
+    private BigDecimal totalPrice ;
     /**
      * 快递单号
      */
     private String expressCode;
 
-    /**
-     * 收获地址id
-     */
-    private String addressId;
     /**
      * 收货人
      */
@@ -72,4 +60,71 @@ public class PCgetShopOrderListVO {
      * 收获地址
      */
     private String address;
+
+
+    /*********订单明细**********/
+
+
+    /**
+     * 商品名称
+     */
+    private String goodName;
+
+    /**
+     * 商品图片
+     */
+    private String goodPics;
+
+    /**
+     * 商品新价格
+     */
+    private BigDecimal goodNewPrice;
+
+    /**
+     * 积分
+     */
+    private Integer integral;
+
+    /**
+     * 属性
+     */
+    private String attrSymbolPath;
+
+    /**
+     * 购买数量
+     */
+    private Integer buyCount;
+
+    /**
+     * 优惠券id
+     */
+    private String discountMyId;
+
+    /**
+     * 满多少
+     */
+    private BigDecimal fullMoney;
+    /**
+     * 减多少
+     */
+    private BigDecimal subtractMoney;
+
+
+    /***********************/
+
+    /**
+     * 商家名称
+     */
+    private String shopName;
+
+    /**
+     * 商家类型
+     */
+    private String shopType;
+
+    /**
+     * 商品属性
+     */
+    private String attrSymbolPathName;
+
 }

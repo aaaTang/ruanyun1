@@ -95,4 +95,22 @@ public class CommentController {
                 })
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
+
+
+    /**
+     * 后端按订单获取评论
+     * @param //goodId 商品id
+     * @return
+     */
+    @PostMapping(value = "/PcGetGoodsComment")
+    public Result<Object> PcGetGoodsComment(Comment comment){
+        try {
+
+            return new ResultUtil<>().setData(iCommentService.PcGetGoodsComment(comment),"获取成功!");
+        }catch (Exception e) {
+
+            return new ResultUtil<>().setErrorMsg(201, e.getMessage());
+        }
+    }
+
 }

@@ -4,23 +4,24 @@ import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.utils.RedisUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
-import cn.ruanyun.backInterface.modules.business.goodCategory.VO.GoodCategoryListVO;
-import cn.ruanyun.backInterface.modules.business.goodCategory.VO.GoodCategorySonVO;
-import cn.ruanyun.backInterface.modules.business.goodCategory.VO.GoodCategoryVO;
-import cn.ruanyun.backInterface.modules.business.goodCategory.VO.StoreCategoryVO;
+import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
+import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
+import cn.ruanyun.backInterface.modules.business.goodCategory.VO.*;
 import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
 import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
+import cn.ruanyun.backInterface.modules.business.grade.service.IGradeService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import javax.annotation.Resource;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -34,6 +35,9 @@ import java.util.stream.Stream;
 @Service
 @Transactional
 public class IGoodCategoryServiceImpl extends ServiceImpl<GoodCategoryMapper, GoodCategory> implements IGoodCategoryService {
+
+    @Resource
+    private UserMapper userMapper;
 
     /**
      * 插入分类
@@ -212,5 +216,79 @@ public class IGoodCategoryServiceImpl extends ServiceImpl<GoodCategoryMapper, Go
                 .collect(Collectors.groupingBy(GoodCategory::getParentId)))
                 .orElse(null);
     }
+
+    @Autowired
+    private IGradeService gradeService;
+    @Autowired
+    private ICommentService commentService;
+
+
+    /**
+     * 按分类获取商家列表
+     * @return
+     */
+    public List getCategoryShop(String classId,String areaId) {
+
+
+        List<GoodCategory> categoryList = new ArrayList<>();
+
+            //1.先查一级分类
+            GoodCategory goodCategory = this.getById(classId);
+
+        if(ToolUtil.isNotEmpty(goodCategory)){
+            //放入集合
+            categoryList.add(goodCategory);
+
+            //2.查询二级分类
+            List<GoodCategory> list = this.list(new QueryWrapper<GoodCategory>().lambda()
+                    .eq(GoodCategory::getParentId,classId)
+                    .eq(GoodCategory::getDelFlag,0));
+            //二级分类放入集合
+            for (GoodCategory category : list) {
+                categoryList.add(category);
+            }
+
+            List<User> users = new ArrayList<>();
+
+            //3.按分类查询商家
+            for (GoodCategory category : categoryList) {
+
+                List<User> userList = userMapper.selectList(new QueryWrapper<User>().lambda()
+                        .eq(User::getClassId,category.getId())
+                        .eq((ToolUtil.isNotEmpty(areaId)),User::getAreaId,areaId)
+                        .eq(User::getDelFlag,CommonConstant.STATUS_NORMAL)
+                        .eq(User::getStatus,CommonConstant.STATUS_NORMAL)
+                );
+
+                for (User user : userList) {
+                    users.add(user);
+                }
+
+            }
+
+            //4.查询商家信息
+            List<CategoryShopVO> categoryShopVOList = new ArrayList<>();
+
+            for (User userAll : users){
+                CategoryShopVO categoryShopVO = new CategoryShopVO();
+
+                ToolUtil.copyProperties(userAll,categoryShopVO);
+                categoryShopVO.setPic((ToolUtil.isNotEmpty(userAll.getPic())?userAll.getPic().split(",")[0]:""))
+                        .setGrade(Double.parseDouble(gradeService.getShopScore(userAll.getId())))
+                        .setCommentNum(Optional.ofNullable(commentService.getCommentVOByGoodId(userAll.getId()))
+                                .map(List::size)
+                                .orElse(0));
+
+                categoryShopVOList.add(categoryShopVO);
+            }
+
+            return categoryShopVOList;
+        }
+
+
+       return null;
+    }
+
+
 
 }

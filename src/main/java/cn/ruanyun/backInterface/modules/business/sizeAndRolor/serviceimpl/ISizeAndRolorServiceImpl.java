@@ -195,5 +195,18 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
     }
 
 
+    @Override
+    public String attrSymbolPathName(String id) {
+        String[] attrVal = id.split(",");
+
+        List<ItemAttrVal> itemAttrVal = new ArrayList<>();
+        for (String s : attrVal) {ItemAttrVal AttrVal  = itemAttrValMapper.selectById(s);itemAttrVal.add(AttrVal);}
+
+        String attrName = "";//规格名称拼接
+        for(int i= 0;i<itemAttrVal.size();i++){attrName+=itemAttrVal.get(i).getAttrValue();
+            if(itemAttrVal.size()-1>i){attrName+=",";}
+        }
+        return attrName;
+    }
 
 }
