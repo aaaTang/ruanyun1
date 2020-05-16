@@ -96,12 +96,12 @@ public class IPayServiceImpl implements IPayService {
 		Participant payer = new Participant();
 
 		//标识类型，ALIPAY_USER_ID：支付宝的会员ID ALIPAY_LOGON_ID：支付宝登录号，邮箱、手机等
-		payer.setIdentityType("ALIPAY_USER_ID");
+		payer.setIdentityType("ALIPAY_LOGON_ID");
 
 		//支付宝账号
-		payer.setIdentity("2088831017268525");
+		payer.setIdentity("448963818@qq.com");
 
-		payer.setName("合肥翰飞科技有限公司");
+		payer.setName("宁波梵莎芙珠宝有限公司");
 
 		model.setPayerInfo(payer);
 

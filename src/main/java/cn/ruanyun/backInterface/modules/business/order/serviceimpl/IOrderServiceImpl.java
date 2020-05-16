@@ -782,33 +782,50 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             .getStoreProfit().multiply(order.getTotalPrice()));
 
             //3. 转账操作
-            try {
-               String result = payService.aliPayTransfer(transferDto);
+            //3.1 结算金额转到商家余额
 
+            Optional.ofNullable(userService.getById(order.getUserId()))
+                    .ifPresent(user -> {
 
-               //3.1 记录商家收入管理明细
-                // TODO: 2020/5/14 0014  转账成功后才进入到保存收入明细环节,目前暂未做处理
-                StoreIncome storeIncome = new StoreIncome();
-                storeIncome.setIncomeMoney(profitPercentService.getProfitPercentLimitOne(ProfitTypeEnum.FIRST)
-                        .getStoreProfit().multiply(order.getTotalPrice()))
-                        .setIncomeType(PayTypeEnum.ALI_PAY)
-                        .setOrderId(order.getId())
-                        .setCreateBy(order.getUserId());
+                        //增加余额
+                        ThreadPoolUtil.getPool().execute(() -> {
 
-                storeIncomeService.save(storeIncome);
+                            user.setBalance(user.getBalance().add(transferDto.getAmount()));
+                            userService.updateById(user);
+                            log.info("转账成功, 当前转账金额为" + transferDto.getAmount());
+                        });
 
-               log.info("处理支付宝转账回调信息" + result);
+                        //记录明细
+                        ThreadPoolUtil.getPool().execute(() -> {
 
-            } catch (AlipayApiException e) {
-                e.printStackTrace();
-            }
+                            Balance balance = new Balance();
+                            balance.setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.ADD)
+                                    .setTitle("订单" + order.getOrderNum() + "收入")
+                                    .setPrice(transferDto.getAmount())
+                                    .setCreateBy(order.getUserId());
+                            balanceService.save(balance);
+
+                            log.info("记录商家到账金额明细成功！");
+                        });
+                    });
+
+            //3.2 记录商家收入管理明细
+            // TODO: 2020/5/14 0014  转账成功后才进入到保存收入明细环节,目前暂未做处理
+            StoreIncome storeIncome = new StoreIncome();
+            storeIncome.setIncomeMoney(profitPercentService.getProfitPercentLimitOne(ProfitTypeEnum.FIRST)
+                    .getStoreProfit().multiply(order.getTotalPrice()))
+                    .setIncomeType(PayTypeEnum.ALI_PAY)
+                    .setOrderId(order.getId())
+                    .setCreateBy(order.getUserId());
+
+            storeIncomeService.save(storeIncome);
 
         });
     }
 
     /**
      * 处理二级分销
-     * @param orderId
+     * @param orderId 订单id
      */
     public void resolveOrderTwoProfit(String orderId) {
 
