@@ -33,6 +33,7 @@ import cn.ruanyun.backInterface.modules.business.storeAudit.mapper.StoreAuditMap
 import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
 import cn.ruanyun.backInterface.modules.business.storeAudit.service.IStoreAuditService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -86,15 +87,19 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
 
 
     @Override
-    public void insertOrderUpdateStoreAudit(StoreAudit storeAudit) {
-        if (ToolUtil.isEmpty(storeAudit.getCreateBy())) {
+    public Result<Object> insertOrderUpdateStoreAudit(StoreAudit storeAudit) {
+
+        StoreAudit s = this.getOne(new QueryWrapper<StoreAudit>().lambda().eq(StoreAudit::getCreateBy,securityUtil.getCurrUser().getId()));
+
+        if(ToolUtil.isNotEmpty(s)){
+            return new ResultUtil<>().setErrorMsg(201,"您已申请，无需再次申请！");
+        }else {
             storeAudit.setCreateBy(securityUtil.getCurrUser().getId());
-        } else {
-            storeAudit.setUpdateBy(securityUtil.getCurrUser().getId());
+            return new ResultUtil<>().setData( Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(storeAudit)))
+                    .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
+                    .toFuture().join(),"申请成功！");
         }
-        Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(storeAudit)))
-                .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
-                .toFuture().join();
+
     }
 
     @Override
@@ -147,6 +152,7 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
                        user.setNickName(storeAudit1.getUsername());
                        user.setId(storeAudit1.getCreateBy());
                        user.setAreaId(storeAudit1.getAreaId());
+                       user.setAddress(Optional.ofNullable(iAreaService.getAddress(storeAudit1.getAreaId())).orElse("地区暂未设置！"));
                        user.setClassId(storeAudit1.getClassificationId());
                        user.setWechatAccount(storeAudit1.getWechatAccount());
                        user.setAlipayAccount(storeAudit1.getAlipayAccount());

@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.discountCoupon.service;
 
+import cn.ruanyun.backInterface.modules.business.discountCoupon.DTO.DiscountCouponDTO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
 import cn.ruanyun.backInterface.modules.business.discountMy.VO.DiscountVO;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.VO.HarvestAddressVO;
@@ -64,5 +65,5 @@ public interface IDiscountCouponService extends IService<DiscountCoupon> {
      * 后端获取优惠券列表
      * @return
      */
-    List PcGetDiscountCouponList(String id);
+    List PcGetDiscountCouponList(DiscountCouponDTO discountCouponDTO);
 }

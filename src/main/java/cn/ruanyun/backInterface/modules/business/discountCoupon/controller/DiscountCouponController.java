@@ -4,6 +4,7 @@ import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.discountCoupon.DTO.DiscountCouponDTO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.pojo.DiscountCoupon;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
 import com.google.common.collect.Maps;
@@ -105,8 +106,8 @@ public class DiscountCouponController {
      * @return
      */
     @PostMapping("/PcGetDiscountCouponList")
-    public Result<Object> PcGetDiscountCouponList(PageVo pageVo, String id) {
-        return Optional.ofNullable(iDiscountCouponService.PcGetDiscountCouponList(id))
+    public Result<Object> PcGetDiscountCouponList(PageVo pageVo, DiscountCouponDTO discountCouponDTO) {
+        return Optional.ofNullable(iDiscountCouponService.PcGetDiscountCouponList(discountCouponDTO))
                 .map(pcDiscountCouponList -> {
                     Map<String,Object> result = Maps.newHashMap();
                     result.put("size",pcDiscountCouponList.size());

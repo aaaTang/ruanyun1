@@ -4,17 +4,24 @@ import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.DisCouponTypeEnum;
 import cn.ruanyun.backInterface.common.enums.Disabled;
 import cn.ruanyun.backInterface.common.utils.EmptyUtil;
+import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
+import cn.ruanyun.backInterface.modules.business.discountCoupon.DTO.DiscountCouponDTO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
+import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.PcGetDiscountCouponListVO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.mapper.DiscountCouponMapper;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.pojo.DiscountCoupon;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
 import cn.ruanyun.backInterface.modules.business.discountMy.VO.DiscountVO;
 import cn.ruanyun.backInterface.modules.business.discountMy.pojo.DiscountMy;
 import cn.ruanyun.backInterface.modules.business.discountMy.service.IDiscountMyService;
+import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
+import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.VO.HarvestAddressVO;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.entity.HarvestAddress;
 import com.alibaba.druid.util.StringUtils;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +43,7 @@ import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 
+import javax.annotation.Resource;
 import javax.swing.text.html.Option;
 
 
@@ -54,6 +62,10 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
        private IDiscountMyService discountMyService;
         @Autowired
         private IGoodService iGoodService;
+        @Resource
+        private UserMapper userMapper;
+        @Resource
+        private GoodMapper goodMapper;
        @Override
        public void insertOrderUpdateDiscountCoupon(DiscountCoupon discountCoupon) {
            if (ToolUtil.isEmpty(discountCoupon.getCreateBy())) {
@@ -187,7 +199,7 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
      * @return
      */
     @Override
-    public List PcGetDiscountCouponList(String id) {
+    public List PcGetDiscountCouponList(DiscountCouponDTO discountCouponDTO) {
 
         //1.查询用户角色
         String roleName = iGoodService.getRoleUserList(securityUtil.getCurrUser().getId());
@@ -195,14 +207,45 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
         //判空
         if(ToolUtil.isNotEmpty(roleName)){
 
-            List<DiscountCoupon> discountCoupons = this.list();
+            List<DiscountCoupon> discountCoupons = new ArrayList<>();
 
             //2.判断角色管理员还是商家或者个人商家
-            if(roleName.equals(CommonConstant.ADMIN)&&ToolUtil.isNotEmpty(discountCoupons)){ //管理员
+            if(roleName.equals(CommonConstant.ADMIN)){ //管理员
+                discountCoupons = this.list(new QueryWrapper<DiscountCoupon>().lambda()
+                        .eq((ToolUtil.isNotEmpty(discountCouponDTO.getId())),DiscountCoupon::getId,discountCouponDTO.getId())
+                        .eq((ToolUtil.isNotEmpty(discountCouponDTO.getPastDue())),DiscountCoupon::getPastDue,discountCouponDTO.getPastDue())
+                );
 
+            }else if(roleName.equals(CommonConstant.STORE)||roleName.equals(CommonConstant.PER_STORE)){//商家或者个人商家
 
+                discountCoupons = this.list(new QueryWrapper<DiscountCoupon>().lambda().eq((ToolUtil.isNotEmpty(discountCouponDTO.getId())),DiscountCoupon::getId,discountCouponDTO.getId())
+                        .eq((ToolUtil.isNotEmpty(discountCouponDTO.getPastDue())),DiscountCoupon::getPastDue,discountCouponDTO.getPastDue())
+                        .eq(DiscountCoupon::getCreateBy,securityUtil.getCurrUser().getId()));
             }
 
+            //3.优惠券不为空
+            if(ToolUtil.isNotEmpty(discountCoupons)){
+
+                List<PcGetDiscountCouponListVO> pcGetDiscountList = discountCoupons.parallelStream().map(discountCoupon -> {
+
+                    PcGetDiscountCouponListVO pc = new PcGetDiscountCouponListVO();
+
+                    ToolUtil.copyProperties(discountCoupon,pc);
+                    //店铺名称
+                    pc.setShopName(Optional.ofNullable(userMapper.selectById(discountCoupon.getStoreAuditOid())).map(User::getShopName).orElse("无！"))
+                            //商品名称
+                            .setGoodsName(Optional.ofNullable(goodMapper.selectById(discountCoupon.getGoodsPackageId())).map(Good::getGoodName).orElse("无！"))
+                            //创建人名称
+                            .setCreateName(Optional.ofNullable(userMapper.selectById(discountCoupon.getCreateBy())).map(User::getNickName).orElse("无！"));
+
+                   return pc;
+                }).filter(pcVO-> pcVO.getCreateName().contains(ToolUtil.isNotEmpty(discountCouponDTO.getCreateName())?discountCouponDTO.getCreateName():pcVO.getCreateName()))
+
+                        .collect(Collectors.toList());
+
+
+                return pcGetDiscountList;
+            }
 
 
         }
