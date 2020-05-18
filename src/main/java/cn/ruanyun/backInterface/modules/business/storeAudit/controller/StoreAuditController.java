@@ -38,14 +38,8 @@ public class StoreAuditController {
     @PostMapping(value = "/insertOrderUpdateStoreAudit")
     public Result<Object> insertOrderUpdateStoreAudit(StoreAudit storeAudit){
 
-        try {
+       return iStoreAuditService.insertOrderUpdateStoreAudit(storeAudit);
 
-            iStoreAuditService.insertOrderUpdateStoreAudit(storeAudit);
-            return new ResultUtil<>().setSuccessMsg("插入或者更新成功!");
-        }catch (Exception e) {
-
-            return new ResultUtil<>().setErrorMsg(201, e.getMessage());
-        }
     }
 
 

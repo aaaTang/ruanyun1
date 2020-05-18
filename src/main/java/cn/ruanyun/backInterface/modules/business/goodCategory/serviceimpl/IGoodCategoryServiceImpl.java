@@ -136,8 +136,13 @@ public class IGoodCategoryServiceImpl extends ServiceImpl<GoodCategoryMapper, Go
      */
     public List<GoodCategory> goodCategoryList(String pid) {
 
-        return ToolUtil.setListToNul(this.list(Wrappers.<GoodCategory>lambdaQuery()
-            .eq(GoodCategory::getParentId,pid).orderByAsc(GoodCategory::getCreateTime)));
+        /*return ToolUtil.setListToNul(this.list(Wrappers.<GoodCategory>lambdaQuery()
+            .eq(GoodCategory::getParentId,pid)
+                .orderByAsc(GoodCategory::getSortOrder)));*/
+
+        return this.list(Wrappers.<GoodCategory>lambdaQuery()
+                .eq(GoodCategory::getParentId,pid)
+                .orderByAsc(GoodCategory::getSortOrder));
     }
 
 
@@ -212,7 +217,7 @@ public class IGoodCategoryServiceImpl extends ServiceImpl<GoodCategoryMapper, Go
 
         return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<GoodCategory>lambdaQuery()
                 .ne(GoodCategory::getParentId,CommonConstant.PARENT_ID)
-                .orderByDesc(GoodCategory::getCreateTime)))).map(goodCategories -> goodCategories.parallelStream()
+                .orderByDesc(GoodCategory::getSortOrder)))).map(goodCategories -> goodCategories.parallelStream()
                 .collect(Collectors.groupingBy(GoodCategory::getParentId)))
                 .orElse(null);
     }

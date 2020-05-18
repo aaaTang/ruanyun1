@@ -20,8 +20,11 @@ import cn.ruanyun.backInterface.modules.base.vo.*;
 import cn.ruanyun.backInterface.modules.business.area.service.IAreaService;
 import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
 import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
+import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.good.serviceimpl.IGoodServiceImpl;
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
+import cn.ruanyun.backInterface.modules.business.goodService.pojo.GoodService;
+import cn.ruanyun.backInterface.modules.business.goodService.service.IGoodServiceService;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
 import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
 import cn.ruanyun.backInterface.modules.business.myFootprint.service.IMyFootprintService;
@@ -572,13 +575,29 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                 .orElse(null);
     }
 
+
     /**
      * 后端获取用户详情
      * @return
      */
     @Override
     public BackUserVO getBackUserParticulars(String userId,UserTypeEnum userTypeEnum) {
-        return this.getBackUserVO(userId, UserTypeEnum.STORE);
+
+        if(ToolUtil.isEmpty(userId) && ToolUtil.isEmpty(userTypeEnum)){
+
+            String roleName = iGoodService.getRoleUserList(securityUtil.getCurrUser().getId());
+
+            if(roleName.equals(UserTypeEnum.STORE.getValue())){
+                return this.getBackUserVO(securityUtil.getCurrUser().getId(), UserTypeEnum.STORE);
+            }else if(roleName.equals(UserTypeEnum.PER_STORE.getValue())){
+                return this.getBackUserVO(securityUtil.getCurrUser().getId(), UserTypeEnum.PER_STORE);
+            }
+
+           return null;
+        }else {
+            return this.getBackUserVO(userId, UserTypeEnum.STORE);
+        }
+
     }
 
     @Override

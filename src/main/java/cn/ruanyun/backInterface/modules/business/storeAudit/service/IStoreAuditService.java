@@ -20,7 +20,7 @@ public interface IStoreAuditService extends IService<StoreAudit> {
         * 插入或者更新storeAudit
         * @param storeAudit
        */
-     void insertOrderUpdateStoreAudit(StoreAudit storeAudit);
+      Result<Object> insertOrderUpdateStoreAudit(StoreAudit storeAudit);
 
 
       /**

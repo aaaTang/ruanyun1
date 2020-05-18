@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.order.DTO;
 
+import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
 import lombok.Data;
 
@@ -9,6 +10,10 @@ public class PcOrderDTO {
 
     private String id;
 
+    /**
+     * 订单状态
+     */
+    private OrderStatusEnum orderStatus;
     /**
      * 用户类型
      */

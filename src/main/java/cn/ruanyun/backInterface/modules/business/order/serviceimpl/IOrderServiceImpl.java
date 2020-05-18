@@ -1029,6 +1029,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                         .filter(pcOrderVo->pcOrderVo.getShopName().contains(ToolUtil.isNotEmpty(pcOrderDTO.getShopName())?pcOrderDTO.getShopName():pcOrderVo.getShopName()))
                         .filter(pcOrderVo->pcOrderVo.getGoodName().contains(ToolUtil.isNotEmpty(pcOrderDTO.getGoodName())?pcOrderDTO.getGoodName():pcOrderVo.getGoodName()))
                         .filter(pcOrderVo->pcOrderVo.getShopType().equals(ToolUtil.isNotEmpty(pcOrderDTO.getCommonConstant())?pcOrderDTO.getCommonConstant():pcOrderVo.getShopType()))
+                        .filter(pcOrderVo->pcOrderVo.getOrderStatus().equals(ToolUtil.isNotEmpty(pcOrderDTO.getOrderStatus())?pcOrderDTO.getOrderStatus():pcOrderVo.getOrderStatus()))
                         //TODO::订单表支付类型空值
                         //.filter(pcOrderVo->pcOrderVo.getPayTypeEnum().equals(ToolUtil.isNotEmpty(pcOrderDTO.getPayTypeEnum())?pcOrderDTO.getPayTypeEnum():pcOrderVo.getPayTypeEnum()))
                         .collect(Collectors.toList());
