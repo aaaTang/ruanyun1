@@ -2,7 +2,7 @@ package cn.ruanyun.backInterface.modules.business.staffManagement.serviceimpl;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
-import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
@@ -32,9 +32,6 @@ import java.util.stream.Stream;
 
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import cn.ruanyun.backInterface.common.utils.ToolUtil;
-import cn.ruanyun.backInterface.common.utils.SecurityUtil;
-import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 
 
 /**
@@ -74,7 +71,7 @@ public class IStaffManagementServiceImpl extends ServiceImpl<StaffManagementMapp
 
             if (ToolUtil.isNotEmpty(CommonConstant.PRE_SMS.concat(staffDto.getMobile()))) {
 
-                if (ObjectUtil.equal(staffDto.getCode(), CommonConstant.PRE_SMS.concat(staffDto.getMobile()))) {
+                if (ObjectUtil.equal(staffDto.getCode(), RedisUtil.getStr(CommonConstant.PRE_SMS.concat(staffDto.getMobile())))) {
 
                     //1.判断是否有当前手机号用户
                     return Optional.ofNullable(userService.getOne(Wrappers.<User>lambdaQuery().eq(User::getMobile, staffDto.getMobile())))
