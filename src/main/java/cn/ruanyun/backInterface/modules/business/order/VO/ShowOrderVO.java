@@ -38,4 +38,8 @@ public class ShowOrderVO {
     //确认下单的时候需要传的商品的数据
     private  String goods;
 
+    /**
+     * 商品描述
+     */
+    private String goodDesc;
 }

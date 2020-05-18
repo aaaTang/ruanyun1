@@ -32,4 +32,8 @@ public class MyOrderVO {
 
     private String createTime;
 
+    /**
+     * 商品描述
+     */
+    private String goodDesc;
 }

@@ -127,4 +127,9 @@ public class PCgetShopOrderListVO {
      */
     private String attrSymbolPathName;
 
+    /**
+     * 商品描述
+     */
+    private String goodDesc;
+
 }

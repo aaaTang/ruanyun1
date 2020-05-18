@@ -3,11 +3,13 @@ package cn.ruanyun.backInterface.modules.business.order.controller;
 import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
+import cn.ruanyun.backInterface.common.exception.RuanyunException;
 import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.good.DTO.GoodDTO;
+import cn.ruanyun.backInterface.modules.business.order.DTO.OffLineOrderDto;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderDTO;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderShowDTO;
 import cn.ruanyun.backInterface.modules.business.order.DTO.PcOrderDTO;
@@ -201,6 +203,26 @@ public class OrderController {
                 })
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
+
+
+    /**
+     * 添加线下订单
+     * @param offLineOrderDto offLineOrderDto
+     * @return Object
+     */
+    @PostMapping("/insertOffLineOrder")
+    public Result<Object> insertOffLineOrder(OffLineOrderDto offLineOrderDto) {
+
+        try {
+
+            iOrderService.insertOffLineOrder(offLineOrderDto);
+            return new ResultUtil<>().setSuccessMsg("添加线下订单成功！");
+        }catch (RuanyunException e) {
+
+            return new ResultUtil<>().setErrorMsg(201, e.getMsg());
+        }
+    }
+
 
 
     /*************************************************后端管理结束*****************************************************/

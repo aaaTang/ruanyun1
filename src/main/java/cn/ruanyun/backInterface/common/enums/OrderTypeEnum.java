@@ -11,10 +11,30 @@ import com.fasterxml.jackson.annotation.JsonValue;
 public enum OrderTypeEnum {
 
 
+    /**
+     * 预约
+     */
     APPOINTMENT (1,"预约"),
+
+    /**
+     * 订单
+     */
     ORDER(2,"订单"),
+
+    /**
+     * 套餐订单
+     */
     GOODSPACKAGE (1,"套餐订单"),
-    GOOD(2,"商品订单");
+
+    /**
+     * 商品订单
+     */
+    GOOD(2,"商品订单"),
+
+    /**
+     * 线下订单
+     */
+    OFFLINE_ORDER(3, "线下订单");
 
     OrderTypeEnum(int code, String value) {
         this.code = code;

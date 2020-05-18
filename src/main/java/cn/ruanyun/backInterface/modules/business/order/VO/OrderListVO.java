@@ -59,5 +59,11 @@ public class OrderListVO {
      */
     private String orderStatus ;
 
+    /**
+     * 商品描述
+     */
+    private String goodDesc;
+
+
     private int orderStatusInt ;
 }

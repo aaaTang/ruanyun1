@@ -188,6 +188,7 @@ public interface CommonConstant {
 
     String PER_STORE = "个人商家";
 
+    String STAFF = "员工";
 
 
     /*-------------------筛选类型-----------------------------*/

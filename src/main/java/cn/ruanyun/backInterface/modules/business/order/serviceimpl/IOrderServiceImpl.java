@@ -30,6 +30,7 @@ import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPack
 import cn.ruanyun.backInterface.modules.business.harvestAddress.entity.HarvestAddress;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.service.IHarvestAddressService;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrValService;
+import cn.ruanyun.backInterface.modules.business.order.DTO.OffLineOrderDto;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderDTO;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderShowDTO;
 import cn.ruanyun.backInterface.modules.business.order.DTO.PcOrderDTO;
@@ -51,6 +52,8 @@ import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingC
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
+import cn.ruanyun.backInterface.modules.business.staffManagement.pojo.StaffManagement;
+import cn.ruanyun.backInterface.modules.business.staffManagement.service.IStaffManagementService;
 import cn.ruanyun.backInterface.modules.business.storeIncome.pojo.StoreIncome;
 import cn.ruanyun.backInterface.modules.business.storeIncome.service.IStoreIncomeService;
 import cn.ruanyun.backInterface.modules.business.userRelationship.mapper.UserRelationshipMapper;
@@ -142,6 +145,8 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     @Autowired
     private IStoreIncomeService storeIncomeService;
 
+    @Autowired
+    private IStaffManagementService staffManagementService;
 
 
     @Override
@@ -962,6 +967,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     /**
      * 获取获取订单列表
      */
+    @Override
     public List PCgetShopOrderList(PcOrderDTO pcOrderDTO){
 
         //查询登录用户的权限
@@ -1037,13 +1043,29 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
     }
 
-
-    /*****************************************************后端模块結束*************************************************************/
-
-
+    @Override
+    public void insertOffLineOrder(OffLineOrderDto offLineOrderDto) {
 
 
+        Order order = new Order();
 
+        order.setTypeEnum(OrderTypeEnum.OFFLINE_ORDER)
+                .setUserId(Optional.ofNullable(staffManagementService.getOne(Wrappers.<StaffManagement>lambdaQuery()
+                .eq(StaffManagement::getStaffId, offLineOrderDto.getStaffId()))).map(StaffManagement::getCreateBy).orElse(null))
+                .setCreateBy(securityUtil.getCurrUser().getId());
 
+        ToolUtil.copyProperties(offLineOrderDto, order);
+
+        this.save(order);
+    }
+
+    @Override
+    public BigDecimal getStaffSaleAmount(String staffId) {
+
+        return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<Order>lambdaQuery()
+        .eq(Order::getStaffId, staffId))))
+        .map(orders -> orders.parallelStream().map(Order::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add))
+        .orElse(new BigDecimal(0));
+    }
 
 }

@@ -8,6 +8,7 @@ import cn.ruanyun.backInterface.common.utils.CommonUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -21,6 +22,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "t_order")
 @TableName("t_order")
+@Accessors(chain = true)
 public class Order extends RuanyunBaseEntity {
 
     private static final long serialVersionUID = 1L;
@@ -32,7 +34,7 @@ public class Order extends RuanyunBaseEntity {
     /**
      * 订单状态
      */
-    private OrderStatusEnum orderStatus;
+    private OrderStatusEnum orderStatus = OrderStatusEnum.PRE_PAY;
     /**
      * 订单类型枚举
      */
@@ -72,4 +74,14 @@ public class Order extends RuanyunBaseEntity {
      * 收获地址
      */
     private String address;
+
+    /**
+     * 员工id(销售员工)
+     */
+    private String staffId;
+
+    /**
+     * 商品描述
+     */
+    private String goodDesc;
 }

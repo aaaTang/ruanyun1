@@ -48,4 +48,8 @@ public class GoodsPackageOrderVO {
      */
     private BigDecimal subtractMoney;
 
+    /**
+     * 商品描述
+     */
+    private String goodDesc;
 }

@@ -69,6 +69,11 @@ public class OrderDetailVO {
     private List<OrderDetailListVO> orderDetails;
 
     /**
+     * 商品描述
+     */
+    private String goodDesc;
+
+    /**
      * 创建时间
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")

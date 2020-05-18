@@ -4,6 +4,7 @@ import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.order.DTO.OffLineOrderDto;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderDTO;
 import cn.ruanyun.backInterface.modules.business.order.DTO.OrderShowDTO;
 import cn.ruanyun.backInterface.modules.business.order.DTO.PcOrderDTO;
@@ -120,5 +121,22 @@ public interface IOrderService extends IService<Order> {
      */
     List PCgetShopOrderList(PcOrderDTO pcOrderDTO);
 
+
+
+    /*-----------------------------------------线下商家支付码订单-------------------------*/
+
+    /**
+     * 新增线下订单
+     * @param offLineOrderDto  offLineOrderDto
+     */
+    void insertOffLineOrder(OffLineOrderDto offLineOrderDto);
+
+
+    /**
+     * 获取员工的销售额
+     * @param staffId 员工id
+     * @return BigDecimal
+     */
+    BigDecimal getStaffSaleAmount(String staffId);
 
 }

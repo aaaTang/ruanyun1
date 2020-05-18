@@ -46,4 +46,9 @@ public class BackOrderListVO extends OrderListVO{
      */
     private String orderStatus;
 
+
+    /**
+     * 商品描述
+     */
+    private String goodDesc;
 }
