@@ -1045,7 +1045,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     }
 
     @Override
-    public void insertOffLineOrder(OffLineOrderDto offLineOrderDto) {
+    public Result<Object> insertOffLineOrder(OffLineOrderDto offLineOrderDto) {
 
 
         Order order = new Order();
@@ -1058,6 +1058,12 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         ToolUtil.copyProperties(offLineOrderDto, order);
 
         this.save(order);
+
+        Map<String, Object> map = new ArrayMap<>();
+        map.put("id", order.getId());
+        map.put("totalPrice", order.getTotalPrice());
+        return new ResultUtil<>().setData(map, "插入或者更新成功!");
+
     }
 
     @Override

@@ -215,8 +215,8 @@ public class OrderController {
 
         try {
 
-            iOrderService.insertOffLineOrder(offLineOrderDto);
-            return new ResultUtil<>().setSuccessMsg("添加线下订单成功！");
+            return iOrderService.insertOffLineOrder(offLineOrderDto);
+
         }catch (RuanyunException e) {
 
             return new ResultUtil<>().setErrorMsg(201, e.getMsg());

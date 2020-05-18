@@ -129,7 +129,7 @@ public interface IOrderService extends IService<Order> {
      * 新增线下订单
      * @param offLineOrderDto  offLineOrderDto
      */
-    void insertOffLineOrder(OffLineOrderDto offLineOrderDto);
+    Result<Object> insertOffLineOrder(OffLineOrderDto offLineOrderDto);
 
 
     /**
