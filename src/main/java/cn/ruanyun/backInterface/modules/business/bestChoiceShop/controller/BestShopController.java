@@ -75,15 +75,7 @@ public class BestShopController {
      * @return
      */
     @PostMapping(value = "/getBestChoiceShopList")
-    public Result<Object> getBestChoiceShopList(Integer pageNumber, Integer pageSize,String strict){
-                     PageVo pageVo = new PageVo();
-                    if(EmptyUtil.isEmpty(pageNumber)&&EmptyUtil.isEmpty(pageSize)){
-                        pageVo.setPageNumber(1);
-                        pageVo.setPageSize(100);
-                    }else {
-                        pageVo.setPageNumber(pageNumber);
-                        pageVo.setPageSize(pageSize);
-                    }
+    public Result<Object> getBestChoiceShopList(PageVo pageVo,String strict){
             return Optional.ofNullable(iBestShopService.getBestChoiceShopList(strict))
                     .map(bestShopList-> {
                         Map<String, Object> result = Maps.newHashMap();

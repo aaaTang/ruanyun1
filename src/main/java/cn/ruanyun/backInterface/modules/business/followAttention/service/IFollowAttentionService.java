@@ -24,9 +24,8 @@ public interface IFollowAttentionService extends IService<FollowAttention> {
 
       /**
        * 移除followAttention
-       * @param ids
        */
-     void removeFollowAttention(String ids);
+     void removeFollowAttention(String userId);
     /**
      * 获取用户关注的商家列表
      */

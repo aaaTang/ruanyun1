@@ -112,6 +112,29 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                 .orElse(null);
     }
 
+
+    /**
+     * APP通过邀请码获取用户信息
+     * @param user
+     * @return
+     */
+    @Override
+    public Result<Object> appGetinvitationCode(UserDTO user) {
+
+        if(ToolUtil.isNotEmpty(user.getInvitationCode())){
+
+          return new ResultUtil<>().setData(Optional.ofNullable(
+                  super.getOne(Wrappers.<User>lambdaQuery()
+                          .eq(User::getInvitationCode, user.getInvitationCode())
+                          ))
+                  .map(User::getNickName).orElse(null),"获取成功！");
+        }else {
+            return new ResultUtil<>().setErrorMsg(201,"邀请码不能为空！");
+        }
+
+    }
+
+
     @Override
     public Result<Object> registerByPhoneAndPassword(UserDTO user) {
 
@@ -235,6 +258,10 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         appUserVO.setRoleName(Optional.ofNullable(roleService.getRolesByRoleIds(userRoleService.getRoleIdsByUserId(securityUtil.getCurrUser()
                 .getId()))).map(roles -> roles.get(0).getName()).orElse("暂无！"));
 
+        //邀请码加地址
+        appUserVO.setUrlAndInvitationCode("http://hqhh520.com:8085/?invitationCode="+user.getInvitationCode());
+
+        // TODO: 2020/3/13 我的余额
         appUserVO.setMyBalance(user.getBalance());
         // TODO: 2020/3/13 我的收藏数量
         appUserVO.setMyCollectNum(iMyFavoriteService.getMyFavoriteNum());
@@ -244,6 +271,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         appUserVO.setMyFansNum(iFollowAttentionService.getMefansNum(null));
         // TODO: 2020/3/13 我的关注数量
         appUserVO.setMyAttentionNum(iFollowAttentionService.getfollowAttentionNum());
+
 
 //        // TODO: 2020/3/13 我的余额
 //        appUserVO.setMyBalance(user.getBalance());
@@ -742,6 +770,17 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                             }).collect(Collectors.toList());
                 }).orElse(null);
     }
+
+
+
+    /****************************************************生成二维码***************************************************/
+
+
+
+
+
+
+
 
 
 }

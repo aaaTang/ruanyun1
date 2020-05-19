@@ -36,11 +36,14 @@ public class AppGoodListVO {
      */
     private BigDecimal goodNewPrice;
 
-
     /**
      * 用户名
      */
     private String username;
+    /**
+     * 店铺名称
+     */
+    private String shopName;
 
     /**
      * 用户ID

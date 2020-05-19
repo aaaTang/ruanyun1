@@ -1,7 +1,5 @@
 package cn.ruanyun.backInterface.modules.base.utils;
 
-
-
 import cn.hutool.core.bean.BeanUtil;
 import cn.ruanyun.backInterface.modules.base.pojo.Permission;
 import cn.ruanyun.backInterface.modules.base.vo.MenuVo;
@@ -17,4 +15,21 @@ public class VoUtil {
         BeanUtil.copyProperties(p, menuVo);
         return menuVo;
     }
+
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

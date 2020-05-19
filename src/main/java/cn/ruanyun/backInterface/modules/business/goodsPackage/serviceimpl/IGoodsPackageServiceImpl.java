@@ -168,6 +168,7 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
             }
             shopParticularsVO.setDiscountList(dvo);//优惠券
 
+
             //TODO::2020/4/13 店铺评分 未处理
             shopParticularsVO.setScore(gradeService.getShopScore(ids));
             //TODO::2020/4/13 是否关注店铺

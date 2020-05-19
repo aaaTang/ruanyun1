@@ -104,4 +104,8 @@ public class AppUserVO {
     private String invitationCode;
 
 
+    /**
+     * 地址加邀请码
+     */
+    private String urlAndInvitationCode;
 }

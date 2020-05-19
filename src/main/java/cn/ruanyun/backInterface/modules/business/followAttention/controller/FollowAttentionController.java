@@ -55,11 +55,11 @@ public class FollowAttentionController {
      * @return
     */
     @PostMapping(value = "/removeFollowAttention")
-    public Result<Object> removeFollowAttention(String ids){
+    public Result<Object> removeFollowAttention(String userId){
 
         try {
 
-            iFollowAttentionService.removeFollowAttention(ids);
+            iFollowAttentionService.removeFollowAttention(userId);
             return new ResultUtil<>().setSuccessMsg("移除成功！");
         }catch (Exception e) {
 

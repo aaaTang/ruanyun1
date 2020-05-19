@@ -44,6 +44,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -637,16 +638,22 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                PcGoodListVO pc = new PcGoodListVO();
                if(ToolUtil.isNotEmpty(pcGoods.getGoodCategoryId())){
                    //分类名称
-                   String goodCategory = goodCategoryMapper.selectById(pcGoods.getGoodCategoryId()).getTitle();
+                   GoodCategory goodCategory1 = goodCategoryMapper.selectById(pcGoods.getGoodCategoryId());
+                   String title = null;
+                   if (EmptyUtil.isNotEmpty(goodCategory1)){
+                       title = goodCategory1.getTitle();
+                   }
+                   String goodCategory = Optional.ofNullable(title).orElse("暂无！");
                    pc.setGoodCategoryName(goodCategory);
                    ToolUtil.copyProperties(pcGoods , pc);
-                   pc.setShopName(Optional.ofNullable(userMapper.selectById(pcGoods.getCreateBy())).map(User::getShopName).orElse("暂无"));
+                   pc.setShopName(Optional.ofNullable(userMapper.selectById(pcGoods.getCreateBy())).map(User::getShopName).orElse("暂无！"));
                }
                pc.setStatus(Optional.ofNullable(userMapper.selectById(pcGoods.getCreateBy())).map(User::getStatus).orElse(0));
                    return  pc;
+
            })
              .filter(pcGood-> pcGood.getGoodCategoryId().contains(ToolUtil.isNotEmpty(goodDTO.getGoodCategoryId())?goodDTO.getGoodCategoryId():pcGood.getGoodCategoryId()))
-             .filter(pcGood-> pcGood.getShopName().contains(ToolUtil.isNotEmpty(goodDTO.getShopName())?goodDTO.getShopName():pcGood.getShopName()))
+             .filter(pcGood-> pcGood.getShopName().contains(ToolUtil.isNotEmpty(goodDTO.getShopName())?goodDTO.getShopName():(ToolUtil.isNotEmpty(pcGood.getShopName())?pcGood.getShopName():"")))
                    .collect(Collectors.toList());
 
            return pcGoodList;

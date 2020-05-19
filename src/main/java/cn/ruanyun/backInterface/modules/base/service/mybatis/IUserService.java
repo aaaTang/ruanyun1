@@ -8,9 +8,11 @@ import cn.ruanyun.backInterface.modules.base.dto.UserUpdateDTO;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.vo.*;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.google.api.client.util.ArrayMap;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -26,6 +28,13 @@ public interface IUserService extends IService<User> {
      */
     String getUserIdByName(String userName);
 
+
+    /**
+     * APP通过邀请码获取用户信息
+     * @param user
+     * @return
+     */
+    Result<Object> appGetinvitationCode(UserDTO user);
 
     /**
      * 通过手机号注册

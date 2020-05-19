@@ -210,7 +210,7 @@ public class IStaffManagementServiceImpl extends ServiceImpl<StaffManagementMapp
         .map(staffManagements -> staffManagements.parallelStream().flatMap(staffManagement -> {
 
             StaffListVo staffListVo = new StaffListVo();
-            Optional.ofNullable(userService.getById(staffManagement.getId())).ifPresent(user ->
+            Optional.ofNullable(userService.getById(staffManagement.getStaffId())).ifPresent(user ->
                     ToolUtil.copyProperties(user, staffListVo));
             staffListVo.setId(staffManagement.getId());
 

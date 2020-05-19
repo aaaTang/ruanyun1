@@ -132,6 +132,13 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
                     .compact();
         }
 
-        ResponseUtil.out(response, ResponseUtil.resultMap(true,200,"登录成功", token));
+        if(permissionList.get(0).equals(CommonConstant.DEFAULT_ROLE)){
+            ResponseUtil.out(response, ResponseUtil.resultMap(false,201,"登录失败！您无权登陆！", null));
+        }else {
+            ResponseUtil.out(response, ResponseUtil.resultMap(true,200,"登录成功", token));
+        }
+
+
+
     }
 }

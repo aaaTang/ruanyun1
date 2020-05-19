@@ -70,10 +70,22 @@ public class IFollowAttentionServiceImpl extends ServiceImpl<FollowAttentionMapp
        }
 
       @Override
-      public void removeFollowAttention(String ids) {
+      public void removeFollowAttention(String userId) {
 
-          this.remove(Wrappers.<FollowAttention>lambdaQuery()
-                  .eq(FollowAttention::getUserId,ids).eq(FollowAttention::getCreateBy,securityUtil.getCurrUser().getId()));
+          /*FollowAttention followAttention = this.getOne(new QueryWrapper<FollowAttention>().lambda()
+            .eq(FollowAttention::getCreateBy,securityUtil.getCurrUser().getId())
+            .eq(FollowAttention::getUserId,userId)
+          );
+
+          if(ToolUtil.isNotEmpty(followAttention)){
+              this.removeById(followAttention.getId());
+          }*/
+
+          this.remove(new QueryWrapper<FollowAttention>().lambda()
+                  .eq(FollowAttention::getCreateBy,securityUtil.getCurrUser().getId())
+                  .eq(FollowAttention::getUserId,userId)
+          );
+
       }
 
     /**

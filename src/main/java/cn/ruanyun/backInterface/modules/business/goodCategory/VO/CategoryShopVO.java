@@ -18,6 +18,10 @@ public class CategoryShopVO {
     private String shopName;
 
     /**
+     * 地址
+     */
+    private String address;
+    /**
      * 轮播图
      */
     @Column(length = 1000)

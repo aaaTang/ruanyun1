@@ -40,6 +40,18 @@ public class AppUserController {
 
 
     /**
+     * APP通过邀请码获取用户信息
+     * @param user
+     * @return
+     */
+    @PostMapping("/appGetinvitationCode")
+    public Result<Object> appGetinvitationCode(UserDTO user) {
+
+        return userService.appGetinvitationCode(user);
+    }
+
+
+    /**
      * 通过手机号注册
      * @param user
      * @return
