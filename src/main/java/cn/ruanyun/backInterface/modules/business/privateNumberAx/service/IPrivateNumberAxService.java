@@ -5,13 +5,13 @@ import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.business.privateNumberAx.pojo.PrivateNumberAx;
 import cn.ruanyun.backInterface.modules.business.privateNumberAx.vo.PrivateNumberAxVo;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
 
 /**
  * 华为隐私通话接口
  * @author z
  */
-public interface IPrivateNumberAxService{
+public interface IPrivateNumberAxService extends IService<PrivateNumberAx> {
 
 
     /**

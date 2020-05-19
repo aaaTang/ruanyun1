@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import java.util.Optional;
 
 /**
@@ -34,7 +35,7 @@ public class PrivateNumberAxController {
      * @return Object
      */
     @PostMapping("/getPrivateNumByStoreIdAndUseId")
-    private Result<Object> getPrivateNumByStoreIdAndUseId(String storeId) {
+    public Result<Object> getPrivateNumByStoreIdAndUseId(String storeId) {
 
         return privateNumberAxService.getPrivateNumByStoreIdAndUseId(storeId);
     }

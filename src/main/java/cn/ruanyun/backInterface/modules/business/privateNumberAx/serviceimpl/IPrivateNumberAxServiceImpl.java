@@ -1,7 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.privateNumberAx.serviceimpl;
 
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.http.HttpUtil;
 import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
 import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
@@ -11,7 +10,8 @@ import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
-import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import cn.ruanyun.backInterface.modules.base.service.UserService;
+import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
 import cn.ruanyun.backInterface.modules.business.privateNumber.pojo.PrivateNumber;
 import cn.ruanyun.backInterface.modules.business.privateNumber.service.IPrivateNumberService;
 import cn.ruanyun.backInterface.modules.business.privateNumberAx.mapper.PrivateNumberAxMapper;
@@ -24,13 +24,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -54,27 +53,33 @@ public class IPrivateNumberAxServiceImpl extends ServiceImpl<PrivateNumberAxMapp
     private IPrivateNumberService privateNumberService;
 
     @Autowired
-    private IUserService userService;
+    private UserService userService;
 
     @Override
     public Result<Object> getPrivateNumByStoreIdAndUseId(String storeId) {
 
+        BackUserInfo currentUser = securityUtil.getCurrUser();
+
+        Optional<User> storeOption  = Optional.ofNullable(userService.get(storeId));
+        log.info("当前登录id是：" + currentUser.getId());
+
         //1. 判断当前用户是否已经跟商家绑定了虚拟号段
        return Optional.ofNullable(this.getOne(Wrappers.<PrivateNumberAx>lambdaQuery()
         .eq(PrivateNumberAx::getStoreId, storeId)
-        .eq(PrivateNumberAx::getCreateBy, securityUtil.getCurrUser().getId())))
+        .eq(PrivateNumberAx::getCreateBy, currentUser.getId())))
         .map(privateNumberAx ->
 
-            Optional.ofNullable(privateNumberService.getPrivateNumber(privateNumberAx.getId()))
+            Optional.ofNullable(privateNumberService.getPrivateNumber(privateNumberAx.getPrivateNumberId()))
                     .map(privateNumber -> new ResultUtil<>().setData(privateNumber, "获取虚拟号成功！"))
                     .orElse(new ResultUtil<>().setErrorMsg(210, "获取虚拟号段失败！"))
-        ).orElseGet(() -> Optional.ofNullable(userService.getById(storeId)).map(user -> {
+        ).orElseGet(() -> storeOption.map(user -> {
 
+            log.info("商家手机号是：" + user.getMobile());
             //2.1 消费者的手机号码
-            if (ToolUtil.isNotEmpty(securityUtil.getCurrUser().getMobile()) && ToolUtil.isNotEmpty(user.getMobile())) {
+            if (StringUtils.isNotBlank(currentUser.getMobile()) && StringUtils.isNotBlank(user.getMobile())) {
 
                 //消费者的手机号码
-                String callerNum = "+86" + securityUtil.getCurrUser().getMobile();
+                String callerNum = "+86" + currentUser.getMobile();
 
                 //商家的手机号码
                 String calleeNum = "+86" + user.getMobile();
@@ -88,10 +93,10 @@ public class IPrivateNumberAxServiceImpl extends ServiceImpl<PrivateNumberAxMapp
                 }
 
                 //2.1 绑定虚拟号段
-                ReturnJson result = JSONObject.parseObject(AXBPrivateNumberUtils.axbBindNumber(callerNum, calleeNum, privateNumberNew.getPrivateNum(),
+                ReturnJson result = JSONObject.parseObject(AXBPrivateNumberUtils.axbBindNumber(callerNum, calleeNum, "+86" + privateNumberNew.getPrivateNum(),
                         privateNumberNew.getCityCode()), ReturnJson.class);
 
-                if (ObjectUtil.equal("200", result.getResultcode())) {
+                if (ObjectUtil.equal("0", result.getResultcode())) {
 
 
                     //2.2 更新该虚拟号段的绑定状态
@@ -101,8 +106,8 @@ public class IPrivateNumberAxServiceImpl extends ServiceImpl<PrivateNumberAxMapp
                     //2.3 储存到数据库
                     PrivateNumberAx privateNumberAx = new PrivateNumberAx();
                     privateNumberAx.setStoreId(storeId)
-                            .setPrivateNumberId(privateNumberService.getIdByPrivateNum(result.getRelationNum()))
-                            .setCreateBy(securityUtil.getCurrUser().getId());
+                            .setPrivateNumberId(privateNumberNew.getId())
+                            .setCreateBy(currentUser.getId());
                     ToolUtil.copyProperties(result, privateNumberAx);
 
                     this.save(privateNumberAx);
@@ -140,12 +145,12 @@ public class IPrivateNumberAxServiceImpl extends ServiceImpl<PrivateNumberAxMapp
             PrivateNumberAxVo privateNumberAxVo = new PrivateNumberAxVo();
 
             //客户
-            Optional.ofNullable(userService.getById(privateNumberAx.getCreateBy()))
+            Optional.ofNullable(userService.get(privateNumberAx.getCreateBy()))
                     .ifPresent(user -> privateNumberAxVo.setCallerName(user.getNickName())
                     .setCallerName(user.getMobile()));
 
             //商家
-            Optional.ofNullable(userService.getById(privateNumberAx.getStoreId()))
+            Optional.ofNullable(userService.get(privateNumberAx.getStoreId()))
                     .ifPresent(user -> privateNumberAxVo.setCalleeName(user.getNickName())
                     .setCalleeName(user.getMobile()));
 
@@ -171,10 +176,10 @@ public class IPrivateNumberAxServiceImpl extends ServiceImpl<PrivateNumberAxMapp
 
        return Optional.ofNullable(this.getById(id)).map(privateNumberAx -> {
 
-            ReturnJson result = JSONObject.parseObject(AXBPrivateNumberUtils.axbUnbindNumber(privateNumberAx.getSubscriptionId()
+            ReturnJson result = JSONObject.parseObject(AXBPrivateNumberUtils.axbUnbindNumber(null, privateNumberAx.getSubscriptionId()
             ), ReturnJson.class);
 
-            if (ObjectUtil.equal("200", result.getResultcode())) {
+            if (ObjectUtil.equal("0", result.getResultcode())) {
 
                 //2. 更新虚拟号段字段
                 Optional.ofNullable(privateNumberService.getById(privateNumberAx.getPrivateNumberId()))

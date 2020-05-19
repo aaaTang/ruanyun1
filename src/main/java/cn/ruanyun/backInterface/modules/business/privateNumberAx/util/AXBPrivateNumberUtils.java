@@ -4,6 +4,7 @@ import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
 
+import javax.activation.MailcapCommandMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -106,29 +107,39 @@ public class AXBPrivateNumberUtils {
 //         json.put("preVoice", preVoice); //个性化通话前等待音
 
         //发送请求
-        return HttpUtil.sendPut(OMPAPPKEY, OMPAPPSECRET, realUrl, jsonObject.toString());
+        String result = HttpUtil.sendPut(OMPAPPKEY, OMPAPPSECRET, realUrl, jsonObject.toString());
+        return result;
     }
 
-    /**
-     * AXB 解除绑定信息
-     * @param subscriptionId 绑定id
-     * @return 返回信息
-     */
-    public static String axbUnbindNumber(String subscriptionId) {
 
+    /**
+     * AXB 修改绑定信息
+     * @param relationNum 号码
+     * @param subscriptionId id
+     * @return String
+     */
+    public static String axbUnbindNumber(String relationNum, String subscriptionId) {
         // 必填,AXB模式解绑接口访问URI
         String realUrl = OMPDOMAINNAME + AXBURL;
-
         // 申明对象 先关参数说明
         Map<String, Object> map = Maps.newHashMap();
-
-        // 绑定关系ID
         if (ToolUtil.isNotEmpty(subscriptionId)) {
+
+            // 绑定关系ID
             map.put("subscriptionId", subscriptionId);
         }
+        if (ToolUtil.isNotEmpty(relationNum)) {
 
+            // X号码(关系号码)
+            map.put("relationNum", relationNum);
+        }
         //发送请求
         return HttpUtil.sendDelete(OMPAPPKEY, OMPAPPSECRET, realUrl, HttpUtil.map2UrlEncodeString(map));
     }
 
+
+    public static void main(String[] args) {
+
+        axbUnbindNumber("+8616508765178", null);
+    }
 }
