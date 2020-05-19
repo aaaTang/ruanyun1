@@ -230,6 +230,7 @@ ignored:
     - /ruanyun/test/**
     - /ruanyun/appUser/loginByPhoneAndPassword #通过手机号和密码登录
     - /ruanyun/appUser/registerByPhoneAndPassword #通过手机验证码注册用户
+    - /ruanyun/appUser/appGetinvitationCode  #邀请码获取推荐人
     - /ruanyun/common/captcha/sendRegistSmsCode #发送注册短信验证码
     - /ruanyun/appUser/forgetPassword #忘记密码
     - /ruanyun/weChat/**
@@ -244,6 +245,7 @@ ignored:
     - /ruanyun/selectStore/getSelectStoreList #获取严选商家列表
     - /ruanyun/order/aliPayNotify
     - /ruanyun/good/getAppOneClassGoodList #获取首页的一级分类下的所有商品
+    - /ruanyun/privateNumberAx/axBindNumber #绑定隐私号码
 # Actuator
 management:
   health:

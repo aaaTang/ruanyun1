@@ -21,6 +21,8 @@ import java.util.List;
 public class OrderDetailVO {
 
 
+    private String id;
+
     /**
      * 订单号
      */

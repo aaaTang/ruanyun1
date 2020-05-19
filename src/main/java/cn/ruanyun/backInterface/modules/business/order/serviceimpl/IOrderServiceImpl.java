@@ -273,6 +273,19 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
      */
     @Override
     public Result<Object> payOrder(String ids, PayTypeEnum payTypeEnum, String payPassword) {
+
+        //更改订单支付状态
+        Optional.ofNullable(ToolUtil.setListToNul(ToolUtil.splitterStr(ids)))
+                .ifPresent(orderIds -> orderIds.parallelStream().forEach(orderId -> {
+
+                    Optional.ofNullable(this.getById(orderId)).ifPresent(order -> {
+
+                        order.setPayTypeEnum(payTypeEnum);
+                        this.updateById(order);
+                    });
+                }));
+
+
         //统计订单总金额
         BigDecimal totalPrice;
         List<Order> orders = this.listByIds(ToolUtil.splitterStr(ids));

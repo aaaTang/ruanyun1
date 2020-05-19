@@ -640,7 +640,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                     userProfitVO.setTotalProfitMoney(balanceService.getProfitByUserId(user.getId()));
 
                     return Stream.of(userProfitVO);
-                }).sorted(Comparator.comparing(UserProfitVO::getTotalProfitMoney))
+                }).sorted(Comparator.comparing(UserProfitVO::getTotalProfitMoney).reversed())
                         .collect(Collectors.toList()))
 
                 .orElse(null);

@@ -14,6 +14,16 @@ public class DataVo<T> {
     private Integer totalNumber;
 
     /**
+     * mybatisPlus 分页
+     */
+    private Long totalSize;
+
+    /**
+     * 当前页
+     */
+    private Long currentPageNum;
+
+    /**
      * 数据集合
      */
     private List<T> dataResult;
