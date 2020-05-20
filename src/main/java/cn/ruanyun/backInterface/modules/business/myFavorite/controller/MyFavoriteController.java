@@ -50,10 +50,9 @@ public class MyFavoriteController {
      * @return
      */
     @PostMapping("/deleteMyFavorite")
-    public Result<Object> deleteMyFavorite(String goodId, GoodTypeEnum goodTypeEnum) {
+    public Result<Object> deleteMyFavorite(String ids, GoodTypeEnum goodTypeEnum) {
 
-        iMyFavoriteService.deleteMyFavorite(goodId,goodTypeEnum);
-        return new ResultUtil<>().setSuccessMsg("删除成功！");
+        return iMyFavoriteService.deleteMyFavorite(ids,goodTypeEnum);
     }
 
 

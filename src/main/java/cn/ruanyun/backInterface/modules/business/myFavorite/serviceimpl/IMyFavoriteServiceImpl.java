@@ -2,8 +2,10 @@ package cn.ruanyun.backInterface.modules.business.myFavorite.serviceimpl;
 
 
 import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
+import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
+import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.UserService;
@@ -78,13 +80,11 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
      * 移除我的收藏
      */
     @Override
-    public void deleteMyFavorite(String goodId, GoodTypeEnum goodTypeEnum) {
+    public Result<Object> deleteMyFavorite(String goodId, GoodTypeEnum goodTypeEnum) {
 
-            String userid =securityUtil.getCurrUser().getId();
-         this.remove(Wrappers.<MyFavorite>lambdaQuery().eq(MyFavorite::getGoodId,goodId)
-                 .eq(MyFavorite::getCreateBy,userid)
-                 .eq(MyFavorite::getGoodTypeEnum,goodTypeEnum)
-         );
+         return new ResultUtil<>().setData(this.remove(Wrappers.<MyFavorite>lambdaQuery().eq(MyFavorite::getGoodId,goodId)
+                 .eq(MyFavorite::getCreateBy,securityUtil.getCurrUser().getId())
+                 .eq(MyFavorite::getGoodTypeEnum,goodTypeEnum)),"删除成功");
     }
 
     /**
@@ -107,15 +107,20 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
         CompletableFuture<List<GoodsFavoriteVO>> goodVOList = myFavoriteList.thenApplyAsync(myFavorites ->
                 myFavorites.map(myFavorites1 -> myFavorites1.parallelStream().flatMap(myFavorite -> {
                     GoodsFavoriteVO goodListVO= new GoodsFavoriteVO();
-                        Good good = goodMapper.selectById(myFavorite.getGoodId());
-                    ToolUtil.copyProperties(good,goodListVO);
-                    String[] split = good.getGoodPics().split(",");
-                    if(ToolUtil.isNotEmpty(split)){
-                        goodListVO.setGoodPics(split[0]);
+                        //Good good = goodMapper.selectById(myFavorite.getGoodId());
+                    Good good = goodMapper.selectOne(Wrappers.<Good>lambdaQuery().eq(Good::getId,myFavorite.getGoodId()).eq(Good::getDelFlag,0));
+                    if(ToolUtil.isNotEmpty(good)){
+                        ToolUtil.copyProperties(good,goodListVO);
+                        String[] split = good.getGoodPics().split(",");
+                        if(ToolUtil.isNotEmpty(split)){
+                            goodListVO.setGoodPics(split[0]);
+                        }
+                        goodListVO.setShopName(Optional.ofNullable(userMapper.selectOne(new QueryWrapper<User>().lambda().eq(User::getId,good.getCreateBy()))).map(User::getShopName)
+                                .orElse(null));
+                        return Stream.of(goodListVO);
+                    }else {
+                        return null;
                     }
-                    goodListVO.setShopName(Optional.ofNullable(userMapper.selectOne(new QueryWrapper<User>().lambda().eq(User::getId,myFavorite.getGoodId()))).map(User::getShopName)
-                            .orElse(null));
-                    return Stream.of(goodListVO);
                 })
                 .collect(Collectors.toList())).orElse(null));
 

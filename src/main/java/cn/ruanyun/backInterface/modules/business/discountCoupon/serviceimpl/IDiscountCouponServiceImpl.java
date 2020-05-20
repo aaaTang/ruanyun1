@@ -238,13 +238,16 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
                 discountCoupons = this.list(new QueryWrapper<DiscountCoupon>().lambda()
                         .eq((ToolUtil.isNotEmpty(discountCouponDTO.getId())),DiscountCoupon::getId,discountCouponDTO.getId())
                         .eq((ToolUtil.isNotEmpty(discountCouponDTO.getPastDue())),DiscountCoupon::getPastDue,discountCouponDTO.getPastDue())
+                        .orderByDesc(DiscountCoupon::getCreateTime)
                 );
 
             }else if(roleName.equals(CommonConstant.STORE)||roleName.equals(CommonConstant.PER_STORE)){//商家或者个人商家
 
                 discountCoupons = this.list(new QueryWrapper<DiscountCoupon>().lambda().eq((ToolUtil.isNotEmpty(discountCouponDTO.getId())),DiscountCoupon::getId,discountCouponDTO.getId())
                         .eq((ToolUtil.isNotEmpty(discountCouponDTO.getPastDue())),DiscountCoupon::getPastDue,discountCouponDTO.getPastDue())
-                        .eq(DiscountCoupon::getCreateBy,securityUtil.getCurrUser().getId()));
+                        .eq(DiscountCoupon::getCreateBy,securityUtil.getCurrUser().getId())
+                        .orderByDesc(DiscountCoupon::getCreateTime)
+                );
             }
 
             //3.优惠券不为空
