@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * 优惠券
@@ -31,7 +32,7 @@ public class DiscountCoupon extends RuanyunBaseEntity {
     private String title;
 
     /**
-     * 优惠券类型 ALL_USE全场满减 ONE_PRODUCT商品满减
+     * 优惠券类型 ALL_SHOP全场满减 ALL_USE指定商家满减  ONE_PRODUCT商品满减
      */
     private DisCouponTypeEnum disCouponType;
 
@@ -57,7 +58,7 @@ public class DiscountCoupon extends RuanyunBaseEntity {
     /**
      * 有效期
      */
-    private String validityPeriod;
+    private Date validityPeriod;
 
     /**
      * 是否过期

@@ -1,11 +1,13 @@
 package cn.ruanyun.backInterface.modules.business.discountMy.pojo;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.util.Date;
 
 /**
  * 我领取的优惠券
@@ -24,6 +26,9 @@ public class DiscountMy extends RuanyunBaseEntity {
      */
     private String discountCouponId;
     //0未使用，1已使用，2过期
-    private Integer status;
-
+    private Integer status = CommonConstant.STATUS_NORMAL;
+    /**
+     * 优惠卷有效时间
+     */
+    private Date discountCouponTime;
 }

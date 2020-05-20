@@ -74,7 +74,7 @@ public class DiscountCouponController {
 
 
     /**
-     * 商品获取优惠券
+     * 按商品获取优惠券
      * @param goodsPackageId
      * @return
      */
@@ -85,8 +85,9 @@ public class DiscountCouponController {
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
 
+
     /**
-     * 商家获取优惠券
+     * 按商家获取优惠券
      * @param createBy
      * @return
      */
@@ -96,6 +97,7 @@ public class DiscountCouponController {
                 .map(discountCouponList -> new ResultUtil<>().setData(discountCouponList,"获取列表成功！"))
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
+
 
 
     /************************************************后端管理接口********************************************************/

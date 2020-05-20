@@ -579,7 +579,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                             .orElse("暂无"));
 
                     //处理商品价格
-                    SizeAndRolor one = sizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery().eq(SizeAndRolor::getAttrSymbolPath, attrSymbolPath));
+                    SizeAndRolor one = sizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery().eq(SizeAndRolor::getAttrSymbolPath, attrSymbolPath).eq(SizeAndRolor::getGoodsId,id));
                     if (EmptyUtil.isNotEmpty(one)){
                         appGoodOrderVO.setGoodNewPrice(one.getGoodPrice());
                         appGoodOrderVO.setGoodPic(one.getPic());
@@ -624,6 +624,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
            list = this.list(new QueryWrapper<Good>().lambda()
                     .eq(Good::getCreateBy, userId)
                     .eq(Good::getTypeEnum, GoodTypeEnum.GOOD)
+                    .like(ToolUtil.isNotEmpty(goodDTO.getGoodName()),Good::getGoodName,goodDTO.getGoodName())
                    .orderByDesc(Good::getCreateTime)
            );
         }else if (userRole.equals(CommonConstant.ADMIN)){

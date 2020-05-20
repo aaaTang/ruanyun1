@@ -40,6 +40,10 @@ public class HarvestAddress extends RuanyunBaseEntity {
      * 城市id
      */
     private String cityCode;
+    /**
+     * 城市名称
+     */
+    private String cityName;
 
     /**
      * 是否是默认收货地址

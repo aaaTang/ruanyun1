@@ -1,11 +1,13 @@
 package cn.ruanyun.backInterface.modules.business.discountMy.serviceimpl;
 
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.DisCouponTypeEnum;
 import cn.ruanyun.backInterface.common.utils.EmptyUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.discountCoupon.mapper.DiscountCouponMapper;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.pojo.DiscountCoupon;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
 import cn.ruanyun.backInterface.modules.business.discountMy.VO.DiscountVO;
@@ -17,14 +19,17 @@ import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.base.Joiner;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import javax.xml.transform.sax.SAXResult;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,6 +47,8 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
     private SecurityUtil securityUtil;
     @Autowired
     private IDiscountCouponService discountService;
+    @Resource
+    private DiscountCouponMapper discountCouponMapper;
     @Autowired
     private IGoodService goodService;
 
@@ -50,14 +57,21 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
 
     @Override
     public List<DiscountVO> getMyCoupon(Integer status) {
+
+
         return Optional.ofNullable(ToolUtil.setListToNul(
                 this.list(Wrappers.<DiscountMy>lambdaQuery()
-                        .eq(DiscountMy::getCreateBy,securityUtil.getCurrUser().getId())
-                        .eq(DiscountMy::getStatus,status)
+                         .eq(DiscountMy::getCreateBy,securityUtil.getCurrUser().getId())
+                .eq(ToolUtil.isNotEmpty(status) && status != 2, DiscountMy::getStatus,status)
+                .eq(ToolUtil.isNotEmpty(status) && status == 2, DiscountMy::getStatus, CommonConstant.STATUS_NORMAL)
+                .le(ToolUtil.isNotEmpty(status) && status == 2, DiscountMy::getDiscountCouponTime,new Date())
+
                         .orderByDesc(DiscountMy::getCreateTime)))
         ).map(list ->{
             List<DiscountVO> discountVOS = list.parallelStream().flatMap(discountMy -> {
-                DiscountVO byId = this.getDetailById(discountMy.getId());
+                DiscountVO byId = new DiscountVO();
+                ToolUtil.copyProperties(discountCouponMapper.selectById(discountMy.getDiscountCouponId()) ,byId);
+                byId.setStatus(discountMy.getStatus());
                 return Stream.of(byId);
             }).collect(Collectors.toList());
             return discountVOS;
@@ -71,7 +85,7 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
                     DiscountVO discountVO = new DiscountVO();
                     DiscountCoupon byId = discountService.getById(discountMy.getDiscountCouponId());
                     ToolUtil.copyProperties(byId,discountVO);
-                    discountVO.setDisCouponType(byId.getDisCouponType().getValue());
+                    discountVO.setDisCouponType(byId.getDisCouponType());
                     discountVO.setStatus(discountMy.getStatus());
                     return discountVO;
                 }).orElse(null);
@@ -88,7 +102,7 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
     public  List<DiscountVO> getDealCanUseCoupon(String userId, String goodId, BigDecimal multiply) {
         String createBy = goodService.getById(goodId).getCreateBy();
         userId = securityUtil.getCurrUser().getId();
-        return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<DiscountMy>lambdaQuery().eq(DiscountMy::getCreateBy,userId))))
+        return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<DiscountMy>lambdaQuery().eq(DiscountMy::getCreateBy,userId).eq(DiscountMy::getStatus,CommonConstant.STATUS_NORMAL))))
                 .map(discountMIES -> {
                     List<DiscountVO> discountVOList = discountMIES.parallelStream().map(discountMy -> {
                         DiscountCoupon byId = discountService.getById(discountMy.getDiscountCouponId());
@@ -98,7 +112,7 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
                             int i = multiply.compareTo(byId.getFullMoney());
                             if (byId.getDisCouponType().getCode() == DisCouponTypeEnum.ALL_USE.getCode() && i != -1 && byId.getCreateBy().equals(createBy)){
                                 ToolUtil.copyProperties(byId,discountVO);
-                                discountVO.setDisCouponType(byId.getDisCouponType().getValue());
+                                discountVO.setDisCouponType(byId.getDisCouponType());
                                 discountVO.setValidityPeriod(discountVO.getValidityPeriod().substring(0,discountVO.getValidityPeriod().indexOf(" ")));
                                 //指定商品
                             }else if(byId.getDisCouponType().getCode() == DisCouponTypeEnum.ONE_PRODUCT.getCode() && byId.getGoodsPackageId().equals(goodId)  && i != -1){
@@ -129,6 +143,7 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
                     DiscountMy discountMy = new DiscountMy();
                     discountMy.setDiscountCouponId(couponId);
                     discountMy.setCreateBy(securityUtil.getCurrUser().getId());
+                    discountMy.setDiscountCouponTime(Optional.ofNullable(discountCouponMapper.selectById(couponId)).map(DiscountCoupon::getValidityPeriod).orElse(new Date()));
                     this.save(discountMy);
                     return new ResultUtil<>().setSuccessMsg("领取优惠券成功！");
                 });

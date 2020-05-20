@@ -93,14 +93,16 @@ public class IHarvestAddressServiceImpl extends ServiceImpl<HarvestAddressMapper
                 .map(harvestAddress -> {
                     HarvestAddressVO harvestAddressVO = new HarvestAddressVO();
 
+                    //TODO::
                     //获取地址中文名称
-                    Area area = areaMapper.selectById(harvestAddress.getCityCode());
+                   /* Area area = areaMapper.selectById(harvestAddress.getCityCode());
                     if(ToolUtil.isNotEmpty(area)){
                         harvestAddressVO.setCityName(area.getTitle());
-                    }
+                    }*/
                     ToolUtil.copyProperties(harvestAddress,harvestAddressVO);
                     return harvestAddressVO;
                 }).orElse(null);
+
     }
 
     /**

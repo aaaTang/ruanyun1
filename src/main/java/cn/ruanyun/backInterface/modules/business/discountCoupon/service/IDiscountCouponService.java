@@ -52,13 +52,18 @@ public interface IDiscountCouponService extends IService<DiscountCoupon> {
     List<DiscountCoupon> getDiscountCouponListByStoreAuditOid(String storeAuditOid);
 
     /**
-     * 获取商品的优惠券
+     * 按商品获取优惠券
      * @return
      */
      List<DiscountCouponListVO> getDiscountCouponListByGoodsPackageId(String goodsPackageId);
 
     List<DiscountVO> getList(String join);
 
+    /**
+     * 按商家获取优惠券
+     * @param createBy
+     * @return
+     */
     List<DiscountCouponListVO>  getDiscountCouponListByCreateBy(String createBy);
 
     /**

@@ -245,7 +245,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
             }
             if (!StringUtils.isEmpty(orderDetail.getAttrSymbolPath())) {
-                SizeAndRolor sizeAndRolor = sizeAndRolorService.getOneByAttrSymbolPath(orderDetail.getAttrSymbolPath());
+                SizeAndRolor sizeAndRolor = sizeAndRolorService.getOneByAttrSymbolPath(orderDetail.getAttrSymbolPath(),orderDetail.getCreateBy());
                 if (EmptyUtil.isNotEmpty(sizeAndRolor)) {
                     sizeAndRolor.setId(null);
                     orderDetail.setIntegral(sizeAndRolor.getInventory());
@@ -1000,14 +1000,21 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
                 //管理员查全部
                 orderList = this.list(new QueryWrapper<Order>().lambda()
-                        .eq(ToolUtil.isNotEmpty(pcOrderDTO.getId()),Order::getId,pcOrderDTO.getId()));//订单id
+                        .eq(ToolUtil.isNotEmpty(pcOrderDTO.getId()),Order::getId,pcOrderDTO.getId())
+                        .eq(ToolUtil.isNotEmpty(pcOrderDTO.getOrderStatus()),Order::getOrderStatus,pcOrderDTO.getOrderStatus())
+                        .eq(ToolUtil.isNotEmpty(pcOrderDTO.getPayTypeEnum()),Order::getPayTypeEnum,pcOrderDTO.getPayTypeEnum())
+
+                );//订单id
 
                 //登录是商家或者个人商家
             }else if(userRole.equals(CommonConstant.STORE)||userRole.equals(CommonConstant.PER_STORE)){
 
                 //查商家自己下的订单
                 orderList = this.list(new QueryWrapper<Order>().lambda().eq(Order::getUserId,securityUtil.getCurrUser().getId())
-                        .eq(ToolUtil.isNotEmpty(pcOrderDTO.getId()),Order::getId,pcOrderDTO.getId()));//订单id
+                        .eq(ToolUtil.isNotEmpty(pcOrderDTO.getId()),Order::getId,pcOrderDTO.getId())
+                        .eq(ToolUtil.isNotEmpty(pcOrderDTO.getOrderStatus()),Order::getOrderStatus,pcOrderDTO.getOrderStatus())
+                        .eq(ToolUtil.isNotEmpty(pcOrderDTO.getPayTypeEnum()),Order::getPayTypeEnum,pcOrderDTO.getPayTypeEnum())
+                );//订单id
 
             }
 
@@ -1042,9 +1049,6 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                         .filter(pcOrderVo->pcOrderVo.getShopName().contains(ToolUtil.isNotEmpty(pcOrderDTO.getShopName())?pcOrderDTO.getShopName():pcOrderVo.getShopName()))
                         .filter(pcOrderVo->pcOrderVo.getGoodName().contains(ToolUtil.isNotEmpty(pcOrderDTO.getGoodName())?pcOrderDTO.getGoodName():pcOrderVo.getGoodName()))
                         .filter(pcOrderVo->pcOrderVo.getShopType().equals(ToolUtil.isNotEmpty(pcOrderDTO.getCommonConstant())?pcOrderDTO.getCommonConstant():pcOrderVo.getShopType()))
-                        .filter(pcOrderVo->pcOrderVo.getOrderStatus().equals(ToolUtil.isNotEmpty(pcOrderDTO.getOrderStatus())?pcOrderDTO.getOrderStatus():pcOrderVo.getOrderStatus()))
-                        //TODO::订单表支付类型空值
-                        //.filter(pcOrderVo->pcOrderVo.getPayTypeEnum().equals(ToolUtil.isNotEmpty(pcOrderDTO.getPayTypeEnum())?pcOrderDTO.getPayTypeEnum():pcOrderVo.getPayTypeEnum()))
                         .collect(Collectors.toList());
 
                 return pCgetShopOrderListVO;

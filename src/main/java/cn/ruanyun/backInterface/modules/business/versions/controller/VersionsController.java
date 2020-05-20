@@ -62,4 +62,14 @@ public class VersionsController {
         }
     }
 
+    /**
+     * 查询当前系统版本
+     * @param currentVersion  当前版本号
+     * @return
+     */
+    @PostMapping(value = "/getVersions")
+    public  Result<Object> getVersions(String currentVersion){
+        return iVersionsService.getVersions(currentVersion);
+    }
+
 }

@@ -24,7 +24,7 @@ public class DiscountVO {
     /**
      * 优惠券类型  1全场满减 2商品满减
      */
-    private String disCouponType;
+    private DisCouponTypeEnum disCouponType;
 
     /**
      * 满多少

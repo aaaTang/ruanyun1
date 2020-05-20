@@ -156,9 +156,11 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
      * @return
      */
     @Override
-    public SizeAndRolor getOneByAttrSymbolPath(String attrSymbolPath) {
+    public SizeAndRolor getOneByAttrSymbolPath(String attrSymbolPath,String createBy) {
         return Optional.ofNullable(this.getOne(Wrappers.<SizeAndRolor>lambdaQuery()
-            .eq(SizeAndRolor::getAttrSymbolPath,attrSymbolPath))).orElse(null);
+            .eq(SizeAndRolor::getAttrSymbolPath,attrSymbolPath)
+            .eq(SizeAndRolor::getCreateBy,createBy)
+                )).orElse(null);
     }
 
 

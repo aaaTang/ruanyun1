@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -94,8 +95,37 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
         return Optional.ofNullable(this.getById(id)).orElse(null);
     }
 
+
     /**
-     * 回去优惠券
+     * 按商品获取优惠券
+     * @param goodsPackageId
+     * @return
+     */
+    @Override
+    public List<DiscountCouponListVO> getDiscountCouponListByGoodsPackageId(String goodsPackageId) {
+
+        DiscountCoupon discountCoupon = new DiscountCoupon();
+        discountCoupon.setGoodsPackageId(goodsPackageId);
+        discountCoupon.setDisCouponType(DisCouponTypeEnum.ONE_PRODUCT);
+        //获取该商品下所有的优惠券
+        List<DiscountCoupon> discountCouponList = this.getDiscountCouponList(discountCoupon);
+
+
+        List<DiscountCouponListVO> discountVOS = new ArrayList<>();
+        discountCouponList.forEach(discountCoupon1 -> {
+            DiscountCouponListVO discountCouponListVO = new DiscountCouponListVO();
+            ToolUtil.copyProperties(discountCoupon1,discountCouponListVO);
+            //是否被领取
+            discountCouponListVO.setIsReceive(this.getDetailById(discountCoupon1));
+            discountCouponListVO.setValidityPeriod(discountCouponListVO.getValidityPeriod().substring(0,discountCouponListVO.getValidityPeriod().indexOf(" ")));
+            discountVOS.add(discountCouponListVO);
+        });
+        return discountVOS;
+    }
+
+
+    /**
+     * 获取优惠券
      *
      * @return
      */
@@ -103,12 +133,60 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
     public List<DiscountCoupon> getDiscountCouponList(DiscountCoupon discountCoupon) {
         CompletableFuture<Optional<List<DiscountCoupon>>> optionalCompletableFuture = CompletableFuture.supplyAsync(() ->
                 Optional.ofNullable(this.list(Wrappers.<DiscountCoupon>lambdaQuery()
+                        .eq(ToolUtil.isNotEmpty(discountCoupon.getCreateBy()), DiscountCoupon::getCreateBy, discountCoupon.getCreateBy())
                         .eq(!StringUtils.isEmpty(discountCoupon.getStoreAuditOid()), DiscountCoupon::getStoreAuditOid, discountCoupon.getStoreAuditOid())
                         .eq(!StringUtils.isEmpty(discountCoupon.getGoodsPackageId()), DiscountCoupon::getGoodsPackageId, discountCoupon.getGoodsPackageId())
                         .eq(!EmptyUtil.isEmpty(discountCoupon.getDisCouponType()), DiscountCoupon::getGoodsPackageId, discountCoupon.getGoodsPackageId())
+                        .eq(DiscountCoupon::getDelFlag,CommonConstant.STATUS_NORMAL)
+                        .ge(DiscountCoupon::getValidityPeriod,new Date())
                         .orderByAsc(DiscountCoupon::getCreateTime))));
         return optionalCompletableFuture.join().orElse(null);
     }
+
+
+    /**
+     * 按商家获取优惠券
+     *
+     * @return
+     */
+    @Override
+    public List<DiscountCouponListVO> getDiscountCouponListByCreateBy(String createBy) {
+
+
+        DiscountCoupon discountCoupon = new DiscountCoupon();
+        discountCoupon.setCreateBy(createBy);
+
+        //获取该商家下所有的优惠券
+        List<DiscountCoupon> discountCouponList = this.getDiscountCouponList(discountCoupon);
+
+        List<DiscountCouponListVO> discountVOS = new ArrayList<>();
+
+
+        discountCouponList.forEach(discountCoupon1 -> {
+            DiscountCouponListVO discountCouponListVO = new DiscountCouponListVO();
+            ToolUtil.copyProperties(discountCoupon1,discountCouponListVO);
+            discountCouponListVO.setValidityPeriod(discountCouponListVO.getValidityPeriod().substring(0,discountCouponListVO.getValidityPeriod().indexOf(" ")));
+            //登录的用户是否领取
+            discountCouponListVO.setIsReceive(this.getDetailById(discountCoupon1));
+            discountVOS.add(discountCouponListVO);
+        });
+        return discountVOS;
+    }
+
+
+    //判断优惠券是否被领取
+    public boolean getDetailById(DiscountCoupon discountCoupon){
+        String userId = securityUtil.getCurrUser().getId();
+        DiscountMy one = discountMyService.getOne(
+                Wrappers.<DiscountMy>lambdaQuery()
+                        .eq(DiscountMy::getCreateBy, userId)
+                        .eq(DiscountMy::getDiscountCouponId, discountCoupon.getId())
+        );
+        return EmptyUtil.isNotEmpty(one);
+
+    }
+
+
 
     /**
      * 管理后台商家获取优惠券
@@ -122,51 +200,7 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
         return this.getDiscountCouponList(discountCoupon);
     }
 
-    /**
-     * app用户获取可以领取的优惠券
-     *
-     * @return
-     */
-    @Override
-    public List<DiscountCouponListVO> getDiscountCouponListByGoodsPackageId(String goodsPackageId) {
 
-        //获取该商品下所有的优惠券
-        DiscountCoupon discountCoupon = new DiscountCoupon();
-        discountCoupon.setGoodsPackageId(goodsPackageId);
-        discountCoupon.setDisCouponType(DisCouponTypeEnum.ONE_PRODUCT);
-        List<DiscountCoupon> discountCouponList = this.getDiscountCouponList(discountCoupon);
-        List<DiscountCouponListVO> discountVOS = new ArrayList<>();
-        discountCouponList.forEach(discountCoupon1 -> {
-            DiscountCouponListVO discountCouponListVO = new DiscountCouponListVO();
-            ToolUtil.copyProperties(discountCoupon1,discountCouponListVO);
-            discountCouponListVO.setIsReceive(this.getDetailById(discountCoupon1));
-            discountVOS.add(discountCouponListVO);
-        });
-        return discountVOS;
-    }
-
-    /**
-     * app用户获取可以领取的优惠券
-     *
-     * @return
-     */
-    @Override
-    public List<DiscountCouponListVO> getDiscountCouponListByCreateBy(String createBy) {
-
-        //获取该商品下所有的优惠券
-        DiscountCoupon discountCoupon = new DiscountCoupon();
-        discountCoupon.setCreateBy(createBy);
-        List<DiscountCoupon> discountCouponList = this.getDiscountCouponList(discountCoupon);
-        List<DiscountCouponListVO> discountVOS = new ArrayList<>();
-        discountCouponList.forEach(discountCoupon1 -> {
-            DiscountCouponListVO discountCouponListVO = new DiscountCouponListVO();
-            ToolUtil.copyProperties(discountCoupon1,discountCouponListVO);
-            discountCouponListVO.setValidityPeriod(discountCouponListVO.getValidityPeriod().substring(0,discountCouponListVO.getValidityPeriod().indexOf(" ")));
-            discountCouponListVO.setIsReceive(this.getDetailById(discountCoupon1));
-            discountVOS.add(discountCouponListVO);
-        });
-        return discountVOS;
-    }
 
     @Override
     public List<DiscountVO> getList(String join) {
@@ -180,17 +214,7 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
         }).orElse(null);
     }
 
-    //判断优惠券是否被领取
-    public boolean getDetailById(DiscountCoupon discountCoupon){
-        String userId = securityUtil.getCurrUser().getId();
-        DiscountMy one = discountMyService.getOne(
-                Wrappers.<DiscountMy>lambdaQuery()
-                        .eq(DiscountMy::getCreateBy, userId)
-                        .eq(DiscountMy::getDiscountCouponId, discountCoupon.getId())
-        );
-       return EmptyUtil.isNotEmpty(one);
 
-    }
 
 /**********************************************后端管理接口************************************************************/
 

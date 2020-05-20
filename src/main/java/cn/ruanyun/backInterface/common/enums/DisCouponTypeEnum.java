@@ -12,8 +12,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
  **/
 public enum DisCouponTypeEnum {
 
-    ALL_USE(1,"全场通用"),
+    ALL_SHOP(0,"全场通用"),
+    ALL_USE(1,"本店通用"),
     ONE_PRODUCT(2,"指定商品");
+
 
     DisCouponTypeEnum(int code, String value) {
         this.code = code;
