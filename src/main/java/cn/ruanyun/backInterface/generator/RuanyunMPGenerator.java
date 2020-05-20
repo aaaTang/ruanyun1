@@ -25,7 +25,7 @@ public class RuanyunMPGenerator {
      * 实体类名
      * 建议仅需修改
      */
-    private static final String className = "PrivateNumber";
+    private static final String className = "Jpush";
 
     /**
      * 类说明描述
@@ -54,31 +54,31 @@ public class RuanyunMPGenerator {
      * 实体类对应包
      * (文件自动生成至该包下)
      */
-    private static final String entityPackage = "cn.ruanyun.backInterface.modules.business.privateNumber.pojo";
+    private static final String entityPackage = "cn.ruanyun.backInterface.modules.jpush.pojo";
 
     /**
      * dao对应包
      * (文件自动生成至该包下)
      */
-    private static final String daoPackage = "cn.ruanyun.backInterface.modules.business.privateNumber.mapper";
+    private static final String daoPackage = "cn.ruanyun.backInterface.modules.jpush.mapper";
 
     /**
      * service对应包
      * (文件自动生成至该包下)
      */
-    private static final String servicePackage = "cn.ruanyun.backInterface.modules.business.privateNumber.service";
+    private static final String servicePackage = "cn.ruanyun.backInterface.modules.jpush.service";
 
     /**
      * serviceImpl对应包
      * (文件自动生成至该包下)
      */
-    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.business.privateNumber.serviceimpl";
+    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.jpush.serviceimpl";
 
     /**
      * controller对应包
      * (文件自动生成至该包下)
      */
-    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.business.privateNumber.controller";
+    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.jpush.controller";
 
     /**
      * 运行该主函数即可生成代码
