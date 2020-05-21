@@ -4,7 +4,6 @@ import cn.jiguang.common.resp.APIConnectionException;
 import cn.jiguang.common.resp.APIRequestException;
 import cn.jpush.api.JPushClient;
 import cn.jpush.api.push.model.PushPayload;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -19,17 +18,24 @@ import java.util.Set;
 @Component
 public class JPushUtil {
 
-    @Value("${jpush.app.key}")
-    private String jpushAppKey;
-    @Value("${jpush.master.secret}")
-    private String jpushMasterSecret;
+
+    /**
+     * appkey
+     */
+    private static final String JPUSH_KEY = "67cc92b03a914067ded6b3d7";
+
+
+    /**
+     * appSecret
+     */
+    private static final String JPUSH_SECRET = "ae16690a1b16bcb51ba28f46";
 
     /**
      * 创建 基础 JPushClient
      * @return JPushClient
      */
-    private JPushClient getJPushClient() {
-        return new JPushClient(jpushMasterSecret, jpushAppKey);
+    private JPushClient getjpushclient() {
+        return new JPushClient(JPUSH_SECRET, JPUSH_KEY);
     }
 
     /**
@@ -41,7 +47,7 @@ public class JPushUtil {
      * @throws APIConnectionException APIRequestException
      */
     public void logout(String pushId) throws APIConnectionException, APIRequestException {
-        getJPushClient().updateDeviceTagAlias(pushId, true, true);
+        getjpushclient().updateDeviceTagAlias(pushId, true, true);
     }
     /**
      * 更新用户tags和alias
@@ -56,8 +62,8 @@ public class JPushUtil {
      */
     public void updateTagAlias(String pushId, String cardNumber, Set<String> tagsToAdd)
             throws APIConnectionException, APIRequestException {
-        getJPushClient().updateDeviceTagAlias(pushId, cardNumber, tagsToAdd,
-                new HashSet<>(getJPushClient().getDeviceTagAlias(pushId).tags));
+        getjpushclient().updateDeviceTagAlias(pushId, cardNumber, tagsToAdd,
+                new HashSet<>(getjpushclient().getDeviceTagAlias(pushId).tags));
     }
     /**
      * 进行推送
@@ -66,6 +72,6 @@ public class JPushUtil {
      * @throws APIRequestException APIRequestException
      */
     public void sendPush(PushPayload build) throws APIConnectionException, APIRequestException {
-        getJPushClient().sendPush(build);
+        getjpushclient().sendPush(build);
     }
 }

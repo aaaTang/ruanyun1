@@ -176,8 +176,8 @@ ruanyun:
       secret: 微信secret
     #极光
     jpush:
-      appkey: 极光appkey
-      secret: 极光secret
+      appkey: a9007475fa5d5f74ac1add42
+      secret: e55993537169e3cd5c3eeea8
 
 # 需要验证码校验的接口路径 支持通配符 自动过滤拦截校验 无需开发人员再次校验
 captcha:
