@@ -334,7 +334,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
             .setShopName(userService.getUserIdByUserName(good.getCreateBy()))
             //TODO: 商品数量
             .setGoodsNum(this.list(Wrappers.<Good>lambdaQuery()
-                            .eq(Good::getCreateBy, good.getCreateBy())).size())
+                            .eq(Good::getCreateBy, good.getCreateBy()).eq(Good::getTypeEnum,GoodTypeEnum.GOOD)).size())
             // TODO: 关注店铺人数
             .setFollowAttentionNum(iFollowAttentionService.list(Wrappers.<FollowAttention>lambdaQuery()
                          .eq(FollowAttention::getUserId, good.getCreateBy())).size())
@@ -615,21 +615,25 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
             userId= securityUtil.getCurrUser().getId();
         }
 
+        //用户权限名
         String userRole = this.getRoleUserList(userId);
         if(ToolUtil.isEmpty(userRole)){
             return null;
         }else
+
         //当前角色是个人商家或者入驻商家
         if(userRole.equals(CommonConstant.PER_STORE)||userRole.equals(CommonConstant.STORE)){
            list = this.list(new QueryWrapper<Good>().lambda()
                     .eq(Good::getCreateBy, userId)
                     .eq(Good::getTypeEnum, GoodTypeEnum.GOOD)
+                    .eq(ToolUtil.isNotEmpty(goodDTO.getGoodCategoryId()), Good::getGoodCategoryId, goodDTO.getGoodCategoryId())
                     .like(ToolUtil.isNotEmpty(goodDTO.getGoodName()),Good::getGoodName,goodDTO.getGoodName())
                    .orderByDesc(Good::getCreateTime)
            );
         }else if (userRole.equals(CommonConstant.ADMIN)){
            list = this.list(new QueryWrapper<Good>().lambda()
                    .eq(Good::getTypeEnum, GoodTypeEnum.GOOD)
+                   .eq(ToolUtil.isNotEmpty(goodDTO.getGoodCategoryId()), Good::getGoodCategoryId, goodDTO.getGoodCategoryId())
                    .like(ToolUtil.isNotEmpty(goodDTO.getGoodName()),Good::getGoodName,goodDTO.getGoodName())
                    .orderByDesc(Good::getCreateTime));
         }
@@ -653,7 +657,6 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                    return  pc;
 
            })
-             .filter(pcGood-> pcGood.getGoodCategoryId().contains(ToolUtil.isNotEmpty(goodDTO.getGoodCategoryId())?goodDTO.getGoodCategoryId():pcGood.getGoodCategoryId()))
              .filter(pcGood-> pcGood.getShopName().contains(ToolUtil.isNotEmpty(goodDTO.getShopName())?goodDTO.getShopName():(ToolUtil.isNotEmpty(pcGood.getShopName())?pcGood.getShopName():"")))
                    .collect(Collectors.toList());
 
@@ -662,6 +665,8 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
            return null;
        }
     }
+
+
 
 
     /**

@@ -68,7 +68,11 @@ public class PcGetDiscountCouponListVO {
     /**
      * 有效期
      */
-    private String validityPeriod;
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @ApiModelProperty(value = "创建时间")
+    @TableField(fill = FieldFill.INSERT)
+    private Date validityPeriod;
 
     /**
      * 是否过期

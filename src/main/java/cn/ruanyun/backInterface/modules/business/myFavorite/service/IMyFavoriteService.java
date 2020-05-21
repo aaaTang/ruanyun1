@@ -2,6 +2,7 @@ package cn.ruanyun.backInterface.modules.business.myFavorite.service;
 
 
 import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
+import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodListVO;
 import cn.ruanyun.backInterface.modules.business.myFavorite.VO.GoodsFavoriteVO;
 import cn.ruanyun.backInterface.modules.business.myFavorite.VO.PackageFavotiteVO;
@@ -26,7 +27,7 @@ public interface IMyFavoriteService extends IService<MyFavorite> {
     /**
      * 移除我的收藏
      */
-    void deleteMyFavorite(String goodId, GoodTypeEnum goodTypeEnum);
+    Result<Object> deleteMyFavorite(String goodId, GoodTypeEnum goodTypeEnum);
 
     /**
      * 获取我的收藏商品列表

@@ -175,7 +175,7 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
 
     @Override
     public String getAddressName(String id) {
-        return null;
+        return Optional.ofNullable(this.getById(id)).map(Area::getTitle).orElse("暂无！");
     }
 
     //拼接详细地址
