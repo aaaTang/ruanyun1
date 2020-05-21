@@ -3,6 +3,7 @@ package cn.ruanyun.backInterface.modules.business.goodsPackage.VO;
 import cn.ruanyun.backInterface.modules.business.goodsIntroduce.VO.GoodsIntroduceVO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditListVO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditVO;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -53,4 +54,9 @@ public class GoodsPackageParticularsVO {
     //商铺信息
     private StoreAuditListVO storeAuditVO;
 
+    @ApiModelProperty(value = "购买状态 1购买 2租赁")
+    private Integer buyState;
+
+    @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")
+    private Integer leaseState;
 }

@@ -53,4 +53,59 @@ public class RongyunController {
         return new ResultUtil<>().setData(iRongyunService.checkOnlineResult(userId),"获取用户在线状态成功！");
     }
 
+    /**
+     * 创建群聊
+     * @param userId 用户id
+     * @param merchantId 商家id
+     * @return Object
+     */
+    @PostMapping("/group/create")
+    public Result<Object> createGroup (String userId, String merchantId){
+        return new ResultUtil<>().setData(iRongyunService.createGroup(userId, merchantId), "创建群组成功！");
+    }
+
+    /**
+     * 更新群组信息
+     * @param groupId
+     * @param groupName
+     * @return
+     */
+    @PostMapping("/group/update")
+    public Result<Object> updateGroup (String groupId, String groupName){
+        return new ResultUtil<>().setData(iRongyunService.updateGroup(groupId, groupName), "更新群组信息成功！");
+    }
+
+    /**
+     * 加入群组
+     * @param groupId
+     * @param groupName
+     * @param member
+     * @return
+     */
+    @PostMapping("/group/join")
+    public Result<Object> joinGroup (String groupId, String groupName, String[] member){
+        return new ResultUtil<>().setData(iRongyunService.joinGroup(groupId, groupName, member), "加入群组成功！");
+    }
+
+    /**
+     * 退出群组
+     * @param groupId
+     * @param member
+     * @return
+     */
+    @PostMapping("/group/quit")
+    public Result<Object> quitGroup (String groupId, String[] member){
+        return new ResultUtil<>().setData(iRongyunService.quitGroup(groupId, member), "退出群组成功！");
+    }
+
+    /**
+     * 解散群聊
+     * @param groupId
+     * @param userId
+     * @return
+     */
+    @PostMapping("/group/dismiss")
+    public Result<Object> dismissGroup (String groupId, String userId){
+        return new ResultUtil<>().setData(iRongyunService.dismissGroup(groupId, userId), "更新群组信息成功！");
+    }
 }

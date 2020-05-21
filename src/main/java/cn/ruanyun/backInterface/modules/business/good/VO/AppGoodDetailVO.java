@@ -1,9 +1,11 @@
 package cn.ruanyun.backInterface.modules.business.good.VO;
 
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
 
 import cn.ruanyun.backInterface.modules.business.goodService.GoodServerVO;
 import cn.ruanyun.backInterface.modules.business.goodService.pojo.GoodService;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -76,4 +78,10 @@ public class  AppGoodDetailVO {
      * 心愿单
      */
     private String wishList;
+
+    @ApiModelProperty(value = "购买状态 1购买 2租赁")
+    private Integer buyState;
+
+    @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")
+    private Integer leaseState;
 }

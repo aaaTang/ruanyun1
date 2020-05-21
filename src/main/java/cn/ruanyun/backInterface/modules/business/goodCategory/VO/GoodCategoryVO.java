@@ -39,6 +39,12 @@ public class GoodCategoryVO{
     private BigDecimal sortOrder;
 
     @ApiModelProperty(value = "是否启用 0启用 -1禁用")
-    private Integer status = CommonConstant.STATUS_NORMAL;
+    private Integer status;
+
+    @ApiModelProperty(value = "购买状态 1购买 2租赁")
+    private Integer buyState;
+
+    @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")
+    private Integer leaseState;
 
 }

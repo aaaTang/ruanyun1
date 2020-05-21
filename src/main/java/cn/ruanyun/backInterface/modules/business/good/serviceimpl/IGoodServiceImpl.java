@@ -348,7 +348,13 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                     //TODO: 商品优惠券
                     .setDiscountCouponListVOS(iDiscountCouponService.getDiscountCouponListByGoodsPackageId(id))
                     //TODO: 商品服务类型
-                    .setGoodsService(iGoodServiceService.getGoodsServiceList(id));
+                    .setGoodsService(iGoodServiceService.getGoodsServiceList(id))
+                    //购买状态 1购买 2租赁
+                    .setBuyState(Optional.ofNullable(goodCategoryMapper.selectById(good.getGoodCategoryId())).map(GoodCategory::getBuyState).orElse(null))
+                    //租赁状态 1尾款线上支付  2尾款线下支付
+                    .setLeaseState(Optional.ofNullable(goodCategoryMapper.selectById(good.getGoodCategoryId())).map(GoodCategory::getLeaseState).orElse(null))
+            ;
+
 
             //用户浏览商品足迹
             MyFootprint myFootprint = new MyFootprint();

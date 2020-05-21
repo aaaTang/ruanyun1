@@ -246,6 +246,8 @@ ignored:
     - /ruanyun/order/aliPayNotify
     - /ruanyun/good/getAppOneClassGoodList #获取首页的一级分类下的所有商品
     - /ruanyun/privateNumberAx/axBindNumber #绑定隐私号码
+    - /ruanyun/appUser/appGetinvitationCode  #APP通过邀请码获取用户信息
+    - /ruanyun/versions/getVersions #查询当前手机系统版本
 # Actuator
 management:
   health:

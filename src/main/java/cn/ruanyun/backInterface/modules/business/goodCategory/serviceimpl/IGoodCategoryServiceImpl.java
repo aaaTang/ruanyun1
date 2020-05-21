@@ -136,10 +136,6 @@ public class IGoodCategoryServiceImpl extends ServiceImpl<GoodCategoryMapper, Go
      */
     public List<GoodCategory> goodCategoryList(String pid) {
 
-        /*return ToolUtil.setListToNul(this.list(Wrappers.<GoodCategory>lambdaQuery()
-            .eq(GoodCategory::getParentId,pid)
-                .orderByAsc(GoodCategory::getSortOrder)));*/
-
         return this.list(Wrappers.<GoodCategory>lambdaQuery()
                 .eq(GoodCategory::getParentId,pid)
                 .orderByAsc(GoodCategory::getSortOrder));

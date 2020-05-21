@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.rongyun.service;
 
 import cn.ruanyun.backInterface.common.exception.RuanyunException;
+import cn.ruanyun.backInterface.modules.rongyun.DTO.GroupInfoCreate;
 import cn.ruanyun.backInterface.modules.rongyun.pojo.Rongyun;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -51,6 +52,46 @@ public interface IRongyunService extends IService<Rongyun> {
     String checkOnlineResult(String userId) throws RuanyunException;
 
 
+    /**
+     * 创建群组
+     * @param userId 用户id
+     * @param merchantId 商家id
+     * @return GroupInfoCreate
+     */
+    GroupInfoCreate createGroup(String userId, String merchantId);
+
+    /**
+     * 加入群组
+     * @param groupId 群组id
+     * @param groupName 群组名称
+     * @param member 要加入的成员ids
+     * @return
+     */
+    Object joinGroup(String groupId, String groupName, String[] member);
+
+    /**
+     * 更新群组信息
+     * @param groupId 群组id
+     * @param groupName 群组名称
+     * @return
+     */
+    Object updateGroup(String groupId, String groupName);
+
+    /**
+     * 退出群组
+     * @param groupId 群组id
+     * @param member 群组成员
+     * @return
+     */
+    Object quitGroup(String groupId, String[] member);
+
+    /**
+     * 解散群组
+     * @param groupId 群组id
+     * @param userId 操作者id
+     * @return
+     */
+    Object dismissGroup(String groupId, String userId);
 
 
 }

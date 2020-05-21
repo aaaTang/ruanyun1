@@ -16,6 +16,8 @@ import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollow
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.serviceimpl.IGoodServiceImpl;
+import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
+import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
 import cn.ruanyun.backInterface.modules.business.goodsIntroduce.service.IGoodsIntroduceService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.DTO.ShopParticularsDTO;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.*;
@@ -78,6 +80,8 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     private IGoodsIntroduceService iGoodsIntroduceService;
     @Autowired
     private IMyFavoriteService iMyFavoriteService;
+    @Autowired
+    private GoodCategoryMapper goodCategoryMapper;
 
 
 
@@ -103,6 +107,10 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
                .setProductsIntroduction(iGoodsIntroduceService.goodsIntroduceList(null,goodsPackage.getId(),1))//商品介绍
                .setPurchaseNotes(iGoodsIntroduceService.goodsIntroduceList(null,goodsPackage.getId(),2))//购买须知
                .setStoreAuditVO(storeAuditService.getStoreAudisByid(goodsPackage.getCreateBy()))//商铺信息
+               //购买状态 1购买 2租赁
+               .setBuyState(Optional.ofNullable(goodCategoryMapper.selectById(goodsPackage.getGoodCategoryId())).map(GoodCategory::getBuyState).orElse(null))
+               //租赁状态 1尾款线上支付  2尾款线下支付
+               .setLeaseState(Optional.ofNullable(goodCategoryMapper.selectById(goodsPackage.getGoodCategoryId())).map(GoodCategory::getLeaseState).orElse(null))
                ;
 
            }
