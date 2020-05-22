@@ -1,12 +1,14 @@
 package cn.ruanyun.backInterface.modules.business.order.pojo;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.enums.OrderTypeEnum;
 import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
 import cn.ruanyun.backInterface.common.utils.CommonUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import com.baomidou.mybatisplus.annotation.TableName;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -84,4 +86,10 @@ public class Order extends RuanyunBaseEntity {
      * 商品描述
      */
     private String goodDesc;
+
+    @ApiModelProperty(value = "购买状态 1购买 2租赁 3购买和租赁")
+    private Integer buyState;
+
+    @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")
+    private Integer leaseState;
 }

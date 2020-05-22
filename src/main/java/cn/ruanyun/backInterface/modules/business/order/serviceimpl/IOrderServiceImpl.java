@@ -199,6 +199,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             } else {
                 order.setUpdateBy(securityUtil.getCurrUser().getId());
             }
+
             Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(order)))
                     .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
                     .toFuture().join();
@@ -221,6 +222,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     private Map<String, List<OrderDetail>> settingStore(JSONArray jsonArray) {
         Map<String, List<OrderDetail>> goodMap = new HashMap<>();
         for (int i = 0; i < jsonArray.length(); i++) {
+            //这个是解析json字符串的，
             OrderDetail orderDetail = JSON.parseObject(jsonArray.get(i).toString(), OrderDetail.class);
 
             //将商品是一个店铺的归类
@@ -245,7 +247,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
             }
             if (!StringUtils.isEmpty(orderDetail.getAttrSymbolPath())) {
-                SizeAndRolor sizeAndRolor = sizeAndRolorService.getOneByAttrSymbolPath(orderDetail.getAttrSymbolPath(),orderDetail.getCreateBy());
+                SizeAndRolor sizeAndRolor = sizeAndRolorService.getOneByAttrSymbolPath(orderDetail.getAttrSymbolPath(),orderDetail.getCreateBy(),orderDetail.getGoodId());
                 if (EmptyUtil.isNotEmpty(sizeAndRolor)) {
                     sizeAndRolor.setId(null);
                     orderDetail.setIntegral(sizeAndRolor.getInventory());
@@ -253,6 +255,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                     orderDetail.setGoodPics(sizeAndRolor.getPic());
                 }
             }
+
             List<OrderDetail> goodList = goodMap.get(byId.getCreateBy());
             if (EmptyUtil.isEmpty(goodList)) {
                 ArrayList<OrderDetail> orderDetails = new ArrayList<>();
@@ -264,6 +267,133 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         }
         return goodMap;
     }
+
+
+
+
+
+    @Override
+    public Result<Object> insertOrder(OrderDTO orderDTO) {
+        //返回给前端的订单id 如果是多商铺的，就返回多个订单id
+        String ids = "";
+        //处理商品，如果商品不是同一个店铺下面的，需要生成过个订单
+        //"[{"sizeId":"256005326325682176","buyCount":5,"colorId":"256004810652782592","goodId":"1243581862115827714"},{"sizeId":"256005326325682176","buyCount":5,"colorId":"256004810652782592","goodId":"1243581862115827714"}]"
+        JSONArray jsonArray = new JSONArray(orderDTO.getGoods().toString());
+        //处理商品是多商铺的情况
+        List<DetailListVO> detailListVOS = this.inserOrderDetail(jsonArray);
+
+        String id ="";
+        double sumPrice = 0d;
+        for (DetailListVO detailVO : detailListVOS) {
+
+            Order order = new Order();
+            order.setOrderStatus(OrderStatusEnum.PRE_PAY);
+            order.setUserId(detailVO.getGoodId());
+            order.setBuyState(detailVO.getBuyState());
+            order.setLeaseState(detailVO.getLeaseState());
+            double totalPrice = 0d;
+            //下单的地址信息
+            HarvestAddress harvestAddress = harvestAddressService.getById(orderDTO.getAddressId());
+            harvestAddress.setId(null);
+            order.setAddressId(orderDTO.getAddressId());
+            ToolUtil.copyProperties(harvestAddress, order);
+
+            OrderDetail orderDetail = new OrderDetail();
+            ToolUtil.copyProperties(detailVO,orderDetail);
+            orderDetail.setOrderId(order.getId());
+            orderDetail.setCreateBy(null);
+            orderDetailService.insertOrderUpdateOrderDetail(orderDetail);
+            //将购物车数据删除
+            ShoppingCart one = shoppingCartService.getOne(Wrappers.<ShoppingCart>lambdaQuery()
+                    .eq(ShoppingCart::getGoodId, orderDetail.getGoodId())
+                    .eq(ShoppingCart::getAttrSymbolPath, orderDetail.getAttrSymbolPath())
+                    .eq(RuanyunBaseEntity::getCreateBy, securityUtil.getCurrUser().getId())
+            );
+            if (EmptyUtil.isNotEmpty(one)) {
+                shoppingCartService.removeById(one.getId());
+            }
+
+            totalPrice = totalPrice + (orderDetail.getBuyCount() * orderDetail.getGoodNewPrice().doubleValue());
+            if (orderDetail.getSubtractMoney().doubleValue() > 0) {
+                totalPrice = totalPrice - orderDetail.getSubtractMoney().doubleValue();
+            }
+            order.setTotalPrice(new BigDecimal(totalPrice));
+            if (ToolUtil.isEmpty(order.getCreateBy())) {
+                order.setCreateBy(securityUtil.getCurrUser().getId());
+            } else {
+                order.setUpdateBy(securityUtil.getCurrUser().getId());
+            }
+
+            id+=order.getId()+",";
+            sumPrice += totalPrice;
+            Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(order)))
+                    .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
+                    .toFuture().join();
+        }
+
+        Map<String, Object> map = new ArrayMap<>();
+        map.put("id", id.substring(0,id.length() -1));
+        map.put("balance", userService.getAccountBalance(null));
+        map.put("totalPrice", sumPrice);
+
+        return new ResultUtil<>().setData(map,"插入或者更新成功!");
+    }
+
+
+    public List inserOrderDetail(JSONArray jsonArray){
+
+        List<DetailListVO> orderDetailList = new ArrayList<>();
+        for (int i = 0; i < jsonArray.length(); i++){
+            DetailListVO detailListVO= new DetailListVO();
+
+            //这个是解析json字符串的，
+            OrderDetail orderDetail = JSON.parseObject(jsonArray.get(i).toString(), OrderDetail.class);
+
+            //将商品是一个店铺的归类
+            Good byId = goodService.getById(orderDetail.getGoodId());
+            if (EmptyUtil.isNotEmpty(byId)) {
+                byId.setId(null);
+                ToolUtil.copyProperties(byId, orderDetail);
+                List<String> strings = ToolUtil.splitterStr(byId.getGoodPics());
+                orderDetail.setGoodPics(strings.get(0));
+            }
+
+            if (!StringUtils.isEmpty(orderDetail.getDiscountMyId())) {
+                //处理商品优惠卷信息
+                DiscountVO detailById = discountMyService.getDetailById(orderDetail.getDiscountMyId());
+                if (EmptyUtil.isNotEmpty(detailById)) {
+                    int orderDetailMoney = detailById.getFullMoney().compareTo(orderDetail.getGoodNewPrice().divide(new BigDecimal(orderDetail.getBuyCount())));
+                    if (orderDetailMoney == -1) {
+                        detailById.setId(null);
+                        ToolUtil.copyProperties(detailById, orderDetail);
+                        orderDetail.setDiscountMyId(detailById.getId());
+                    }
+                }
+
+            }
+
+            if (!StringUtils.isEmpty(orderDetail.getAttrSymbolPath())) {
+                SizeAndRolor sizeAndRolor = sizeAndRolorService.getOneByAttrSymbolPath(orderDetail.getAttrSymbolPath(),orderDetail.getCreateBy(),orderDetail.getGoodId());
+                if (EmptyUtil.isNotEmpty(sizeAndRolor)) {
+                    sizeAndRolor.setId(null);
+                    orderDetail.setIntegral(sizeAndRolor.getInventory());
+                    orderDetail.setGoodNewPrice(sizeAndRolor.getGoodPrice());
+                    orderDetail.setGoodPics(sizeAndRolor.getPic());
+                }
+            }
+
+            ToolUtil.copyProperties(orderDetail,detailListVO);
+            orderDetailList.add(detailListVO);
+        }
+
+
+        return orderDetailList;
+    }
+
+
+
+
+
 
     /**
      * 支付
@@ -612,6 +742,8 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         AppGoodOrderVO appGoodOrderVO = new AppGoodOrderVO();
         //查询商品信息
         AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(shoppingCart.getGoodId(), shoppingCart.getAttrSymbolPath());
+        appGoodOrder.setBuyState(shoppingCart.getBuyState());
+        appGoodOrder.setLeaseState(shoppingCart.getLeaseState());
         ToolUtil.copyProperties(appGoodOrder, appGoodOrderVO);
         //查询商品价格
         /*SizeAndRolor one = sizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery()

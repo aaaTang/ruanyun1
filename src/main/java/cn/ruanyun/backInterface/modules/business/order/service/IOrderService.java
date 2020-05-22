@@ -35,6 +35,9 @@ public interface IOrderService extends IService<Order> {
      */
     Result<Object> insertOrderUpdateOrder(OrderDTO orderDTO);
 
+
+    Result<Object> insertOrder(OrderDTO orderDTO);
+
     /**
      * 支付
      *

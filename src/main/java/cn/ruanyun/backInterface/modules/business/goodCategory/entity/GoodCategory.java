@@ -43,7 +43,7 @@ public class GoodCategory extends RuanyunBaseEntity {
     @ApiModelProperty(value = "是否启用 0启用 -1禁用")
     private Integer status = CommonConstant.STATUS_NORMAL;
 
-    @ApiModelProperty(value = "购买状态 1购买 2租赁")
+    @ApiModelProperty(value = "购买状态 1购买 2租赁 3购买和租赁")
     private Integer buyState = CommonConstant.STATUS_NORMAL;
 
     @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")

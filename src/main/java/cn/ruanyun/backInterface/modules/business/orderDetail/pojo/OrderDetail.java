@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.orderDetail.pojo;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.modules.business.discountMy.pojo.DiscountMy;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;

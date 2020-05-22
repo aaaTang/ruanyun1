@@ -82,9 +82,15 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
     @Override
     public Result<Object> deleteMyFavorite(String goodId, GoodTypeEnum goodTypeEnum) {
 
-         return new ResultUtil<>().setData(this.remove(Wrappers.<MyFavorite>lambdaQuery().eq(MyFavorite::getGoodId,goodId)
-                 .eq(MyFavorite::getCreateBy,securityUtil.getCurrUser().getId())
-                 .eq(MyFavorite::getGoodTypeEnum,goodTypeEnum)),"删除成功");
+        MyFavorite myFavorite = this.getOne(Wrappers.<MyFavorite>lambdaQuery().eq(MyFavorite::getGoodId,goodId)
+                .eq(MyFavorite::getCreateBy,securityUtil.getCurrUser().getId())
+                .eq(MyFavorite::getGoodTypeEnum,goodTypeEnum));
+
+        if(ToolUtil.isNotEmpty(myFavorite)){
+            return new ResultUtil<>().setData(this.removeById(myFavorite.getId()),"取消成功！");
+        }else {
+            return new ResultUtil<>().setErrorMsg("取消失败！");
+        }
     }
 
     /**

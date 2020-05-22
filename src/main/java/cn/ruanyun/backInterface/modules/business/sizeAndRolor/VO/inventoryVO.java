@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 @Data
 public class inventoryVO {
 
+
+
     /**
      * 商品数量
      */

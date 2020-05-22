@@ -2,6 +2,7 @@ package cn.ruanyun.backInterface.modules.business.shoppingCart.controller;
 
 import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.entity.ShoppingCart;
@@ -38,6 +39,15 @@ public class ShoppingCartController {
         if (StringUtils.isEmpty(shoppingCart.getAttrSymbolPath())){
             return new ResultUtil<>().setErrorMsg(202,"请选择属性！");
         }
+       /* if(ToolUtil.isEmpty(shoppingCart.getBuyState())){
+            return new ResultUtil<>().setErrorMsg(202,"请选择购买方式！");
+        }
+        if(shoppingCart.getBuyState().equals(2)){
+            if(ToolUtil.isEmpty(shoppingCart.getLeaseState())){
+                return new ResultUtil<>().setErrorMsg(202,"请选择租赁方式！");
+            }
+        }*/
+
         iShoppingCartService.insertShoppingCart(shoppingCart);
         return new ResultUtil<>().setSuccessMsg("添加购物车成功！");
     }
@@ -62,8 +72,7 @@ public class ShoppingCartController {
     @PostMapping("/updateShoppingCart")
     public Result<Object> updateShoppingCart(ShoppingCart shoppingCart) {
 
-        iShoppingCartService.updateShoppingCart(shoppingCart);
-        return new ResultUtil<>().setSuccessMsg("更新购物车成功！");
+        return iShoppingCartService.updateShoppingCart(shoppingCart);
     }
 
 

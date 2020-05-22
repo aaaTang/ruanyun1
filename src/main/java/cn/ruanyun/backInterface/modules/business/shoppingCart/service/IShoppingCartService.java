@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.shoppingCart.service;
 
 
+import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.VO.ShoppingCartVO;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.entity.ShoppingCart;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -30,7 +31,7 @@ public interface IShoppingCartService extends IService<ShoppingCart> {
      * 编辑购物车
      * @param shoppingCart
      */
-    void updateShoppingCart(ShoppingCart shoppingCart);
+    Result<Object> updateShoppingCart(ShoppingCart shoppingCart);
 
     /**
      * 获取我的购物车数据
