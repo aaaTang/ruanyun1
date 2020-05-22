@@ -61,6 +61,7 @@ public class RongyunController {
      */
     @PostMapping("/group/create")
     public Result<Object> createGroup (String userId, String merchantId){
+        System.out.println("用户id" + userId + "商家id" + merchantId);
         return new ResultUtil<>().setData(iRongyunService.createGroup(userId, merchantId), "创建群组成功！");
     }
 
@@ -107,5 +108,35 @@ public class RongyunController {
     @PostMapping("/group/dismiss")
     public Result<Object> dismissGroup (String groupId, String userId){
         return new ResultUtil<>().setData(iRongyunService.dismissGroup(groupId, userId), "更新群组信息成功！");
+    }
+
+    /**
+     * 添加禁言群成员（在 App 中如果不想让某一用户在群中发言时，可将此用户在群组中禁言，被禁言用户可以接收查看群组中用户聊天信息，但不能发送消息。）
+     * @param  userId  用户 Id。（必传）
+     * @param  groupId  群组 Id。（必传）
+     * @param  minute  禁言时长，以分钟为单位，最大值为43200分钟。（必传）
+     */
+    @PostMapping("/group/addGagUser")
+    public Result<Object> addGagUser(String userId, String groupId, String minute){
+        return new ResultUtil<>().setData(iRongyunService.addGagUser(userId, groupId, minute), "查询被禁言群成员成功！");
+    }
+
+    /**
+     * 查询被禁言群成员
+     * @param  groupId  群组Id。（必传）
+     **/
+    @PostMapping("/group/lisGagUser")
+    public Result<Object> lisGagUser(String groupId){
+        return new ResultUtil<>().setData(iRongyunService.lisGagUser(groupId), "查询被禁言群成员成功！");
+    }
+
+    /**
+     * 移除禁言群成员
+     * @param  userIds  用户Id。支持同时移除多个群成员（必传）
+     * @param  groupId  群组Id。（必传）
+     **/
+    @PostMapping("/group/rollBackGagUser")
+    public Result<Object> rollBackGagUser(String[] userIds, String groupId){
+        return new ResultUtil<>().setData(iRongyunService.rollBackGagUser(userIds, groupId), "移除禁言群成员成功！");
     }
 }

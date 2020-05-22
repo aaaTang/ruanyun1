@@ -274,9 +274,9 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
         try {
             ListGagGroupUserResult listGagGroupUserResult = imClient.group.lisGagUser(groupId);
             // 禁言成员列表
-            // List<GagGroupUser> users = listGagGroupUserResult.getUsers();
+             List<GagGroupUser> users = listGagGroupUserResult.getUsers();
             if(listGagGroupUserResult.getCode() == 200){
-                return new Object();
+                return users;
             }else{
                 throw new RuanyunException("查询被禁言成员成功");
             }

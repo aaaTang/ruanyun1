@@ -50,11 +50,11 @@ public class ShoppingCart extends RuanyunBaseEntity {
      */
     private BigDecimal goodNewPrice;
 
-
     /**
      * 总价格
      */
     private BigDecimal totalPrice = new BigDecimal(0);
+
 
     @ApiModelProperty(value = "购买状态 1购买 2租赁 3购买和租赁")
     private Integer buyState;
