@@ -716,7 +716,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
      */
     private AppGoodOrderVO getShowOrderVOOne(OrderShowDTO orderShowDTO) {
         //查询商品信息
-        AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(orderShowDTO.getGoodId(), orderShowDTO.getAttrSymbolPath());
+        AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(orderShowDTO.getGoodId(), orderShowDTO.getAttrSymbolPath(),null,null);
         //查询商品价格
         SizeAndRolor one = sizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery()
                 .eq(SizeAndRolor::getAttrSymbolPath, orderShowDTO.getAttrSymbolPath())
@@ -752,7 +752,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     private AppGoodOrderVO getShowOrderVOShoppingCart(ShoppingCart shoppingCart, String userId) {
         AppGoodOrderVO appGoodOrderVO = new AppGoodOrderVO();
         //查询商品信息
-        AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(shoppingCart.getGoodId(), shoppingCart.getAttrSymbolPath());
+        AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(shoppingCart.getGoodId(), shoppingCart.getAttrSymbolPath(),null,null);
         appGoodOrder.setBuyState(shoppingCart.getBuyState());
         appGoodOrder.setLeaseState(shoppingCart.getLeaseState());
         ToolUtil.copyProperties(appGoodOrder, appGoodOrderVO);

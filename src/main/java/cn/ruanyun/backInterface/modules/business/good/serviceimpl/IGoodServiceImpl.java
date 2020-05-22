@@ -588,11 +588,12 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                     SizeAndRolor one = sizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery().eq(SizeAndRolor::getAttrSymbolPath, attrSymbolPath).eq(SizeAndRolor::getGoodsId,id));
 
                     if (EmptyUtil.isNotEmpty(one)){
-                        if(buyState.equals(2)){
+                        /*if(buyState.equals(2)){
                             appGoodOrderVO.setGoodNewPrice(one.getGooddDeposit());
                         }else {
                             appGoodOrderVO.setGoodNewPrice(one.getGoodPrice());
-                        }
+                        }*/
+                        appGoodOrderVO.setGoodNewPrice(one.getGoodPrice());
                         appGoodOrderVO.setGoodPic(one.getPic());
                         appGoodOrderVO.setIntegral(one.getInventory());
 

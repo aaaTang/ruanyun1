@@ -66,9 +66,11 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
 
 
         if (!StringUtils.isEmpty(shoppingCart.getGoodId())){
-            AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(shoppingCart.getGoodId(), shoppingCart.getAttrSymbolPath(),shoppingCart.getBuyState(),shoppingCart.getLeaseState());
+            AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(shoppingCart.getGoodId(), shoppingCart.getAttrSymbolPath(),null,null);
             shoppingCart.setTotalPrice(new BigDecimal(shoppingCart.getCount()).multiply(appGoodOrder.getGoodNewPrice()));
             shoppingCart.setGoodNewPrice(appGoodOrder.getGoodNewPrice());
+            shoppingCart.setBuyState(appGoodOrder.getBuyState());
+            shoppingCart.setLeaseState(appGoodOrder.getLeaseState());
         }
 
         shoppingCart.setCreateBy(securityUtil.getCurrUser().getId());
