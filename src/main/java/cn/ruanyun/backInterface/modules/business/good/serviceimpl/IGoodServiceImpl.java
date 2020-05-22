@@ -572,7 +572,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
      * @return
      */
     @Override
-    public AppGoodOrderVO getAppGoodOrder(String id,String attrSymbolPath) {
+    public AppGoodOrderVO getAppGoodOrder(String id,String attrSymbolPath,Integer buyState,Integer leaseState) {
 
         return Optional.ofNullable(super.getById(id))
                 .map(good -> {
@@ -586,10 +586,16 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
                     //处理商品价格
                     SizeAndRolor one = sizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery().eq(SizeAndRolor::getAttrSymbolPath, attrSymbolPath).eq(SizeAndRolor::getGoodsId,id));
+
                     if (EmptyUtil.isNotEmpty(one)){
-                        appGoodOrderVO.setGoodNewPrice(one.getGoodPrice());
+                        if(buyState.equals(2)){
+                            appGoodOrderVO.setGoodNewPrice(one.getGooddDeposit());
+                        }else {
+                            appGoodOrderVO.setGoodNewPrice(one.getGoodPrice());
+                        }
                         appGoodOrderVO.setGoodPic(one.getPic());
                         appGoodOrderVO.setIntegral(one.getInventory());
+
                     }
 
                     if(ToolUtil.isNotEmpty(attrSymbolPath)){

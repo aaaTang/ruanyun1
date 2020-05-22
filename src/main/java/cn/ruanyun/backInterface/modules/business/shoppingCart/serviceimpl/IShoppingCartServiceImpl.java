@@ -63,12 +63,16 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
      */
     @Override
     public void insertShoppingCart(ShoppingCart shoppingCart) {
+
+
         if (!StringUtils.isEmpty(shoppingCart.getGoodId())){
-            AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(shoppingCart.getGoodId(), shoppingCart.getAttrSymbolPath());
+            AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(shoppingCart.getGoodId(), shoppingCart.getAttrSymbolPath(),shoppingCart.getBuyState(),shoppingCart.getLeaseState());
             shoppingCart.setTotalPrice(new BigDecimal(shoppingCart.getCount()).multiply(appGoodOrder.getGoodNewPrice()));
             shoppingCart.setGoodNewPrice(appGoodOrder.getGoodNewPrice());
         }
+
         shoppingCart.setCreateBy(securityUtil.getCurrUser().getId());
+
         CompletableFuture.runAsync(() -> {
             if (ToolUtil.isNotEmpty(getShopCartSame(shoppingCart))) {
                 ShoppingCart shoppingCartOld = getShopCartSame(shoppingCart);
