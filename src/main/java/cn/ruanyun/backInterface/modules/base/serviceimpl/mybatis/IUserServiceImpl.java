@@ -773,7 +773,6 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
 
 
-    /****************************************************生成二维码***************************************************/
 
 
 

@@ -45,4 +45,15 @@ public class SizeAndRolor extends RuanyunBaseEntity {
      *图片
      */
     private String pic;
+
+    /**
+     *  商品定金
+     */
+    private BigDecimal gooddDeposit;
+
+    /**
+     *  商品尾款
+     */
+    private BigDecimal goodDalancePayment;
+
 }

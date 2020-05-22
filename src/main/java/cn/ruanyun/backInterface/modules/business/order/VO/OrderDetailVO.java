@@ -82,4 +82,14 @@ public class OrderDetailVO {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
+    /**
+     * 店铺名称
+     */
+    private String shopName;
+
+    /**
+     * 商家地址
+     */
+    private String shopAddress;
+
 }

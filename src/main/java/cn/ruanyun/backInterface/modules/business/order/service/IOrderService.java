@@ -142,4 +142,11 @@ public interface IOrderService extends IService<Order> {
      */
     BigDecimal getStaffSaleAmount(String staffId);
 
+    /**
+     * 商家查询用户的订单详情
+     * @param id 订单id
+     * @param shopId 商家id
+     * @return
+     */
+    Result<Object> shopQueryUserOrderrDetail(String id, String shopId);
 }

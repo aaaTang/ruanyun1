@@ -6,6 +6,7 @@ import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
 import cn.ruanyun.backInterface.common.exception.RuanyunException;
 import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.good.DTO.GoodDTO;
@@ -136,6 +137,23 @@ public class OrderController {
                 .map(good -> new ResultUtil<>().setData(iOrderService.getAppGoodDetail(id),"获取订单详情成功！"))
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
+
+    /**
+     * 商家查询用户的订单详情
+     * @param id 订单id
+     * @param shopId 商家id
+     * @return
+     */
+    @PostMapping("/shopQueryUserOrderrDetail")
+    public Result<Object> shopQueryUserOrderrDetail(String id,String shopId) {
+
+        if(ToolUtil.isEmpty(id)&&ToolUtil.isEmpty(shopId)){
+            return new ResultUtil<>().setErrorMsg(201, "订单信息错误！请联系管理员！");
+        }
+
+        return iOrderService.shopQueryUserOrderrDetail(id,shopId);
+    }
+
 
 
     /**

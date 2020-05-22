@@ -12,6 +12,7 @@ import cn.ruanyun.backInterface.common.pay.model.PayModel;
 import cn.ruanyun.backInterface.common.pay.service.IPayService;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.DictData;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.DictDataService;
@@ -23,6 +24,7 @@ import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService
 import cn.ruanyun.backInterface.modules.business.discountMy.VO.DiscountVO;
 import cn.ruanyun.backInterface.modules.business.discountMy.service.IDiscountMyService;
 import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodOrderVO;
+import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
@@ -112,10 +114,13 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     @Autowired
     private IGoodService goodService;
     @Autowired
+    private GoodMapper goodMapper;
+    @Autowired
     private IOrderDetailService orderDetailService;
     @Autowired
     private IUserService userService;
-
+    @Resource
+    private UserMapper userMapper;
     @Autowired
     private IDiscountMyService discountMyService;
     @Autowired
@@ -288,7 +293,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
             Order order = new Order();
             order.setOrderStatus(OrderStatusEnum.PRE_PAY);
-            order.setUserId(detailVO.getGoodId());
+            order.setUserId(detailVO.getCreateBy());
             order.setBuyState(detailVO.getBuyState());
             order.setLeaseState(detailVO.getLeaseState());
             double totalPrice = 0d;
@@ -575,6 +580,12 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 orderDetailVO.setPayTypeEnum(order.getPayTypeEnum().getValue());
             }
             orderDetailVO.setOrderStatus(order.getOrderStatus().getCode() + "");
+            User user = userMapper.selectById(order.getUserId());
+            if(ToolUtil.isNotEmpty(user)){
+                orderDetailVO.setShopName(user.getShopName());
+                orderDetailVO.setShopAddress(user.getAvatar());
+            }
+
             return orderDetailVO;
         }).orElse(null);
     }
@@ -1223,5 +1234,47 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         .map(orders -> orders.parallelStream().map(Order::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add))
         .orElse(new BigDecimal(0));
     }
+
+    /**
+     * 商家查询用户的订单详情
+     * @param id 订单id
+     * @return
+     */
+    @Override
+    public Result<Object> shopQueryUserOrderrDetail(String id, String shopId) {
+
+        //按订单id和商家id查看订单详情
+        Order order = this.getOne(Wrappers.<Order>lambdaQuery().eq(Order::getId,id).eq(Order::getUserId,shopId));
+
+        if(ToolUtil.isNotEmpty(order)){
+
+            OrderDetailVO orderDetailVO = new OrderDetailVO();
+
+            ToolUtil.copyProperties(order,orderDetailVO);
+
+            //商品详情
+            List<OrderDetailListVO> orderListByOrderId = orderDetailService.getOrderListByOrderId(id);
+            orderDetailVO.setOrderDetails(orderListByOrderId);
+
+            //支付状态
+            if (EmptyUtil.isNotEmpty(order.getPayTypeEnum())){  orderDetailVO.setPayTypeEnum(order.getPayTypeEnum().getValue());  }
+
+            //订单状态
+            orderDetailVO.setOrderStatus(order.getOrderStatus().getCode() + "");
+
+            //商家信息
+            User user = userMapper.selectById(order.getUserId());
+            if(ToolUtil.isNotEmpty(user)){
+                orderDetailVO.setShopName(user.getShopName());
+                orderDetailVO.setShopAddress(user.getAvatar());
+            }
+
+            return  new ResultUtil<>().setData(orderDetailVO,"获取订单信息成功！");
+
+        }
+
+        return  new ResultUtil<>().setErrorMsg(201,"信息错误！获取订单信息失败！");
+    }
+
 
 }
