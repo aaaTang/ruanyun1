@@ -2,7 +2,6 @@ package cn.ruanyun.backInterface.modules.rongyun.serviceimpl;
 
 import cn.ruanyun.backInterface.common.exception.RuanyunException;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
-import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.rongyun.DTO.GroupInfoCreate;
 import cn.ruanyun.backInterface.modules.rongyun.DTO.GroupUser;
@@ -13,7 +12,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import io.rong.RongCloud;
 import io.rong.models.CheckOnlineResult;
 import io.rong.models.CodeSuccessResult;
-import io.rong.models.GroupInfo;
 import io.rong.models.TokenResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +23,6 @@ import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 
 /**
