@@ -126,6 +126,7 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
             map.put("goodsPrice",good.getGoodNewPrice());//商品价格
             map.put("pic",(list.size() >= 1 ? list.get(0).getPic() : ""));//商品图片
             map.put("inventory",inventory);//商品库存
+
             return  map;
         }else {
             return  null;
@@ -150,16 +151,45 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
     }
 
     /**
+     * 获取商品规格组合
+     * @return
+     */
+    public List getGroup(String goodsId){
+
+        //获取商品下所有规格组合
+        List<SizeAndRolor> sizeAndRolors = this.list(new QueryWrapper<SizeAndRolor>().lambda().eq(SizeAndRolor::getGoodsId,goodsId));
+
+        if(ToolUtil.isNotEmpty(sizeAndRolors)){
+            List<inventoryVO> inventory = new ArrayList<>();
+
+            for (SizeAndRolor sizeAndRolor : sizeAndRolors) {
+
+
+            }
+
+        }
+
+
+
+        return null;
+    }
+
+
+
+
+
+    /**
      * 获取配置信息
      *
      * @param attrSymbolPath
      * @return
      */
     @Override
-    public SizeAndRolor getOneByAttrSymbolPath(String attrSymbolPath,String createBy) {
+    public SizeAndRolor getOneByAttrSymbolPath(String attrSymbolPath,String createBy,String goodId) {
         return Optional.ofNullable(this.getOne(Wrappers.<SizeAndRolor>lambdaQuery()
             .eq(SizeAndRolor::getAttrSymbolPath,attrSymbolPath)
             .eq(SizeAndRolor::getCreateBy,createBy)
+            .eq(SizeAndRolor::getGoodsId,goodId)
                 )).orElse(null);
     }
 

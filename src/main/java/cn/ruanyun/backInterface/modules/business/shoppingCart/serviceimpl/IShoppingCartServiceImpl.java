@@ -2,8 +2,10 @@ package cn.ruanyun.backInterface.modules.business.shoppingCart.serviceimpl;
 
 
 import cn.ruanyun.backInterface.common.utils.EmptyUtil;
+import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
+import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodOrderVO;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
@@ -64,13 +66,14 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
         if (!StringUtils.isEmpty(shoppingCart.getGoodId())){
             AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(shoppingCart.getGoodId(), shoppingCart.getAttrSymbolPath());
             shoppingCart.setTotalPrice(new BigDecimal(shoppingCart.getCount()).multiply(appGoodOrder.getGoodNewPrice()));
+            shoppingCart.setGoodNewPrice(appGoodOrder.getGoodNewPrice());
         }
         shoppingCart.setCreateBy(securityUtil.getCurrUser().getId());
         CompletableFuture.runAsync(() -> {
             if (ToolUtil.isNotEmpty(getShopCartSame(shoppingCart))) {
                 ShoppingCart shoppingCartOld = getShopCartSame(shoppingCart);
                 shoppingCartOld.setCount(shoppingCartOld.getCount()+shoppingCart.getCount())
-                        .setTotalPrice(getUpdatePrice(shoppingCartOld,shoppingCartOld.getCount().toString()));
+                        .setTotalPrice(shoppingCart.getGoodNewPrice().multiply(BigDecimal.valueOf(shoppingCartOld.getCount()+shoppingCart.getCount())));
                 this.updateById(shoppingCartOld);
             } else {
                 this.save(shoppingCart);
@@ -98,15 +101,17 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
      * @param shoppingCart
      */
     @Override
-    public void updateShoppingCart(ShoppingCart shoppingCart) {
+    public Result<Object> updateShoppingCart(ShoppingCart shoppingCart) {
 
         shoppingCart.setUpdateBy(securityUtil.getCurrUser().getId());
         CompletableFuture.runAsync(() -> {
             ShoppingCart shoppingCartOld = this.getById(shoppingCart.getId());
             ToolUtil.copyProperties(shoppingCart,shoppingCartOld);
-            shoppingCartOld.setTotalPrice(getUpdatePrice(shoppingCartOld,shoppingCart.getCount().toString()));
+            shoppingCartOld.setTotalPrice(shoppingCartOld.getGoodNewPrice().multiply(BigDecimal.valueOf(shoppingCart.getCount())));
             this.updateById(shoppingCartOld);
         });
+
+      return new ResultUtil<>().setData(this.getById(shoppingCart.getId()),"获取我的购物车数据成功！");
     }
 
     /**

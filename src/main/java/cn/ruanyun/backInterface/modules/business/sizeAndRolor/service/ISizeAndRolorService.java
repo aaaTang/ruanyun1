@@ -47,7 +47,7 @@ public interface ISizeAndRolorService extends IService<SizeAndRolor> {
      * @param attrSymbolPath
      * @return
      */
-    SizeAndRolor getOneByAttrSymbolPath(String attrSymbolPath,String createBy);
+    SizeAndRolor getOneByAttrSymbolPath(String attrSymbolPath,String createBy,String goodId);
 
 
     /**

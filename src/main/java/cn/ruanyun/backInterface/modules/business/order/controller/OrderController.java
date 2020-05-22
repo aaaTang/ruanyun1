@@ -48,7 +48,8 @@ public class OrderController {
     @PostMapping(value = "/insertOrder")
     public Result<Object> insertOrder(OrderDTO orderDTO){
         try {
-            return  iOrderService.insertOrderUpdateOrder(orderDTO);
+            //return  iOrderService.insertOrderUpdateOrder(orderDTO);
+            return  iOrderService.insertOrder(orderDTO);
         }catch (Exception e) {
             return new ResultUtil<>().setErrorMsg(201, e.getMessage());
         }
