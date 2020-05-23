@@ -793,6 +793,11 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                 "&grant_type=authorization_code";
         String result = HttpUtil.get(str);
 
+        //2. 获取accessToken
+
+        String accessTokenUrl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" +
+                CommonConstant.APP_ID + "&secret=" + CommonConstant.APP_SECRET;
+
         //判断是否获取成功
         Integer errorCode = JSONObject.parseObject(result).getInteger("errcode");
         String errmsg = JSONObject.parseObject(result).getString("errmsg");
@@ -804,7 +809,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
         WechatVo wechatVo = new WechatVo();
 
-        wechatVo.setAccessToken(JSONObject.parseObject(result).getString("access_token"))
+        wechatVo.setAccessToken(JSONObject.parseObject(accessTokenUrl).getString("access_token"))
                 .setOpenId(openid);
 
         //判断当前用户是否是新用户:如果是新用户, 则返回一个状态值,提示用户绑定手机号；如果不是新用户, 则直接返回token
