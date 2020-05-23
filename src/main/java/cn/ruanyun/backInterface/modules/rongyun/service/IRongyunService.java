@@ -4,7 +4,7 @@ import cn.ruanyun.backInterface.common.exception.RuanyunException;
 import cn.ruanyun.backInterface.modules.rongyun.DTO.GroupInfoCreate;
 import cn.ruanyun.backInterface.modules.rongyun.pojo.Rongyun;
 import com.baomidou.mybatisplus.extension.service.IService;
-import io.rong.models.CodeSuccessResult;
+
 
 /**
  * 融云接口
