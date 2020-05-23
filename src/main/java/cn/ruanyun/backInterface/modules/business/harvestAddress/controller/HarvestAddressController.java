@@ -39,43 +39,34 @@ public class HarvestAddressController {
     @PostMapping("/insertAddress")
     public Result<Object> insertAddress(HarvestAddress harvestAddress) {
 
-      /*  //不能重复添加默认地址
-        if (CommonConstant.YES.equals(harvestAddress.getDefaultAddress())) {
-            return Optional.ofNullable(iHarvestAddressService.getMyDefaultAddress())
-                    .map(harvestAddressVO -> new ResultUtil<>().setErrorMsg(201,"已有默认地址！"))
-                    .orElseGet(() -> {
-                        iHarvestAddressService.insertAddress(harvestAddress);
-                        return new ResultUtil<>().setSuccessMsg("插入成功！");
-                    });
+        if(harvestAddress.getConsignee().replaceAll("[\u4e00-\u9fa5]*[a-z]*[A-Z]*\\d*-*_*\\s*", "").length()==0){
+            //不能重复添加默认地址
+            if (CommonConstant.YES.equals(harvestAddress.getDefaultAddress())) {
+                return Optional.ofNullable(iHarvestAddressService.getMyDefaultAddress())
+                        .map(harvestAddressVO -> {
+
+                            iHarvestAddressService.insertAddress(harvestAddress);
+
+                            //把默认地址改成普通地址
+                            HarvestAddress harvestAdd = new HarvestAddress();
+                            harvestAdd.setId(harvestAddressVO.getId());
+                            harvestAdd.setDefaultAddress(CommonConstant.NO);
+                            iHarvestAddressService.updateAddress(harvestAdd);
+
+                            return new ResultUtil<>().setSuccessMsg("新增成功！");
+                        }).orElseGet(() -> {
+                            iHarvestAddressService.insertAddress(harvestAddress);
+                            return new ResultUtil<>().setSuccessMsg("新增成功！");
+                        });
+
+            }
+
+            iHarvestAddressService.insertAddress(harvestAddress);
+            return new ResultUtil<>().setErrorMsg(201,"新增失败！");
+        }else {
+            return new ResultUtil<>().setErrorMsg(201,"收货人名称不能保护特殊字符！");
         }
 
-        iHarvestAddressService.insertAddress(harvestAddress);
-        return new ResultUtil<>().setSuccessMsg("插入成功！");*/
-
-
-        //不能重复添加默认地址
-        if (CommonConstant.YES.equals(harvestAddress.getDefaultAddress())) {
-            return Optional.ofNullable(iHarvestAddressService.getMyDefaultAddress())
-                    .map(harvestAddressVO -> {
-
-                        iHarvestAddressService.insertAddress(harvestAddress);
-
-                        //把默认地址改成普通地址
-                        HarvestAddress harvestAdd = new HarvestAddress();
-                        harvestAdd.setId(harvestAddressVO.getId());
-                        harvestAdd.setDefaultAddress(CommonConstant.NO);
-                        iHarvestAddressService.updateAddress(harvestAdd);
-
-                        return new ResultUtil<>().setSuccessMsg("新增成功！");
-                    }).orElseGet(() -> {
-                        iHarvestAddressService.insertAddress(harvestAddress);
-                        return new ResultUtil<>().setSuccessMsg("新增成功！");
-                    });
-
-        }
-
-        iHarvestAddressService.insertAddress(harvestAddress);
-        return new ResultUtil<>().setSuccessMsg("新增成功！");
     }
 
 

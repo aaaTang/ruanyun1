@@ -1,7 +1,6 @@
 package cn.ruanyun.backInterface.modules.weChat.controller;
 
 
-
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.weChat.entity.WeChat;
 import cn.ruanyun.backInterface.modules.weChat.service.IweChatService;
@@ -23,13 +22,14 @@ import java.io.UnsupportedEncodingException;
 @Api(description = "微信管理接口")
 @RequestMapping("/ruanyun/weChat")
 @Transactional
-public class              weChatController {
+public class weChatController {
 
     @Autowired
     private IweChatService iweChatService;
 
     /**
      * 微信小程序获取openId
+     *
      * @param code
      * @return
      */
@@ -40,6 +40,7 @@ public class              weChatController {
 
     /**
      * 微信登录
+     *
      * @param weChat
      * @return
      */

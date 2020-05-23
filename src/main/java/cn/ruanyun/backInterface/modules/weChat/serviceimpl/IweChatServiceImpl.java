@@ -65,7 +65,7 @@ public class IweChatServiceImpl extends ServiceImpl<WeChatMapper, WeChat> implem
             return new ResultUtil<>().setErrorMsg(201,"暂未授权！");
         }
 
-        log.info("当前的appid是" + appId);
+        log.info("当前的code是" + code);
         //1.通过code获取openId
         String str = "https://api.weixin.qq.com/sns/jscode2session?appid=" +
                 appId +

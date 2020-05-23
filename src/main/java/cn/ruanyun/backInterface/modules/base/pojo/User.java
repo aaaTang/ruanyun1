@@ -153,4 +153,5 @@ public class User extends RuanyunBaseEntity {
      * 余额支付密码
      */
     private String payPassword;
+
 }

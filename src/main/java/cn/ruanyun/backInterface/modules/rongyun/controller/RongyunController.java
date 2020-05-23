@@ -118,7 +118,7 @@ public class RongyunController {
      */
     @PostMapping("/group/addGagUser")
     public Result<Object> addGagUser(String userId, String groupId, String minute){
-        return new ResultUtil<>().setData(iRongyunService.addGagUser(userId, groupId, minute), "查询被禁言群成员成功！");
+        return new ResultUtil<>().setData(iRongyunService.addGagUser(userId, groupId, minute), "添加禁言群成员成功！");
     }
 
     /**
@@ -138,5 +138,10 @@ public class RongyunController {
     @PostMapping("/group/rollBackGagUser")
     public Result<Object> rollBackGagUser(String[] userIds, String groupId){
         return new ResultUtil<>().setData(iRongyunService.rollBackGagUser(userIds, groupId), "移除禁言群成员成功！");
+    }
+
+    @PostMapping("/group/getUserByGroupId")
+    public Result<Object> getUserByGroupId(String groupId){
+        return new ResultUtil<>().setData(iRongyunService.getUserByGroupId(groupId), "获取群成员成功！");
     }
 }
