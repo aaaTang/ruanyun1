@@ -1,10 +1,13 @@
 package cn.ruanyun.backInterface.modules.rongyun.service;
 
 import cn.ruanyun.backInterface.common.exception.RuanyunException;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.rongyun.DTO.GroupInfoCreate;
 import cn.ruanyun.backInterface.modules.rongyun.pojo.Rongyun;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+
+import java.util.List;
 
 /**
  * 融云接口
@@ -122,6 +125,11 @@ public interface IRongyunService extends IService<Rongyun> {
      **/
     Object rollBackGagUser(String[] userId, String groupId);
 
-
+    /**
+     * 获取群聊用户信息
+     * @param groupId
+     * @return
+     */
+    List<User> getUserByGroupId(String groupId);
 }
 

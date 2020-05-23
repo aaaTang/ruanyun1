@@ -172,8 +172,8 @@ ruanyun:
       callbackUrl: http://127.0.0.1:8888/ruanyun/social/weibo/callback
     #微信
     weixin:
-      appId: 微信appId
-      secret: 微信secret
+      appId: wxfb1c7c1fc40e00e7
+      secret: ad006bc22cf37b9ba7ef357347affbca
     #极光
     jpush:
       appkey: a9007475fa5d5f74ac1add42
@@ -233,7 +233,7 @@ ignored:
     - /ruanyun/appUser/appGetinvitationCode  #邀请码获取推荐人
     - /ruanyun/common/captcha/sendRegistSmsCode #发送注册短信验证码
     - /ruanyun/appUser/forgetPassword #忘记密码
-    - /ruanyun/weChat/**
+    - /ruanyun/weChat/**   #微信登录
     - /ruanyun/advertising/**
     - /ruanyun/area/**
     - /ruanyun/classification/**

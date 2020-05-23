@@ -40,4 +40,5 @@ public class WeChat extends RuanyunBaseEntity {
     @ApiModelProperty(value = "绑定用户账号")
     private String relateUsername;
 
+
 }

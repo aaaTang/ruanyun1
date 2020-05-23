@@ -1,12 +1,16 @@
 package cn.ruanyun.backInterface.modules.rongyun.serviceimpl;
 
 import cn.ruanyun.backInterface.common.exception.RuanyunException;
+import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import cn.ruanyun.backInterface.modules.business.group.pojo.Group;
+import cn.ruanyun.backInterface.modules.business.group.service.IGroupService;
 import cn.ruanyun.backInterface.modules.business.platformServicer.pojo.PlatformServicer;
 import cn.ruanyun.backInterface.modules.business.platformServicer.service.IPlatformServicerService;
+import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 import cn.ruanyun.backInterface.modules.business.storeServicer.pojo.StoreServicer;
 import cn.ruanyun.backInterface.modules.business.storeServicer.service.IStoreServicerService;
 import cn.ruanyun.backInterface.modules.rongyun.DTO.GroupInfoCreate;
@@ -17,6 +21,7 @@ import cn.ruanyun.backInterface.modules.rongyun.service.IRongyunService;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import io.rong.RongCloud;
 import io.rong.models.*;
@@ -25,6 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import sun.nio.ch.ThreadPool;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
@@ -60,6 +67,12 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
 
     @Autowired
     private IPlatformServicerService iPlatformServicerService;
+
+    @Autowired
+    private IGroupService iGroupService;
+
+    @Autowired
+    private IUserService iUserService;
 
     @PostConstruct
     public void init() {
@@ -146,12 +159,19 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
 
     @Override
     public GroupInfoCreate createGroup(String userId, String merchantId) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("user_id", userId);
+        map.put("store_id", userId);
+        List<Group> groups = iGroupService.listByMap(map);
+        if(groups.size() > 0){
+            throw new RuanyunException("已经创建过群组");
+        }
 
         // 商家客服
         String merchantServiceId = merchantId;
-        Map<String, Object> map = new HashMap<>();
-        map.put("store_id", merchantId);
-        List<StoreServicer> storeServicers = iStoreServicerService.listByMap(map);
+        Map<String, Object> map2 = new HashMap<>();
+        map2.put("store_id", merchantId);
+        List<StoreServicer> storeServicers = iStoreServicerService.listByMap(map2);
         if(storeServicers.size() > 0){
             int chooseDindex = new Random().nextInt(storeServicers.size());
             merchantServiceId = storeServicers.get(chooseDindex).getServicerId();
@@ -190,6 +210,14 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
         try {
             CodeSuccessResult result = imClient.group.create(users, groupId, groupName);
             if(result.getCode() == 200){
+                Group group = new Group();
+                group.setGroupId(groupId);
+                group.setUserId(userId);
+                group.setPlatformServicerId(platformServiceId);
+                group.setStoreServicerId(merchantServiceId);
+                group.setStoreId(merchantId);
+                group.setGroupName(groupName);
+                ThreadPoolUtil.getPool().execute(() -> iGroupService.insertOrderUpdateGroup(group));
                 return groupInfoCreate;
             }else{
                 throw new RuanyunException("创建群组失败");
@@ -204,6 +232,13 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
         try {
             CodeSuccessResult result = imClient.group.join(member, groupId, groupName);
             if(result.getCode() == 200){
+                Group group = iGroupService.getOne(Wrappers.<Group>lambdaQuery()
+                        .eq(Group::getGroupId, groupId));
+                String userId = group.getUserId();
+                List<String> ids = Arrays.asList(userId.split(","));
+                ids.addAll(Arrays.asList(member));
+                group.setUserId(ids.toString());
+                iGroupService.updateById(group);
                 return new Object();
             }else{
                 throw new RuanyunException("加入群组失败");
@@ -218,6 +253,10 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
         try {
             CodeSuccessResult result = imClient.group.refresh(groupId, groupName);
             if(result.getCode() == 200){
+                Group group = iGroupService.getOne(Wrappers.<Group>lambdaQuery()
+                        .eq(Group::getGroupId, groupId));
+                group.setGroupName(groupName);
+                iGroupService.updateById(group);
                 return new Object();
             }else{
                 throw new RuanyunException("更新群聊信息失败");
@@ -232,6 +271,18 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
         try {
             CodeSuccessResult result = imClient.group.quit(member, groupId);
             if(result.getCode() == 200){
+                Group group = iGroupService.getOne(Wrappers.<Group>lambdaQuery()
+                        .eq(Group::getGroupId, groupId));
+                String userId = group.getUserId();
+                List<String> ids = Arrays.asList(userId.split(","));
+                for (String id: ids) {
+                    for (String memberOne: member){
+                        if (memberOne.equals(id)){
+                            ids.remove(id);
+                        }
+                    }
+                }
+                iGroupService.updateById(group);
                 return new Object();
             }else{
                 throw new RuanyunException("退出群聊失败");
@@ -246,6 +297,10 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
         try {
             CodeSuccessResult result = imClient.group.dismiss(userId, groupId);
             if(result.getCode() == 200){
+                Map<String, Object> removeGroup = new HashMap<>();
+                removeGroup.put("group_id", groupId);
+                boolean b = iGroupService.removeByMap(removeGroup);
+                log.info("移除群组" + groupId + "结果: " + b);
                 return new Object();
             }else{
                 throw new RuanyunException("解散群聊失败");
@@ -297,6 +352,15 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
         } catch (Exception e) {
             throw new RuanyunException("系统异常");
         }
+    }
+
+    @Override
+    public List<User> getUserByGroupId(String groupId) {
+        Group group = iGroupService.getOne(Wrappers.<Group>lambdaQuery()
+                .eq(Group::getGroupId, groupId));
+        String userId = group.getUserId();
+        List<String> ids = Arrays.asList(userId.split(","));
+        return iUserService.listByIds(ids);
     }
 
 
