@@ -1,7 +1,6 @@
 package cn.ruanyun.backInterface.modules.rongyun.serviceimpl;
 
 import cn.ruanyun.backInterface.common.exception.RuanyunException;
-import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
@@ -10,7 +9,6 @@ import cn.ruanyun.backInterface.modules.business.group.pojo.Group;
 import cn.ruanyun.backInterface.modules.business.group.service.IGroupService;
 import cn.ruanyun.backInterface.modules.business.platformServicer.pojo.PlatformServicer;
 import cn.ruanyun.backInterface.modules.business.platformServicer.service.IPlatformServicerService;
-import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 import cn.ruanyun.backInterface.modules.business.storeServicer.pojo.StoreServicer;
 import cn.ruanyun.backInterface.modules.business.storeServicer.service.IStoreServicerService;
 import cn.ruanyun.backInterface.modules.rongyun.DTO.GroupInfoCreate;
@@ -18,9 +16,6 @@ import cn.ruanyun.backInterface.modules.rongyun.DTO.GroupUser;
 import cn.ruanyun.backInterface.modules.rongyun.mapper.RongyunMapper;
 import cn.ruanyun.backInterface.modules.rongyun.pojo.Rongyun;
 import cn.ruanyun.backInterface.modules.rongyun.service.IRongyunService;
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.segments.MergeSegments;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import io.rong.RongCloud;
@@ -30,8 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-import sun.nio.ch.ThreadPool;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
@@ -161,10 +154,28 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
     public GroupInfoCreate createGroup(String userId, String merchantId) {
         Map<String, Object> map = new HashMap<>();
         map.put("user_id", userId);
-        map.put("store_id", userId);
+        map.put("store_id", merchantId);
         List<Group> groups = iGroupService.listByMap(map);
         if(groups.size() > 0){
-            throw new RuanyunException("已经创建过群组");
+            GroupInfoCreate groupInfoCreate = new GroupInfoCreate();
+            List<GroupUser> groupUsers = new ArrayList<>();
+
+            Optional.ofNullable(userService.getById(groups.get(0).getStoreServicerId()))
+                    .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "merchantServicer")));
+
+            Optional.ofNullable(userService.getById(groups.get(0).getPlatformServicerId()))
+                    .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "platformServicer")));
+
+            Optional.ofNullable(userService.getById(groups.get(0).getUserId()))
+                    .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "user")));
+
+            Optional.ofNullable(userService.getById(groups.get(0).getStoreId()))
+                    .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "merchant")));
+
+            groupInfoCreate.setGroupUsers(groupUsers);
+            groupInfoCreate.setGroupId(groups.get(0).getGroupId());
+            groupInfoCreate.setGroupName(groups.get(0).getGroupName());
+            return groupInfoCreate;
         }
 
         // 商家客服
@@ -187,13 +198,16 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
         List<GroupUser> groupUsers = new ArrayList<>();
 
         Optional.ofNullable(userService.getById(merchantServiceId))
-                .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "merchant")));
+                .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "merchantServicer")));
 
         Optional.ofNullable(userService.getById(platformServiceId))
-                .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "platform")));
+                .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "platformServicer")));
 
         Optional.ofNullable(userService.getById(userId))
                 .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "user")));
+
+        Optional.ofNullable(userService.getById(merchantId))
+                .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "merchant")));
 
 
         String [] users = {userId, merchantServiceId, platformServiceId};
@@ -201,7 +215,7 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
         String groupId = ToolUtil.getRandomString(24);// 最大30位
 
         // 群组名称
-        String groupName = userService.getById(merchantServiceId).getShopName();
+        String groupName = userService.getById(merchantId).getNickName();
 
         groupInfoCreate.setGroupUsers(groupUsers);
         groupInfoCreate.setGroupId(groupId);
@@ -217,7 +231,7 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
                 group.setStoreServicerId(merchantServiceId);
                 group.setStoreId(merchantId);
                 group.setGroupName(groupName);
-                ThreadPoolUtil.getPool().execute(() -> iGroupService.insertOrderUpdateGroup(group));
+                iGroupService.insertOrderUpdateGroup(group);
                 return groupInfoCreate;
             }else{
                 throw new RuanyunException("创建群组失败");
@@ -355,12 +369,68 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
     }
 
     @Override
-    public List<User> getUserByGroupId(String groupId) {
+    public Map<String, Object> getUserByGroupId(String groupId) {
         Group group = iGroupService.getOne(Wrappers.<Group>lambdaQuery()
                 .eq(Group::getGroupId, groupId));
+        System.out.println(group);
         String userId = group.getUserId();
         List<String> ids = Arrays.asList(userId.split(","));
-        return iUserService.listByIds(ids);
+        Map<String, Object> map = new HashMap<>();
+        map.put("user", iUserService.listByIds(ids));
+
+
+        map.put("store_servicer", iUserService.getOne(Wrappers.<User>lambdaQuery()
+                .eq(User::getId, group.getStoreServicerId())));
+
+        map.put("platform_servicer", iUserService.getOne(Wrappers.<User>lambdaQuery()
+                .eq(User::getId, group.getPlatformServicerId())));
+
+        return map;
+    }
+
+    @Override
+    public Object getGroupListByUserId(String userId) {
+        List<Group> groups;
+        Map<String, Object> user1 = new HashMap<>();
+        user1.put("user_id", userId);
+        List<Group> group1 = iGroupService.listByMap(user1);
+
+        if(group1.size() == 0){
+            Map<String, Object> user2 = new HashMap<>();
+            user2.put("store_servicer_id", userId);
+            List<Group> group2 = iGroupService.listByMap(user2);
+            if(group2.size() == 0){
+                Map<String, Object> user3 = new HashMap<>();
+                user3.put("platform_servicer_id", userId);
+                List<Group> group3 = iGroupService.listByMap(user3);
+                if(group3.size() == 0){
+                    return new ArrayList<>();
+                } else {
+                    groups = group2;
+                }
+            } else {
+                groups = group2;
+            }
+        } else {
+            groups = group1;
+        }
+
+        List<Map<String, Object>> list = new ArrayList<>();
+        for (Group group: groups) {
+            Map<String, Object> back = new HashMap<>();
+            back.put("group_id", group.getGroupId());
+            back.put("group_name", group.getGroupName());
+
+            back.put("user", iUserService.listByIds(Arrays.asList(group.getUserId().split(","))));
+
+            back.put("store_servicer", iUserService.getOne(Wrappers.<User>lambdaQuery()
+                    .eq(User::getId, group.getStoreServicerId())));
+
+            back.put("platform_servicer", iUserService.getOne(Wrappers.<User>lambdaQuery()
+                    .eq(User::getId, group.getPlatformServicerId())));
+            list.add(back);
+        }
+        return list;
     }
 
 
