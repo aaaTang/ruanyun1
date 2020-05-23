@@ -235,9 +235,9 @@ public interface CommonConstant {
 
     /*-------------------微信授权参数------------------------*/
 
-    String APP_ID = "";
+    String APP_ID = "wxfb1c7c1fc40e00e7";
 
-    String APP_SECRET = "";
+    String APP_SECRET = "ad006bc22cf37b9ba7ef357347affbca";
 
 }
 
