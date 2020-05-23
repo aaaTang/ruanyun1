@@ -49,7 +49,7 @@ public class SizeAndRolor extends RuanyunBaseEntity {
     /**
      *  商品定金
      */
-    private BigDecimal gooddDeposit;
+    private BigDecimal goodDeposit;
 
     /**
      *  商品尾款

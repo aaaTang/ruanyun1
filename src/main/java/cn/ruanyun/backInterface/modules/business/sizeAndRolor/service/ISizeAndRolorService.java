@@ -32,9 +32,11 @@ public interface ISizeAndRolorService extends IService<SizeAndRolor> {
 
     /**
      * 获取商品规格和大小
+     * @param goodsId  商品id
+     * @param buyState 购买状态 1购买 2租赁
      * @return
      */
-    Map<String,Object> SizeAndRolorList(String goodsId);
+    Map<String,Object> SizeAndRolorList(String goodsId,Integer buyState);
 
     /**
      * 获取规格属性的图片价格库存

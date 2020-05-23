@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 融云接口
@@ -130,6 +131,14 @@ public interface IRongyunService extends IService<Rongyun> {
      * @param groupId
      * @return
      */
-    List<User> getUserByGroupId(String groupId);
+    Map<String, Object> getUserByGroupId(String groupId);
+
+
+    /**
+     * 获取用户群组列表
+     * @param userId
+     * @return
+     */
+    Object getGroupListByUserId(String userId);
 }
 

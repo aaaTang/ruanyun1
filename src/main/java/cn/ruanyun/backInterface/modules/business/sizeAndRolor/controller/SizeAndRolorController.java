@@ -68,12 +68,14 @@ public class SizeAndRolorController {
 
     /**
      * 获取商品规格和大小
+     * @param goodsId  商品id
+     * @param buyState 购买状态 1购买 2租赁
      * @return
      */
     @PostMapping(value = "/SizeAndRolorList")
-    public Result<Object> SizeAndRolorList(String goodsId){
+    public Result<Object> SizeAndRolorList(String goodsId,Integer buyState){
 
-            return Optional.ofNullable(iSizeAndRolorService.SizeAndRolorList(goodsId))
+            return Optional.ofNullable(iSizeAndRolorService.SizeAndRolorList(goodsId,buyState))
                     .map(sizeAndRolor-> {
                         Map<String, Object> result = Maps.newHashMap();
                         result.put("data",  sizeAndRolor);

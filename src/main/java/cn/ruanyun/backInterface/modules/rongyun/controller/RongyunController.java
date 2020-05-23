@@ -144,4 +144,9 @@ public class RongyunController {
     public Result<Object> getUserByGroupId(String groupId){
         return new ResultUtil<>().setData(iRongyunService.getUserByGroupId(groupId), "获取群成员成功！");
     }
+
+    @PostMapping("/group/getGroupListByUserId")
+    public Result<Object> getGroupListByUserId(String userId){
+        return new ResultUtil<>().setData(iRongyunService.getGroupListByUserId(userId), "获取群组列表成功！");
+    }
 }
