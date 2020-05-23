@@ -38,6 +38,14 @@ public class ResultUtil<T> {
         return this.result;
     }
 
+    public Result<T> setData(T t, String msg, Integer code){
+        this.result.setResult(t);
+        this.result.setCode(code);
+        this.result.setMessage(msg);
+        return this.result;
+    }
+
+
     public Result<T> setErrorMsg(String msg){
         this.result.setSuccess(false);
         this.result.setMessage(msg);

@@ -5,6 +5,7 @@ import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.dto.UserUpdateDTO;
+import cn.ruanyun.backInterface.modules.base.dto.WechatLoginDto;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.vo.*;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -217,5 +218,20 @@ public interface IUserService extends IService<User> {
      * @return StoreCustomVo
      */
     List<StoreCustomVo> getStoreProspectiveCustomer();
+
+    /**
+     * 微信登录
+     * @param wechatLoginDto 参数
+     * @return Object
+     */
+    Result<Object> wechatLogin(WechatLoginDto wechatLoginDto);
+
+
+    /**
+     * 绑定手机号
+     * @param wechatLoginDto 参数
+     * @return 状态结果
+     */
+    Result<Object> bindMobile(WechatLoginDto wechatLoginDto);
 
 }

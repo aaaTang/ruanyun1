@@ -7,6 +7,7 @@ import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.dto.UserUpdateDTO;
+import cn.ruanyun.backInterface.modules.base.dto.WechatLoginDto;
 import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
@@ -201,5 +202,27 @@ public class AppUserController {
 
     }
 
+
+    /**
+     * 微信授权登录
+     * @param wechatLoginDto 参数
+     * @return Object
+     */
+    @PostMapping("/wechatLogin")
+    public Result<Object> wechatLogin(WechatLoginDto wechatLoginDto) {
+
+        return userService.wechatLogin(wechatLoginDto);
+    }
+
+    /**
+     * 绑定手机号
+     * @param wechatLoginDto 参数
+     * @return Object
+     */
+    @PostMapping("/bindMobile")
+    public Result<Object> bindMobile(WechatLoginDto wechatLoginDto) {
+
+        return userService.bindMobile(wechatLoginDto);
+    }
 
 }

@@ -154,4 +154,8 @@ public class User extends RuanyunBaseEntity {
      */
     private String payPassword;
 
+    /**
+     * 微信openId
+     */
+    private String openId;
 }

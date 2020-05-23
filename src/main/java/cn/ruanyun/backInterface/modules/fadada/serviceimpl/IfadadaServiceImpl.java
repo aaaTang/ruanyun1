@@ -71,4 +71,9 @@ public class IfadadaServiceImpl extends ServiceImpl<fadadaMapper, fadada> implem
             return new ResultUtil<>().setErrorMsg(Integer.parseInt(jsonObject.getString("code")), jsonObject.getString("msg"));
         }
     }
+
+    @Override
+    public Result<Object> extsign() {
+        return null;
+    }
 }

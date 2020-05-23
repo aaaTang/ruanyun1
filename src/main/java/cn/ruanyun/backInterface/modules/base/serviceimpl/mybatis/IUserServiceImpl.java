@@ -2,12 +2,14 @@ package cn.ruanyun.backInterface.modules.base.serviceimpl.mybatis;
 
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.http.HttpUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.dto.UserUpdateDTO;
+import cn.ruanyun.backInterface.modules.base.dto.WechatLoginDto;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
@@ -37,11 +39,14 @@ import cn.ruanyun.backInterface.modules.business.userRelationship.pojo.UserRelat
 import cn.ruanyun.backInterface.modules.business.userRelationship.service.IUserRelationshipService;
 import cn.ruanyun.backInterface.modules.rongyun.service.IRongyunService;
 import com.alibaba.druid.util.StringUtils;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.api.client.util.ArrayMap;
 import com.google.api.client.util.Lists;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -57,6 +62,7 @@ import java.util.stream.Stream;
  * @author fei
  */
 @Service
+@Slf4j
 public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
 
     @Autowired
@@ -101,7 +107,6 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
     @Autowired
     private IMyFootprintService myFootprintService;
-
 
     @Override
     public String getUserIdByName(String userName) {
@@ -771,15 +776,103 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                 }).orElse(null);
     }
 
+    @Override
+    public Result<Object> wechatLogin(WechatLoginDto wechatLoginDto) {
+
+        if (ToolUtil.isEmpty(wechatLoginDto.getCode())) {
+            return new ResultUtil<>().setErrorMsg(201, "暂未授权！");
+        }
+
+        //1.通过code获取openId
+        String str = "https://api.weixin.qq.com/sns/jscode2session?appid=" +
+                CommonConstant.APP_ID +
+                "&secret=" +
+                CommonConstant.APP_SECRET +
+                "&js_code=" +
+                wechatLoginDto.getCode() +
+                "&grant_type=authorization_code";
+        String result = HttpUtil.get(str);
+
+        //判断是否获取成功
+        Integer errorCode = JSONObject.parseObject(result).getInteger("errcode");
+        String errmsg = JSONObject.parseObject(result).getString("errmsg");
+        if (ToolUtil.isNotEmpty(errorCode)) {
+            return new ResultUtil<>().setErrorMsg(202, errmsg);
+        }
+
+        String openid = JSONObject.parseObject(result).getString("openid");
+
+        WechatVo wechatVo = new WechatVo();
+
+        wechatVo.setAccessToken(JSONObject.parseObject(result).getString("access_token"))
+                .setOpenId(openid);
+
+        //判断当前用户是否是新用户:如果是新用户, 则返回一个状态值,提示用户绑定手机号；如果不是新用户, 则直接返回token
+
+        return Optional.ofNullable(this.getOne(Wrappers.<User>lambdaQuery().eq(User::getOpenId, openid)))
+                .map(user -> new ResultUtil<>().setData(securityUtil.getToken(user.getUsername(), true), "登录成功！"))
+                .orElse(new ResultUtil<>().setData(wechatVo, "需要绑定手机号", 201));
+    }
+
+    @Override
+    public Result<Object> bindMobile(WechatLoginDto wechatLoginDto) {
+
+
+        if (ToolUtil.isEmpty(wechatLoginDto.getMessageCode())) {
+
+            return new ResultUtil<>().setErrorMsg(201, "请输入验证码");
+
+        }else if (ToolUtil.isEmpty(RedisUtil.getStr(CommonConstant.PRE_SMS + wechatLoginDto.getMobile()))) {
+
+            return new ResultUtil<>().setErrorMsg(202, "验证码已失效,请重新发送短信验证！");
+
+        }else if (!RedisUtil.getStr(CommonConstant.PRE_SMS + wechatLoginDto.getMobile()).equals(wechatLoginDto.getMessageCode())) {
+
+            return new ResultUtil<>().setErrorMsg(203, "验证码不一致！");
+
+        }else {
+
+            //1. 判断该手机号在数据库中是否存在
+
+            return Optional.ofNullable(this.getOne(Wrappers.<User>lambdaQuery().eq(User::getMobile, wechatLoginDto.getMobile())))
+                    .map(user -> {
+
+                        user.setOpenId(wechatLoginDto.getOpenId());
+                        this.updateById(user);
+
+                        return new ResultUtil<>().setData(securityUtil.getToken(user.getUsername(), true), "登录成功！");
+                    }).orElseGet(() -> {
+
+                        User user = new User();
+
+                        //获取微信登录信息
+                        String infoUrl = "https://api.weixin.qq.com/sns/userinfo" +
+                                "?access_token=" + wechatLoginDto.getAccessToken() +
+                                "&openid=" + wechatLoginDto.getOpenId() +
+                                "&lang=zh_CN";
+
+                        String resultInfo = HttpUtil.get(infoUrl);
+
+                        //返回结果的json对象
+                        JSONObject userInfoJson = JSON.parseObject(resultInfo);
+
+                        user.setUsername(userInfoJson.getString("openid"))
+                                .setAvatar(userInfoJson.getString("headimgurl"))
+                                .setSex(userInfoJson.getString("sex"))
+                                .setOpenId(userInfoJson.getString("openid"))
+                                .setMobile(wechatLoginDto.getMobile());
+
+                        userService.save(user);
+
+                        return new ResultUtil<>().setData(securityUtil.getToken(user.getUsername(), true), "登录成功！");
+                    });
+        }
 
 
 
 
 
-
-
-
-
+    }
 
 
 }

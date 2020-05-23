@@ -1,5 +1,7 @@
 package cn.ruanyun.backInterface.common.constant;
 
+import org.springframework.context.annotation.Primary;
+
 /**
  * 常量
  * @author fei
@@ -229,6 +231,14 @@ public interface CommonConstant {
     Integer NO = 1;
 
     Integer AWAIT = -1;
+
+
+    /*-------------------微信授权参数------------------------*/
+
+    String APP_ID = "";
+
+    String APP_SECRET = "";
+
 }
 
 
