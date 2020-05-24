@@ -783,6 +783,8 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
             return new ResultUtil<>().setErrorMsg(201, "暂未授权！");
         }
 
+
+        log.info("1111" + wechatLoginDto);
         //1.通过code获取openId
         String str = "https://api.weixin.qq.com/sns/jscode2session?appid=" +
                 CommonConstant.APP_ID +
@@ -795,26 +797,11 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
         //2. 获取accessToken
 
-        String accessTokenUrl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" +
-                CommonConstant.APP_ID + "&secret=" + CommonConstant.APP_SECRET;
-
-        String accessTokenResult = HttpUtil.get(accessTokenUrl);
-        //判断是否获取成功
-        Integer errorCode = JSONObject.parseObject(result).getInteger("errcode");
-        String errmsg = JSONObject.parseObject(result).getString("errmsg");
-        if (ToolUtil.isNotEmpty(errorCode)) {
-            return new ResultUtil<>().setErrorMsg(202, errmsg);
-        }
-
         String openid = JSONObject.parseObject(result).getString("openid");
 
         WechatVo wechatVo = new WechatVo();
-
-        wechatVo.setAccessToken(JSONObject.parseObject(accessTokenResult).getString("access_token"))
-                .setOpenId(openid);
-
+        wechatVo.setOpenId(openid);
         //判断当前用户是否是新用户:如果是新用户, 则返回一个状态值,提示用户绑定手机号；如果不是新用户, 则直接返回token
-
         return Optional.ofNullable(this.getOne(Wrappers.<User>lambdaQuery().eq(User::getOpenId, openid)))
                 .map(user -> new ResultUtil<>().setData(securityUtil.getToken(user.getUsername(), true), "登录成功！"))
                 .orElse(new ResultUtil<>().setData(wechatVo, "需要绑定手机号", 201));
@@ -823,6 +810,8 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     @Override
     public Result<Object> bindMobile(WechatLoginDto wechatLoginDto) {
 
+
+        log.info("22222" + wechatLoginDto);
 
         if (ToolUtil.isEmpty(wechatLoginDto.getMessageCode())) {
 
@@ -846,31 +835,30 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                         user.setOpenId(wechatLoginDto.getOpenId());
                         this.updateById(user);
 
-                        return new ResultUtil<>().setData(securityUtil.getToken(user.getUsername(), true), "登录成功！");
+                        String jwt = securityUtil.getToken(user.getUsername(), true);
+
+                        log.info("当前的jwt是" + jwt);
+
+                        return new ResultUtil<>().setData(jwt, "登录成功！");
                     }).orElseGet(() -> {
 
                         User user = new User();
 
-                        //获取微信登录信息
-                        String infoUrl = "https://api.weixin.qq.com/sns/userinfo" +
-                                "?access_token=" + wechatLoginDto.getAccessToken() +
-                                "&openid=" + wechatLoginDto.getOpenId() +
-                                "&lang=zh_CN";
+                        user.setNickName(wechatLoginDto.getNickName())
+                                .setAvatar(wechatLoginDto.getHeadimgUrl())
+                                .setSex(wechatLoginDto.getGender())
+                                .setUsername(wechatLoginDto.getOpenId());
 
-                        String resultInfo = HttpUtil.get(infoUrl);
+                        if (this.save(user)) {
 
-                        //返回结果的json对象
-                        JSONObject userInfoJson = JSON.parseObject(resultInfo);
+                            return new ResultUtil<>().setData(securityUtil.getToken(user.getUsername(), true), "登录成功！");
+                        }else {
 
-                        user.setUsername(userInfoJson.getString("openid"))
-                                .setAvatar(userInfoJson.getString("headimgurl"))
-                                .setSex(userInfoJson.getString("sex"))
-                                .setOpenId(userInfoJson.getString("openid"))
-                                .setMobile(wechatLoginDto.getMobile());
+                            return new ResultUtil<>().setErrorMsg(207, "内部错误！！！！");
+                        }
 
-                        userService.save(user);
 
-                        return new ResultUtil<>().setData(securityUtil.getToken(user.getUsername(), true), "登录成功！");
+
                     });
         }
 

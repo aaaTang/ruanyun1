@@ -3,6 +3,7 @@ package cn.ruanyun.backInterface.modules.jpush.dto;
 import cn.ruanyun.backInterface.common.enums.AudienceTypeEnum;
 import cn.ruanyun.backInterface.common.enums.CheckEnum;
 import cn.ruanyun.backInterface.common.enums.PlatformTypeEnum;
+import cn.ruanyun.backInterface.common.enums.PushTypeEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -85,5 +86,14 @@ public class JpushDto {
      */
     private String checkReason;
 
+    /**
+     * 推送类型
+     */
+    private PushTypeEnum pushType;
+
+    /**
+     * 推送值
+     */
+    private String pushValue;
 
 }

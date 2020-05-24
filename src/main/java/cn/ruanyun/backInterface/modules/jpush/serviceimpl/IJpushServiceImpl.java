@@ -8,7 +8,10 @@ import cn.jpush.api.push.model.Message;
 import cn.jpush.api.push.model.Platform;
 import cn.jpush.api.push.model.PushPayload;
 import cn.jpush.api.push.model.audience.Audience;
+import cn.jpush.api.push.model.notification.AndroidNotification;
+import cn.jpush.api.push.model.notification.IosNotification;
 import cn.jpush.api.push.model.notification.Notification;
+import cn.jpush.api.push.model.notification.PlatformNotification;
 import cn.ruanyun.backInterface.common.enums.AudienceTypeEnum;
 import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
 import cn.ruanyun.backInterface.common.utils.PageUtil;
@@ -19,6 +22,7 @@ import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.jpush.dto.JpushDto;
+import cn.ruanyun.backInterface.modules.jpush.dto.JpushTypeDto;
 import cn.ruanyun.backInterface.modules.jpush.mapper.JpushMapper;
 import cn.ruanyun.backInterface.modules.jpush.pojo.Jpush;
 import cn.ruanyun.backInterface.modules.jpush.service.IJpushService;
@@ -30,7 +34,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -73,7 +79,7 @@ public class IJpushServiceImpl extends ServiceImpl<JpushMapper, Jpush> implement
             jpush.setUpdateBy(securityUtil.getCurrUser().getId());
         }
 
-        this.save(jpush);
+        this.saveOrUpdate(jpush);
     }
 
     /**
@@ -151,7 +157,7 @@ public class IJpushServiceImpl extends ServiceImpl<JpushMapper, Jpush> implement
 
                 jpush.setPushSuccess(BooleanTypeEnum.YES)
                         .setPlatformType(jpushDto.getPlatformType())
-                        .setAudienceType(AudienceTypeEnum.TAG)
+                        .setAudienceType(AudienceTypeEnum.ALL)
                         .setUpdateBy(securityUtil.getCurrUser().getId());
 
                 this.updateById(jpush);
@@ -170,6 +176,19 @@ public class IJpushServiceImpl extends ServiceImpl<JpushMapper, Jpush> implement
     public Result<Object> pushArticleToUser(JpushDto jpushDto) {
 
         PushPayload.Builder builder = PushPayload.newBuilder();
+
+        //Gson gson = new Gson();
+
+        Map<String, Object> paramMap = Maps.newHashMap();
+        paramMap.put("pushType", jpushDto.getPushType());
+        paramMap.put("pushValue", jpushDto.getPushValue());
+
+
+        Message.Builder messageBuilder = Message.newBuilder();
+        messageBuilder.setTitle(jpushDto.getContent())
+                .setMsgContent(jpushDto.getTitle())
+                .addExtra("param", JSONObject.toJSONString(paramMap));
+
 
         List<String> tagAdd = Lists.newArrayList();
 
@@ -241,11 +260,41 @@ public class IJpushServiceImpl extends ServiceImpl<JpushMapper, Jpush> implement
                 break;
         }
 
+
         //设置推送标题
-        builder.setNotification(Notification.alert(jpushDto.getTitle()));
+        builder.setNotification(Notification.newBuilder()
+                //指定当前推送的android通知
+                .addPlatformNotification(AndroidNotification.newBuilder()
+
+                        .setAlert(jpushDto.getContent())
+                        .setTitle(jpushDto.getTitle())
+                        //此字段为透传字段，不会显示在通知栏。用户可以通过此字段来做一些定制需求，如特定的key传要指定跳转的页面（value）
+                        .addExtra("param", JSONObject.toJSONString(paramMap))
+
+                        .build())
+                //指定当前推送的iOS通知
+                .addPlatformNotification(IosNotification.newBuilder()
+                        //传一个IosAlert对象，指定apns title、title、subtitle等
+                        .setAlert(jpushDto.getContent())
+                        //直接传alert
+                        //此项是指定此推送的badge自动加1
+                        .incrBadge(1)
+                        //此字段的值default表示系统默认声音；传sound.caf表示此推送以项目里面打包的sound.caf声音来提醒，
+                        // 如果系统没有此音频则以系统默认声音提醒；此字段如果传空字符串，iOS9及以上的系统是无声音提醒，以下的系统是默认声音
+                        .setSound("default")
+                        //此字段为透传字段，不会显示在通知栏。用户可以通过此字段来做一些定制需求，如特定的key传要指定跳转的页面（value）
+                        .addExtra("param",JSONObject.toJSONString(paramMap))
+                        //此项说明此推送是一个background推送，想了解background看：http://docs.jpush.io/client/ios_tutorials/#ios-7-background-remote-notification
+                        //取消此注释，消息推送时ios将无法在锁屏情况接收
+                        // .setContentAvailable(true)
+
+                        .build())
+
+
+                .build());
 
         //设置推送内容
-        builder.setMessage(Message.content(jpushDto.getContent()));
+        builder.setMessage(messageBuilder.build());
 
         //推送
         try {

@@ -54,12 +54,6 @@ public class SecurityUtil {
     @Autowired
     private IRoleService roleService;
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private IUserService iUserService;
-
     public String getToken(String username, Boolean saveLogin){
 
         boolean saved = false;

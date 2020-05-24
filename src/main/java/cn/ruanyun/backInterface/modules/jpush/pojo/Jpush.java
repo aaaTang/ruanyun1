@@ -1,10 +1,7 @@
 package cn.ruanyun.backInterface.modules.jpush.pojo;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
-import cn.ruanyun.backInterface.common.enums.AudienceTypeEnum;
-import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
-import cn.ruanyun.backInterface.common.enums.CheckEnum;
-import cn.ruanyun.backInterface.common.enums.PlatformTypeEnum;
+import cn.ruanyun.backInterface.common.enums.*;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -66,6 +63,18 @@ public class Jpush extends RuanyunBaseEntity {
      * 推送目标类型
      */
     private AudienceTypeEnum audienceType;
+
+    /**
+     * 推送类型
+     */
+    private PushTypeEnum pushType;
+
+
+    /**
+     * 推送值
+     */
+    private String pushValue;
+
 
     /**
      * 审核时间

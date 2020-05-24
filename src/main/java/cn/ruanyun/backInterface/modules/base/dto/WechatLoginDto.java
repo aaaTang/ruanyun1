@@ -38,6 +38,22 @@ public class WechatLoginDto {
     /**
      * token
      */
-    private String accessToken;
+    private String wechatAccessToken;
+
+
+    /**
+     * 昵称
+     */
+    private String nickName;
+
+    /**
+     * 头像
+     */
+    private String  headimgUrl;
+
+    /**
+     * 性别
+     */
+    private String gender;
 
 }
