@@ -24,7 +24,20 @@ public enum PushTypeEnum {
     /**
      * 商品详情
      */
-    GOOD_DETAIL(3,"商品详情");
+    GOOD_DETAIL(3,"商品详情"),
+
+    /**
+     * 套餐详情
+     */
+    SET_MEAL(4, "套餐详情"),
+
+    /**
+     * 作品
+     */
+    PRODUCTION(5, "作品");
+
+
+
 
     PushTypeEnum(int code, String value) {
         this.code = code;

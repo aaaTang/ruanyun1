@@ -119,8 +119,8 @@ public class AppUserController {
 
     /**
      * 设置-忘记支付密码
-     * @param userPayPasswordVo
-     * @return
+     * @param userPayPasswordVo 实体
+     * @return Object
      */
     @PostMapping("/setPayPassword")
     public Result<Object> setPayPassword(UserPayPasswordVo userPayPasswordVo) {

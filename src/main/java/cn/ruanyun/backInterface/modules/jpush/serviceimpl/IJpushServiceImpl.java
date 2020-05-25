@@ -187,7 +187,7 @@ public class IJpushServiceImpl extends ServiceImpl<JpushMapper, Jpush> implement
         Message.Builder messageBuilder = Message.newBuilder();
         messageBuilder.setTitle(jpushDto.getContent())
                 .setMsgContent(jpushDto.getTitle())
-                .addExtra("param", JSONObject.toJSONString(paramMap));
+                .addExtra("param", paramMap.toString());
 
 
         List<String> tagAdd = Lists.newArrayList();
@@ -269,7 +269,7 @@ public class IJpushServiceImpl extends ServiceImpl<JpushMapper, Jpush> implement
                         .setAlert(jpushDto.getContent())
                         .setTitle(jpushDto.getTitle())
                         //此字段为透传字段，不会显示在通知栏。用户可以通过此字段来做一些定制需求，如特定的key传要指定跳转的页面（value）
-                        .addExtra("param", JSONObject.toJSONString(paramMap))
+                        .addExtra("param", paramMap.toString())
 
                         .build())
                 //指定当前推送的iOS通知
@@ -283,7 +283,7 @@ public class IJpushServiceImpl extends ServiceImpl<JpushMapper, Jpush> implement
                         // 如果系统没有此音频则以系统默认声音提醒；此字段如果传空字符串，iOS9及以上的系统是无声音提醒，以下的系统是默认声音
                         .setSound("default")
                         //此字段为透传字段，不会显示在通知栏。用户可以通过此字段来做一些定制需求，如特定的key传要指定跳转的页面（value）
-                        .addExtra("param",JSONObject.toJSONString(paramMap))
+                        .addExtra("param",paramMap.toString())
                         //此项说明此推送是一个background推送，想了解background看：http://docs.jpush.io/client/ios_tutorials/#ios-7-background-remote-notification
                         //取消此注释，消息推送时ios将无法在锁屏情况接收
                         // .setContentAvailable(true)
