@@ -56,4 +56,9 @@ public class WechatLoginDto {
      */
     private String gender;
 
+    /**
+     * 邀请码
+     */
+    private String invitationCode;
+
 }

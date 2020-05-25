@@ -851,6 +851,21 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
                         if (this.save(user)) {
 
+                            //建立用户与邀请人关系
+                            if(ToolUtil.isNotEmpty(wechatLoginDto.getInvitationCode())){
+                                //取邀请人的id
+                                String inviteUserId = Optional.ofNullable(this.getOne(Wrappers.<User>lambdaQuery().eq(User::getInvitationCode,wechatLoginDto.getInvitationCode())))
+                                        .map(User::getId).orElse(null);
+
+                                if(ToolUtil.isNotEmpty(inviteUserId)){
+
+                                    UserRelationship userRelationship = new UserRelationship();
+                                    userRelationship.setCreateBy(user.getId());
+                                    userRelationship.setParentUserid(inviteUserId);
+                                    iUserRelationshipService.insertOrderUpdateUserRelationship(userRelationship);
+                                }
+                            }
+
                             return new ResultUtil<>().setData(securityUtil.getToken(user.getUsername(), true), "登录成功！");
                         }else {
 
