@@ -847,7 +847,8 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                         user.setNickName(wechatLoginDto.getNickName())
                                 .setAvatar(wechatLoginDto.getHeadimgUrl())
                                 .setSex(wechatLoginDto.getGender())
-                                .setUsername(wechatLoginDto.getOpenId());
+                                .setUsername(wechatLoginDto.getOpenId())
+                                .setOpenId(wechatLoginDto.getOpenId());
 
                         if (this.save(user)) {
 
@@ -863,6 +864,9 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                                     userRelationship.setCreateBy(user.getId());
                                     userRelationship.setParentUserid(inviteUserId);
                                     iUserRelationshipService.insertOrderUpdateUserRelationship(userRelationship);
+                                }else {
+
+                                    return new ResultUtil<>().setErrorMsg(208, "当前邀请码无效！");
                                 }
                             }
 
