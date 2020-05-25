@@ -71,13 +71,7 @@ public class IJpushServiceImpl extends ServiceImpl<JpushMapper, Jpush> implement
     @Override
     public void insertOrUpdateJpush(Jpush jpush) {
 
-        if (ToolUtil.isEmpty(jpush.getId())) {
-
-            jpush.setCreateBy(securityUtil.getCurrUser().getId());
-        }else {
-
-            jpush.setUpdateBy(securityUtil.getCurrUser().getId());
-        }
+        jpush.setCreateBy(securityUtil.getCurrUser().getId());
 
         this.saveOrUpdate(jpush);
     }
