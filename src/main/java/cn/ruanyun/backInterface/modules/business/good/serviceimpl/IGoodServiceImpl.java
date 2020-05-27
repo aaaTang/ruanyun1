@@ -109,9 +109,6 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     @Resource
     private IGoodsIntroduceService iGoodsIntroduceService;
 
-
-
-
     @Override
     public void insertOrderUpdateGood(Good good) {
 
@@ -292,9 +289,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                         .eq(Good::getCreateBy, user.getId())
                         .lt(ToolUtil.isNotEmpty(goodDTO.getPriceHigh())&&ToolUtil.isNotEmpty(goodDTO.getPriceLow()),Good::getGoodNewPrice,goodDTO.getPriceHigh())
                         .gt(ToolUtil.isNotEmpty(goodDTO.getPriceHigh())&&ToolUtil.isNotEmpty(goodDTO.getPriceLow()),Good::getGoodNewPrice,goodDTO.getPriceLow()));
-                for (Good good : g) {
-                    goods.add(good);
-                }
+                goods.addAll(g);
             }
             return Optional.ofNullable(goods).orElse(null);
 

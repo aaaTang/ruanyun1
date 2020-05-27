@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.area.mapper;
 
+import cn.ruanyun.backInterface.modules.business.area.VO.BackAreaVO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import cn.ruanyun.backInterface.modules.business.area.pojo.Area;
 
@@ -10,5 +11,4 @@ import java.util.List;
  * @author fei
  */
 public interface AreaMapper extends BaseMapper<Area> {
-
 }

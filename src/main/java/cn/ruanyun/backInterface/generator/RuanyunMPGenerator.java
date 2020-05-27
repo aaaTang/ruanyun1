@@ -25,13 +25,13 @@ public class RuanyunMPGenerator {
      * 实体类名
      * 建议仅需修改
      */
-    private static final String className = "fadada";
+    private static final String className = "categoryDemo";
 
     /**
      * 类说明描述
      * 建议仅需修改
      */
-    private static final String description = "法大大";
+    private static final String description = "分类栗子";
 
     /**
      * 作者名
@@ -54,31 +54,31 @@ public class RuanyunMPGenerator {
      * 实体类对应包
      * (文件自动生成至该包下)
      */
-    private static final String entityPackage = "cn.ruanyun.backInterface.modules.fadada.pojo";
+    private static final String entityPackage = "cn.ruanyun.backInterface.modules.business.categoryDemo.pojo";
 
     /**
      * dao对应包
      * (文件自动生成至该包下)
      */
-    private static final String daoPackage = "cn.ruanyun.backInterface.modules.fadada.mapper";
+    private static final String daoPackage = "cn.ruanyun.backInterface.modules.business.categoryDemo.mapper";
 
     /**
      * service对应包
      * (文件自动生成至该包下)
      */
-    private static final String servicePackage = "cn.ruanyun.backInterface.modules.fadada.service";
+    private static final String servicePackage = "cn.ruanyun.backInterface.modules.business.categoryDemo.service";
 
     /**
      * serviceImpl对应包
      * (文件自动生成至该包下)
      */
-    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.fadada.serviceimpl";
+    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.business.categoryDemo.serviceimpl";
 
     /**
      * controller对应包
      * (文件自动生成至该包下)
      */
-    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.fadada.controller";
+    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.business.categoryDemo.controller";
 
     /**
      * 运行该主函数即可生成代码
