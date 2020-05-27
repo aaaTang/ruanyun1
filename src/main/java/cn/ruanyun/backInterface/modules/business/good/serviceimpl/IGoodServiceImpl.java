@@ -572,7 +572,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
      * @return
      */
     @Override
-    public AppGoodOrderVO getAppGoodOrder(String id,String attrSymbolPath,Integer buyState,Integer leaseState) {
+    public AppGoodOrderVO getAppGoodOrder(String id,String attrSymbolPath,Integer buyState) {
 
         return Optional.ofNullable(super.getById(id))
                 .map(good -> {
@@ -583,20 +583,15 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                     appGoodOrderVO.setGoodPic(Optional.ofNullable(ToolUtil.setListToNul(ToolUtil.splitterStr(good.getGoodPics())))
                             .map(pics -> pics.get(0))
                             .orElse("暂无"));
-
                     //处理商品价格
                     SizeAndRolor one = sizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery().eq(SizeAndRolor::getAttrSymbolPath, attrSymbolPath).eq(SizeAndRolor::getGoodsId,id));
 
                     if (EmptyUtil.isNotEmpty(one)){
-                        /*if(buyState.equals(2)){
-                            appGoodOrderVO.setGoodNewPrice(one.getGooddDeposit());
-                        }else {
-                            appGoodOrderVO.setGoodNewPrice(one.getGoodPrice());
-                        }*/
                         appGoodOrderVO.setGoodNewPrice(one.getGoodPrice());
                         appGoodOrderVO.setGoodPic(one.getPic());
                         appGoodOrderVO.setIntegral(one.getInventory());
-
+                        appGoodOrderVO.setGoodDeposit(one.getGoodDeposit());
+                        appGoodOrderVO.setGoodDalancePayment(one.getGoodDalancePayment());
                     }
 
                     if(ToolUtil.isNotEmpty(attrSymbolPath)){
@@ -606,7 +601,8 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                         appGoodOrderVO.setAttrSymbolPath(attrSymbolPath);
                     }
 
-
+                    appGoodOrderVO.setLeaseState(Optional.ofNullable(goodCategoryMapper.selectById(good.getGoodCategoryId())).map(GoodCategory::getLeaseState).orElse(0));
+                    appGoodOrderVO.setBuyState(buyState);
                     return appGoodOrderVO;
                 }).orElse(null);
     }
@@ -657,12 +653,11 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                if(ToolUtil.isNotEmpty(pcGoods.getGoodCategoryId())){
                    //分类名称
                    GoodCategory goodCategory1 = goodCategoryMapper.selectById(pcGoods.getGoodCategoryId());
-                   String title = null;
                    if (EmptyUtil.isNotEmpty(goodCategory1)){
-                       title = goodCategory1.getTitle();
+                       pc.setGoodCategoryName( goodCategory1.getTitle());
+                       pc.setBuyState(goodCategory1.getBuyState());
+                       pc.setLeaseState(goodCategory1.getLeaseState());
                    }
-                   String goodCategory = Optional.ofNullable(title).orElse("暂无！");
-                   pc.setGoodCategoryName(goodCategory);
                    ToolUtil.copyProperties(pcGoods , pc);
                    pc.setShopName(Optional.ofNullable(userMapper.selectById(pcGoods.getCreateBy())).map(User::getShopName).orElse("暂无！"));
                }
@@ -726,6 +721,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                 list = this.list(new QueryWrapper<Good>().lambda()
                         .eq(Good::getCreateBy, userId)
                         .eq(Good::getTypeEnum, GoodTypeEnum.GOODSPACKAGE)
+                        .like(ToolUtil.isNotEmpty(goodDTO.getGoodName()),Good::getGoodName,goodDTO.getGoodName())
                         .orderByDesc(Good::getCreateTime)
                 );
             }else if (userRole.equals(CommonConstant.ADMIN)){
@@ -741,7 +737,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                 PcGoodsPackageListVO pc = new PcGoodsPackageListVO();
                 if(ToolUtil.isNotEmpty(pcGoodsPackage.getGoodCategoryId())){
                     //分类名称
-                    String goodCategory = goodCategoryMapper.selectById(pcGoodsPackage.getGoodCategoryId()).getTitle();
+                    String goodCategory = Optional.ofNullable(goodCategoryMapper.selectById(pcGoodsPackage.getGoodCategoryId())).map(GoodCategory::getTitle).orElse("未设置分类！");
                     pc.setGoodCategoryName(goodCategory);
                     ToolUtil.copyProperties(pcGoodsPackage , pc);
                     pc.setShopName(Optional.ofNullable(userMapper.selectById(pcGoodsPackage.getCreateBy())).map(User::getShopName).orElse("暂无"));//店铺名称

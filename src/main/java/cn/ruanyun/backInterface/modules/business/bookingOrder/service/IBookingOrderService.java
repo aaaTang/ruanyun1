@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.bookingOrder.service;
 
+import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.BookingOrderVO;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.WhetherBookingOrderVO;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.pojo.BookingOrder;
@@ -18,7 +19,7 @@ public interface IBookingOrderService extends IService<BookingOrder> {
         * 插入或者更新bookingOrder
         * @param bookingOrder
        */
-     void insertOrderUpdatebookingOrder(BookingOrder bookingOrder);
+      void insertOrderUpdatebookingOrder(BookingOrder bookingOrder);
 
 
 

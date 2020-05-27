@@ -99,6 +99,19 @@ public class DiscountCouponController {
     }
 
 
+    /**
+     * 获取小程序用户可以领的优惠券
+     */
+    @PostMapping("/getDiscountCoupon")
+    public Result<Object> getDiscountCoupon() {
+        return Optional.ofNullable(iDiscountCouponService.getDiscountCoupon())
+                .map(discountCouponList -> new ResultUtil<>().setData(discountCouponList,"获取列表成功！"))
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
+
+
+
+
 
     /************************************************后端管理接口********************************************************/
 
@@ -118,5 +131,12 @@ public class DiscountCouponController {
                 })
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
+
+
+
+
+
+
+
 
 }

@@ -38,4 +38,14 @@ public class WebInventoryVO {
      *图片
      */
     private String pic;
+
+    /**
+     *  商品定金
+     */
+    private BigDecimal goodDeposit;
+
+    /**
+     *  商品尾款
+     */
+    private BigDecimal goodDalancePayment;
 }

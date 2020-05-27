@@ -108,7 +108,7 @@ public interface IGoodService extends IService<Good> {
      * @param id
      * @return
      */
-    AppGoodOrderVO getAppGoodOrder(String id,String attrSymbolPath,Integer buyState,Integer leaseState);
+    AppGoodOrderVO getAppGoodOrder(String id,String attrSymbolPath,Integer buyState);
 
     /**
      * 获取商品单价

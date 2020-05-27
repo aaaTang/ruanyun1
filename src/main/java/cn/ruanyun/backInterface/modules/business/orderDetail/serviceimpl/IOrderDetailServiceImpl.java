@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -94,6 +95,7 @@ public class IOrderDetailServiceImpl extends ServiceImpl<OrderDetailMapper, Orde
                         if(ToolUtil.isNotEmpty(orderDetail.getAttrSymbolPath())){
                             orderDetailVO.setItemAttrKeys(itemAttrValService.getItemAttrVals(orderDetail.getAttrSymbolPath()));
                         }
+                        orderDetailVO.setGoodDalancePayment(orderDetail.getGoodDalancePayment().multiply(BigDecimal.valueOf(orderDetail.getBuyCount())));
                         return orderDetailVO;
                     }).collect(Collectors.toList());
                     return orderDetailVOS;

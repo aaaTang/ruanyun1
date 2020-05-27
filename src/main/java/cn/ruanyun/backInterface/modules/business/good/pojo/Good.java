@@ -34,18 +34,25 @@ public class Good extends RuanyunBaseEntity {
      */
     private String goodCategoryId;
 
-
     /**
      * 商品名称
      */
     private String goodName;
-
 
     /**
      * 商品图片
      */
     private String goodPics;
 
+    /**
+     * 商品视频
+     */
+    private String goodVideo;
+
+    /**
+     * 商品视频展示图
+     */
+    private String goodVideoPic;
 
     /**
      * 商品详情
@@ -68,6 +75,7 @@ public class Good extends RuanyunBaseEntity {
      * 积分
      */
     private Integer integral;
+
 
 //    /**
 //     * 商品介绍

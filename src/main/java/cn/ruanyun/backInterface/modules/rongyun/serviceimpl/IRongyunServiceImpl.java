@@ -1,6 +1,8 @@
 package cn.ruanyun.backInterface.modules.rongyun.serviceimpl;
 
 import cn.ruanyun.backInterface.common.exception.RuanyunException;
+import cn.ruanyun.backInterface.common.utils.EmptyUtil;
+import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
@@ -13,11 +15,14 @@ import cn.ruanyun.backInterface.modules.business.storeServicer.pojo.StoreService
 import cn.ruanyun.backInterface.modules.business.storeServicer.service.IStoreServicerService;
 import cn.ruanyun.backInterface.modules.rongyun.DTO.GroupInfoCreate;
 import cn.ruanyun.backInterface.modules.rongyun.DTO.GroupUser;
+import cn.ruanyun.backInterface.modules.rongyun.DTO.GroupUserVO;
 import cn.ruanyun.backInterface.modules.rongyun.mapper.RongyunMapper;
 import cn.ruanyun.backInterface.modules.rongyun.pojo.Rongyun;
 import cn.ruanyun.backInterface.modules.rongyun.service.IRongyunService;
+import com.alipay.api.domain.UserVo;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import dm.jdbc.util.StringUtil;
 import io.rong.RongCloud;
 import io.rong.models.*;
 import lombok.extern.slf4j.Slf4j;
@@ -152,34 +157,103 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
 
     @Override
     public GroupInfoCreate createGroup(String userId, String merchantId) {
+        // 创建群组返回数据
+        GroupInfoCreate groupInfoCreate = new GroupInfoCreate();
+
+        // 群组用户列表
+        List<GroupUser> groupUsers = new ArrayList<>();
+
+        // 查询是否建过群
         Map<String, Object> map = new HashMap<>();
         map.put("user_id", userId);
         map.put("store_id", merchantId);
         List<Group> groups = iGroupService.listByMap(map);
+
+        System.out.println("是否建群"+ groups);
+
+        // 建过群，检查是否有商检客服
         if(groups.size() > 0){
-            GroupInfoCreate groupInfoCreate = new GroupInfoCreate();
-            List<GroupUser> groupUsers = new ArrayList<>();
+            Group group = groups.get(0);
 
-            Optional.ofNullable(userService.getById(groups.get(0).getStoreServicerId()))
-                    .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "merchantServicer")));
+            // 群组中没有商家客服，检查商家有没有客服
+            if(EmptyUtil.isEmpty(group.getStoreServicerId())){
+                // 查询商家客服
+                Map<String, Object> map2 = new HashMap<>();
+                map2.put("store_id", merchantId);
+                List<StoreServicer> storeServicers = iStoreServicerService.listByMap(map2);
 
-            Optional.ofNullable(userService.getById(groups.get(0).getPlatformServicerId()))
-                    .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "platformServicer")));
+                // 商家有客服
+                if(storeServicers.size() > 0){
+                    int chooseDindex = new Random().nextInt(storeServicers.size());
+                    // 选择客服ID
+                    String merchantServiceId = storeServicers.get(chooseDindex).getServicerId();
+                    try {
+                        CodeSuccessResult result = imClient.group.join(new String[]{merchantServiceId}, group.getGroupId(), group.getGroupName());
+                        if(result.getCode() == 200){
+                            group.setStoreServicerId(merchantServiceId);
+                            ThreadPoolUtil.getPool().execute(()->iGroupService.updateById(group));
+                            Optional.ofNullable(userService.getById(merchantServiceId))
+                                    .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "merchantServicer")));
 
-            Optional.ofNullable(userService.getById(groups.get(0).getUserId()))
-                    .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "user")));
+                            Optional.ofNullable(userService.getById(group.getPlatformServicerId()))
+                                    .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "platformServicer")));
 
-            Optional.ofNullable(userService.getById(groups.get(0).getStoreId()))
-                    .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "merchant")));
+                            Optional.ofNullable(userService.getById(group.getUserId()))
+                                    .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "user")));
 
-            groupInfoCreate.setGroupUsers(groupUsers);
-            groupInfoCreate.setGroupId(groups.get(0).getGroupId());
-            groupInfoCreate.setGroupName(groups.get(0).getGroupName());
-            return groupInfoCreate;
+                            Optional.ofNullable(userService.getById(group.getStoreId()))
+                                    .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "merchant")));
+
+                            groupInfoCreate.setGroupUsers(groupUsers);
+                            groupInfoCreate.setGroupId(group.getGroupId());
+                            groupInfoCreate.setGroupName(group.getGroupName());
+                            return groupInfoCreate;
+                        } else {
+                            throw new RuanyunException("拉客服进群失败");
+                        }
+                    } catch (Exception e) {
+                        throw new RuanyunException("系统异常");
+                    }
+                } else {
+                    //商家没有客服
+                    Optional.ofNullable(userService.getById(group.getPlatformServicerId()))
+                            .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "platformServicer")));
+
+                    Optional.ofNullable(userService.getById(group.getUserId()))
+                            .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "user")));
+
+                    Optional.ofNullable(userService.getById(group.getStoreId()))
+                            .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "merchant")));
+
+                    groupInfoCreate.setGroupUsers(groupUsers);
+                    groupInfoCreate.setGroupId(group.getGroupId());
+                    groupInfoCreate.setGroupName(group.getGroupName());
+                    return groupInfoCreate;
+
+                }
+            } else {
+                // 群组中有商家客服，直接返回
+                Optional.ofNullable(userService.getById(group.getStoreServicerId()))
+                        .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "merchantServicer")));
+
+                Optional.ofNullable(userService.getById(group.getPlatformServicerId()))
+                        .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "platformServicer")));
+
+                Optional.ofNullable(userService.getById(group.getUserId()))
+                        .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "user")));
+
+                Optional.ofNullable(userService.getById(group.getStoreId()))
+                        .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "merchant")));
+
+                groupInfoCreate.setGroupUsers(groupUsers);
+                groupInfoCreate.setGroupId(group.getGroupId());
+                groupInfoCreate.setGroupName(group.getGroupName());
+                return groupInfoCreate;
+            }
         }
 
         // 商家客服
-        String merchantServiceId = merchantId;
+        String merchantServiceId = "";
         Map<String, Object> map2 = new HashMap<>();
         map2.put("store_id", merchantId);
         List<StoreServicer> storeServicers = iStoreServicerService.listByMap(map2);
@@ -188,31 +262,37 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
             merchantServiceId = storeServicers.get(chooseDindex).getServicerId();
         }
 
+        // 要添加的群组成员
+        List<String> members = new ArrayList<>();
+
         // 平台客服
         String platformServiceId;
         List<PlatformServicer> platformServicers = iPlatformServicerService.list();
         int chooseDindex = new Random().nextInt(platformServicers.size());
         platformServiceId = platformServicers.get(chooseDindex).getServicerId();
-
-        GroupInfoCreate groupInfoCreate = new GroupInfoCreate();
-        List<GroupUser> groupUsers = new ArrayList<>();
-
-        Optional.ofNullable(userService.getById(merchantServiceId))
-                .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "merchantServicer")));
-
         Optional.ofNullable(userService.getById(platformServiceId))
                 .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "platformServicer")));
+        members.add(platformServiceId);
 
+        // 用户
         Optional.ofNullable(userService.getById(userId))
                 .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "user")));
+        members.add(userId);
 
+        // 商家客服
+        if(!"".equals(merchantServiceId)){
+            Optional.ofNullable(userService.getById(merchantServiceId))
+                    .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "merchantServicer")));
+            members.add(merchantServiceId);
+        }
+
+        // 商家
         Optional.ofNullable(userService.getById(merchantId))
                 .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "merchant")));
 
-
-        String [] users = {userId, merchantServiceId, platformServiceId};
         // 群组id
-        String groupId = ToolUtil.getRandomString(24);// 最大30位
+        // String groupId = ToolUtil.getRandomString(24);// 最大30位
+        String groupId = merchantId + "," + userId;
 
         // 群组名称
         String groupName = userService.getById(merchantId).getNickName();
@@ -222,7 +302,8 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
         groupInfoCreate.setGroupName(groupName);
 
         try {
-            CodeSuccessResult result = imClient.group.create(users, groupId, groupName);
+            // 创建群组
+            CodeSuccessResult result = imClient.group.create(members.toArray(new String[]{}), groupId, groupName);
             if(result.getCode() == 200){
                 Group group = new Group();
                 group.setGroupId(groupId);
@@ -406,7 +487,7 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
                 if(group3.size() == 0){
                     return new ArrayList<>();
                 } else {
-                    groups = group2;
+                    groups = group3;
                 }
             } else {
                 groups = group2;
@@ -421,13 +502,28 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
             back.put("group_id", group.getGroupId());
             back.put("group_name", group.getGroupName());
 
-            back.put("user", iUserService.listByIds(Arrays.asList(group.getUserId().split(","))));
+            List<User> userList = iUserService.listByIds(Arrays.asList(group.getUserId().split(",")));
+            List<GroupUserVO> groupUserVOList = new ArrayList<>();
+            for (User user : userList) {
+                groupUserVOList.add(new GroupUserVO(user.getId(), user.getAvatar(), user.getNickName()));
+            }
+            back.put("user", groupUserVOList.get(0));
 
-            back.put("store_servicer", iUserService.getOne(Wrappers.<User>lambdaQuery()
-                    .eq(User::getId, group.getStoreServicerId())));
+            User store_servicer = iUserService.getOne(Wrappers.<User>lambdaQuery()
+                    .eq(User::getId, group.getStoreServicerId()));
+            if(EmptyUtil.isNotEmpty(store_servicer)){
+                back.put("store_servicer", new GroupUserVO(store_servicer.getId(), store_servicer.getAvatar(), store_servicer.getNickName()));
+            }
 
-            back.put("platform_servicer", iUserService.getOne(Wrappers.<User>lambdaQuery()
-                    .eq(User::getId, group.getPlatformServicerId())));
+            User platform_servicer = iUserService.getOne(Wrappers.<User>lambdaQuery()
+                    .eq(User::getId, group.getPlatformServicerId()));
+            back.put("platform_servicer", new GroupUserVO(platform_servicer.getId(), platform_servicer.getAvatar(), platform_servicer.getNickName()));
+
+            User store = iUserService.getOne(Wrappers.<User>lambdaQuery()
+                    .eq(User::getId, group.getStoreId()));
+            back.put("store", new GroupUserVO(store.getId(), store.getAvatar(), store.getNickName()));
+
+
             list.add(back);
         }
         return list;

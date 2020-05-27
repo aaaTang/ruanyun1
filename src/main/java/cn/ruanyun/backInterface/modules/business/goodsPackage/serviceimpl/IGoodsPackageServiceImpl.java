@@ -80,14 +80,14 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     private IGoodsIntroduceService iGoodsIntroduceService;
     @Autowired
     private IMyFavoriteService iMyFavoriteService;
-    @Autowired
+    @Resource
     private GoodCategoryMapper goodCategoryMapper;
 
 
 
 
     /**
-     * App查询商家商品详情
+     * App查询商家套餐详情
      *
      * @param ids
      * @return
@@ -98,21 +98,18 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
 
         GoodsPackageParticularsVO goodsPackageParticularsVO = new GoodsPackageParticularsVO();
            if(ToolUtil.isNotEmpty(goodsPackage)){
-               goodsPackageParticularsVO.setId(goodsPackage.getId())
-               .setGoodsName(goodsPackage.getGoodName())//商品名称
-               .setPics(goodsPackage.getGoodPics())//套餐图片
-               .setNewPrice(goodsPackage.getGoodNewPrice())//新价格
-               .setOldPrice(goodsPackage.getGoodOldPrice())//旧价格
+               ToolUtil.copyProperties(goodsPackage,goodsPackageParticularsVO);
+
+               goodsPackageParticularsVO.setPics(goodsPackage.getGoodPics())//套餐图片
                .setMyFavorite(iMyFavoriteService.getMyFavorite(goodsPackage.getId(),GoodTypeEnum.GOODSPACKAGE))//是否收藏套餐
                .setProductsIntroduction(iGoodsIntroduceService.goodsIntroduceList(null,goodsPackage.getId(),1))//商品介绍
                .setPurchaseNotes(iGoodsIntroduceService.goodsIntroduceList(null,goodsPackage.getId(),2))//购买须知
                .setStoreAuditVO(storeAuditService.getStoreAudisByid(goodsPackage.getCreateBy()))//商铺信息
+                      .setWhetherBookingOrder(iBookingOrderService.getWhetherBookingOrder(goodsPackage.getCreateBy(), securityUtil.getCurrUser().getId()))
                //购买状态 1购买 2租赁
                .setBuyState(Optional.ofNullable(goodCategoryMapper.selectById(goodsPackage.getGoodCategoryId())).map(GoodCategory::getBuyState).orElse(null))
                //租赁状态 1尾款线上支付  2尾款线下支付
-               .setLeaseState(Optional.ofNullable(goodCategoryMapper.selectById(goodsPackage.getGoodCategoryId())).map(GoodCategory::getLeaseState).orElse(null))
-               ;
-
+               .setLeaseState(Optional.ofNullable(goodCategoryMapper.selectById(goodsPackage.getGoodCategoryId())).map(GoodCategory::getLeaseState).orElse(null));
            }
 
         if(ToolUtil.isNotEmpty(goodsPackageParticularsVO.getId())){

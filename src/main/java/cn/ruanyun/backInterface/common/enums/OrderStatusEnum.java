@@ -28,6 +28,15 @@ public enum OrderStatusEnum {
     DELIVER_SEND(3,"待收货"),
 
     /**
+     * APP租赁 用户待支付尾款      后台等待用户支付尾款
+     */
+    SETTLE_ACCOUNTS(9,"待付尾款"),
+
+    /**
+     * APP等待商家同意收款      后台确定收款
+     */
+    SETTLE_RECEIPT(10,"待收款"),
+    /**
      * 待评价
      */
     PRE_COMMENT(4,"待评价"),

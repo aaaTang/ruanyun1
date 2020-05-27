@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,11 +42,29 @@ public class IUserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> 
     @Override
     public List<User> getUserIdsByRoleId(String roleId) {
 
-        return Optional.ofNullable(ToolUtil.setListToNul(super.list(Wrappers.<UserRole>lambdaQuery()
+       List<UserRole> list = super.list(Wrappers.<UserRole>lambdaQuery()
                 .eq(UserRole::getRoleId, roleId)
-                .orderByDesc(UserRole::getCreateTime))))
-                .map(userRoles -> userRoles.parallelStream().map(userRole -> userService.getById(userRole.getUserId()))
-                .collect(Collectors.toList()))
-                .orElse(null);
+                .orderByDesc(UserRole::getCreateTime));
+
+        List<User> userList = new ArrayList<>();
+
+        for (UserRole userRole : list) {
+
+            User user =  userService.getById(userRole.getUserId());
+
+            if(ToolUtil.isNotEmpty(user)){
+                userList.add(user);
+            }
+
+        }
+
+        return userList;
+
     }
+
+
+
+
+
+
 }

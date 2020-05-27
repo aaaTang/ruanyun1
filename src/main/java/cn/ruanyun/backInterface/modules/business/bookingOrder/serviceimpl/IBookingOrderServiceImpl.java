@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.bookingOrder.serviceimpl;
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.BookingOrderVO;
@@ -57,9 +58,6 @@ public class IBookingOrderServiceImpl extends ServiceImpl<BookingOrderMapper, Bo
         private IGradeService gradeService;
         @Resource
         private GradeMapper gradeMapper;
-        @Autowired
-        private ICommentService commentService;
-
 
        @Override
        public void insertOrderUpdatebookingOrder(BookingOrder bookingOrder) {
@@ -72,6 +70,7 @@ public class IBookingOrderServiceImpl extends ServiceImpl<BookingOrderMapper, Bo
               Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(bookingOrder)))
                       .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
                       .toFuture().join();
+
        }
 
       @Override

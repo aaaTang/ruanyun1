@@ -33,6 +33,8 @@ import cn.ruanyun.backInterface.modules.business.myFootprint.service.IMyFootprin
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
 import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
 import cn.ruanyun.backInterface.modules.business.selectStore.service.ISelectStoreService;
+import cn.ruanyun.backInterface.modules.business.staffManagement.mapper.StaffManagementMapper;
+import cn.ruanyun.backInterface.modules.business.staffManagement.pojo.StaffManagement;
 import cn.ruanyun.backInterface.modules.business.storeAudit.mapper.StoreAuditMapper;
 import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
 import cn.ruanyun.backInterface.modules.business.userRelationship.pojo.UserRelationship;
@@ -42,6 +44,7 @@ import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.api.client.util.ArrayMap;
@@ -95,18 +98,17 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     private IAreaService iAreaService;
     @Resource
     private StoreAuditMapper storeAuditMapper;
-
     @Autowired
     private IBalanceService balanceService;
-
     @Autowired
     private IUserRelationshipService userRelationshipService;
-
     @Autowired
     private IOrderService orderService;
-
     @Autowired
     private IMyFootprintService myFootprintService;
+    @Resource
+    private StaffManagementMapper staffManagementMapper;
+
 
     @Override
     public String getUserIdByName(String userName) {
@@ -276,16 +278,11 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         appUserVO.setMyFansNum(iFollowAttentionService.getMefansNum(null));
         // TODO: 2020/3/13 我的关注数量
         appUserVO.setMyAttentionNum(iFollowAttentionService.getfollowAttentionNum());
-
-
-//        // TODO: 2020/3/13 我的余额
-//        appUserVO.setMyBalance(user.getBalance());
-//        // TODO: 2020/4/13 我的性别
-//        appUserVO.setSex(user.getSex());
-//        // TODO: 2020/4/13 我的婚期
-//        appUserVO.setWeddingDay(user.getWeddingDay());
-//        // TODO: 2020/4/13 个人简介
-//        appUserVO.setIndividualResume(user.getIndividualResume());
+        //商家名称
+        appUserVO.setShopName(
+                Optional.ofNullable(this.getById(Optional.ofNullable(staffManagementMapper.selectOne(new QueryWrapper<StaffManagement>().lambda()
+                        .eq(StaffManagement::getStaffId,user.getId()))).map(StaffManagement::getCreateBy).orElse(null))).map(User::getShopName).orElse(null)
+                );
         return appUserVO;
 
     }
@@ -351,7 +348,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
         return Optional.ofNullable(getUserList(UserTypeEnum.STORE))
                 .map(users -> users.parallelStream().map(user -> (getBackUserVO(user.getId(),UserTypeEnum.STORE)))
-                        .filter(pcGood-> pcGood.getNickName().contains(ToolUtil.isNotEmpty(userDTO.getUsername())?userDTO.getUsername():pcGood.getNickName()))
+                        .filter(pcGood-> pcGood.getShopName().contains(ToolUtil.isNotEmpty(userDTO.getUsername())?userDTO.getUsername():pcGood.getShopName()))
                         .filter(pcGood-> pcGood.getMobile().contains(ToolUtil.isNotEmpty(userDTO.getMobile())?userDTO.getMobile():pcGood.getMobile()))
                         .filter(pcGood-> pcGood.getAddress().contains(ToolUtil.isNotEmpty(userDTO.getAddress())?userDTO.getAddress():pcGood.getAddress()))
                         .filter(pcGood-> pcGood.getIsBest().equals(ToolUtil.isNotEmpty(userDTO.getIsBest())?userDTO.getIsBest():pcGood.getIsBest()))
@@ -848,7 +845,9 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                                 .setAvatar(wechatLoginDto.getHeadimgUrl())
                                 .setSex(wechatLoginDto.getGender())
                                 .setUsername(wechatLoginDto.getOpenId())
-                                .setOpenId(wechatLoginDto.getOpenId());
+                                .setOpenId(wechatLoginDto.getOpenId())
+                                .setMobile(wechatLoginDto.getMobile());
+
 
                         if (this.save(user)) {
 
@@ -869,6 +868,9 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                                     return new ResultUtil<>().setErrorMsg(208, "当前邀请码无效！");
                                 }
                             }
+
+                            //注册融云im服务通讯
+                            iRongyunService.addUser(user.getId(),user.getNickName(),user.getAvatar());
 
                             return new ResultUtil<>().setData(securityUtil.getToken(user.getUsername(), true), "登录成功！");
                         }else {

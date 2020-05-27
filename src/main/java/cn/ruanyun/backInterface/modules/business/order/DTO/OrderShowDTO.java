@@ -3,6 +3,7 @@ package cn.ruanyun.backInterface.modules.business.order.DTO;
 
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.enums.OrderTypeEnum;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -50,6 +51,7 @@ public class OrderShowDTO {
     private String discountCouponId;
 
 
-
+    @ApiModelProperty(value = "购买状态 1购买 2租赁 3购买和租赁")
+    private Integer buyState;
 
 }

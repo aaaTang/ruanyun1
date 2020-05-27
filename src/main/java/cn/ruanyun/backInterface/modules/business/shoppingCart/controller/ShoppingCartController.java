@@ -39,14 +39,9 @@ public class ShoppingCartController {
         if (StringUtils.isEmpty(shoppingCart.getAttrSymbolPath())){
             return new ResultUtil<>().setErrorMsg(202,"请选择属性！");
         }
-       /* if(ToolUtil.isEmpty(shoppingCart.getBuyState())){
+        if(ToolUtil.isEmpty(shoppingCart.getBuyState())){
             return new ResultUtil<>().setErrorMsg(202,"请选择购买方式！");
         }
-        if(shoppingCart.getBuyState().equals(2)){
-            if(ToolUtil.isEmpty(shoppingCart.getLeaseState())){
-                return new ResultUtil<>().setErrorMsg(202,"请选择租赁方式！");
-            }
-        }*/
 
         iShoppingCartService.insertShoppingCart(shoppingCart);
         return new ResultUtil<>().setSuccessMsg("添加购物车成功！");

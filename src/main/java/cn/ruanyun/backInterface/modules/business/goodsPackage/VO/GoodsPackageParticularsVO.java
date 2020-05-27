@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.goodsPackage.VO;
 
+import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.WhetherBookingOrderVO;
 import cn.ruanyun.backInterface.modules.business.goodsIntroduce.VO.GoodsIntroduceVO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditListVO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditVO;
@@ -19,22 +20,31 @@ public class GoodsPackageParticularsVO {
     /**
      * 商品名称
      */
-    private String goodsName;
+    private String goodName;
     /**
      * 套餐图片
      */
     @Column(length = 1000)
     private String pics;
+    /**
+     * 商品视频
+     */
+    private String goodVideo;
 
     /**
-     * 新价格
+     * 商品视频展示图
      */
-    private BigDecimal newPrice;
+    private String goodVideoPic;
+    /**
+     * 商品旧价格
+     */
+    private BigDecimal goodOldPrice;
+
 
     /**
-     * 旧价格
+     * 商品新价格
      */
-    private BigDecimal oldPrice;
+    private BigDecimal goodNewPrice;
 
     /**
      * 商品介绍
@@ -46,6 +56,10 @@ public class GoodsPackageParticularsVO {
      */
     private List<GoodsIntroduceVO> purchaseNotes;
 
+    /**
+     * 是否预约
+     */
+    private WhetherBookingOrderVO whetherBookingOrder;
     /**
      * 是否收藏此套餐
      */
