@@ -2,6 +2,7 @@ package cn.ruanyun.backInterface.modules.business.order.VO;
 
 import cn.ruanyun.backInterface.modules.business.orderDetail.VO.OrderDetailListVO;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -91,5 +92,16 @@ public class OrderDetailVO {
      * 商家地址
      */
     private String shopAddress;
+
+    /**
+     *  商品尾款
+     */
+    private BigDecimal goodDalancePayment;
+
+    @ApiModelProperty(value = "购买状态 1购买 2租赁 3购买和租赁")
+    private Integer buyState;
+
+    @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")
+    private Integer leaseState;
 
 }

@@ -1,5 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.shoppingCart.VO;
 
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -23,6 +25,10 @@ public class ShoppingCartVO {
      */
     private String name;
 
+    /**
+     * 商品id
+     */
+    private String goodsId;
 
     /**
      * 商品图片
@@ -39,7 +45,6 @@ public class ShoppingCartVO {
      */
     private Long count;
 
-
     /**
      * 购买总金额
      */
@@ -54,4 +59,19 @@ public class ShoppingCartVO {
      */
     private Integer inventory;
 
+    /**
+     *  商品定金
+     */
+    private BigDecimal goodDeposit;
+
+    /**
+     *  商品尾款
+     */
+    private BigDecimal goodDalancePayment;
+
+    @ApiModelProperty(value = "购买状态 1购买 2租赁 3购买和租赁")
+    private Integer buyState;
+
+    @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")
+    private Integer leaseState = CommonConstant.STATUS_NORMAL;
 }

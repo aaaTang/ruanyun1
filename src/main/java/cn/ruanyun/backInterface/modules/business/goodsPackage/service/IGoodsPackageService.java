@@ -16,7 +16,7 @@ public interface IGoodsPackageService extends IService<GoodsPackage> {
 
 
     /**
-     * App查询商家商品详情
+     * App查询商家套餐详情
      * @param ids
      * @return
      */

@@ -108,4 +108,9 @@ public class AppUserVO {
      * 地址加邀请码
      */
     private String urlAndInvitationCode;
+
+    /**
+     * 商家名称
+     */
+    private String shopName;
 }

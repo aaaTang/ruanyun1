@@ -31,12 +31,20 @@ public class  AppGoodDetailVO {
      */
     private String goodName;
 
-
     /**
      * 商品图片
      */
     private String goodPics;
 
+    /**
+     * 商品视频
+     */
+    private String goodVideo;
+
+    /**
+     * 商品视频展示图
+     */
+    private String goodVideoPic;
 
     /**
      * 商品旧价格

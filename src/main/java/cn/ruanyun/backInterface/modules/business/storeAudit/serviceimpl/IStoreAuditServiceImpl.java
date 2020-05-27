@@ -175,7 +175,7 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
             //组合条件搜索
             LambdaQueryWrapper<StoreAudit> wrapper = new LambdaQueryWrapper<>();
             if (ToolUtil.isNotEmpty(storeAuditDTO.getMobile())) {
-                wrapper.eq(StoreAudit::getMobile, storeAuditDTO.getMobile());
+                wrapper.like(StoreAudit::getMobile, storeAuditDTO.getMobile());
             }
             if (ToolUtil.isNotEmpty(storeAuditDTO.getId())) {
                 wrapper.and(w -> w.eq(StoreAudit::getCreateBy, storeAuditDTO.getId()));
@@ -184,7 +184,7 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
                 wrapper.and(w -> w.eq(StoreAudit::getCheckEnum, storeAuditDTO.getCheckEnum()));
             }
             if (ToolUtil.isNotEmpty(storeAuditDTO.getUsername())) {
-                wrapper.and(w -> w.eq(StoreAudit::getUsername, storeAuditDTO.getUsername()));
+                wrapper.and(w -> w.like(StoreAudit::getUsername, storeAuditDTO.getUsername()));
             }
             wrapper.orderByAsc(StoreAudit::getCheckEnum).orderByDesc(StoreAudit::getCreateTime);
             return super.list(wrapper);

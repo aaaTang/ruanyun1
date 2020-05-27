@@ -66,8 +66,18 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
 
 
         if (!StringUtils.isEmpty(shoppingCart.getGoodId())){
-            AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(shoppingCart.getGoodId(), shoppingCart.getAttrSymbolPath(),null,null);
-            shoppingCart.setTotalPrice(new BigDecimal(shoppingCart.getCount()).multiply(appGoodOrder.getGoodNewPrice()));
+            //获取商品购买信息
+            AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(shoppingCart.getGoodId(), shoppingCart.getAttrSymbolPath(),shoppingCart.getBuyState());
+
+            //购买状态 1购买 2租赁  就算定金的价格，和尾款价格
+            if(appGoodOrder.getBuyState().equals(2)){
+                shoppingCart.setTotalPrice(new BigDecimal(shoppingCart.getCount()).multiply(appGoodOrder.getGoodDeposit()));
+                shoppingCart.setGoodDalancePayment(appGoodOrder.getGoodDalancePayment());
+                shoppingCart.setGoodDeposit(appGoodOrder.getGoodDeposit());
+            }else {
+                //或者就普通价格
+                shoppingCart.setTotalPrice(new BigDecimal(shoppingCart.getCount()).multiply(appGoodOrder.getGoodNewPrice()));
+            }
             shoppingCart.setGoodNewPrice(appGoodOrder.getGoodNewPrice());
             shoppingCart.setBuyState(appGoodOrder.getBuyState());
             shoppingCart.setLeaseState(appGoodOrder.getLeaseState());
@@ -78,8 +88,16 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
         CompletableFuture.runAsync(() -> {
             if (ToolUtil.isNotEmpty(getShopCartSame(shoppingCart))) {
                 ShoppingCart shoppingCartOld = getShopCartSame(shoppingCart);
-                shoppingCartOld.setCount(shoppingCartOld.getCount()+shoppingCart.getCount())
-                        .setTotalPrice(shoppingCart.getGoodNewPrice().multiply(BigDecimal.valueOf(shoppingCartOld.getCount()+shoppingCart.getCount())));
+                shoppingCartOld.setCount(shoppingCartOld.getCount()+shoppingCart.getCount());
+
+                        //购买状态 1购买 2租赁  就算定金的价格，和尾款价格
+                        if(shoppingCartOld.getBuyState().equals(2)){
+                            shoppingCartOld.setTotalPrice(shoppingCart.getGoodDeposit().multiply(BigDecimal.valueOf(shoppingCartOld.getCount())));
+                            //shoppingCartOld.setGoodDalancePayment(shoppingCart.getGoodDalancePayment().multiply(BigDecimal.valueOf(shoppingCartOld.getCount())));
+                        }else {
+                            shoppingCartOld.setTotalPrice(shoppingCart.getGoodNewPrice().multiply(BigDecimal.valueOf(shoppingCartOld.getCount()+shoppingCart.getCount())));
+                        }
+
                 this.updateById(shoppingCartOld);
             } else {
                 this.save(shoppingCart);
@@ -113,7 +131,12 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
         CompletableFuture.runAsync(() -> {
             ShoppingCart shoppingCartOld = this.getById(shoppingCart.getId());
             ToolUtil.copyProperties(shoppingCart,shoppingCartOld);
-            shoppingCartOld.setTotalPrice(shoppingCartOld.getGoodNewPrice().multiply(BigDecimal.valueOf(shoppingCart.getCount())));
+            //购买状态 1购买 2租赁
+            if(shoppingCartOld.getBuyState().equals(2)){
+                shoppingCartOld.setTotalPrice(shoppingCartOld.getGoodDeposit().multiply(BigDecimal.valueOf(shoppingCart.getCount())));
+            }else {
+                shoppingCartOld.setTotalPrice(shoppingCartOld.getGoodNewPrice().multiply(BigDecimal.valueOf(shoppingCart.getCount())));
+            }
             this.updateById(shoppingCartOld);
         });
 
@@ -148,9 +171,11 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
                     Good byId = goodService.getById(shoppingCart.getGoodId());
                     if (EmptyUtil.isNotEmpty(byId)){
                         shoppingCartVO.setName(byId.getGoodName())
+                        .setGoodsId(byId.getId())
                         .setGoodPrice(byId.getGoodNewPrice())
                         .setPic(byId.getGoodPics());
                     }
+
                     if (!StringUtils.isEmpty(shoppingCart.getAttrSymbolPath())){
                         //处理价格 如果这个属性配置了新的价格，就用新的价格
                         SizeAndRolor one = iSizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery()
@@ -158,6 +183,11 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
                                 .eq(SizeAndRolor::getGoodsId, shoppingCart.getGoodId()));
                         if (EmptyUtil.isNotEmpty(one)){
                             ToolUtil.copyProperties(one,shoppingCartVO);
+
+                            if (shoppingCart.getBuyState().equals(2)){
+                                shoppingCartVO.setGoodPrice(one.getGoodDeposit());
+                            }
+
                         }
                     }
                     ToolUtil.copyProperties(shoppingCart,shoppingCartVO);
@@ -229,6 +259,7 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
        return this.getOne(Wrappers.<ShoppingCart>lambdaQuery()
                 .eq(ShoppingCart::getCreateBy,shoppingCart.getCreateBy())
                 .eq(ShoppingCart::getGoodId,shoppingCart.getGoodId())
+                .eq(ShoppingCart::getBuyState,shoppingCart.getBuyState())
                 .eq(ShoppingCart::getAttrSymbolPath,shoppingCart.getAttrSymbolPath()));
     }
 

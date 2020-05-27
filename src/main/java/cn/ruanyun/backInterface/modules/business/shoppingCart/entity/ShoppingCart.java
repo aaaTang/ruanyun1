@@ -56,9 +56,19 @@ public class ShoppingCart extends RuanyunBaseEntity {
     private BigDecimal totalPrice = new BigDecimal(0);
 
 
+    /**
+     *  商品定金
+     */
+    private BigDecimal goodDeposit;
+
+    /**
+     *  商品尾款
+     */
+    private BigDecimal goodDalancePayment;
+
     @ApiModelProperty(value = "购买状态 1购买 2租赁 3购买和租赁")
     private Integer buyState;
 
     @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")
-    private Integer leaseState = CommonConstant.STATUS_NORMAL;
+    private Integer leaseState;
 }

@@ -237,6 +237,7 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
             if(roleName.equals(CommonConstant.ADMIN)){ //管理员
                 discountCoupons = this.list(new QueryWrapper<DiscountCoupon>().lambda()
                         .eq((ToolUtil.isNotEmpty(discountCouponDTO.getId())),DiscountCoupon::getId,discountCouponDTO.getId())
+                        .eq((ToolUtil.isNotEmpty(discountCouponDTO.getDisCouponType())),DiscountCoupon::getDisCouponType,discountCouponDTO.getDisCouponType())
                         .eq((ToolUtil.isNotEmpty(discountCouponDTO.getPastDue())),DiscountCoupon::getPastDue,discountCouponDTO.getPastDue())
                         .orderByDesc(DiscountCoupon::getCreateTime)
                 );
@@ -245,6 +246,7 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
 
                 discountCoupons = this.list(new QueryWrapper<DiscountCoupon>().lambda().eq((ToolUtil.isNotEmpty(discountCouponDTO.getId())),DiscountCoupon::getId,discountCouponDTO.getId())
                         .eq((ToolUtil.isNotEmpty(discountCouponDTO.getPastDue())),DiscountCoupon::getPastDue,discountCouponDTO.getPastDue())
+                        .eq((ToolUtil.isNotEmpty(discountCouponDTO.getDisCouponType())),DiscountCoupon::getDisCouponType,discountCouponDTO.getDisCouponType())
                         .eq(DiscountCoupon::getCreateBy,securityUtil.getCurrUser().getId())
                         .orderByDesc(DiscountCoupon::getCreateTime)
                 );
@@ -279,6 +281,15 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
 
 
         return null;
+    }
+
+
+    /**
+     * 获取小程序用户可以领的优惠券
+     */
+    @Override
+    public List getDiscountCoupon() {
+       return  Optional.ofNullable(this.list(new QueryWrapper<DiscountCoupon>().lambda().eq(DiscountCoupon::getDisCouponType,DisCouponTypeEnum.ALL_SHOP))).orElse(null);
     }
 
 

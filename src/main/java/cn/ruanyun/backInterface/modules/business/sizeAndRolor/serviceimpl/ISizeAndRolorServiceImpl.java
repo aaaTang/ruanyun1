@@ -12,6 +12,7 @@ import cn.ruanyun.backInterface.modules.business.itemAttrVal.pojo.ItemAttrVal;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.VO.WebInventoryVO;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.VO.inventoryVO;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.VO.itemListVO;
+import cn.ruanyun.backInterface.modules.business.sizeAndRolor.VO.itemVO;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
@@ -186,8 +187,10 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
             map.put("pic",(list.size() >= 1 ? list.get(0).getPic() : ""));//商品图片
             map.put("inventory",inventory);//商品库存
 
-            //商品现有的规格组合 给app做规格组合匹配
-            map.put("itemList",this.getItemList(list));
+            if(ToolUtil.isNotEmpty(list)){
+                //商品现有的规格组合 给app做规格组合匹配
+                map.put("itemList",this.getItemList(list));
+            }
 
             return  map;
         }else {
@@ -204,26 +207,31 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
     public List getItemList(List<SizeAndRolor> list){
 
         List<itemListVO> itemList = new ArrayList<>();
+
+        //循环这个商品的已有的规格
         for (SizeAndRolor sizeAndRolor : list) {
 
-            itemListVO itemVO = new itemListVO();
+            itemListVO listVO = new itemListVO();
+
+            List<itemVO> itemVO = new ArrayList<>();
 
             String[] id = sizeAndRolor.getAttrSymbolPath().split(",");
 
             for (String s : id) {
+                itemVO item = new itemVO();
 
-                //itemVO.setValId(Optional.ofNullable(itemAttrValMapper.selectById(s)).map());
+                item.setValId(s);
+                item.setValName(Optional.ofNullable(itemAttrValMapper.selectById(s)).map(ItemAttrVal::getAttrValue).orElse("规格属性未找到！"));
+                item.setKeyId(Optional.ofNullable(itemAttrKeyMapper.selectById(itemAttrValMapper.selectById(s).getAttrId())).map(ItemAttrKey::getId).orElse("规格未找到！"));
+                item.setKeyName(Optional.ofNullable(itemAttrKeyMapper.selectById(itemAttrValMapper.selectById(s).getAttrId())).map(ItemAttrKey::getAttrName).orElse("规格未找到！"));
+                itemVO.add(item);
             }
 
-
-
+            itemList.add(listVO.setItemVO(itemVO));
         }
 
-
-        return null;
+        return itemList;
     }
-
-
 
 
 
@@ -236,10 +244,14 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
            if(ToolUtil.isNotEmpty(s)){
                map.put("inventory",s.getInventory());
                map.put("goodsPrice",s.getGoodPrice());
+               map.put("goodDeposit",s.getGoodDeposit());
+               map.put("goodDalancePayment",s.getGoodDalancePayment());
                map.put("pic",s.getPic());
            }else {
                map.put("inventory",0);
                map.put("goodsPrice",0);
+               map.put("goodDeposit",0);
+               map.put("goodDalancePayment",0);
                map.put("pic",null);
            }
         return map;

@@ -7,6 +7,7 @@ import cn.ruanyun.backInterface.modules.business.profitDetail.mapper.ProfitDetai
 import cn.ruanyun.backInterface.modules.business.profitDetail.pojo.ProfitDetail;
 import cn.ruanyun.backInterface.modules.business.profitDetail.service.IProfitDetailService;
 import cn.ruanyun.backInterface.modules.business.profitDetail.vo.ProfitDetailVo;
+import cn.ruanyun.backInterface.modules.business.profitPercent.pojo.ProfitPercent;
 import cn.ruanyun.backInterface.modules.business.profitPercent.service.IProfitPercentService;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -93,8 +95,8 @@ public class IProfitDetailServiceImpl extends ServiceImpl<ProfitDetailMapper, Pr
                            ToolUtil.copyProperties(order, profitDetailVo);
 
                            //分账金额信息
-                           profitDetailVo.setProfitTotalMoney(order.getTotalPrice().multiply(profitPercentService
-                           .getProfitPercentLimitOne(ProfitTypeEnum.FIRST).getPlatformProfit()));
+                           profitDetailVo.setProfitTotalMoney(order.getTotalPrice().multiply(Optional.ofNullable(profitPercentService
+                                   .getProfitPercentLimitOne(ProfitTypeEnum.FIRST)).map(ProfitPercent::getPlatformProfit).orElse(BigDecimal.valueOf(1))));
                        });
 
                ToolUtil.copyProperties(profitDetail, profitDetailVo);

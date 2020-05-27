@@ -62,9 +62,9 @@ public class OrderController {
      * @return
      */
     @PostMapping(value = "/orderPay")
-    public Result<Object> orderPay(String id , PayTypeEnum payTypeEnum, String payPassword){
+    public Result<Object> orderPay(String id , PayTypeEnum payTypeEnum, String payPassword,Integer status){
         try {
-            return iOrderService.payOrder(id, payTypeEnum, payPassword);
+            return iOrderService.payOrder(id, payTypeEnum, payPassword,status);
         }catch (Exception e) {
             return new ResultUtil<>().setErrorMsg(201, e.getMessage());
         }

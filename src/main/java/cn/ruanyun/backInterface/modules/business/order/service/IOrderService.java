@@ -33,9 +33,6 @@ public interface IOrderService extends IService<Order> {
      *
      * @param orderDTO
      */
-    Result<Object> insertOrderUpdateOrder(OrderDTO orderDTO);
-
-
     Result<Object> insertOrder(OrderDTO orderDTO);
 
     /**
@@ -44,7 +41,7 @@ public interface IOrderService extends IService<Order> {
      * @param ids
      * @param payTypeEnum
      */
-    Result<Object> payOrder(String ids, PayTypeEnum payTypeEnum, String payPassword);
+    Result<Object> payOrder(String ids, PayTypeEnum payTypeEnum, String payPassword,Integer status);
 
     /**
      * 移除order

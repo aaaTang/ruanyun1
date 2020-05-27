@@ -80,6 +80,17 @@ public class AppGoodOrderVO {
      */
     private BigDecimal freightMoney = new BigDecimal(0);
 
+
+    /**
+     *  商品定金
+     */
+    private BigDecimal goodDeposit;
+
+    /**
+     *  商品尾款
+     */
+    private BigDecimal goodDalancePayment;
+
     @ApiModelProperty(value = "购买状态 1购买 2租赁 3购买和租赁")
     private Integer buyState;
 

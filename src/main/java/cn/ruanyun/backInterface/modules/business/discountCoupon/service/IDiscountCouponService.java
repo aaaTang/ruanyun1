@@ -71,4 +71,9 @@ public interface IDiscountCouponService extends IService<DiscountCoupon> {
      * @return
      */
     List PcGetDiscountCouponList(DiscountCouponDTO discountCouponDTO);
+
+    /**
+     * 获取小程序用户可以领的优惠券
+     */
+    List getDiscountCoupon();
 }

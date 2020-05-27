@@ -37,7 +37,15 @@ public class PcGoodListVO {
      */
     private String goodPics;
 
+    /**
+     * 商品视频
+     */
+    private String goodVideo;
 
+    /**
+     * 商品视频展示图
+     */
+    private String goodVideoPic;
     /**
      * 商品详情
      */
@@ -85,4 +93,11 @@ public class PcGoodListVO {
      * 商家状态 默认0正常 -1拉黑
      */
     private Integer status;
+
+
+    @ApiModelProperty(value = "购买状态 1购买 2租赁 3购买和租赁")
+    private Integer buyState;
+
+    @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")
+    private Integer leaseState;
 }
