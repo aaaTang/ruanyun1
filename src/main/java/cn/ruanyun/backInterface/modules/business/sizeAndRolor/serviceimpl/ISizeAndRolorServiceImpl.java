@@ -1,11 +1,16 @@
 package cn.ruanyun.backInterface.modules.business.sizeAndRolor.serviceimpl;
 
 import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
+import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
+import cn.ruanyun.backInterface.modules.business.goodCategory.VO.FourDevarajasCategoryVo;
+import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
+import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.VO.ItemAttrKeyVO;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.mapper.ItemAttrKeyMapper;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.pojo.ItemAttrKey;
+import cn.ruanyun.backInterface.modules.business.itemAttrKey.service.IItemAttrKeyService;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.vo.ItemAttrValVo;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.mapper.ItemAttrValMapper;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.pojo.ItemAttrVal;
@@ -51,12 +56,16 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
 
        @Resource
        private ItemAttrKeyMapper itemAttrKeyMapper;
+        @Autowired
+        private IItemAttrKeyService iItemAttrKeyService;
 
        @Resource
        private ItemAttrValMapper itemAttrValMapper;
 
        @Resource
        private GoodMapper goodMapper;
+      @Resource
+      private GoodCategoryMapper goodCategoryMapper;
 
        @Resource
        private SizeAndRolorMapper sizeAndRolorMapper;
@@ -85,52 +94,7 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
           CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
       }
 
-   /* @Override
-    public Map<String,Object> SizeAndRolorList(String goodsId) {
 
-        Map<String,Object> map = new HashMap<>();
-
-        Good good = Optional.ofNullable(goodMapper.selectOne(new QueryWrapper<Good>().lambda().eq(Good::getId,goodsId).eq(Good::getTypeEnum, GoodTypeEnum.GOOD)))
-              .orElse(null);
-        if(ToolUtil.isNotEmpty(good.getGoodCategoryId())){
-            //按分类获取规格
-            List<ItemAttrKey> itemKey = itemAttrKeyMapper.selectList(
-                    new QueryWrapper<ItemAttrKey>().lambda().eq(ItemAttrKey::getClassId,good.getGoodCategoryId()));
-
-            List<ItemAttrKeyVO> itemAttrKeyVO = new ArrayList<>();
-            for (ItemAttrKey itemAttrKey : itemKey) {
-                ItemAttrKeyVO attrKey = new ItemAttrKeyVO();
-                //按规格获取规格属性
-                List<ItemAttrVal> itemAttrVal =  Optional.ofNullable(itemAttrValMapper.selectList(
-                        new QueryWrapper<ItemAttrVal>().lambda().eq(ItemAttrVal::getAttrId,itemAttrKey.getId())))
-                        .orElse(null);
-
-                List<ItemAttrValVO> itemAttrValVO = new ArrayList<>();
-                for (ItemAttrVal itemVal : itemAttrVal) {
-                    ItemAttrValVO attrVal= new ItemAttrValVO();
-                    attrVal.setId(itemVal.getId()).setAttrValue(itemVal.getAttrValue());
-                    itemAttrValVO.add(attrVal);
-                }
-                attrKey.setId(itemAttrKey.getId()).setAttrName(itemAttrKey.getAttrName()).setVal(itemAttrValVO);
-                itemAttrKeyVO.add(attrKey);
-            }
-            map.put("itemAttrKeyVO",itemAttrKeyVO);
-
-            List<SizeAndRolor> list = sizeAndRolorMapper.selectList(
-                    new QueryWrapper<SizeAndRolor>().lambda().eq(SizeAndRolor::getGoodsId,goodsId));
-            Integer inventory = 0;
-            for (SizeAndRolor s : list) {
-                inventory+=s.getInventory();
-            }
-            map.put("goodsPrice",good.getGoodNewPrice());//商品价格
-            map.put("pic",(list.size() >= 1 ? list.get(0).getPic() : ""));//商品图片
-            map.put("inventory",inventory);//商品库存
-
-            return  map;
-        }else {
-            return  null;
-        }
-    }*/
 
     /**
      * 获取商品规格和大小
@@ -317,5 +281,28 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
         }
         return attrName;
     }
+
+    /**
+     * 获取婚宴酒店分类数据
+     * @return
+     */
+    @Override
+    public Result<Object> gerRceptionhotelCategory() {
+
+        return iItemAttrKeyService.getItemAttrKeyList(this.getRceptionhotelCategoryId());
+    }
+
+    /**
+     * 获取婚宴酒店的id
+     * @return
+     */
+    public String getRceptionhotelCategoryId() {
+        return Optional.ofNullable(goodCategoryMapper.selectOne(Wrappers.<GoodCategory>lambdaQuery()
+                .eq(GoodCategory::getTitle, "婚宴酒店")))
+                .map(GoodCategory::getId)
+                .orElse(null);
+    }
+
+
 
 }

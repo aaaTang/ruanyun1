@@ -16,6 +16,8 @@ import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.business.balance.pojo.Balance;
 import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
+import cn.ruanyun.backInterface.modules.business.comment.DTO.CommentDTO;
+import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
 import cn.ruanyun.backInterface.modules.business.commonParam.service.IcommonParamService;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
 import cn.ruanyun.backInterface.modules.business.discountMy.service.IDiscountMyService;
@@ -130,6 +132,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
     @Autowired
     private IcommonParamService icommonParamService;
+
+    @Autowired
+    private ICommentService iCommentService;
 
 
     @Override
@@ -532,14 +537,13 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     /**
      * 去评价订单
      *
-     * @param orderOperateDto 实体
+     * @param commentDTO 实体
      * @return Object
      */
     @Override
-    public Result<Object> toEvaluate(OrderOperateDto orderOperateDto) {
+    public Result<Object> toEvaluate(CommentDTO commentDTO) {
 
-        // TODO: 2020/5/28 评价订单
-        return null;
+        return iCommentService.insertOrderUpdateComment(commentDTO);
     }
 
     /**

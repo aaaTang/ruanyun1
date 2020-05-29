@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.discountCoupon.serviceimpl;
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
 import cn.ruanyun.backInterface.common.enums.DisCouponTypeEnum;
 import cn.ruanyun.backInterface.common.enums.Disabled;
 import cn.ruanyun.backInterface.common.utils.EmptyUtil;
@@ -9,12 +10,15 @@ import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.DTO.DiscountCouponDTO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.PcGetDiscountCouponListVO;
+import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.PlatformDiscountCouponVO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.mapper.DiscountCouponMapper;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.pojo.DiscountCoupon;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
 import cn.ruanyun.backInterface.modules.business.discountMy.VO.DiscountVO;
 import cn.ruanyun.backInterface.modules.business.discountMy.pojo.DiscountMy;
 import cn.ruanyun.backInterface.modules.business.discountMy.service.IDiscountMyService;
+import cn.ruanyun.backInterface.modules.business.discountShop.mapper.DiscountShopMapper;
+import cn.ruanyun.backInterface.modules.business.discountShop.pojo.DiscountShop;
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
@@ -51,6 +55,7 @@ import javax.swing.text.html.Option;
 
 /**
  * 优惠券接口实现
+ *
  * @author fei
  */
 @Slf4j
@@ -58,32 +63,35 @@ import javax.swing.text.html.Option;
 @Transactional
 public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper, DiscountCoupon> implements IDiscountCouponService {
 
-       @Autowired
-       private SecurityUtil securityUtil;
-       @Autowired
-       private IDiscountMyService discountMyService;
-       @Autowired
-       private IGoodService iGoodService;
-       @Resource
-       private UserMapper userMapper;
-       @Resource
-       private GoodMapper goodMapper;
-       @Override
-       public void insertOrderUpdateDiscountCoupon(DiscountCoupon discountCoupon) {
-           if (ToolUtil.isEmpty(discountCoupon.getCreateBy())) {
-                       discountCoupon.setCreateBy(securityUtil.getCurrUser().getId());
-                   }else {
-                       discountCoupon.setUpdateBy(securityUtil.getCurrUser().getId());
-                   }
-                   Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(discountCoupon)))
-                           .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
-                           .toFuture().join();
-       }
+    @Autowired
+    private SecurityUtil securityUtil;
+    @Autowired
+    private IDiscountMyService discountMyService;
+    @Autowired
+    private IGoodService iGoodService;
+    @Resource
+    private UserMapper userMapper;
+    @Resource
+    private GoodMapper goodMapper;
+    @Resource
+    private DiscountShopMapper discountShopMapper;
 
-      @Override
-      public void removeDiscountCoupon(String ids) {
-          CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
-      }
+    @Override
+    public void insertOrderUpdateDiscountCoupon(DiscountCoupon discountCoupon) {
+        if (ToolUtil.isEmpty(discountCoupon.getCreateBy())) {
+            discountCoupon.setCreateBy(securityUtil.getCurrUser().getId());
+        } else {
+            discountCoupon.setUpdateBy(securityUtil.getCurrUser().getId());
+        }
+        Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(discountCoupon)))
+                .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
+                .toFuture().join();
+    }
+
+    @Override
+    public void removeDiscountCoupon(String ids) {
+        CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
+    }
 
     /**
      * 获取优惠券详情
@@ -99,6 +107,7 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
 
     /**
      * 按商品获取优惠券
+     *
      * @param goodsPackageId
      * @return
      */
@@ -115,19 +124,18 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
         List<DiscountCouponListVO> discountVOS = new ArrayList<>();
         discountCouponList.forEach(discountCoupon1 -> {
             DiscountCouponListVO discountCouponListVO = new DiscountCouponListVO();
-            ToolUtil.copyProperties(discountCoupon1,discountCouponListVO);
+            ToolUtil.copyProperties(discountCoupon1, discountCouponListVO);
             //是否被领取
             discountCouponListVO.setIsReceive(this.getDetailById(discountCoupon1));
-            discountCouponListVO.setValidityPeriod(discountCouponListVO.getValidityPeriod().substring(0,discountCouponListVO.getValidityPeriod().indexOf(" ")));
+            discountCouponListVO.setValidityPeriod(discountCouponListVO.getValidityPeriod().substring(0, discountCouponListVO.getValidityPeriod().indexOf(" ")));
             discountVOS.add(discountCouponListVO);
         });
         return discountVOS;
     }
 
 
-
     //判断优惠券是否被领取
-    public boolean getDetailById(DiscountCoupon discountCoupon){
+    public boolean getDetailById(DiscountCoupon discountCoupon) {
         String userId = securityUtil.getCurrUser().getId();
 
         DiscountMy one = discountMyService.getOne(Wrappers.<DiscountMy>lambdaQuery()
@@ -153,8 +161,8 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
                         //.eq(!StringUtils.isEmpty(discountCoupon.getStoreAuditOid()), DiscountCoupon::getStoreAuditOid, discountCoupon.getStoreAuditOid())
                         .eq(!StringUtils.isEmpty(discountCoupon.getGoodsPackageId()), DiscountCoupon::getGoodsPackageId, discountCoupon.getGoodsPackageId())
                         .eq(!EmptyUtil.isEmpty(discountCoupon.getDisCouponType()), DiscountCoupon::getGoodsPackageId, discountCoupon.getGoodsPackageId())
-                        .eq(DiscountCoupon::getDelFlag,CommonConstant.STATUS_NORMAL)
-                        .ge(DiscountCoupon::getValidityPeriod,new Date())
+                        .eq(DiscountCoupon::getDelFlag, CommonConstant.STATUS_NORMAL)
+                        .ge(DiscountCoupon::getValidityPeriod, new Date())
                         .orderByAsc(DiscountCoupon::getCreateTime))));
 
         return optionalCompletableFuture.join().orElse(null);
@@ -180,7 +188,7 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
 
         discountCouponList.forEach(discountCoupon1 -> {
             DiscountCouponListVO discountCouponListVO = new DiscountCouponListVO();
-            ToolUtil.copyProperties(discountCoupon1,discountCouponListVO);
+            ToolUtil.copyProperties(discountCoupon1, discountCouponListVO);
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
             discountCouponListVO.setValidityPeriod(simpleDateFormat.format(discountCoupon1.getValidityPeriod()));
@@ -190,8 +198,6 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
         });
         return discountVOS;
     }
-
-
 
 
     /**
@@ -207,13 +213,12 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
     }
 
 
-
     @Override
     public List<DiscountVO> getList(String join) {
         return Optional.ofNullable(ToolUtil.setListToNul(this.listByIds(ToolUtil.splitterStr(join)))).map(discountCouponList -> {
             List<DiscountVO> discountCoupons = discountCouponList.parallelStream().map(discountCoupon -> {
                 DiscountVO discountCouponListVO = new DiscountVO();
-                ToolUtil.copyProperties(discountCoupon,discountCouponListVO);
+                ToolUtil.copyProperties(discountCoupon, discountCouponListVO);
                 return discountCouponListVO;
             }).collect(Collectors.toList());
             return discountCoupons;
@@ -221,11 +226,11 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
     }
 
 
-
 /**********************************************后端管理接口************************************************************/
 
     /**
      * 后端获取优惠券列表
+     *
      * @return
      */
     @Override
@@ -235,44 +240,44 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
         String roleName = iGoodService.getRoleUserList(securityUtil.getCurrUser().getId());
 
         //判空
-        if(ToolUtil.isNotEmpty(roleName)){
+        if (ToolUtil.isNotEmpty(roleName)) {
 
             List<DiscountCoupon> discountCoupons = new ArrayList<>();
 
             //2.判断角色管理员还是商家或者个人商家
-            if(roleName.equals(CommonConstant.ADMIN)){ //管理员
+            if (roleName.equals(CommonConstant.ADMIN)) { //管理员
                 discountCoupons = this.list(new QueryWrapper<DiscountCoupon>().lambda()
-                        .eq((ToolUtil.isNotEmpty(discountCouponDTO.getId())),DiscountCoupon::getId,discountCouponDTO.getId())
-                        .eq((ToolUtil.isNotEmpty(discountCouponDTO.getDisCouponType())),DiscountCoupon::getDisCouponType,discountCouponDTO.getDisCouponType())
+                        .eq((ToolUtil.isNotEmpty(discountCouponDTO.getId())), DiscountCoupon::getId, discountCouponDTO.getId())
+                        .eq((ToolUtil.isNotEmpty(discountCouponDTO.getDisCouponType())), DiscountCoupon::getDisCouponType, discountCouponDTO.getDisCouponType())
                         .orderByDesc(DiscountCoupon::getCreateTime)
                 );
 
-            }else if(roleName.equals(CommonConstant.STORE)||roleName.equals(CommonConstant.PER_STORE)){//商家或者个人商家
+            } else if (roleName.equals(CommonConstant.STORE) || roleName.equals(CommonConstant.PER_STORE)) {//商家或者个人商家
 
-                discountCoupons = this.list(new QueryWrapper<DiscountCoupon>().lambda().eq((ToolUtil.isNotEmpty(discountCouponDTO.getId())),DiscountCoupon::getId,discountCouponDTO.getId())
-                        .eq((ToolUtil.isNotEmpty(discountCouponDTO.getDisCouponType())),DiscountCoupon::getDisCouponType,discountCouponDTO.getDisCouponType())
-                        .eq(DiscountCoupon::getCreateBy,securityUtil.getCurrUser().getId())
+                discountCoupons = this.list(new QueryWrapper<DiscountCoupon>().lambda().eq((ToolUtil.isNotEmpty(discountCouponDTO.getId())), DiscountCoupon::getId, discountCouponDTO.getId())
+                        .eq((ToolUtil.isNotEmpty(discountCouponDTO.getDisCouponType())), DiscountCoupon::getDisCouponType, discountCouponDTO.getDisCouponType())
+                        .eq(DiscountCoupon::getCreateBy, securityUtil.getCurrUser().getId())
                         .orderByDesc(DiscountCoupon::getCreateTime)
                 );
             }
 
             //3.优惠券不为空
-            if(ToolUtil.isNotEmpty(discountCoupons)){
+            if (ToolUtil.isNotEmpty(discountCoupons)) {
 
                 List<PcGetDiscountCouponListVO> pcGetDiscountList = discountCoupons.parallelStream().map(discountCoupon -> {
 
                     PcGetDiscountCouponListVO pc = new PcGetDiscountCouponListVO();
 
-                    ToolUtil.copyProperties(discountCoupon,pc);
+                    ToolUtil.copyProperties(discountCoupon, pc);
                     //店铺名称
-                    pc//.setShopName(Optional.ofNullable(userMapper.selectById(discountCoupon.getStoreAuditOid())).map(User::getShopName).orElse("无！"))
+                    pc.setShopName(Optional.ofNullable(userMapper.selectById(discountCoupon.getCreateBy())).map(User::getShopName).orElse("-"))
                             //商品名称
-                            .setGoodsName(Optional.ofNullable(goodMapper.selectById(discountCoupon.getGoodsPackageId())).map(Good::getGoodName).orElse("无！"))
+                            .setGoodsName(Optional.ofNullable(goodMapper.selectById(discountCoupon.getGoodsPackageId())).map(Good::getGoodName).orElse("-"))
                             //创建人名称
-                            .setCreateName(Optional.ofNullable(userMapper.selectById(discountCoupon.getCreateBy())).map(User::getNickName).orElse("无！"));
+                            .setCreateName(Optional.ofNullable(userMapper.selectById(discountCoupon.getCreateBy())).map(User::getNickName).orElse("-"));
 
-                   return pc;
-                }).filter(pcVO-> pcVO.getCreateName().contains(ToolUtil.isNotEmpty(discountCouponDTO.getCreateName())?discountCouponDTO.getCreateName():pcVO.getCreateName()))
+                    return pc;
+                }).filter(pcVO -> pcVO.getCreateName().contains(ToolUtil.isNotEmpty(discountCouponDTO.getCreateName()) ? discountCouponDTO.getCreateName() : pcVO.getCreateName()))
 
                         .collect(Collectors.toList());
 
@@ -288,13 +293,52 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
     }
 
 
+
     /**
-     * 获取小程序用户可以领的优惠券
+     * 获取系统的优惠券
+     *
+     * @return
      */
     @Override
-    public List getDiscountCoupon() {
-       return  Optional.ofNullable(this.list(new QueryWrapper<DiscountCoupon>().lambda().eq(DiscountCoupon::getDisCouponType,DisCouponTypeEnum.ALL_SHOP))).orElse(null);
+    public List<PlatformDiscountCouponVO> getPlatformDiscountCoupon() {
+
+        return Optional.ofNullable(this.list(new QueryWrapper<DiscountCoupon>().lambda()
+                .eq(DiscountCoupon::getDisCouponType, DisCouponTypeEnum.ALL_SHOP)
+                .eq(DiscountCoupon::getDelFlag, CommonConstant.STATUS_NORMAL)
+                .ge(DiscountCoupon::getValidityPeriod, new Date())
+                .orderByDesc(DiscountCoupon::getCreateTime)
+
+        )).map(discountCoupons -> {
+            List<PlatformDiscountCouponVO> platformDiscountCouponVOS = discountCoupons.parallelStream().flatMap(discountCoupon -> {
+
+                PlatformDiscountCouponVO p = new PlatformDiscountCouponVO();
+                ToolUtil.copyProperties(discountCoupon, p);
+
+                DiscountShop discountShop = discountShopMapper.selectOne(new QueryWrapper<DiscountShop>().lambda()
+                        .eq(DiscountShop::getDiscountId, discountCoupon.getId())
+                        .eq(DiscountShop::getCreateBy, securityUtil.getCurrUser().getId())
+                        .last("limit 1"));
+
+                if (ToolUtil.isNotEmpty(discountShop)) {
+                        p.setJoin(CommonConstant.YES);
+
+                } else {
+
+                        p.setJoin(CommonConstant.NO);
+                }
+
+
+                return Stream.of(p);
+
+            }).collect(Collectors.toList());
+
+            return platformDiscountCouponVOS;
+        }).orElse(null);
     }
+
+
+
+
 
 
 }

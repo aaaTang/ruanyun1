@@ -3,6 +3,7 @@ package cn.ruanyun.backInterface.modules.business.comment.serviceimpl;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.utils.*;
+import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
@@ -73,7 +74,7 @@ public class ICommentServiceImpl extends ServiceImpl<CommentMapper, Comment> imp
 
 
     @Override
-    public void insertOrderUpdateComment(CommentDTO commentDTO) {
+    public Result<Object> insertOrderUpdateComment(CommentDTO commentDTO) {
         JSONArray jsonArray = new JSONArray(commentDTO.getComments());
         String userId = "";
         for (int i = 0; i <jsonArray.length(); i++) {
@@ -113,6 +114,7 @@ public class ICommentServiceImpl extends ServiceImpl<CommentMapper, Comment> imp
         grade.setUserId(userId);
         gradeService.save(grade);
 
+        return new ResultUtil<>().setData(200,"评论成功！");
     }
 
     @Override

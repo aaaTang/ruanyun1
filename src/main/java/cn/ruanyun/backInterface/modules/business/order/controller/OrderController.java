@@ -9,6 +9,7 @@ import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
+import cn.ruanyun.backInterface.modules.business.comment.DTO.CommentDTO;
 import cn.ruanyun.backInterface.modules.business.order.dto.*;
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
 import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
@@ -104,9 +105,9 @@ public class OrderController {
 
     @PostMapping("/toEvaluate")
     @ApiOperation(value = "去评价订单")
-    public Result<Object> toEvaluate(OrderOperateDto orderOperateDto) {
+    public Result<Object> toEvaluate(CommentDTO commentDTO) {
 
-        return iOrderService.toEvaluate(orderOperateDto);
+        return iOrderService.toEvaluate(commentDTO);
     }
 
 

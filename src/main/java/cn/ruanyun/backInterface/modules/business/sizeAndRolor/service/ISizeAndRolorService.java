@@ -1,7 +1,11 @@
 package cn.ruanyun.backInterface.modules.business.sizeAndRolor.service;
 
 
+import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.goodCategory.VO.FourDevarajasCategoryVo;
+import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.VO.inventoryVO;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 
@@ -65,4 +69,14 @@ public interface ISizeAndRolorService extends IService<SizeAndRolor> {
      * @return
      */
     String attrSymbolPathName(String id);
+
+
+    /**
+     * 获取婚宴酒店分类数据
+     * @return
+     */
+    Result<Object>  gerRceptionhotelCategory();
+
+
+
 }

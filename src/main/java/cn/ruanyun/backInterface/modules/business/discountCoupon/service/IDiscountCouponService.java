@@ -2,6 +2,7 @@ package cn.ruanyun.backInterface.modules.business.discountCoupon.service;
 
 import cn.ruanyun.backInterface.modules.business.discountCoupon.DTO.DiscountCouponDTO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
+import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.PlatformDiscountCouponVO;
 import cn.ruanyun.backInterface.modules.business.discountMy.VO.DiscountVO;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.VO.HarvestAddressVO;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -72,7 +73,8 @@ public interface IDiscountCouponService extends IService<DiscountCoupon> {
     List PcGetDiscountCouponList(DiscountCouponDTO discountCouponDTO);
 
     /**
-     * 获取小程序用户可以领的优惠券
+     * 获取系统的优惠券
+     * @return
      */
-    List getDiscountCoupon();
+    List<PlatformDiscountCouponVO> getPlatformDiscountCoupon();
 }

@@ -104,22 +104,22 @@ public class DiscountCouponController {
      */
     @PostMapping("/getDiscountCoupon")
     public Result<Object> getDiscountCoupon() {
-        return Optional.ofNullable(iDiscountCouponService.getDiscountCoupon())
+        return Optional.ofNullable(iDiscountCouponService.getPlatformDiscountCoupon())
                 .map(discountCouponList -> new ResultUtil<>().setData(discountCouponList,"获取列表成功！"))
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
 
 
-
-   /* *//**
+    /**
      * 获取系统的优惠券
-     *//*
+     * @return
+     */
     @PostMapping("/getPlatformDiscountCoupon")
     public Result<Object> getPlatformDiscountCoupon() {
         return Optional.ofNullable(iDiscountCouponService.getPlatformDiscountCoupon())
-                .map(discountCouponList -> new ResultUtil<>().setData(platformDiscountCoupon,"获取列表成功！"))
+                .map(platformDiscountCoupon -> new ResultUtil<>().setData(platformDiscountCoupon,"获取列表成功！"))
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
-    }*/
+    }
 
 
 

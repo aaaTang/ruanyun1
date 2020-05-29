@@ -130,7 +130,7 @@ public class IBookingOrderServiceImpl extends ServiceImpl<BookingOrderMapper, Bo
                      User user =  userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getId,order.getStoreId()));
                      ToolUtil.copyProperties(user,booking);
                      //获取分类名称
-                     booking.setTitle(Optional.ofNullable(goodCategoryMapper.selectById(user.getClassId())).map(GoodCategory::getTitle).orElse(null));
+                     booking.setTitle(Optional.ofNullable(goodCategoryMapper.selectById(user.getClassId())).map(GoodCategory::getTitle).orElse("暂无！"));
                        booking.setScore(Double.parseDouble(gradeService.getShopScore(order.getStoreId())))//评分
                                .setCommentNum(Optional.ofNullable(gradeMapper.selectList(new QueryWrapper<Grade>().lambda().eq(Grade::getUserId,order.getStoreId())))//评论数量
                                        .map(List::size)

@@ -4,6 +4,7 @@ import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
+import cn.ruanyun.backInterface.modules.business.comment.DTO.CommentDTO;
 import cn.ruanyun.backInterface.modules.business.order.dto.*;
 import cn.ruanyun.backInterface.modules.business.order.vo.*;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -105,10 +106,10 @@ public interface IOrderService extends IService<Order> {
 
     /**
      *去评价订单
-     * @param orderOperateDto 实体
+     * @param commentDTO 实体
      * @return Object
      */
-    Result<Object> toEvaluate(OrderOperateDto orderOperateDto);
+    Result<Object> toEvaluate(CommentDTO commentDTO);
 
 
     /**

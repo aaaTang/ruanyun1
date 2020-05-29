@@ -2,14 +2,17 @@ package cn.ruanyun.backInterface.modules.business.sizeAndRolor.controller;
 
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.goodCategory.VO.FourDevarajasCategoryVo;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
 import com.google.common.collect.Maps;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -117,5 +120,15 @@ public class SizeAndRolorController {
 
                 }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
     }
+
+
+
+    @PostMapping("/gerRceptionhotelCategory")
+    @ApiOperation("获取婚宴酒店分类数据")
+    public Result<Object>  gerRceptionhotelCategory() {
+
+        return iSizeAndRolorService.gerRceptionhotelCategory();
+    }
+
 
 }

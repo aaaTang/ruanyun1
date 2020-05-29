@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.comment.service;
 
+import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.comment.DTO.CommentDTO;
 import cn.ruanyun.backInterface.modules.business.comment.VO.CommentVO;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -19,7 +20,7 @@ public interface ICommentService extends IService<Comment> {
      *
      * @param commentDTO
      */
-    void insertOrderUpdateComment(CommentDTO commentDTO);
+    Result<Object> insertOrderUpdateComment(CommentDTO commentDTO);
 
 
 

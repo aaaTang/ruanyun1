@@ -14,8 +14,11 @@ import cn.ruanyun.backInterface.modules.business.discountMy.VO.DiscountVO;
 import cn.ruanyun.backInterface.modules.business.discountMy.mapper.DiscountMyMapper;
 import cn.ruanyun.backInterface.modules.business.discountMy.pojo.DiscountMy;
 import cn.ruanyun.backInterface.modules.business.discountMy.service.IDiscountMyService;
+import cn.ruanyun.backInterface.modules.business.discountShop.mapper.DiscountShopMapper;
+import cn.ruanyun.backInterface.modules.business.discountShop.pojo.DiscountShop;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.base.Joiner;
@@ -52,6 +55,8 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
     private DiscountCouponMapper discountCouponMapper;
     @Autowired
     private IGoodService goodService;
+    @Resource
+    private DiscountShopMapper discountShopMapper;
 
 
     private static final Joiner JOINER = Joiner.on(",").skipNulls();
@@ -71,9 +76,8 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
         ).map(list ->{
             List<DiscountVO> discountVOS = list.parallelStream().flatMap(discountMy -> {
                 DiscountVO byId = new DiscountVO();
-                ToolUtil.copyProperties(discountCouponMapper.selectById(discountMy.getDiscountCouponId()) ,byId);
+                ToolUtil.copyProperties(discountCouponMapper.selectById(discountMy.getDiscountCouponId()),byId);
                 byId.setStatus(discountMy.getStatus());
-
 
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 byId.setValidityPeriod(simpleDateFormat.format(discountMy.getDiscountCouponTime()));
@@ -112,21 +116,40 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
                 .map(discountMIES -> {
                     List<DiscountVO> discountVOList = discountMIES.parallelStream().map(discountMy -> {
                         DiscountCoupon byId = discountService.getById(discountMy.getDiscountCouponId());
+                        DiscountShop discountShop = discountShopMapper.selectOne(new QueryWrapper<DiscountShop>().lambda()
+                                .eq(DiscountShop::getDiscountId,discountMy.getDiscountCouponId())
+                                .eq(DiscountShop::getShopId,createBy)
+                        );
                         DiscountVO discountVO = new DiscountVO();
                         if (EmptyUtil.isNotEmpty(byId)){
+
+                            //时间戳转换
+                            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+
                             //全场 价格达到标准
                             int i = multiply.compareTo(byId.getFullMoney());
                             if (byId.getDisCouponType().getCode() == DisCouponTypeEnum.ALL_USE.getCode() && i != -1 && byId.getCreateBy().equals(createBy)){
+
                                 ToolUtil.copyProperties(byId,discountVO);
                                 discountVO.setDisCouponType(byId.getDisCouponType());
-                                discountVO.setValidityPeriod(discountVO.getValidityPeriod().substring(0,discountVO.getValidityPeriod().indexOf(" ")));
+                                discountVO.setValidityPeriod(simpleDateFormat.format(byId.getValidityPeriod()));
                                 //指定商品
                             }else if(byId.getDisCouponType().getCode() == DisCouponTypeEnum.ONE_PRODUCT.getCode() && byId.getGoodsPackageId().equals(goodId)  && i != -1){
+
                                 ToolUtil.copyProperties(byId,discountVO);
-                                discountVO.setValidityPeriod(discountVO.getValidityPeriod().substring(0,discountVO.getValidityPeriod().indexOf(" ")));
+                                discountVO.setValidityPeriod(simpleDateFormat.format(byId.getValidityPeriod()));
+
+                                //系统优惠券
+                            }else if(byId.getDisCouponType().getCode() == DisCouponTypeEnum.ALL_SHOP.getCode()&& ToolUtil.isNotEmpty(discountShop) && i != -1){
+
+                                ToolUtil.copyProperties(byId,discountVO);
+                                discountVO.setValidityPeriod(simpleDateFormat.format(byId.getValidityPeriod()));
+
                             }else {
                                 return null;
                             }
+
                         }
                         return discountVO;
                     }).collect(Collectors.toList());
