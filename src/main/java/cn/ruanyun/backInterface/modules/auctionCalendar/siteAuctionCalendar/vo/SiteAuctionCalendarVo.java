@@ -16,6 +16,8 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class SiteAuctionCalendarVo {
 
+    private String id;
+
     @ApiModelProperty("场地id")
     private String siteId;
 

@@ -59,8 +59,10 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
                         return Optional.ofNullable(this.getById(orderAfterCommitDto.getId()))
                                 .map(orderAfterSaleOld -> {
 
+                                    orderAfterSaleOld.setReturnReason(orderReturnReasonService.getReturnReason(orderAfterSaleOld.getReturnReasonId()));
                                     ToolUtil.copyProperties(orderAfterCommitDto, orderAfterSaleOld);
-                                    this.updateById(orderAfterSale);
+                                    this.updateById(orderAfterSaleOld);
+
 
                                     return new ResultUtil<>().setSuccessMsg("修改成功！");
                                 }).orElse(new ResultUtil<>().setErrorMsg(202, "不存在订单！"));
