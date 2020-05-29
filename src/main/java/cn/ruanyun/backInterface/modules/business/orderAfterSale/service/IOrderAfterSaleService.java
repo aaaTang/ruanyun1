@@ -1,7 +1,8 @@
 package cn.ruanyun.backInterface.modules.business.orderAfterSale.service;
 
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.modules.business.orderAfterSale.VO.OrderAfterSaleVO;
+import cn.ruanyun.backInterface.modules.business.orderAfterSale.VO.OrderAfterSaleVo;
+import cn.ruanyun.backInterface.modules.business.orderAfterSale.dto.OrderAfterCommitDto;
 import cn.ruanyun.backInterface.modules.business.orderAfterSale.dto.OrderAfterSaleDto;
 import cn.ruanyun.backInterface.modules.business.orderAfterSale.pojo.OrderAfterSale;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -14,11 +15,10 @@ public interface IOrderAfterSaleService extends IService<OrderAfterSale> {
 
 
     /**
-     * 更新或者修改售後單
-     * @param orderAfterSale 实体
-     * @return Object
+     * 提交售后订单
+     * @param orderAfterCommitDto 实体
      */
-    Result<Object> insertUpdate(OrderAfterSale orderAfterSale);
+    void commitOrderAfterSale(OrderAfterCommitDto orderAfterCommitDto);
 
 
     /**
@@ -40,5 +40,12 @@ public interface IOrderAfterSaleService extends IService<OrderAfterSale> {
      * @param orderId 订单id
      * @return OrderAfterSaleVO
      */
-    OrderAfterSaleVO getByOrderId(String orderId);
+    OrderAfterSaleVo getByOrderId(String orderId);
+
+
+    /**
+     * 撤销售后订单
+     * @param orderId 订单id
+     */
+    Result<Object> revocationAfterOrder(String orderId);
 }

@@ -246,6 +246,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 //清除购物车
                 Optional.ofNullable(shoppingCartService.getOne(Wrappers.<ShoppingCart>lambdaQuery()
                         .eq(ShoppingCart::getGoodId, appOrderGoodInfoDto.getGoodId())
+                        .eq(ShoppingCart::getBuyType, appOrderGoodInfoDto.getBuyType())
+                        .eq(ShoppingCart::getAttrSymbolPath, appOrderGoodInfoDto.getAttrSymbolPath())
+                        .eq(ShoppingCart::getShopCartType, appOrderGoodInfoDto.getShopCartType())
                         .eq(ShoppingCart::getCreateBy, currentUserId)))
                         .ifPresent(shoppingCart -> shoppingCartService.removeById(shoppingCart.getId()));
             });
@@ -346,6 +349,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                                             //生成余额明细
                                             balance.setTitle("购买商品")
                                                     .setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.SUB)
+                                                    .setPrice(order.getTotalPrice())
                                                     .setOrderId(order.getId())
                                                     .setCreateBy(order.getCreateBy());
                                             balanceService.save(balance);

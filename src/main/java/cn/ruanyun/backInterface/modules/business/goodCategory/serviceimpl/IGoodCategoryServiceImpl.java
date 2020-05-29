@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.goodCategory.serviceimpl;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.utils.RedisUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
@@ -8,6 +9,8 @@ import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IRoleService;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
 import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
 import cn.ruanyun.backInterface.modules.business.goodCategory.VO.*;
 import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
@@ -40,6 +43,15 @@ public class IGoodCategoryServiceImpl extends ServiceImpl<GoodCategoryMapper, Go
 
     @Resource
     private UserMapper userMapper;
+
+    @Autowired
+    private IUserRoleService userRoleService;
+
+    @Autowired
+    private IRoleService roleService;
+
+    @Autowired
+    private IGoodCategoryService iGoodCategoryService;
 
     /**
      * 插入分类
@@ -248,9 +260,7 @@ public class IGoodCategoryServiceImpl extends ServiceImpl<GoodCategoryMapper, Go
                     .eq(GoodCategory::getParentId,classId)
                     .eq(GoodCategory::getDelFlag,0));
             //二级分类放入集合
-            for (GoodCategory category : list) {
-                categoryList.add(category);
-            }
+            categoryList.addAll(list);
 
             List<User> users = new ArrayList<>();
 
@@ -263,10 +273,7 @@ public class IGoodCategoryServiceImpl extends ServiceImpl<GoodCategoryMapper, Go
                         .eq(User::getDelFlag,CommonConstant.STATUS_NORMAL)
                         .eq(User::getStatus,CommonConstant.STATUS_NORMAL)
                 );
-
-                for (User user : userList) {
-                    users.add(user);
-                }
+                users.addAll(userList);
 
             }
 
@@ -281,7 +288,8 @@ public class IGoodCategoryServiceImpl extends ServiceImpl<GoodCategoryMapper, Go
                         .setGrade(Double.parseDouble(gradeService.getShopScore(userAll.getId())))
                         .setCommentNum(Optional.ofNullable(commentService.getCommentVOByGoodId(userAll.getId()))
                                 .map(List::size)
-                                .orElse(0));
+                                .orElse(0))
+                        .setStoreType(judgeStoreType(userAll));
 
                 categoryShopVOList.add(categoryShopVO);
             }
@@ -291,6 +299,26 @@ public class IGoodCategoryServiceImpl extends ServiceImpl<GoodCategoryMapper, Go
 
 
        return null;
+    }
+
+
+    /**
+     * 判断类型
+     * @param user user
+     * @return Integer
+     */
+    public Integer judgeStoreType(User user) {
+
+        if (ObjectUtil.equal(iGoodCategoryService.getGoodCategoryName(user.getClassId()), "婚宴酒店")) {
+
+            return 1;
+        }else if (ObjectUtil.equal(iGoodCategoryService.getGoodCategoryName(user.getClassId()), "四大金刚")) {
+
+            return 2;
+        }else {
+
+            return 3;
+        }
     }
 
     @Override

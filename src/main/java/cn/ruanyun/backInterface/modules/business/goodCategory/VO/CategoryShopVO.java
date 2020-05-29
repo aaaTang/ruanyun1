@@ -36,4 +36,9 @@ public class CategoryShopVO {
      * 评分
      */
     private Double grade;
+
+    /**
+     * 商家类型 （1，酒店 2.主持人 3.默认）
+     */
+    private Integer storeType;
 }

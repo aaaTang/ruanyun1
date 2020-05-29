@@ -1,30 +1,26 @@
 package cn.ruanyun.backInterface.modules.business.orderAfterSale.serviceimpl;
 
-import cn.ruanyun.backInterface.common.enums.AfterSaleStatusEnum;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
 import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
-import cn.ruanyun.backInterface.modules.business.orderAfterSale.VO.OrderAfterSaleVO;
+import cn.ruanyun.backInterface.modules.business.orderAfterSale.VO.OrderAfterSaleVo;
+import cn.ruanyun.backInterface.modules.business.orderAfterSale.dto.OrderAfterCommitDto;
 import cn.ruanyun.backInterface.modules.business.orderAfterSale.dto.OrderAfterSaleDto;
 import cn.ruanyun.backInterface.modules.business.orderAfterSale.mapper.OrderAfterSaleMapper;
 import cn.ruanyun.backInterface.modules.business.orderAfterSale.pojo.OrderAfterSale;
 import cn.ruanyun.backInterface.modules.business.orderAfterSale.service.IOrderAfterSaleService;
 import cn.ruanyun.backInterface.modules.business.orderDetail.service.IOrderDetailService;
 import cn.ruanyun.backInterface.modules.business.orderReturnReason.service.IOrderReturnReasonService;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
-import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -47,31 +43,33 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
     private IOrderReturnReasonService orderReturnReasonService;
     @Autowired
     private IOrderDetailService orderDetailService;
-
     @Autowired
     private IBalanceService balanceService;
     @Override
-    public Result<Object> insertUpdate(OrderAfterSale orderAfterSale) {
+    public void commitOrderAfterSale(OrderAfterCommitDto orderAfterCommitDto) {
+
+        OrderAfterSale orderAfterSale = new OrderAfterSale();
 
         //设置退款订单信息
-        Optional.ofNullable(orderService.getById(orderAfterSale.getOrderId()))
+        Optional.ofNullable(orderService.getById(orderAfterCommitDto.getOrderId()))
                 .ifPresent(order -> {
 
-                    orderAfterSale.setRefundMoney(order.getTotalPrice());
-                    orderAfterSale.setOrderStatus(order.getOrderStatus());
+                    orderAfterSale.setOrderStatus(order.getOrderStatus())
+                            .setRefundMoney(order.getTotalPrice())
+                            .setOrderId(order.getId())
+                            .setReturnReasonId(orderAfterCommitDto.getReturnReasonId())
+                            .setReturnReason(orderReturnReasonService.getReturnReason(orderAfterCommitDto.getReturnReasonId()))
+                            .setExpand(orderAfterCommitDto.getExpand());
+
+                    orderAfterSale.setCreateBy(securityUtil.getCurrUser().getId());
+
+                    if (this.save(orderAfterSale)) {
+
+                        //更改订单状态
+                        order.setOrderStatus(OrderStatusEnum.SALE_AFTER);
+                        orderService.updateById(order);
+                    }
                 });
-
-        orderAfterSale.setCreateBy(securityUtil.getCurrUser().getId());
-
-        if (this.save(orderAfterSale)) {
-
-            //更改订单状态
-            Order order = new Order();
-            order.setOrderStatus(OrderStatusEnum.SALE_AFTER);
-            orderService.updateById(order);
-        }
-
-        return new ResultUtil<>().setSuccessMsg("提交售后信息成功");
     }
 
     @Override
@@ -117,18 +115,40 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
      * @return OrderAfterSaleVO
      */
     @Override
-    public OrderAfterSaleVO getByOrderId(String orderId) {
+    public OrderAfterSaleVo getByOrderId(String orderId) {
 
         return Optional.ofNullable(this.getOne(Wrappers.<OrderAfterSale>lambdaQuery()
                 .eq(OrderAfterSale::getOrderId,orderId)
         )).map(orderAfterSale -> {
 
-            OrderAfterSaleVO orderAfterSaleVO = new OrderAfterSaleVO();
-            orderAfterSaleVO.setReturnReason(orderReturnReasonService.getReturnReason(orderAfterSale.getReturnReasonId()));
+            OrderAfterSaleVo orderAfterSaleVO = new OrderAfterSaleVo();
             ToolUtil.copyProperties(orderAfterSale,orderAfterSaleVO);
             orderAfterSaleVO.setOrderDetails(orderDetailService.getOrderDetailByOrderId(orderId));
             return orderAfterSaleVO;
+
         }).orElse(null);
+    }
+
+    @Override
+    public Result<Object> revocationAfterOrder(String orderId) {
+
+        return Optional.ofNullable(this.getOne(Wrappers.<OrderAfterSale>lambdaQuery()
+        .eq(OrderAfterSale::getOrderId, orderId)))
+        .map(orderAfterSale -> {
+
+            // 处理订单信息
+            Optional.ofNullable(orderService.getById(orderId)).ifPresent(order -> {
+
+                order.setOrderStatus(orderAfterSale.getOrderStatus());
+                orderService.updateById(order);
+            });
+
+            // 移除售后订单
+            this.removeById(orderAfterSale.getId());
+
+            return new ResultUtil<>().setSuccessMsg("撤销成功！");
+
+        }).orElse(new ResultUtil<>().setErrorMsg(205, "订单不存在！"));
     }
 
 

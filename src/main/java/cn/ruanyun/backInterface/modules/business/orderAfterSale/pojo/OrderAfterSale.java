@@ -7,6 +7,7 @@ import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
 import com.baomidou.mybatisplus.annotation.TableName;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -27,49 +28,32 @@ public class OrderAfterSale extends RuanyunBaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 订单id
-     */
+
+    @ApiModelProperty("订单id")
     private String orderId;
 
-    /**
-     * 订单状态
-     */
+    @ApiModelProperty("订单状态")
     private OrderStatusEnum orderStatus;
 
-    /**
-     * 退款类别
-     */
+    @ApiModelProperty("退款类别")
     private AfterSaleTypeEnum type;
 
-    /**
-     * 退货原因id
-     */
+    @ApiModelProperty("退货原因id")
     private String returnReasonId;
 
-    /**
-     * 退货原因
-     */
+    @ApiModelProperty("退货原因")
     private String returnReason;
 
-    /**
-     * 退款金额
-     */
+    @ApiModelProperty("退款金额")
     private BigDecimal refundMoney;
 
-    /**
-     * 实际退款金额
-     */
+    @ApiModelProperty("实际退款金额")
     private BigDecimal actualRefundMoney = new BigDecimal(0);
 
-    /**
-     * 快递单号
-     */
+    @ApiModelProperty("快递单号")
     private String expressCode;
 
-    /**
-     * 退款说明
-     */
+    @ApiModelProperty("退款说明")
     private String expand;
 
 }
