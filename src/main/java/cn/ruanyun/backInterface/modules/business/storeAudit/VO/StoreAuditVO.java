@@ -73,6 +73,11 @@ public class StoreAuditVO {
 
 
     /**
+     * 店铺轮播图片
+     */
+    private String pics;
+
+    /**
      * 审核状态
      */
     private CheckEnum checkEnum;
@@ -90,6 +95,6 @@ public class StoreAuditVO {
     /**
      * 微信账号
      */
-    private String WechatAccount;
+    private String wechatAccount;
 
 }

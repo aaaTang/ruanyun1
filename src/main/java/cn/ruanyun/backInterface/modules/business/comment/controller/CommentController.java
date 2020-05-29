@@ -2,6 +2,7 @@ package cn.ruanyun.backInterface.modules.business.comment.controller;
 
 import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.comment.DTO.CommentDTO;
@@ -104,13 +105,20 @@ public class CommentController {
      */
     @PostMapping(value = "/PcGetGoodsComment")
     public Result<Object> PcGetGoodsComment(Comment comment){
-        try {
+       List list = iCommentService.PcGetGoodsComment(comment);
 
-            return new ResultUtil<>().setData(iCommentService.PcGetGoodsComment(comment),"获取成功!");
-        }catch (Exception e) {
-
-            return new ResultUtil<>().setErrorMsg(201, e.getMessage());
+        if(ToolUtil.isNotEmpty(list)){
+            return new ResultUtil<>().setData(list,"获取数据成功！");
+        } else {
+            return new ResultUtil<>().setErrorMsg(201,"暂无数据！");
         }
+
     }
+
+
+
+
+
+
 
 }

@@ -8,7 +8,7 @@ import lombok.experimental.Accessors;
 public class StaffDto {
 
 
-    private String id;
+    private String ids;
 
     /**
      * 手机验证码

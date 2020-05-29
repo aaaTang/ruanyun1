@@ -61,4 +61,5 @@ public abstract class RuanyunBaseEntity implements Serializable{
 
     @ApiModelProperty(value = "删除标志 默认0", hidden = true)
     private Integer delFlag = CommonConstant.STATUS_NORMAL;
+
 }

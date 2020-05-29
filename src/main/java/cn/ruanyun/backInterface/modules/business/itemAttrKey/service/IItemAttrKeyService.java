@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.itemAttrKey.service;
 
+import cn.ruanyun.backInterface.common.vo.Result;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.pojo.ItemAttrKey;
 
@@ -27,5 +28,5 @@ public interface IItemAttrKeyService extends IService<ItemAttrKey> {
      void removeItemAttrKey(String ids);
 
 
-     List getItemAttrKeyList(String classId);
+    Result<Object> getItemAttrKeyList(String classId);
 }

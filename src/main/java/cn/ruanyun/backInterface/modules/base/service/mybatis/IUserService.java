@@ -9,11 +9,9 @@ import cn.ruanyun.backInterface.modules.base.dto.WechatLoginDto;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.vo.*;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.google.api.client.util.ArrayMap;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 
 /**

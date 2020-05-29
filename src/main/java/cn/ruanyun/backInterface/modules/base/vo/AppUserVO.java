@@ -113,4 +113,9 @@ public class AppUserVO {
      * 商家名称
      */
     private String shopName;
+
+    /**
+     * 是否有支付密码  0否 ，1有
+     */
+    private Integer pay;
 }

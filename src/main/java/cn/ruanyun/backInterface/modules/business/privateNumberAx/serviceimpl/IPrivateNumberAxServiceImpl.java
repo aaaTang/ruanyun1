@@ -147,14 +147,17 @@ public class IPrivateNumberAxServiceImpl extends ServiceImpl<PrivateNumberAxMapp
             //客户
             Optional.ofNullable(userService.get(privateNumberAx.getCreateBy()))
                     .ifPresent(user -> privateNumberAxVo.setCallerName(user.getNickName())
-                    .setCallerName(user.getMobile()));
+                            .setCallerPhone(user.getMobile()));
 
             //商家
             Optional.ofNullable(userService.get(privateNumberAx.getStoreId()))
-                    .ifPresent(user -> privateNumberAxVo.setCalleeName(user.getNickName())
-                    .setCalleeName(user.getMobile()));
+                    .ifPresent(user -> privateNumberAxVo.setCalleeName(user.getShopName())
+                    .setCalleePhone(user.getMobile()));
 
             ToolUtil.copyProperties(privateNumberAx, privateNumberAxVo);
+
+            //虚拟号段
+            privateNumberAxVo.setPrivateNumber(privateNumberAx.getPrivateNumberId());
 
             return Stream.of(privateNumberAxVo);
         }).collect(Collectors.toList())).orElse(null))

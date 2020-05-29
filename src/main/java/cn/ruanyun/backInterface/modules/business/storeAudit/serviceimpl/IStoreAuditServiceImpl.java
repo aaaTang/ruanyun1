@@ -204,6 +204,8 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
                 storeAuditVO.setClassificationName(Optional.ofNullable(goodCategoryService.getGoodCategoryName(s.getClassificationId())).orElse("未知"));
                 //查询区域
                 storeAuditVO.setAreaName(Optional.ofNullable(iAreaService.getAddress(s.getAreaId())).orElse("未知"));
+                //商家店铺轮播图
+                storeAuditVO.setPics(Optional.ofNullable(userMapper.selectById(s.getCreateBy())).map(User::getPic).orElse("暂无"));
                 return storeAuditVO;
 
             }).orElse(null)).collect(Collectors.toList()).stream().filter(Objects::nonNull).collect(Collectors.toList());

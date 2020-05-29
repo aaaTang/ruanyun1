@@ -127,7 +127,7 @@ public class IWithdrawDepositServiceImpl extends ServiceImpl<WithdrawDepositMapp
             List<WithdrawDeposit> withdrawDepositList = this.list(new QueryWrapper<WithdrawDeposit>().lambda()
                 .eq((ToolUtil.isNotEmpty(withdrawDeposit.getPayTypeEnum())),WithdrawDeposit::getPayTypeEnum,withdrawDeposit.getPayTypeEnum())
                 .eq((ToolUtil.isNotEmpty(withdrawDeposit.getType())),WithdrawDeposit::getType,withdrawDeposit.getType())
-                .like((ToolUtil.isNotEmpty(withdrawDeposit.getMoney())),WithdrawDeposit::getMoney,withdrawDeposit.getMoney())
+                .like((ToolUtil.isNotEmpty(withdrawDeposit.getMobile())),WithdrawDeposit::getMobile,withdrawDeposit.getMobile())
                 .like((ToolUtil.isNotEmpty(withdrawDeposit.getWithdrawUser())),WithdrawDeposit::getWithdrawUser,withdrawDeposit.getWithdrawUser())
             );
 

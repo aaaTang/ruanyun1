@@ -30,8 +30,6 @@ public interface IDiscountCouponService extends IService<DiscountCoupon> {
      * @param ids
      */
     void removeDiscountCoupon(String ids);
-
-
     /**
      * 获取优惠券详情
      * @param id
@@ -49,13 +47,14 @@ public interface IDiscountCouponService extends IService<DiscountCoupon> {
      * 商家获取添加的优惠券
      * @return
      */
-    List<DiscountCoupon> getDiscountCouponListByStoreAuditOid(String storeAuditOid);
+   List<DiscountCoupon> getDiscountCouponListByStoreAuditOid(String storeAuditOid);
 
     /**
      * 按商品获取优惠券
      * @return
      */
-     List<DiscountCouponListVO> getDiscountCouponListByGoodsPackageId(String goodsPackageId);
+    List<DiscountCouponListVO> getDiscountCouponListByGoodsPackageId(String goodsPackageId);
+
 
     List<DiscountVO> getList(String join);
 

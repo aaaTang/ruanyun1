@@ -458,7 +458,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
         for (UserRole userRole : userRoles) {
             //查询区域的商家或者店铺
             User u = userMapper.selectOne(new QueryWrapper<User>().lambda()
-                    .eq(User::getId,userRole.getUserId()).like(ToolUtil.isNotEmpty(name),User::getNickName,name));
+                    .eq(User::getId,userRole.getUserId()).like(ToolUtil.isNotEmpty(name),User::getShopName,name));
             if(ToolUtil.isNotEmpty(u)){
                 ShopAndPackageVO shopAndPackageVO = new ShopAndPackageVO();//商家基础信息
                 ToolUtil.copyProperties(u,shopAndPackageVO);

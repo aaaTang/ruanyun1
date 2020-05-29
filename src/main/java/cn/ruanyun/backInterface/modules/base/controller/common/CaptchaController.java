@@ -42,20 +42,48 @@ public class CaptchaController {
     private IpInfoUtil ipInfoUtil;
 
 
-
     @PostMapping("/sendRegistSmsCode")
     @ApiOperation(value = "发送注册短信验证码")
     public Result<Object> sendRegistSmsCode(String mobile, HttpServletRequest request) {
 
-        return sendSms(mobile, request);
+        return sendSms(mobile, request,"SMS_190120164");
     }
+
+    @PostMapping("/loginSmscode")
+    @ApiOperation(value = "发送登录验证码")
+    public Result<Object> loginSmscode(String mobile, HttpServletRequest request) {
+
+        return sendSms(mobile, request,"SMS_190120166");
+    }
+
+    @PostMapping("/loginPasswordSmscode")
+    @ApiOperation(value = "发送修改登录验证码")
+    public Result<Object> loginPasswordSmscode(String mobile, HttpServletRequest request) {
+
+        return sendSms(mobile, request,"SMS_190120163");
+    }
+
+    @PostMapping("/sendPaySmscode")
+    @ApiOperation(value = "发送设置支付密码验证码")
+    public Result<Object> sendPaySmscode(String mobile, HttpServletRequest request) {
+
+        return sendSms(mobile, request,"SMS_190270374");
+    }
+
+    @PostMapping("/updatePayCodeSmscode")
+    @ApiOperation(value = "发送修改支付密码验证码")
+    public Result<Object> updatePayCodeSmscode(String mobile, HttpServletRequest request) {
+
+        return sendSms(mobile, request,"SMS_190720209");
+    }
+
 
 
     /**
      *
      * @param mobile 手机号
      */
-    public Result<Object> sendSms(String mobile, HttpServletRequest request){
+    public Result<Object> sendSms(String mobile, HttpServletRequest request,String templateCode){
 
         // IP限流 1分钟限1个请求
         String key = "sendSms:"+ipInfoUtil.getIpAddr(request);
@@ -70,7 +98,8 @@ public class CaptchaController {
         // 发送验证码
         try {
 
-            SendSmsResponse response = smsUtil.sendCode(mobile, code, "SMS_176930019");
+            //   SendSmsResponse response = smsUtil.sendCode(mobile, code, "SMS_176930019");
+            SendSmsResponse response = smsUtil.sendCode(mobile, code, templateCode);
             if(response.getCode() != null && ("OK").equals(response.getMessage())) {
                 // 请求成功 标记限流
                 redisTemplate.opsForValue().set(key, "sended", 1L, TimeUnit.MINUTES);

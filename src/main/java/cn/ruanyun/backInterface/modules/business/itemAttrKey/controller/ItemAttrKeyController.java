@@ -73,13 +73,7 @@ public class ItemAttrKeyController {
     @PostMapping(value = "/getItemAttrKeyList")
     public Result<Object> getItemAttrKeyList(String classId){
 
-        return Optional.ofNullable(iItemAttrKeyService.getItemAttrKeyList(classId))
-                .map(getItemAttrKey-> {
-                    Map<String, Object> result = Maps.newHashMap();
-                    result.put("data",  getItemAttrKey);
-                    return new ResultUtil<>().setData(result, "获取规格列表数据成功！");
-
-                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+        return iItemAttrKeyService.getItemAttrKeyList(classId);
     }
 
 }

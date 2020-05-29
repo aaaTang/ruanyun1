@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -61,12 +62,12 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
        private SecurityUtil securityUtil;
        @Autowired
        private IDiscountMyService discountMyService;
-        @Autowired
-        private IGoodService iGoodService;
-        @Resource
-        private UserMapper userMapper;
-        @Resource
-        private GoodMapper goodMapper;
+       @Autowired
+       private IGoodService iGoodService;
+       @Resource
+       private UserMapper userMapper;
+       @Resource
+       private GoodMapper goodMapper;
        @Override
        public void insertOrderUpdateDiscountCoupon(DiscountCoupon discountCoupon) {
            if (ToolUtil.isEmpty(discountCoupon.getCreateBy())) {
@@ -124,6 +125,19 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
     }
 
 
+
+    //判断优惠券是否被领取
+    public boolean getDetailById(DiscountCoupon discountCoupon){
+        String userId = securityUtil.getCurrUser().getId();
+
+        DiscountMy one = discountMyService.getOne(Wrappers.<DiscountMy>lambdaQuery()
+                .eq(DiscountMy::getCreateBy, userId).eq(DiscountMy::getDiscountCouponId, discountCoupon.getId())
+        );
+
+        return EmptyUtil.isNotEmpty(one);
+    }
+
+
     /**
      * 获取优惠券
      *
@@ -131,15 +145,18 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
      */
     @Override
     public List<DiscountCoupon> getDiscountCouponList(DiscountCoupon discountCoupon) {
+
         CompletableFuture<Optional<List<DiscountCoupon>>> optionalCompletableFuture = CompletableFuture.supplyAsync(() ->
+
                 Optional.ofNullable(this.list(Wrappers.<DiscountCoupon>lambdaQuery()
                         .eq(ToolUtil.isNotEmpty(discountCoupon.getCreateBy()), DiscountCoupon::getCreateBy, discountCoupon.getCreateBy())
-                        .eq(!StringUtils.isEmpty(discountCoupon.getStoreAuditOid()), DiscountCoupon::getStoreAuditOid, discountCoupon.getStoreAuditOid())
+                        //.eq(!StringUtils.isEmpty(discountCoupon.getStoreAuditOid()), DiscountCoupon::getStoreAuditOid, discountCoupon.getStoreAuditOid())
                         .eq(!StringUtils.isEmpty(discountCoupon.getGoodsPackageId()), DiscountCoupon::getGoodsPackageId, discountCoupon.getGoodsPackageId())
                         .eq(!EmptyUtil.isEmpty(discountCoupon.getDisCouponType()), DiscountCoupon::getGoodsPackageId, discountCoupon.getGoodsPackageId())
                         .eq(DiscountCoupon::getDelFlag,CommonConstant.STATUS_NORMAL)
                         .ge(DiscountCoupon::getValidityPeriod,new Date())
                         .orderByAsc(DiscountCoupon::getCreateTime))));
+
         return optionalCompletableFuture.join().orElse(null);
     }
 
@@ -161,11 +178,12 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
 
         List<DiscountCouponListVO> discountVOS = new ArrayList<>();
 
-
         discountCouponList.forEach(discountCoupon1 -> {
             DiscountCouponListVO discountCouponListVO = new DiscountCouponListVO();
             ToolUtil.copyProperties(discountCoupon1,discountCouponListVO);
-            discountCouponListVO.setValidityPeriod(discountCouponListVO.getValidityPeriod().substring(0,discountCouponListVO.getValidityPeriod().indexOf(" ")));
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+            discountCouponListVO.setValidityPeriod(simpleDateFormat.format(discountCoupon1.getValidityPeriod()));
             //登录的用户是否领取
             discountCouponListVO.setIsReceive(this.getDetailById(discountCoupon1));
             discountVOS.add(discountCouponListVO);
@@ -173,18 +191,6 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
         return discountVOS;
     }
 
-
-    //判断优惠券是否被领取
-    public boolean getDetailById(DiscountCoupon discountCoupon){
-        String userId = securityUtil.getCurrUser().getId();
-        DiscountMy one = discountMyService.getOne(
-                Wrappers.<DiscountMy>lambdaQuery()
-                        .eq(DiscountMy::getCreateBy, userId)
-                        .eq(DiscountMy::getDiscountCouponId, discountCoupon.getId())
-        );
-        return EmptyUtil.isNotEmpty(one);
-
-    }
 
 
 
@@ -196,7 +202,7 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
     @Override
     public List<DiscountCoupon> getDiscountCouponListByStoreAuditOid(String storeAuditOid) {
         DiscountCoupon discountCoupon = new DiscountCoupon();
-        discountCoupon.setStoreAuditOid(storeAuditOid);
+        //discountCoupon.setStoreAuditOid(storeAuditOid);
         return this.getDiscountCouponList(discountCoupon);
     }
 
@@ -238,14 +244,12 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
                 discountCoupons = this.list(new QueryWrapper<DiscountCoupon>().lambda()
                         .eq((ToolUtil.isNotEmpty(discountCouponDTO.getId())),DiscountCoupon::getId,discountCouponDTO.getId())
                         .eq((ToolUtil.isNotEmpty(discountCouponDTO.getDisCouponType())),DiscountCoupon::getDisCouponType,discountCouponDTO.getDisCouponType())
-                        .eq((ToolUtil.isNotEmpty(discountCouponDTO.getPastDue())),DiscountCoupon::getPastDue,discountCouponDTO.getPastDue())
                         .orderByDesc(DiscountCoupon::getCreateTime)
                 );
 
             }else if(roleName.equals(CommonConstant.STORE)||roleName.equals(CommonConstant.PER_STORE)){//商家或者个人商家
 
                 discountCoupons = this.list(new QueryWrapper<DiscountCoupon>().lambda().eq((ToolUtil.isNotEmpty(discountCouponDTO.getId())),DiscountCoupon::getId,discountCouponDTO.getId())
-                        .eq((ToolUtil.isNotEmpty(discountCouponDTO.getPastDue())),DiscountCoupon::getPastDue,discountCouponDTO.getPastDue())
                         .eq((ToolUtil.isNotEmpty(discountCouponDTO.getDisCouponType())),DiscountCoupon::getDisCouponType,discountCouponDTO.getDisCouponType())
                         .eq(DiscountCoupon::getCreateBy,securityUtil.getCurrUser().getId())
                         .orderByDesc(DiscountCoupon::getCreateTime)
@@ -261,7 +265,7 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
 
                     ToolUtil.copyProperties(discountCoupon,pc);
                     //店铺名称
-                    pc.setShopName(Optional.ofNullable(userMapper.selectById(discountCoupon.getStoreAuditOid())).map(User::getShopName).orElse("无！"))
+                    pc//.setShopName(Optional.ofNullable(userMapper.selectById(discountCoupon.getStoreAuditOid())).map(User::getShopName).orElse("无！"))
                             //商品名称
                             .setGoodsName(Optional.ofNullable(goodMapper.selectById(discountCoupon.getGoodsPackageId())).map(Good::getGoodName).orElse("无！"))
                             //创建人名称

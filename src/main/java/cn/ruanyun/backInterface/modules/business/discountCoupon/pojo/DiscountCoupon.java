@@ -3,6 +3,7 @@ package cn.ruanyun.backInterface.modules.business.discountCoupon.pojo;
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
 import cn.ruanyun.backInterface.common.enums.DisCouponTypeEnum;
+import cn.ruanyun.backInterface.common.enums.UsableRangeTypeEnum;
 import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -30,7 +31,6 @@ public class DiscountCoupon extends RuanyunBaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-
     /**
      * 名称
      */
@@ -42,9 +42,14 @@ public class DiscountCoupon extends RuanyunBaseEntity {
     private DisCouponTypeEnum disCouponType;
 
     /**
-     * 商家id
+     * 使用范围  CLASSIFY分类 ,  LABEL标签属性
      */
-    private String storeAuditOid;
+    private UsableRangeTypeEnum usableRangeTypeEnum;
+
+    /**
+     *  使用范围id
+     */
+    private String usableRangeId;
     /**
      * 商品id
      */
@@ -65,12 +70,6 @@ public class DiscountCoupon extends RuanyunBaseEntity {
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @ApiModelProperty(value = "创建时间")
-    @TableField(fill = FieldFill.INSERT)
     private Date validityPeriod;
 
-    /**
-     * 是否过期
-     */
-    private BooleanTypeEnum pastDue = BooleanTypeEnum.NO;
 }

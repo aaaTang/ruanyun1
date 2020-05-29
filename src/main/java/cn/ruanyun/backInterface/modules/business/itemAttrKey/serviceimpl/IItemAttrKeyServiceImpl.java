@@ -1,5 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.itemAttrKey.serviceimpl;
 
+import cn.ruanyun.backInterface.common.utils.*;
+import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.VO.ItemAttrKeyVO;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.VO.WebItemAttrKeyVO;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.mapper.ItemAttrKeyMapper;
@@ -22,9 +24,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import cn.ruanyun.backInterface.common.utils.ToolUtil;
-import cn.ruanyun.backInterface.common.utils.SecurityUtil;
-import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 
 import javax.annotation.Resource;
 
@@ -68,7 +67,7 @@ public class IItemAttrKeyServiceImpl extends ServiceImpl<ItemAttrKeyMapper, Item
       }
 
     @Override
-    public List getItemAttrKeyList(String classId) {
+    public Result<Object> getItemAttrKeyList(String classId) {
 
            //查询规格列表
       List<ItemAttrKey> itemAttrKey = this.list(new QueryWrapper<ItemAttrKey>().lambda()
@@ -97,7 +96,13 @@ public class IItemAttrKeyServiceImpl extends ServiceImpl<ItemAttrKeyMapper, Item
             itemAttrKeyVOList.add(keyVO);
         }
 
-        return itemAttrKeyVOList;
+        if(ToolUtil.isNotEmpty(itemAttrKeyVOList)){
+            return new ResultUtil<>().setData(itemAttrKeyVOList, "获取规格列表数据成功！");
+        }else {
+            return new ResultUtil<>().setErrorMsg(201, "暂无数据！");
+        }
+
+
     }
 
 

@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.bookingOrder.serviceimpl;
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
@@ -60,16 +61,29 @@ public class IBookingOrderServiceImpl extends ServiceImpl<BookingOrderMapper, Bo
         private GradeMapper gradeMapper;
 
        @Override
-       public void insertOrderUpdatebookingOrder(BookingOrder bookingOrder) {
+       public Result<Object> insertOrderUpdatebookingOrder(BookingOrder bookingOrder) {
 
-              if(ToolUtil.isEmpty(bookingOrder.getCreateBy())){
-                  bookingOrder.setCreateBy(securityUtil.getCurrUser().getId());
-              }else {
-                  bookingOrder.setUpdateBy(securityUtil.getCurrUser().getId());
-              }
-              Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(bookingOrder)))
-                      .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
-                      .toFuture().join();
+           BookingOrder booking = this.getOne(new QueryWrapper<BookingOrder>().lambda()
+                   .eq(BookingOrder::getStoreId,bookingOrder.getStoreId())
+                   .eq(BookingOrder::getCreateBy,securityUtil.getCurrUser().getId())
+                   .eq(BookingOrder::getConsent,CommonConstant.STATUS_NORMAL)
+           );
+
+           if(ToolUtil.isNotEmpty(booking)){
+
+               booking.setUpdateBy(securityUtil.getCurrUser().getId());
+               booking.setBookingTime(bookingOrder.getBookingTime());
+               this.updateById(booking);
+               return new ResultUtil<>().setData(200, "修改成功！");
+
+           }else {
+
+               bookingOrder.setCreateBy(securityUtil.getCurrUser().getId());
+               this.save(bookingOrder);
+               return new ResultUtil<>().setData(200, "新增成功！");
+
+           }
+
 
        }
 

@@ -283,6 +283,12 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                 Optional.ofNullable(this.getById(Optional.ofNullable(staffManagementMapper.selectOne(new QueryWrapper<StaffManagement>().lambda()
                         .eq(StaffManagement::getStaffId,user.getId()))).map(StaffManagement::getCreateBy).orElse(null))).map(User::getShopName).orElse(null)
                 );
+        //是否有支付密码
+        if(ToolUtil.isNotEmpty(user.getPayPassword())){
+            appUserVO.setPay(1); }else {
+            appUserVO.setPay(0);
+        }
+
         return appUserVO;
 
     }

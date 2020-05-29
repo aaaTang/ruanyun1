@@ -19,7 +19,7 @@ public interface IBookingOrderService extends IService<BookingOrder> {
         * 插入或者更新bookingOrder
         * @param bookingOrder
        */
-      void insertOrderUpdatebookingOrder(BookingOrder bookingOrder);
+      Result<Object> insertOrderUpdatebookingOrder(BookingOrder bookingOrder);
 
 
 

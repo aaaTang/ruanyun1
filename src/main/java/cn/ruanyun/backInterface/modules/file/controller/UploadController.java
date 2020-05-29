@@ -54,6 +54,7 @@ public class UploadController {
     @Autowired
     private FileService fileService;
 
+
     @RequestMapping(value = "/file", method = RequestMethod.POST)
     @ApiOperation(value = "文件上传")
     public Result<Object> upload(@RequestParam(required = false) MultipartFile file,
@@ -95,6 +96,7 @@ public class UploadController {
         }
         return new ResultUtil<>().setData(result);
     }
+
 
     public Integer getType(String type){
         switch (type){

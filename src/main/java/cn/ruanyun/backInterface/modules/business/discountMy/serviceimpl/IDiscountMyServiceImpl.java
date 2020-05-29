@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import javax.xml.transform.sax.SAXResult;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -72,6 +73,11 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
                 DiscountVO byId = new DiscountVO();
                 ToolUtil.copyProperties(discountCouponMapper.selectById(discountMy.getDiscountCouponId()) ,byId);
                 byId.setStatus(discountMy.getStatus());
+
+
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                byId.setValidityPeriod(simpleDateFormat.format(discountMy.getDiscountCouponTime()));
+
                 return Stream.of(byId);
             }).collect(Collectors.toList());
             return discountVOS;

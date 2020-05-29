@@ -45,7 +45,7 @@ public class DiscountCouponListVO {
     private String validityPeriod;
 
     /**
-     * 是否领取
+     * 是否使用
      */
     private Boolean isReceive;
 }

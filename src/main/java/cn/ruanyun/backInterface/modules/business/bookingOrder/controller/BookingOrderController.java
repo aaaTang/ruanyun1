@@ -37,14 +37,9 @@ public class BookingOrderController {
     @PostMapping(value = "/insertOrderUpdatebookingOrder")
     public Result<Object> insertOrderUpdatebookingOrder(BookingOrder bookingOrder){
 
-        try {
 
-            ibookingOrderService.insertOrderUpdatebookingOrder(bookingOrder);
-            return new ResultUtil<>().setSuccessMsg("插入或者更新成功!");
-        }catch (Exception e) {
+            return  ibookingOrderService.insertOrderUpdatebookingOrder(bookingOrder);
 
-            return new ResultUtil<>().setErrorMsg(201, e.getMessage());
-        }
     }
 
 

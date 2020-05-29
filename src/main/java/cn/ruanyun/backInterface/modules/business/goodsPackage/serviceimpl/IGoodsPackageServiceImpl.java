@@ -105,7 +105,7 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
                .setProductsIntroduction(iGoodsIntroduceService.goodsIntroduceList(null,goodsPackage.getId(),1))//商品介绍
                .setPurchaseNotes(iGoodsIntroduceService.goodsIntroduceList(null,goodsPackage.getId(),2))//购买须知
                .setStoreAuditVO(storeAuditService.getStoreAudisByid(goodsPackage.getCreateBy()))//商铺信息
-                      .setWhetherBookingOrder(iBookingOrderService.getWhetherBookingOrder(goodsPackage.getCreateBy(), securityUtil.getCurrUser().getId()))
+               .setWhetherBookingOrder(iBookingOrderService.getWhetherBookingOrder(goodsPackage.getCreateBy(), securityUtil.getCurrUser().getId()))
                //购买状态 1购买 2租赁
                .setBuyState(Optional.ofNullable(goodCategoryMapper.selectById(goodsPackage.getGoodCategoryId())).map(GoodCategory::getBuyState).orElse(null))
                //租赁状态 1尾款线上支付  2尾款线下支付
@@ -162,7 +162,7 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
             //获取店铺通用优惠券
             List<DiscountCoupon> discountCoupon = iDiscountCouponService.list(new QueryWrapper<DiscountCoupon>().lambda()
                     .eq(DiscountCoupon::getDisCouponType, DisCouponTypeEnum.ALL_USE)
-                    .eq(DiscountCoupon::getStoreAuditOid, ids).eq(DiscountCoupon::getPastDue, BooleanTypeEnum.NO));
+                    .eq(DiscountCoupon::getCreateBy, ids));
 
             List<DiscountCouponListVO> dvo = new ArrayList<>();
             for (DiscountCoupon dc : discountCoupon) {

@@ -154,7 +154,7 @@ public class IStaffManagementServiceImpl extends ServiceImpl<StaffManagementMapp
     @Override
     public void updateStaff(StaffDto staffDto) {
 
-       Optional.ofNullable(this.getById(staffDto.getId())).flatMap(staffManagement ->
+       Optional.ofNullable(this.getById(staffDto.getIds())).flatMap(staffManagement ->
                Optional.ofNullable(userService.getById(staffManagement.getStaffId())))
                .ifPresent(user -> {
 

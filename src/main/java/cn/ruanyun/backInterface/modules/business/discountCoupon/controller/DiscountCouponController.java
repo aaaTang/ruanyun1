@@ -111,6 +111,16 @@ public class DiscountCouponController {
 
 
 
+   /* *//**
+     * 获取系统的优惠券
+     *//*
+    @PostMapping("/getPlatformDiscountCoupon")
+    public Result<Object> getPlatformDiscountCoupon() {
+        return Optional.ofNullable(iDiscountCouponService.getPlatformDiscountCoupon())
+                .map(discountCouponList -> new ResultUtil<>().setData(platformDiscountCoupon,"获取列表成功！"))
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }*/
+
 
 
     /************************************************后端管理接口********************************************************/
