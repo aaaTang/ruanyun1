@@ -1,8 +1,11 @@
 package cn.ruanyun.backInterface.modules.auctionCalendar.site.service;
 
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.auctionCalendar.site.vo.BackSiteListVo;
 import cn.ruanyun.backInterface.modules.auctionCalendar.site.vo.SiteDetailVo;
 import cn.ruanyun.backInterface.modules.auctionCalendar.site.vo.SiteListVo;
+import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.auctionCalendar.site.pojo.Site;
 
@@ -43,5 +46,12 @@ public interface ISiteService extends IService<Site> {
      * @return SiteDetailVo
      */
     Result<SiteDetailVo> getSiteDetail(String id);
+
+    /**
+     * 后台查询场所列表
+     * @param pageVo 分页
+     * @return BackSiteListVo
+     */
+    Result<DataVo<BackSiteListVo>> getBackSiteListVo(PageVo pageVo);
 
 }

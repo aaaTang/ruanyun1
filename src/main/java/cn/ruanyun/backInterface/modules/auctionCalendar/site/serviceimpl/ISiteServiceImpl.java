@@ -1,14 +1,18 @@
 package cn.ruanyun.backInterface.modules.auctionCalendar.site.serviceimpl;
 
-import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.utils.*;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.auctionCalendar.site.mapper.SiteMapper;
 import cn.ruanyun.backInterface.modules.auctionCalendar.site.pojo.Site;
 import cn.ruanyun.backInterface.modules.auctionCalendar.site.service.ISiteService;
+import cn.ruanyun.backInterface.modules.auctionCalendar.site.vo.BackSiteListVo;
 import cn.ruanyun.backInterface.modules.auctionCalendar.site.vo.SiteDetailVo;
 import cn.ruanyun.backInterface.modules.auctionCalendar.site.vo.SiteListVo;
+import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrValService;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +27,6 @@ import java.util.stream.Stream;
 
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import cn.ruanyun.backInterface.common.utils.ToolUtil;
-import cn.ruanyun.backInterface.common.utils.SecurityUtil;
-import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 
 
 /**
@@ -102,6 +103,38 @@ public class ISiteServiceImpl extends ServiceImpl<SiteMapper, Site> implements I
 
             return new ResultUtil<SiteDetailVo>().setData(siteDetailVo, "获取场地信息成功！");
         }).orElse(new ResultUtil<SiteDetailVo>().setErrorMsg(201, "暂无场地信息"));
+    }
+
+    @Override
+    public Result<DataVo<BackSiteListVo>> getBackSiteListVo(PageVo pageVo) {
+
+        Page<Site> sitePage = this.page(PageUtil.initMpPage(pageVo), Wrappers.<Site>lambdaQuery()
+                .eq(Site::getCreateBy, securityUtil.getCurrUser().getId())
+        .orderByDesc(Site::getCreateTime));
+
+        if (ToolUtil.isEmpty(sitePage.getRecords())) {
+
+            return new ResultUtil<DataVo<BackSiteListVo>>().setErrorMsg(201, "暂无数据！");
+        }
+
+        DataVo<BackSiteListVo> result = new DataVo<>();
+
+        result.setDataResult(sitePage.getRecords().parallelStream().flatMap(site -> {
+
+            BackSiteListVo backSiteListVo = new BackSiteListVo();
+
+            ToolUtil.copyProperties(site, backSiteListVo);
+            backSiteListVo.setSiteItemValue(iItemAttrValService.getItemAttrValVo(site.getSiteItemValue()));
+            backSiteListVo.setSitePics(Optional.ofNullable(site.getSitePics())
+            .map(ToolUtil::splitterStr)
+            .orElse(null));
+
+            return Stream.of(backSiteListVo);
+        }).collect(Collectors.toList())).setTotalSize(sitePage.getTotal())
+                .setCurrentPageNum(sitePage.getCurrent())
+                .setTotalPage(sitePage.getPages());
+
+        return new ResultUtil<DataVo<BackSiteListVo>>().setData(result, "获取场所数据成功！");
     }
 
 }

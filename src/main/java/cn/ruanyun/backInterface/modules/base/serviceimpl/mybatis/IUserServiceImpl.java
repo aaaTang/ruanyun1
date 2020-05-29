@@ -740,8 +740,8 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
     /**
      * 判断潜在客户不在精准客户中
-     * @param storeCustomVo
-     * @return
+     * @param storeCustomVo storeCustomVo
+     * @return storeCustomVo
      */
     public Boolean containCustom(StoreCustomVo storeCustomVo, String currentUserId) {
 

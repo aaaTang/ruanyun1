@@ -1,11 +1,14 @@
 package cn.ruanyun.backInterface.modules.auctionCalendar.site.controller;
 
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.auctionCalendar.site.pojo.Site;
 import cn.ruanyun.backInterface.modules.auctionCalendar.site.service.ISiteService;
+import cn.ruanyun.backInterface.modules.auctionCalendar.site.vo.BackSiteListVo;
 import cn.ruanyun.backInterface.modules.auctionCalendar.site.vo.SiteDetailVo;
 import cn.ruanyun.backInterface.modules.auctionCalendar.site.vo.SiteListVo;
+import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -77,5 +80,12 @@ public class SiteController {
         return iSiteService.getSiteDetail(id);
     }
 
+
+    @PostMapping("/getBackSiteListVo")
+    @ApiOperation("后台查询场所列表")
+    public Result<DataVo<BackSiteListVo>> getBackSiteListVo(PageVo pageVo) {
+
+        return iSiteService.getBackSiteListVo(pageVo);
+    }
 
 }
