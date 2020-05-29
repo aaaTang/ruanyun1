@@ -21,6 +21,9 @@ public class SiteListVo {
     @ApiModelProperty(value = "场地id")
     private String id;
 
+    @ApiModelProperty("场地名称")
+    private String siteName;
+
     @ApiModelProperty("场地规格参数")
     private List<ItemAttrValVo> siteItemValue;
 
