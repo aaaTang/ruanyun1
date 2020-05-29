@@ -4,9 +4,12 @@ import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.business.studio.dto.StudioDto;
+import cn.ruanyun.backInterface.modules.business.studio.vo.PersonStoreVo;
 import cn.ruanyun.backInterface.modules.business.studio.vo.StudioListVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.studio.pojo.Studio;
+
+import java.util.List;
 
 /**
  * 工作室接口
@@ -43,5 +46,12 @@ public interface IstudioService extends IService<Studio> {
      * @return StudioListVo
      */
     Result<DataVo<StudioListVo>> getStudioList(PageVo pageVo, StudioDto studioDto);
+
+
+    /**
+     * 获取个人商家列表
+     * @return PersonStoreVo
+     */
+    Result<List<PersonStoreVo>> getPersonStoreByStudio();
 
 }

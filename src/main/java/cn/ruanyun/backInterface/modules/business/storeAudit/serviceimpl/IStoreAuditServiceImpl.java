@@ -130,10 +130,13 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
 
     @Override
     public Result<Object> checkStoreAudit(StoreAuditDTO storeAuditDTO) {
+
         return CompletableFuture.supplyAsync(() -> Optional.ofNullable(super.getById(storeAuditDTO.getId())))
                 .thenApplyAsync(storeAudit -> storeAudit.map(storeAudit1 -> {
+
                     //1.审核成功 角色转化
                    if (ObjectUtil.equal(storeAuditDTO.getCheckEnum(), CheckEnum.CHECK_SUCCESS)) {
+
                        //1.1 移除之前的角色
                        userRoleService.remove(Wrappers.<UserRole>lambdaQuery()
                        .eq(UserRole::getUserId, storeAudit1.getCreateBy()));
@@ -141,9 +144,14 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
                        userRole.setUserId(storeAudit1.getCreateBy());
                        //1.2 重新分配角色
                        if (ObjectUtil.equal(storeAudit1.getStoreType(), StoreTypeEnum.INDIVIDUALS_IN)) {
+
                            userRole.setRoleId(roleService.getIdByRoleName(CommonConstant.PER_STORE));
-                       }else {
+                       }else if (ObjectUtil.equal(storeAudit1.getStoreType(), StoreTypeEnum.MERCHANTS_SETTLED)){
+
                            userRole.setRoleId(roleService.getIdByRoleName(CommonConstant.STORE));
+                       }else {
+
+                           userRole.setRoleId(roleService.getIdByRoleName(CommonConstant.PERSON_STUDIO));
                        }
                        userRoleService.save(userRole);
 
@@ -157,10 +165,9 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
                        user.setWechatAccount(storeAudit1.getWechatAccount());
                        user.setAlipayAccount(storeAudit1.getAlipayAccount());
                        userMapper.updateById(user);
-                   }else {
-                       // TODO: 2020/3/27  审核失败，极光推送
                    }
-                   ToolUtil.copyProperties(storeAuditDTO, storeAudit1);
+
+                    ToolUtil.copyProperties(storeAuditDTO, storeAudit1);
                    super.updateById(storeAudit1);
 
                    return new ResultUtil<>().setSuccessMsg("审核成功！");

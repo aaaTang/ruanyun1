@@ -7,6 +7,7 @@ import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.business.studio.dto.StudioDto;
 import cn.ruanyun.backInterface.modules.business.studio.pojo.Studio;
 import cn.ruanyun.backInterface.modules.business.studio.service.IstudioService;
+import cn.ruanyun.backInterface.modules.business.studio.vo.PersonStoreVo;
 import cn.ruanyun.backInterface.modules.business.studio.vo.StudioListVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -14,6 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * @author fei
@@ -65,6 +68,14 @@ public class StudioController {
     public Result<Object> resolveInvite(Studio studio) {
 
         return istudioService.resolveInvite(studio);
+    }
+
+
+    @PostMapping("/getPersonStoreByStudio")
+    @ApiOperation("获取个人商家列表")
+    public Result<List<PersonStoreVo>> getPersonStoreByStudio() {
+
+        return istudioService.getPersonStoreByStudio();
     }
 
 

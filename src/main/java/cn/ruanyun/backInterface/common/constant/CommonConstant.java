@@ -233,6 +233,12 @@ public interface CommonConstant {
     Integer AWAIT = -1;
 
 
+    /**
+     * 个人工作室
+     */
+    String PERSON_STUDIO = "个人工作室";
+
+
     /*-------------------微信授权参数------------------------*/
 
     String APP_ID = "wxfb1c7c1fc40e00e7";

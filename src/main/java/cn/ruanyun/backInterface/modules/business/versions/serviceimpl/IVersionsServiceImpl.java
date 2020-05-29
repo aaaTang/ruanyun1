@@ -6,8 +6,6 @@ import cn.ruanyun.backInterface.modules.business.versions.mapper.VersionsMapper;
 import cn.ruanyun.backInterface.modules.business.versions.pojo.Versions;
 import cn.ruanyun.backInterface.modules.business.versions.service.IVersionsService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fadada.sdk.client.FddClientBase;
-import com.google.api.client.util.ArrayMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

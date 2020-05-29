@@ -11,7 +11,6 @@ import java.util.List;
 /**
  * @author fei
  */
-@CacheConfig(cacheNames = "userRole")
 public interface IUserRoleService extends IService<UserRole> {
 
 

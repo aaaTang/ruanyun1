@@ -27,7 +27,6 @@ public class StoreAudit extends RuanyunBaseEntity {
     @ApiModelProperty("商家类型")
     private StoreTypeEnum storeType;
 
-
     @ApiModelProperty("姓名或者店铺名称")
     private String username;
 
@@ -48,6 +47,9 @@ public class StoreAudit extends RuanyunBaseEntity {
 
     @ApiModelProperty("营业执照")
     private String businessCard;
+
+    @ApiModelProperty("其他证件照")
+    private String otherIdPhotos;
 
     @ApiModelProperty("经度")
     private String longitude;

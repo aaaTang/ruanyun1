@@ -15,40 +15,40 @@ import java.util.List;
  */
 public interface IStoreAuditService extends IService<StoreAudit> {
 
+    /**
+     * 插入或者更新storeAudit
+     * @param storeAudit storeAudit
+     */
+    Result<Object> insertOrderUpdateStoreAudit(StoreAudit storeAudit);
 
-      /**
-        * 插入或者更新storeAudit
-        * @param storeAudit
-       */
-      Result<Object> insertOrderUpdateStoreAudit(StoreAudit storeAudit);
 
-
-      /**
-       * 移除storeAudit
-       * @param ids
-       */
-     void removeStoreAudit(String ids);
+    /**
+     * 移除storeAudit
+     * @param ids ids
+     */
+    void removeStoreAudit(String ids);
 
 
     /**
      * 后台管理系统审核店铺申请
      *
      * 1.审核通过后，会把该用户的角色信息变更为商家。并开通登录商家后台管理权限
-     * @param storeAuditDTO
+     * @param storeAuditDTO storeAuditDTO
      */
-     Result<Object> checkStoreAudit(StoreAuditDTO storeAuditDTO);
+    Result<Object> checkStoreAudit(StoreAuditDTO storeAuditDTO);
 
 
     /**
      * 后台获取app获取审核列表,根据审核状态进行筛选
-     * @return
+     * @return StoreAuditVO
      */
     List<StoreAuditVO> getStoreAuditList(StoreAuditDTO storeAuditDTO);
 
     /**
      * app商铺信息
-     * @return
+     * @return StoreAuditListVO
      */
     StoreAuditListVO getStoreAudisByid(String id);
+
 
 }

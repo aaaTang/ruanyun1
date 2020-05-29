@@ -369,7 +369,7 @@
         </dependency>
 
 
-        <!--法大大-->
+        <!--&lt;!&ndash;法大大&ndash;&gt;
         <dependency> 
             <groupId>apache-mime4j-0.6</groupId>             
             <artifactId>mime4j</artifactId>         
@@ -432,7 +432,7 @@
             <scope>system</scope>  
             <systemPath>${project.basedir}/src/main/resources/lib/httpmime-4.0.jar
             </systemPath>
-        </dependency>
+        </dependency>-->
     </dependencies>
 
     <build>

@@ -1,6 +1,8 @@
 package cn.ruanyun.backInterface.modules.business.storeAudit.DTO;
 
 import cn.ruanyun.backInterface.common.enums.CheckEnum;
+import cn.ruanyun.backInterface.common.enums.StoreTypeEnum;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -14,6 +16,10 @@ public class StoreAuditDTO {
 
     private String id;
 
+    /**
+     * 商家类型
+     */
+    private StoreTypeEnum storeType;
 
     /**
      * 审核状态

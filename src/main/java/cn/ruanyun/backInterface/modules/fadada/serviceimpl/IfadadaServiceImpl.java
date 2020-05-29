@@ -1,3 +1,4 @@
+/*
 package cn.ruanyun.backInterface.modules.fadada.serviceimpl;
 
 import cn.hutool.core.util.ObjectUtil;
@@ -22,34 +23,44 @@ import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 
 
+*/
 /**
  * 法大大接口实现
  * @author z
- */
+ *//*
+
 @Slf4j
 @Service
 @Transactional
 public class IfadadaServiceImpl extends ServiceImpl<fadadaMapper, fadada> implements IfadadaService {
 
 
-    /**
+    */
+/**
      * 法大大AppId
-     */
+     *//*
+
     public static final String APP_ID = "403272";
 
-    /**
+    */
+/**
      * 法大大AppSecret
-     */
+     *//*
+
     public static final String APP_SECRET = "mVsjGqtP4HR4hFisqN68zP8o";
 
-    /**
+    */
+/**
      * 主机
-     */
+     *//*
+
     public static final String HOST = "http://test.api.fabigbig.com:8888/api/";
 
-    /**
+    */
+/**
      * 版本号
-     */
+     *//*
+
     public static final String VERSION= "2.0";
 
 
@@ -76,4 +87,4 @@ public class IfadadaServiceImpl extends ServiceImpl<fadadaMapper, fadada> implem
     public Result<Object> extsign() {
         return null;
     }
-}
+}*/
