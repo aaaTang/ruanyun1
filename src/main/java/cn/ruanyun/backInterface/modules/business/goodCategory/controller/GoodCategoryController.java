@@ -6,10 +6,12 @@ import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.goodCategory.VO.FourDevarajasCategoryVo;
 import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -25,7 +28,7 @@ import java.util.Optional;
  */
 @Slf4j
 @RestController
-@Api(description = "商品分类管理接口")
+@Api(tags = "商品分类管理接口")
 @RequestMapping("/ruanyun/goodCategory")
 @Transactional
 public class GoodCategoryController {
@@ -124,4 +127,11 @@ public class GoodCategoryController {
                 }).orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
 
+
+    @PostMapping("/getFourDearestsCategory")
+    @ApiOperation("获取四大金刚分类数据")
+    public Result<List<FourDevarajasCategoryVo>> getFourDearestsCategory() {
+
+        return iGoodCategoryService.getFourDearestsCategory();
+    }
 }

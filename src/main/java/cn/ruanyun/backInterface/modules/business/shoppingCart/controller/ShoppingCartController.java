@@ -44,6 +44,10 @@ public class ShoppingCartController {
 
         try {
 
+            if (ToolUtil.isEmpty(shoppingCart.getBuyCount())) {
+
+                return new ResultUtil<>().setErrorMsg(207, "请输入购买数量！");
+            }
             iShoppingCartService.insertShoppingCart(shoppingCart);
             return new ResultUtil<>().setSuccessMsg("添加购物车成功！");
         }catch (RuanyunException e) {

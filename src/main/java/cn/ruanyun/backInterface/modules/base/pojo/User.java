@@ -6,6 +6,7 @@ import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.utils.CommonUtil;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -29,133 +30,104 @@ public class User extends RuanyunBaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 用户名
-     */
+
+
+    /*--------------------个人基本信息--------------*/
+
+    @ApiModelProperty("用户名")
     @Column(unique = true, nullable = false)
     private String username;
 
-    /**
-     * 用戶昵称
-     */
+    @ApiModelProperty("用戶昵称")
     private String nickName;
 
-    /**
-     * 密码
-     */
-    private String password;
-
-    /**
-     * 手机
-     */
-    private String mobile;
-
-    /**
-     * 性别
-     */
-    private String sex;
-
-    /**
-     * 地址
-     */
-    private String address;
-
-    /**
-     * 邮箱
-     */
-    private String email;
-
-    /**
-     * 婚期
-     */
-    private String weddingDay;
-
-    /**
-     * 个人简介
-     */
-    @Column(length = 500)
-    private String individualResume;
-
-
-    /**
-     * 个人余额
-     */
-    private BigDecimal balance = new BigDecimal(0);
-
-
-    /**
-     * 邀请码
-     */
-    private String invitationCode = CommonUtil.getRandomNum();
-
-    /**
-     * 用户头像
-     */
+    @ApiModelProperty("用户头像")
     @Column(length = 1000)
     private String avatar;
 
-    /**
-     * 用户类型 0普通用户 1管理员
-     */
+    @ApiModelProperty("密码")
+    private String password;
+
+    @ApiModelProperty("手机号")
+    private String mobile;
+
+    @ApiModelProperty("性别")
+    private String sex;
+
+    @ApiModelProperty("地址")
+    private String address;
+
+    @ApiModelProperty("邮箱")
+    private String email;
+
+
+    /*--------------------消费者基本信息--------------*/
+
+    @ApiModelProperty("婚期")
+    private String weddingDay;
+
+    @ApiModelProperty("个人简介")
+    @Column(length = 500)
+    private String individualResume;
+
+    @ApiModelProperty("个人余额")
+    private BigDecimal balance = new BigDecimal(0);
+
+    @ApiModelProperty("邀请码")
+    private String invitationCode = CommonUtil.getRandomNum();
+
+    @ApiModelProperty("im的token")
+    private String imToken;
+
+    @ApiModelProperty("区域id")
+    private String areaId;
+
+    @ApiModelProperty("余额支付密码")
+    private String payPassword;
+
+    @ApiModelProperty("微信openId")
+    private String openId;
+
+
+    /*--------------------用户类型--------------*/
+
+    @ApiModelProperty("用户类型 0普通用户 1管理员")
     private Integer type = CommonConstant.USER_TYPE_NORMAL;
 
-    /**
-     * 状态 默认0正常 -1拉黑
-     */
+    @ApiModelProperty("状态 默认0正常 -1拉黑")
     private Integer status = CommonConstant.USER_STATUS_NORMAL;
 
-    /**
-     * 轮播图
-     */
+
+
+    /*--------------------商家信息--------------*/
+
+    @ApiModelProperty(value = "轮播图")
     @Column(length = 1000)
     private String  pic ;
 
-    /**
-     * 经度
-     */
+    @ApiModelProperty("经度")
     private String longitude;
 
-    /**
-     * 纬度
-     */
+    @ApiModelProperty("纬度")
     private String latitude;
 
-    /**
-     * 店铺名称
-     */
+    @ApiModelProperty("店铺名称")
     private String shopName;
 
-    /**
-     * im的token
-     */
-    private String imToken;
-
-    /**
-     * 区域id
-     */
-    private String areaId;
-    /**
-     * 分类服务类型
-     */
+    @ApiModelProperty("分类服务类型")
     private String classId;
 
-    /**
-     * 支付宝账号
-     */
+    @ApiModelProperty("支付宝账号")
     private String alipayAccount;
 
-    /**
-     * 微信账号
-     */
+    @ApiModelProperty("微信账号")
     private String wechatAccount;
 
-    /**
-     * 余额支付密码
-     */
-    private String payPassword;
+    @ApiModelProperty(value = "到店礼")
+    @Column(length = 1000)
+    private String toStoreGift;
 
-    /**
-     * 微信openId
-     */
-    private String openId;
+    @ApiModelProperty(value = "订单礼")
+    @Column(length = 1000)
+    private String orderGift;
 }

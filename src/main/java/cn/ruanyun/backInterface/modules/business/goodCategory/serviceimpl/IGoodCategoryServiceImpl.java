@@ -2,8 +2,10 @@ package cn.ruanyun.backInterface.modules.business.goodCategory.serviceimpl;
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.utils.RedisUtil;
+import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
+import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
@@ -228,7 +230,8 @@ public class IGoodCategoryServiceImpl extends ServiceImpl<GoodCategoryMapper, Go
      * 按分类获取商家列表
      * @return
      */
-    public List getCategoryShop(String classId,String areaId) {
+    @Override
+    public List getCategoryShop(String classId, String areaId) {
 
 
         List<GoodCategory> categoryList = new ArrayList<>();
@@ -290,6 +293,36 @@ public class IGoodCategoryServiceImpl extends ServiceImpl<GoodCategoryMapper, Go
        return null;
     }
 
+    @Override
+    public Result<List<FourDevarajasCategoryVo>> getFourDearestsCategory() {
+
+        return Optional.ofNullable(getFourCategoryId()).map(categoryId ->
+
+                Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<GoodCategory>lambdaQuery()
+                        .eq(GoodCategory::getParentId, categoryId)))).map(goodCategories ->
+                        new ResultUtil<List<FourDevarajasCategoryVo>>().setData(goodCategories.parallelStream().flatMap(goodCategory -> {
+
+                            FourDevarajasCategoryVo fourDevarajasCategoryVo = new FourDevarajasCategoryVo();
+                            ToolUtil.copyProperties(goodCategory, fourDevarajasCategoryVo);
+                            return Stream.of(fourDevarajasCategoryVo);
+                        }).collect(Collectors.toList()), "获取四大金刚分类数据成功！")
+
+                ).orElse(new ResultUtil<List<FourDevarajasCategoryVo>>().setErrorMsg(201, "暂无数据！"))
+        ).orElse(new ResultUtil<List<FourDevarajasCategoryVo>>().setErrorMsg(201, "暂无数据！"));
+    }
+
+
+    /**
+     * 获取四大金刚的id
+     * @return
+     */
+    public String getFourCategoryId() {
+
+        return Optional.ofNullable(this.getOne(Wrappers.<GoodCategory>lambdaQuery()
+                .eq(GoodCategory::getTitle, "四大金刚")))
+                .map(GoodCategory::getId)
+                .orElse(null);
+    }
 
 
 }

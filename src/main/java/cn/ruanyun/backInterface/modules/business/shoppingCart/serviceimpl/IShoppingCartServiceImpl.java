@@ -51,9 +51,6 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
     private SecurityUtil securityUtil;
 
     @Autowired
-    private IGoodService goodService;
-
-    @Autowired
     private IItemAttrValService iItemAttrValService;
 
 
@@ -65,23 +62,22 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
     @Override
     public void insertShoppingCart(ShoppingCart shoppingCart) {
 
-        //1. 判断当前商品是否已经加入购物车
-        Optional.ofNullable(this.getOne(Wrappers.<ShoppingCart>lambdaQuery()
+        ShoppingCart shoppingCartInsert = this.getOne(Wrappers.<ShoppingCart>lambdaQuery()
                 .eq(ShoppingCart::getGoodId, shoppingCart.getGoodId())
-                .eq(ShoppingCart::getCreateBy, securityUtil.getCurrUser().getId())))
-                .map(shoppingCartOld -> {
+                .eq(ShoppingCart::getBuyType, shoppingCart.getBuyType())
+                .eq(ShoppingCart::getAttrSymbolPath, shoppingCart.getAttrSymbolPath())
+                .eq(ShoppingCart::getShopCartType, shoppingCart.getShopCartType())
+                .eq(ShoppingCart::getCreateBy, securityUtil.getCurrUser().getId()));
 
-                    shoppingCartOld.setBuyCount(shoppingCartOld.getBuyCount() + 1);
-                    this.updateById(shoppingCartOld);
+        if (ToolUtil.isEmpty(shoppingCartInsert)) {
 
-                    return null;
-                }).orElseGet(() -> {
+            shoppingCart.setCreateBy(securityUtil.getCurrUser().getId());
+            this.save(shoppingCart);
+        }else {
 
-                    shoppingCart.setCreateBy(securityUtil.getCurrUser().getId());
-                    this.save(shoppingCart);
-
-                    return null;
-        });
+            shoppingCartInsert.setBuyCount(shoppingCartInsert.getBuyCount() + shoppingCart.getBuyCount());
+            this.updateById(shoppingCartInsert);
+        }
 
     }
 

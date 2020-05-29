@@ -1,6 +1,8 @@
 package cn.ruanyun.backInterface.modules.business.goodCategory.service;
 
 
+import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.goodCategory.VO.FourDevarajasCategoryVo;
 import cn.ruanyun.backInterface.modules.business.goodCategory.VO.GoodCategoryListVO;
 import cn.ruanyun.backInterface.modules.business.goodCategory.VO.GoodCategoryVO;
 import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
@@ -73,5 +75,12 @@ public interface IGoodCategoryService extends IService<GoodCategory> {
      * @return
      */
     List getCategoryShop(String classId,String areaId);
+
+
+    /**
+     * 获取四大金刚分类数据
+     * @return FourDevarajasCategoryVo
+     */
+    Result<List<FourDevarajasCategoryVo>> getFourDearestsCategory();
 
 }

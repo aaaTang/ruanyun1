@@ -18,7 +18,7 @@ public class PersonStoreVo {
     private String id;
 
     @ApiModelProperty(value = "昵称")
-    private String nickname;
+    private String nickName;
 
     @ApiModelProperty(value = "手机号")
     private String mobile;

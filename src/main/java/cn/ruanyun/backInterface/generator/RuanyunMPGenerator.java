@@ -25,13 +25,13 @@ public class RuanyunMPGenerator {
      * 实体类名
      * 建议仅需修改
      */
-    private static final String className = "InviteMessage";
+    private static final String className = "SiteAuctionCalendar";
 
     /**
      * 类说明描述
      * 建议仅需修改
      */
-    private static final String description = "邀请信息";
+    private static final String description = "场地档期";
 
     /**
      * 作者名
@@ -54,31 +54,31 @@ public class RuanyunMPGenerator {
      * 实体类对应包
      * (文件自动生成至该包下)
      */
-    private static final String entityPackage = "cn.ruanyun.backInterface.modules.business.InviteMessage.pojo";
+    private static final String entityPackage = "cn.ruanyun.backInterface.modules.auctionCalendar.siteAuctionCalendar.pojo";
 
     /**
      * dao对应包
      * (文件自动生成至该包下)
      */
-    private static final String daoPackage = "cn.ruanyun.backInterface.modules.business.inviteMessage.mapper";
+    private static final String daoPackage = "cn.ruanyun.backInterface.modules.auctionCalendar.siteAuctionCalendar.mapper";
 
     /**
      * service对应包
      * (文件自动生成至该包下)
      */
-    private static final String servicePackage = "cn.ruanyun.backInterface.modules.business.inviteMessage.service";
+    private static final String servicePackage = "cn.ruanyun.backInterface.modules.auctionCalendar.siteAuctionCalendar.service";
 
     /**
      * serviceImpl对应包
      * (文件自动生成至该包下)
      */
-    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.business.inviteMessage.serviceimpl";
+    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.auctionCalendar.siteAuctionCalendar.serviceimpl";
 
     /**
      * controller对应包
      * (文件自动生成至该包下)
      */
-    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.business.inviteMessage.controller";
+    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.auctionCalendar.siteAuctionCalendar.controller";
 
     /**
      * 运行该主函数即可生成代码
