@@ -106,7 +106,8 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
     @Override
     public void resolveOrderAfterSale(OrderAfterSaleDto orderAfterSaleDto) {
 
-        Optional.ofNullable(this.getById(orderAfterSaleDto.getId()))
+        Optional.ofNullable(this.getOne(Wrappers.<OrderAfterSale>lambdaQuery()
+        .eq(OrderAfterSale::getOrderId, orderAfterSaleDto.getOrderId())))
                 .ifPresent(orderAfterSale -> {
 
                     //1. 更改售后订单状态
