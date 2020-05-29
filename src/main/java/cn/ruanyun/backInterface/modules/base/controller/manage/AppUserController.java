@@ -47,8 +47,8 @@ public class AppUserController {
 
     /**
      * APP通过邀请码获取用户信息
-     * @param user
-     * @return
+     * @param user user
+     * @return Object
      */
     @PostMapping("/appGetinvitationCode")
     public Result<Object> appGetinvitationCode(UserDTO user) {

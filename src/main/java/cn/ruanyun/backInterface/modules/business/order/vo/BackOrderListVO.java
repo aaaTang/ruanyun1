@@ -21,7 +21,7 @@ import java.util.Date;
  **/
 @Data
 @Accessors(chain = true)
-public class BackOrderListVO {
+public class     BackOrderListVO {
 
     private String id;
 

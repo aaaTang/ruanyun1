@@ -109,6 +109,9 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     @Resource
     private StaffManagementMapper staffManagementMapper;
 
+    @Autowired
+    private IGoodCategoryService goodCategoryService;
+
 
     @Override
     public String getUserIdByName(String userName) {
@@ -546,6 +549,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                             .setPermissions(rolePermissionService.getPermissionByRoles(userRoleService.getRoleIdsByUserId(user.getId())));
 
                     backUserInfo.setType(iGoodService.getRoleUserList(user.getId()));
+                    backUserInfo.setServiceCategoryName(goodCategoryService.getGoodCategoryName(user.getClassId()));
 
 
                     return backUserInfo;

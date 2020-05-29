@@ -59,13 +59,13 @@ public class IOrderDetailServiceImpl extends ServiceImpl<OrderDetailMapper, Orde
 
                     OrderDetailVo orderDetailVo = new OrderDetailVo();
 
-                    //规格
-                    orderDetailVo.setAttrSymbolPath(itemAttrValService.getItemAttrValVo(orderDetail.getAttrSymbolPath()));
-
                     //优惠券抵扣金额
                     orderDetailVo.setSubtractMoney(orderDetail.getSubtractMoney());
 
                     ToolUtil.copyProperties(orderDetail, orderDetailVo);
+
+                    //规格
+                    orderDetailVo.setAttrSymbolPath(itemAttrValService.getItemAttrValVo(orderDetail.getAttrSymbolPath()));
 
                     return orderDetailVo;
 

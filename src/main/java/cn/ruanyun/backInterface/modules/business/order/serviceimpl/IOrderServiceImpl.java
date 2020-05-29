@@ -327,6 +327,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
                                 //更新订单
                                 order.setPayTypeEnum(appPayOrder.getPayType());
+                                order.setOrderStatus(OrderStatusEnum.PRE_SEND);
                                 this.updateById(order);
 
                                 //2.减少用户余额,记录明细
@@ -334,7 +335,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                                         .ifPresent(userCreate -> {
 
                                             userCreate.setBalance(userCreate.getBalance().subtract(order.getTotalPrice()));
-                                            userService.updateById(user);
+                                            userService.updateById(userCreate);
 
                                             Balance balance = new Balance();
                                             //生成余额明细
@@ -583,6 +584,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             AppMyOrderListVo appMyOrderListVo = new AppMyOrderListVo();
             appMyOrderListVo.setOrderDetailVo(orderDetailService.getOrderDetailByOrderId(order.getId()));
             ToolUtil.copyProperties(order, appMyOrderListVo);
+            appMyOrderListVo.setOrderStatusCode(order.getOrderStatus().getCode());
 
             return Stream.of(appMyOrderListVo);
         }).collect(Collectors.toList())).setTotalPage(orderPage.getPages())

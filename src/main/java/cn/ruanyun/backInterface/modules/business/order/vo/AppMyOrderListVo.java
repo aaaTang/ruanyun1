@@ -8,6 +8,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
+
 /**
  * @program: ruanyun
  * @description:
@@ -26,6 +28,12 @@ public class AppMyOrderListVo {
 
     @ApiModelProperty(value = "订单状态")
     private OrderStatusEnum orderStatus;
+
+    @ApiModelProperty(value = "订单状态code")
+    private Integer orderStatusCode;
+
+    @ApiModelProperty(value = "总价格")
+    private BigDecimal totalPrice;
 
     @ApiModelProperty(value = "商品或者套餐信息")
     private OrderDetailVo orderDetailVo;

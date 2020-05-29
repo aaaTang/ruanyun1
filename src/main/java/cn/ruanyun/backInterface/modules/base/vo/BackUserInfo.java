@@ -99,4 +99,9 @@ public class BackUserInfo {
      */
     private BigDecimal Balance;
 
+    /**
+     * 服务分类名称
+     */
+    private String serviceCategoryName;
+
 }

@@ -54,6 +54,9 @@ public class AppMyOrderDetailVo {
     @ApiModelProperty(value = "订单编号")
     private String orderNum;
 
+    @ApiModelProperty(value = "总价格")
+    private BigDecimal totalPrice;
+
     @ApiModelProperty(value = "支付类型")
     private PayTypeEnum payTypeEnum;
 
