@@ -46,30 +46,53 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
     @Autowired
     private IBalanceService balanceService;
     @Override
-    public void commitOrderAfterSale(OrderAfterCommitDto orderAfterCommitDto) {
+    public Result<Object> commitOrderAfterSale(OrderAfterCommitDto orderAfterCommitDto) {
 
         OrderAfterSale orderAfterSale = new OrderAfterSale();
 
         //设置退款订单信息
-        Optional.ofNullable(orderService.getById(orderAfterCommitDto.getOrderId()))
-                .ifPresent(order -> {
+       return Optional.ofNullable(orderService.getById(orderAfterCommitDto.getOrderId()))
+                .map(order -> {
 
-                    orderAfterSale.setOrderStatus(order.getOrderStatus())
-                            .setRefundMoney(order.getTotalPrice())
-                            .setOrderId(order.getId())
-                            .setReturnReasonId(orderAfterCommitDto.getReturnReasonId())
-                            .setReturnReason(orderReturnReasonService.getReturnReason(orderAfterCommitDto.getReturnReasonId()))
-                            .setExpand(orderAfterCommitDto.getExpand());
+                    if (ToolUtil.isNotEmpty(orderAfterCommitDto.getId())) {
 
-                    orderAfterSale.setCreateBy(securityUtil.getCurrUser().getId());
+                        return Optional.ofNullable(this.getById(orderAfterCommitDto.getId()))
+                                .map(orderAfterSaleOld -> {
 
-                    if (this.save(orderAfterSale)) {
+                                    ToolUtil.copyProperties(orderAfterCommitDto, orderAfterSaleOld);
+                                    this.updateById(orderAfterSale);
+
+                                    return new ResultUtil<>().setSuccessMsg("修改成功！");
+                                }).orElse(new ResultUtil<>().setErrorMsg(202, "不存在订单！"));
+
+                    }else {
+
+                        if (ToolUtil.isNotEmpty(this.getOne(Wrappers.<OrderAfterSale>lambdaQuery()
+                                .eq(OrderAfterSale::getOrderId, orderAfterCommitDto.getOrderId())))) {
+
+                            return new ResultUtil<>().setErrorMsg(208, "已经提交过售后，不可重复提交！");
+                        }
+                        orderAfterSale.setOrderStatus(order.getOrderStatus())
+                                .setRefundMoney(order.getTotalPrice())
+                                .setOrderId(order.getId())
+                                .setReturnReasonId(orderAfterCommitDto.getReturnReasonId())
+                                .setReturnReason(orderReturnReasonService.getReturnReason(orderAfterCommitDto.getReturnReasonId()))
+                                .setExpand(orderAfterCommitDto.getExpand());
+
+                        orderAfterSale.setCreateBy(securityUtil.getCurrUser().getId());
+                    }
+
+                    if (this.saveOrUpdate(orderAfterSale)) {
 
                         //更改订单状态
                         order.setOrderStatus(OrderStatusEnum.SALE_AFTER);
                         orderService.updateById(order);
+
+                        return new ResultUtil<>().setSuccessMsg("提交售后成功！");
                     }
-                });
+
+                    return new ResultUtil<>().setErrorMsg(203, "提交失败");
+                }).orElse(new ResultUtil<>().setErrorMsg(204, "订单不存在"));
     }
 
     @Override

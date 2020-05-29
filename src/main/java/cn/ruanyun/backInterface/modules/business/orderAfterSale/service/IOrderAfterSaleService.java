@@ -18,7 +18,7 @@ public interface IOrderAfterSaleService extends IService<OrderAfterSale> {
      * 提交售后订单
      * @param orderAfterCommitDto 实体
      */
-    void commitOrderAfterSale(OrderAfterCommitDto orderAfterCommitDto);
+    Result<Object> commitOrderAfterSale(OrderAfterCommitDto orderAfterCommitDto);
 
 
     /**

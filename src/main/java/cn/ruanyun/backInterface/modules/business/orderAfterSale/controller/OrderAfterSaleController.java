@@ -42,14 +42,7 @@ public class OrderAfterSaleController {
     @ApiOperation("提交售后")
     public Result<Object> commitOrderAfterSale(OrderAfterCommitDto orderAfterCommitDto) {
 
-        if (ToolUtil.isNotEmpty(iOrderAfterSaleService.getOne(Wrappers.<OrderAfterSale>lambdaQuery()
-                .eq(OrderAfterSale::getOrderId, orderAfterCommitDto.getOrderId())))) {
-
-            return new ResultUtil<>().setErrorMsg(208, "已经提交过售后，不可重复提交！");
-        }
-
-        iOrderAfterSaleService.commitOrderAfterSale(orderAfterCommitDto);
-        return new ResultUtil<>().setSuccessMsg("添加售后成功！");
+       return iOrderAfterSaleService.commitOrderAfterSale(orderAfterCommitDto);
     }
 
 

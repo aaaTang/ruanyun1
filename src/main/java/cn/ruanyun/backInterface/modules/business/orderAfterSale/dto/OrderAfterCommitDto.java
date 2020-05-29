@@ -19,6 +19,8 @@ import java.math.BigDecimal;
 public class OrderAfterCommitDto {
 
 
+    private String id;
+
     @ApiModelProperty("订单id")
     private String orderId;
 
