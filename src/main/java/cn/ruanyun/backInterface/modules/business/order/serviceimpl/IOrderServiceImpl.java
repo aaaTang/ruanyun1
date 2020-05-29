@@ -762,7 +762,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         .le(ToolUtil.isNotEmpty(backOrderListDto.getPayTimeEndTime()), Order::getCreateTime, backOrderListDto.getPayTimeEndTime())
 
          //管理员和商家筛选查询
-        .eq(ToolUtil.isNotEmpty(backOrderListDto.getStoreId()), Order::getCreateBy, backOrderListDto.getStoreId())
+        .eq(ToolUtil.isNotEmpty(backOrderListDto.getStoreId()), Order::getUserId, backOrderListDto.getStoreId())
 
          //默认按照订单创建时间排序
         .orderByDesc(Order::getCreateTime));

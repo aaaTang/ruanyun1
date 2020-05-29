@@ -902,7 +902,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     @Override
     public UserBalanceVo getUserBalance() {
 
-        BackUserInfo user = securityUtil.getCurrUser();
+        User user = this.getById(securityUtil.getCurrUser().getId());
         UserBalanceVo userBalanceVo = new UserBalanceVo();
         userBalanceVo.setFreezeBalance(balanceService.getOrderFreezeMoney(user.getId()))
                 .setNormalBalance(user.getBalance().subtract(userBalanceVo.getFreezeBalance()));
