@@ -77,9 +77,9 @@ public class ISiteServiceImpl extends ServiceImpl<SiteMapper, Site> implements I
 
             SiteListVo siteListVo = new SiteListVo();
             ToolUtil.copyProperties(site, siteListVo);
-            siteListVo.setSiteItemValue(Optional.ofNullable(ToolUtil.setListToNul(iItemAttrValService
-            .getItemAttrVals(site.getSiteItemValue()))).map(itemValues -> itemValues.get(0))
-            .orElse("-"));
+            siteListVo.setSiteItemValue(iItemAttrValService.getItemAttrValVo(site.getSiteItemValue()))
+                    .setSitePic(Optional.ofNullable(ToolUtil.setListToNul(ToolUtil.splitterStr(site.getSitePics())))
+                    .map(pics -> pics.get(0)).orElse("-"));
 
             return Stream.of(siteListVo);
         }).collect(Collectors.toList()), "获取门店场地信息成功！"))
