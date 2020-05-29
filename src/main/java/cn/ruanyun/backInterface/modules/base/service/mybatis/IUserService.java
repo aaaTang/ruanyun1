@@ -234,4 +234,11 @@ public interface IUserService extends IService<User> {
      */
     Result<Object> bindMobile(WechatLoginDto wechatLoginDto);
 
+
+    /**
+     * 获取用户当前余额(冻结,正常)
+     * @return UserBalanceVo
+     */
+    UserBalanceVo getUserBalance();
+
 }

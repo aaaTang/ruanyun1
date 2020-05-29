@@ -20,6 +20,22 @@ public class GoodsPackage extends RuanyunBaseEntity {
 
     private static final long serialVersionUID = 1L;
 
+
+    /**
+     * 分类ID
+     */
+    private String classId;
+
+    /**
+     * 地区ID
+     */
+    private String areaId;
+
+    /**
+     * 商品的ids
+     */
+    private String goodIds;
+
     /**
      * 套餐名称
      */
@@ -41,6 +57,10 @@ public class GoodsPackage extends RuanyunBaseEntity {
      */
     private String oldPrice;
 
+    /**
+     * 积分
+     */
+    private Integer integral;
 
     /**
      * 商品介绍
@@ -78,20 +98,9 @@ public class GoodsPackage extends RuanyunBaseEntity {
      */
     private String warmPrompt;
 
-    /**
-     * 分类ID
-     */
-    private String classId;
 
-    /**
-     * 地区ID
-     */
-    private String areaId;
 
-    /**
-     * 商品的ids
-     */
-    private String goodIds;
+
 
 
 }

@@ -34,31 +34,31 @@ public abstract class RuanyunBaseEntity implements Serializable{
 
     @Id
     @TableId
-    @ApiModelProperty(value = "唯一标识")
+    @ApiModelProperty(value = "唯一标识", hidden = true)
     private String id = String.valueOf(SnowFlakeUtil.getFlowIdInstance().nextId());
 
-    @ApiModelProperty(value = "创建者")
+    @ApiModelProperty(value = "创建者", hidden = true)
     @CreatedBy
     private String createBy;
 
     @CreatedDate
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @ApiModelProperty(value = "创建时间")
+    @ApiModelProperty(value = "创建时间", hidden = true)
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
-    @ApiModelProperty(value = "更新者")
+    @ApiModelProperty(value = "更新者", hidden = true)
     @LastModifiedBy
     private String updateBy;
 
     @LastModifiedDate
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @ApiModelProperty(value = "更新时间")
+    @ApiModelProperty(value = "更新时间", hidden = true)
     @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
-    @ApiModelProperty(value = "删除标志 默认0")
+    @ApiModelProperty(value = "删除标志 默认0", hidden = true)
     private Integer delFlag = CommonConstant.STATUS_NORMAL;
 }

@@ -1,14 +1,15 @@
 package cn.ruanyun.backInterface.modules.business.shoppingCart.serviceimpl;
 
 
-import cn.ruanyun.backInterface.common.utils.EmptyUtil;
-import cn.ruanyun.backInterface.common.utils.ResultUtil;
-import cn.ruanyun.backInterface.common.utils.SecurityUtil;
-import cn.ruanyun.backInterface.common.utils.ToolUtil;
+import cn.ruanyun.backInterface.common.enums.ShopCartTypeEnum;
+import cn.ruanyun.backInterface.common.utils.*;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodOrderVO;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
+import cn.ruanyun.backInterface.modules.business.goodService.pojo.GoodService;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.pojo.ItemAttrKey;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.service.IItemAttrKeyService;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.pojo.ItemAttrVal;
@@ -22,6 +23,7 @@ import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRo
 import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,215 +54,113 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
     private IGoodService goodService;
 
     @Autowired
-    private ISizeAndRolorService iSizeAndRolorService;
-    @Autowired
-    private IItemAttrValService itemAttrValService;
+    private IItemAttrValService iItemAttrValService;
+
 
     /**
      * 加入购物车
      *
-     * @param shoppingCart
+     * @param shoppingCart shoppingCart
      */
     @Override
     public void insertShoppingCart(ShoppingCart shoppingCart) {
 
+        //1. 判断当前商品是否已经加入购物车
+        Optional.ofNullable(this.getOne(Wrappers.<ShoppingCart>lambdaQuery()
+                .eq(ShoppingCart::getGoodId, shoppingCart.getGoodId())
+                .eq(ShoppingCart::getCreateBy, securityUtil.getCurrUser().getId())))
+                .map(shoppingCartOld -> {
 
-        if (!StringUtils.isEmpty(shoppingCart.getGoodId())){
-            //获取商品购买信息
-            AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(shoppingCart.getGoodId(), shoppingCart.getAttrSymbolPath(),shoppingCart.getBuyState());
+                    shoppingCartOld.setBuyCount(shoppingCartOld.getBuyCount() + 1);
+                    this.updateById(shoppingCartOld);
 
-            //购买状态 1购买 2租赁  就算定金的价格，和尾款价格
-            if(appGoodOrder.getBuyState().equals(2)){
-                shoppingCart.setTotalPrice(new BigDecimal(shoppingCart.getCount()).multiply(appGoodOrder.getGoodDeposit()));
-                shoppingCart.setGoodDalancePayment(appGoodOrder.getGoodDalancePayment());
-                shoppingCart.setGoodDeposit(appGoodOrder.getGoodDeposit());
-            }else {
-                //或者就普通价格
-                shoppingCart.setTotalPrice(new BigDecimal(shoppingCart.getCount()).multiply(appGoodOrder.getGoodNewPrice()));
-            }
-            shoppingCart.setGoodNewPrice(appGoodOrder.getGoodNewPrice());
-            shoppingCart.setBuyState(appGoodOrder.getBuyState());
-            shoppingCart.setLeaseState(appGoodOrder.getLeaseState());
-        }
+                    return null;
+                }).orElseGet(() -> {
 
-        shoppingCart.setCreateBy(securityUtil.getCurrUser().getId());
+                    shoppingCart.setCreateBy(securityUtil.getCurrUser().getId());
+                    this.save(shoppingCart);
 
-        CompletableFuture.runAsync(() -> {
-            if (ToolUtil.isNotEmpty(getShopCartSame(shoppingCart))) {
-                ShoppingCart shoppingCartOld = getShopCartSame(shoppingCart);
-                shoppingCartOld.setCount(shoppingCartOld.getCount()+shoppingCart.getCount());
-
-                        //购买状态 1购买 2租赁  就算定金的价格，和尾款价格
-                        if(shoppingCartOld.getBuyState().equals(2)){
-                            shoppingCartOld.setTotalPrice(shoppingCart.getGoodDeposit().multiply(BigDecimal.valueOf(shoppingCartOld.getCount())));
-                            //shoppingCartOld.setGoodDalancePayment(shoppingCart.getGoodDalancePayment().multiply(BigDecimal.valueOf(shoppingCartOld.getCount())));
-                        }else {
-                            shoppingCartOld.setTotalPrice(shoppingCart.getGoodNewPrice().multiply(BigDecimal.valueOf(shoppingCartOld.getCount()+shoppingCart.getCount())));
-                        }
-
-                this.updateById(shoppingCartOld);
-            } else {
-                this.save(shoppingCart);
-            }
-
+                    return null;
         });
+
     }
 
     /**
      * 移除购物车
      *
-     * @param ids
+     * @param ids ids
      */
     @Override
-    public void removeShoppingCart(String[] ids) {
+    public void removeShoppingCart(String ids) {
 
-        CompletableFuture.runAsync(() -> {
-                for(String id : ids){this.removeById(id);}
-                });
-    }
-
-    /**
-     * 编辑购物车
-     *
-     * @param shoppingCart
-     */
-    @Override
-    public Result<Object> updateShoppingCart(ShoppingCart shoppingCart) {
-
-        shoppingCart.setUpdateBy(securityUtil.getCurrUser().getId());
-        CompletableFuture.runAsync(() -> {
-            ShoppingCart shoppingCartOld = this.getById(shoppingCart.getId());
-            ToolUtil.copyProperties(shoppingCart,shoppingCartOld);
-            //购买状态 1购买 2租赁
-            if(shoppingCartOld.getBuyState().equals(2)){
-                shoppingCartOld.setTotalPrice(shoppingCartOld.getGoodDeposit().multiply(BigDecimal.valueOf(shoppingCart.getCount())));
-            }else {
-                shoppingCartOld.setTotalPrice(shoppingCartOld.getGoodNewPrice().multiply(BigDecimal.valueOf(shoppingCart.getCount())));
-            }
-            this.updateById(shoppingCartOld);
-        });
-
-      return new ResultUtil<>().setData(this.getById(shoppingCart.getId()),"获取我的购物车数据成功！");
+        this.removeByIds(ToolUtil.splitterStr(ids));
     }
 
     /**
      * 获取我的购物车数据
      *
-     * @return
+     * @return return
      */
     @Override
-    public List<ShoppingCartVO> shoppingCartVOList(String ids) {
+    public Result<DataVo<ShoppingCartVO>> getMyShoppingCart(PageVo pageVo){
 
-        String userId = securityUtil.getCurrUser().getId();
-        //1.获取原始数据
-        CompletableFuture<Optional<List<ShoppingCart>>> shopCarts = CompletableFuture.supplyAsync(() ->
-                Optional.ofNullable(getShopCartList(ids,userId)));
+        Page<ShoppingCart> shoppingCartPage = this.page(PageUtil.initMpPage(pageVo), Wrappers.<ShoppingCart>lambdaQuery()
+        .eq(ShoppingCart::getCreateBy, securityUtil.getCurrUser().getId())
+        .orderByDesc(ShoppingCart::getCreateTime));
 
-        //2.获取封装数据
-        CompletableFuture<List<ShoppingCartVO>> shopCartVos = shopCarts.thenApplyAsync(shoppingCarts ->
-                shoppingCarts.map(shoppingCarts1 -> shoppingCarts1.parallelStream().flatMap(shoppingCart -> {
+        if (ToolUtil.isEmpty(shoppingCartPage.getRecords())) {
 
-                    ShoppingCartVO shoppingCartVO = new ShoppingCartVO();
+            return new ResultUtil<DataVo<ShoppingCartVO>>().setErrorMsg(201, "暂无数据！");
+        }
 
-                    if (!StringUtils.isEmpty(shoppingCart.getAttrSymbolPath())){
-                        //处理属性信息
-                        List<String> itemAttrKeys = itemAttrValService.listByIds(ToolUtil.splitterStr(shoppingCart.getAttrSymbolPath())).stream().map(ItemAttrVal::getAttrValue).collect(Collectors.toList());
-                        shoppingCartVO.setItemAttrKeys(itemAttrKeys);
-                    }
+        DataVo<ShoppingCartVO> result = new DataVo<>();
 
-                    Good byId = goodService.getById(shoppingCart.getGoodId());
-                    if (EmptyUtil.isNotEmpty(byId)){
-                        shoppingCartVO.setName(byId.getGoodName())
-                        .setGoodsId(byId.getId())
-                        .setGoodPrice(byId.getGoodNewPrice())
-                        .setPic(byId.getGoodPics());
-                    }
+        result.setDataResult(shoppingCartPage.getRecords().parallelStream().flatMap(shoppingCart -> {
 
-                    if (!StringUtils.isEmpty(shoppingCart.getAttrSymbolPath())){
-                        //处理价格 如果这个属性配置了新的价格，就用新的价格
-                        SizeAndRolor one = iSizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery()
-                                .eq(SizeAndRolor::getAttrSymbolPath, shoppingCart.getAttrSymbolPath())
-                                .eq(SizeAndRolor::getGoodsId, shoppingCart.getGoodId()));
-                        if (EmptyUtil.isNotEmpty(one)){
-                            ToolUtil.copyProperties(one,shoppingCartVO);
+            ShoppingCartVO shoppingCartVO = new ShoppingCartVO();
+            shoppingCartVO.setItemAttrKeys(iItemAttrValService.getItemAttrVals(shoppingCart.getAttrSymbolPath()));
+            ToolUtil.copyProperties(shoppingCart, shoppingCartVO);
 
-                            if (shoppingCart.getBuyState().equals(2)){
-                                shoppingCartVO.setGoodPrice(one.getGoodDeposit());
-                            }
+            return Stream.of(shoppingCartVO);
+        }).collect(Collectors.toList())).setTotalSize(shoppingCartPage.getTotal())
+                .setTotalPage(shoppingCartPage.getPages())
+                .setCurrentPageNum(shoppingCartPage.getCurrent());
 
-                        }
-                    }
-                    ToolUtil.copyProperties(shoppingCart,shoppingCartVO);
-                    return Stream.of(shoppingCartVO);
-                }).collect(Collectors.toList())).orElse(null));
-
-        return shopCartVos.join();
+        return new ResultUtil<DataVo<ShoppingCartVO>>().setData(result, "获取我的购物车数据成功！");
     }
 
     /**
      * 获取购物车数量
-     * @return
+     *
+     * @return return
      */
     @Override
     public Integer getGoodsCartNum() {
-        List<ShoppingCart> shoppingCart = this.list(new QueryWrapper<ShoppingCart>().lambda().eq(ShoppingCart::getCreateBy,securityUtil.getCurrUser().getId()));
-        return Optional.ofNullable(shoppingCart.size()).orElse(null);
+
+        return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<ShoppingCart>lambdaQuery()
+        .eq(ShoppingCart::getCreateBy, securityUtil.getCurrUser().getId()))))
+        .map(List::size)
+        .orElse(0);
     }
 
-
+    /**
+     * 修改购物车数量
+     *
+     * @param id    购物车id
+     * @param count 购物车商品数量
+     * @return Object
+     */
     @Override
-    public void changeCount(String id,Integer count) {
-        CompletableFuture.runAsync(() -> {
-            ShoppingCart shoppingCartOld = this.getById(id);
-            shoppingCartOld.setCount(count);
-            shoppingCartOld.setTotalPrice(getUpdatePrice(shoppingCartOld,shoppingCartOld.getCount().toString()));
-            this.updateById(shoppingCartOld);
-        });
+    public Result<Object> changeShopCartNum(String id, Integer count) {
+
+        return Optional.ofNullable(this.getById(id)).map(shoppingCart -> {
+
+            shoppingCart.setBuyCount(count);
+            this.updateById(shoppingCart);
+
+            return new ResultUtil<>().setSuccessMsg("修改成功！");
+        }).orElse(new ResultUtil<>().setErrorMsg(201, "当前购物车数据不存在！"));
     }
 
-    /**
-     * 获取基本数据
-     * @param ids
-     * @param userId
-     * @return
-     */
-    public List<ShoppingCart> getShopCartList(String ids,String userId) {
-
-        if (ToolUtil.isNotEmpty(ids)) {
-
-            return ToolUtil.setListToNul(this.listByIds(ToolUtil.splitterStr(ids)));
-        }
-
-        return ToolUtil.setListToNul(this.list(Wrappers.<ShoppingCart>lambdaQuery()
-                .eq(ShoppingCart::getCreateBy,userId)
-                .orderByDesc(ShoppingCart::getCreateTime)));
-    }
-
-    /**
-     * 计算价格
-     * @param shoppingCart
-     * @param count
-     * @return
-     */
-    public  BigDecimal getUpdatePrice(ShoppingCart shoppingCart,String count) {
-
-        return shoppingCart.getTotalPrice().divide(new BigDecimal(shoppingCart.getCount()), RoundingMode.HALF_EVEN)
-                .multiply(new BigDecimal(count));
-    }
-
-
-    /**
-     * 获取相同的购物车数据
-     * @param shoppingCart
-     * @return
-     */
-    public ShoppingCart getShopCartSame(ShoppingCart shoppingCart) {
-
-       return this.getOne(Wrappers.<ShoppingCart>lambdaQuery()
-                .eq(ShoppingCart::getCreateBy,shoppingCart.getCreateBy())
-                .eq(ShoppingCart::getGoodId,shoppingCart.getGoodId())
-                .eq(ShoppingCart::getBuyState,shoppingCart.getBuyState())
-                .eq(ShoppingCart::getAttrSymbolPath,shoppingCart.getAttrSymbolPath()));
-    }
 
 }

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.persistence.Column;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -92,5 +93,10 @@ public class BackUserInfo {
      * 用户的权限信息
      */
     private List<Permission> permissions;
+
+    /**
+     * 个人余额
+     */
+    private BigDecimal Balance;
 
 }

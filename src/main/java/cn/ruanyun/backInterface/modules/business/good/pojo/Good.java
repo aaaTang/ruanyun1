@@ -59,59 +59,19 @@ public class Good extends RuanyunBaseEntity {
      */
     private String goodDetails;
 
-
     /**
      * 商品旧价格
      */
-    private BigDecimal goodOldPrice= new BigDecimal(0);
-
+    private BigDecimal goodOldPrice;
 
     /**
      * 商品新价格
      */
-    private BigDecimal goodNewPrice= new BigDecimal(0);
+    private BigDecimal goodNewPrice;
 
     /**
      * 积分
      */
     private Integer integral;
-
-
-//    /**
-//     * 商品介绍
-//     */
-//    private String productsIntroduction;
-//
-//
-//    /**
-//     * 商品亮点
-//     */
-//    private String productLightspot;
-//
-//
-//    /**
-//     * 拍摄特色
-//     */
-//    private String shootCharacteristics;
-//
-//    /**
-//     * 图文详情
-//     */
-//    @Column(length = 1000)
-//    private String graphicDetails;
-//
-//
-//    /**
-//     * 购买须知
-//     */
-//    private String purchaseNotes;
-//
-//
-//    /**
-//     * 温馨提示
-//     */
-//    private String warmPrompt;
-
-
 
 }

@@ -17,13 +17,13 @@ public interface IBalanceService extends IService<Balance> {
 
     /**
      * 插入或者更新balance
-     * @param balance
+     * @param balance balance
      */
      void insertOrderUpdateBalance(Balance balance);
 
      /**
       * 移除balance
-      * @param ids
+      * @param ids ids
       */
      void removeBalance(String ids);
 
@@ -37,10 +37,25 @@ public interface IBalanceService extends IService<Balance> {
 
     /**
      * 通过用户id获取该用户获得的佣金金额
-     * @param userId
-     * @return
+     * @param userId 用户id
+     * @return BigDecimal
      */
     BigDecimal getProfitByUserId(String userId);
+
+
+    /**
+     * 获取某一个用户的冻结金额
+     * @param userId yonghuid
+     * @return BigDecimal
+     */
+    BigDecimal getOrderFreezeMoney(String userId);
+
+
+    /**
+     * 处理退款操作
+     * @param orderId 订单id
+     */
+    void resolveReturnMoneyByBalance(String orderId, String userId, BigDecimal actualRefundMoney);
 
 
 }

@@ -1,24 +1,17 @@
 package cn.ruanyun.backInterface.modules.business.order.service;
 
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
-import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.modules.business.order.DTO.OffLineOrderDto;
-import cn.ruanyun.backInterface.modules.business.order.DTO.OrderDTO;
-import cn.ruanyun.backInterface.modules.business.order.DTO.OrderShowDTO;
-import cn.ruanyun.backInterface.modules.business.order.DTO.PcOrderDTO;
-import cn.ruanyun.backInterface.modules.business.order.VO.MyOrderVO;
-import cn.ruanyun.backInterface.modules.business.order.VO.OrderDetailVO;
-import cn.ruanyun.backInterface.modules.business.order.VO.OrderListVO;
-import cn.ruanyun.backInterface.modules.business.order.VO.ShowOrderVO;
+import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
+import cn.ruanyun.backInterface.modules.business.order.dto.*;
+import cn.ruanyun.backInterface.modules.business.order.vo.*;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 订单接口
@@ -28,62 +21,62 @@ import java.util.Map;
 public interface IOrderService extends IService<Order> {
 
 
+
+    /*-----------------------------创建订单----------------------*/
+
     /**
      * 下单
      *
-     * @param orderDTO
+     * @param orderDTO orderDTO
      */
-    Result<Object> insertOrder(OrderDTO orderDTO);
+    Result<Object> insertOrder(OrderDto orderDTO);
+
+
+    /**
+     * 新增线下订单
+     * @param offLineOrderDto  offLineOrderDto
+     * @return Object
+     */
+    Result<Object> insertOffLineOrder(OffLineOrderDto offLineOrderDto);
+
+
+
+    /*-----------------------------支付----------------------*/
 
     /**
      * 支付
-     *
-     * @param ids
-     * @param payTypeEnum
+     * @param appPayOrder 支付参数
+     * @return Object
      */
-    Result<Object> payOrder(String ids, PayTypeEnum payTypeEnum, String payPassword,Integer status);
+    Result<Object> payOrder(AppPayOrderDto appPayOrder);
+
 
     /**
-     * 移除order
-     *
-     * @param ids
+     * 微信回调
+     * @param request request
+     * @return String
      */
-    void removeOrder(String ids);
+    String wxPayNotify(HttpServletRequest request);
+
 
     /**
-     * 移除order
-     *
-     * @param orderShowDTO
+     * 支付宝回调
+     * @param request request
+     * @return String
      */
-    ShowOrderVO showOrder(OrderShowDTO orderShowDTO);
+    String aliPayNotify(HttpServletRequest request);
+
+
+
+    /*-----------------------------订单操作----------------------*/
+
 
     /**
-     * 下单之前获取订单的信息  直接购买套餐商品
-     * @param orderShowDTO
-     * @return
+     * 订单发货
+     * @param orderOperateDto 实体
+     * @return Object
      */
-    Object showGoodsPackageOrder(OrderShowDTO orderShowDTO);
-
-    /**
-     * 获取 我的订单
-     * @param order
-     * @return
-     */
-    List<OrderListVO> getOrderList(Order order);
-
-    /**
-     * 获取订单详情
-     * @param id
-     * @return
-     */
-    Object getAppGoodDetail(String id);
-
-    /**
-     * 改变订单状态  取消订单 确认收货
-     * @param order
-     * @return
-     */
-    Object changeStatus(Order order);
+    Result<Object> sendGood(OrderOperateDto orderOperateDto);
 
 
     /**
@@ -95,42 +88,68 @@ public interface IOrderService extends IService<Order> {
 
 
     /**
-     * 微信回调
-     * @param request
-     * @return
+     * 支付尾款
+     * @param orderOperateDto 实体
+     * @return Object
      */
-    String wxPayNotify(HttpServletRequest request);
-
-    /**
-     * 支付宝回调
-     * @param request
-     * @return
-     */
-    String aliPayNotify(HttpServletRequest request);
+    Result<Object> payTheBalance(OrderOperateDto orderOperateDto);
 
 
     /**
-     * 根据商家id查询订单列表
-     * @param storeId 商家id
-     * @return  Order
+     * 确认尾款
+     * @param orderOperateDto 实体
+     * @return Object
      */
-    List<Order> getOrderListByStoreId(String storeId);
+    Result<Object> confirmTheBalance(OrderOperateDto orderOperateDto);
+
 
     /**
-     *后端获取订单信息列表
+     *去评价订单
+     * @param orderOperateDto 实体
+     * @return Object
      */
-    List PCgetShopOrderList(PcOrderDTO pcOrderDTO);
+    Result<Object> toEvaluate(OrderOperateDto orderOperateDto);
 
-
-
-    /*-----------------------------------------线下商家支付码订单-------------------------*/
 
     /**
-     * 新增线下订单
-     * @param offLineOrderDto  offLineOrderDto
+     * 取消订单
+     * @param orderOperateDto 实体
+     * @return Object
      */
-    Result<Object> insertOffLineOrder(OffLineOrderDto offLineOrderDto);
+    Result<Object> cancelOrder(OrderOperateDto orderOperateDto);
 
+
+
+    /*-----------------------------查询订单----------------------*/
+
+    /**
+     * 获取我的订单列表
+     * @param pageVo 分页参数
+     * @return DataVo<AppMyOrderListVo
+     */
+    Result<DataVo<AppMyOrderListVo>> getMyOrderList(PageVo pageVo, OrderStatusEnum orderStatus);
+
+
+    /**
+     * 获取我的订单详情
+     * @param id 订单id
+     * @return AppMyOrderDetailVo
+     */
+    Result<AppMyOrderDetailVo> getMyOrderDetail(String id);
+
+
+    /**
+     * 获取后台订单列表
+     * @param backOrderListDto 查询订单参数
+     * @param pageVo 分页参数
+     * @return 订单列表
+     */
+    Result<DataVo<BackOrderListVO>> getBackOrderList(BackOrderListDto backOrderListDto, PageVo pageVo);
+
+
+
+
+    /*-----------------------------辅助类----------------------*/
 
     /**
      * 获取员工的销售额
@@ -139,11 +158,19 @@ public interface IOrderService extends IService<Order> {
      */
     BigDecimal getStaffSaleAmount(String staffId);
 
+
     /**
-     * 商家查询用户的订单详情
-     * @param id 订单id
-     * @param shopId 商家id
-     * @return
+     * 判断订单的冻结期
+     * @param orderId 订单id
+     * @return 是 否
      */
-    Result<Object> shopQueryUserOrderrDetail(String id, String shopId);
+    Boolean judgeOrderFreeze(String orderId);
+
+
+    /**
+     * 获取该商家下的订单数据
+     * @param storeId 商家id
+     * @return Order
+     */
+    List<Order> getOrderListByStoreId(String storeId);
 }

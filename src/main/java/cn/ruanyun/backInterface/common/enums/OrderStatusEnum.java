@@ -62,7 +62,6 @@ public enum OrderStatusEnum {
     RETURN_FINISH(8,"退款完成");
 
 
-
      OrderStatusEnum(int code, String value) {
         this.code = code;
         this.value = value;

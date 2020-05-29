@@ -1,97 +1,72 @@
 package cn.ruanyun.backInterface.modules.business.order.serviceimpl;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONUtil;
-import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
-import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.*;
 import cn.ruanyun.backInterface.common.pay.common.alipay.AliPayUtilTool;
-import cn.ruanyun.backInterface.common.pay.common.alipay.AlipayConfig;
 import cn.ruanyun.backInterface.common.pay.common.wxpay.WeChatConfig;
 import cn.ruanyun.backInterface.common.pay.dto.TransferDto;
 import cn.ruanyun.backInterface.common.pay.model.PayModel;
 import cn.ruanyun.backInterface.common.pay.service.IPayService;
 import cn.ruanyun.backInterface.common.utils.*;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
-import cn.ruanyun.backInterface.modules.base.pojo.DictData;
+import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
-import cn.ruanyun.backInterface.modules.base.service.DictDataService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
-import cn.ruanyun.backInterface.modules.business.area.VO.AppAreaListVO;
-import cn.ruanyun.backInterface.modules.business.area.pojo.Area;
 import cn.ruanyun.backInterface.modules.business.balance.pojo.Balance;
 import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
-import cn.ruanyun.backInterface.modules.business.discountMy.VO.DiscountVO;
+import cn.ruanyun.backInterface.modules.business.commonParam.service.IcommonParamService;
+import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
 import cn.ruanyun.backInterface.modules.business.discountMy.service.IDiscountMyService;
-import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodOrderVO;
-import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
-import cn.ruanyun.backInterface.modules.business.harvestAddress.entity.HarvestAddress;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.service.IHarvestAddressService;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrValService;
-import cn.ruanyun.backInterface.modules.business.order.DTO.OffLineOrderDto;
-import cn.ruanyun.backInterface.modules.business.order.DTO.OrderDTO;
-import cn.ruanyun.backInterface.modules.business.order.DTO.OrderShowDTO;
-import cn.ruanyun.backInterface.modules.business.order.DTO.PcOrderDTO;
-import cn.ruanyun.backInterface.modules.business.order.VO.*;
+import cn.ruanyun.backInterface.modules.business.order.dto.*;
+import cn.ruanyun.backInterface.modules.business.order.vo.*;
 import cn.ruanyun.backInterface.modules.business.order.mapper.OrderMapper;
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
 import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
-import cn.ruanyun.backInterface.modules.business.orderDetail.VO.OrderDetailListVO;
-import cn.ruanyun.backInterface.modules.business.orderDetail.mapper.OrderDetailMapper;
 import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
 import cn.ruanyun.backInterface.modules.business.orderDetail.service.IOrderDetailService;
-import cn.ruanyun.backInterface.modules.business.orderMessage.pojo.OrderMessage;
-import cn.ruanyun.backInterface.modules.business.orderMessage.service.IOrderMessageService;
+import cn.ruanyun.backInterface.modules.business.orderDetail.vo.OrderDetailVo;
 import cn.ruanyun.backInterface.modules.business.profitDetail.pojo.ProfitDetail;
 import cn.ruanyun.backInterface.modules.business.profitDetail.service.IProfitDetailService;
 import cn.ruanyun.backInterface.modules.business.profitPercent.service.IProfitPercentService;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.entity.ShoppingCart;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
-import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
-import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
 import cn.ruanyun.backInterface.modules.business.staffManagement.pojo.StaffManagement;
 import cn.ruanyun.backInterface.modules.business.staffManagement.service.IStaffManagementService;
 import cn.ruanyun.backInterface.modules.business.storeIncome.pojo.StoreIncome;
 import cn.ruanyun.backInterface.modules.business.storeIncome.service.IStoreIncomeService;
-import cn.ruanyun.backInterface.modules.business.userRelationship.mapper.UserRelationshipMapper;
-import cn.ruanyun.backInterface.modules.business.userRelationship.pojo.UserRelationship;
 import cn.ruanyun.backInterface.modules.business.userRelationship.service.IUserRelationshipService;
-import com.alibaba.druid.util.StringUtils;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;
-import com.alipay.api.internal.util.AlipaySignature;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.api.client.util.ArrayMap;
+import com.google.api.client.util.Lists;
+import com.google.api.client.util.Maps;
 import com.ijpay.core.enums.SignType;
 import com.ijpay.core.kit.HttpKit;
 import com.ijpay.core.kit.WxPayKit;
-import dm.jdbc.stat.support.json.JSONArray;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -107,42 +82,42 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
     @Autowired
     private SecurityUtil securityUtil;
+
     @Autowired
     private IHarvestAddressService harvestAddressService;
+
     @Autowired
     private IShoppingCartService shoppingCartService;
+
     @Autowired
     private IGoodService goodService;
-    @Resource
-    private GoodMapper goodMapper;
+
     @Autowired
     private IOrderDetailService orderDetailService;
+
     @Autowired
     private IUserService userService;
-    @Resource
-    private UserMapper userMapper;
+
     @Autowired
     private IDiscountMyService discountMyService;
+
     @Autowired
-    private ISizeAndRolorService sizeAndRolorService;
+    private IDiscountCouponService discountCouponService;
+
     @Autowired
     private IGoodsPackageService goodsPackageService;
-    @Autowired
-    private IItemAttrValService iItemAttrValService;
+
     @Autowired
     private IPayService payService;
-    @Autowired
-    private IOrderMessageService iOrderMessageService;
-    @Resource
-    private OrderDetailMapper orderDetailMapper;
+
     @Autowired
     private IUserRelationshipService userRelationshipService;
+
     @Autowired
     private IBalanceService balanceService;
+
     @Autowired
     private IProfitPercentService profitPercentService;
-    @Autowired
-    private ISizeAndRolorService iSizeAndRolorService;
 
     @Autowired
     private IProfitDetailService profitDetailService;
@@ -153,435 +128,234 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     @Autowired
     private IStaffManagementService staffManagementService;
 
+    @Autowired
+    private IcommonParamService icommonParamService;
+
 
     @Override
-    public Result<Object> insertOrder(OrderDTO orderDTO) {
-        //返回给前端的订单id 如果是多商铺的，就返回多个订单id
-        String ids = "";
-        //处理商品，如果商品不是同一个店铺下面的，需要生成过个订单
-        //"[{"sizeId":"256005326325682176","buyCount":5,"colorId":"256004810652782592","goodId":"1243581862115827714"},{"sizeId":"256005326325682176","buyCount":5,"colorId":"256004810652782592","goodId":"1243581862115827714"}]"
-        JSONArray jsonArray = new JSONArray(orderDTO.getGoods().toString());
-        //处理商品是多商铺的情况
-        List<DetailListVO> detailListVOS = this.inserOrderDetail(jsonArray);
-
-        String id ="";
-        double sumPrice = 0d;
-        for (DetailListVO detailVO : detailListVOS) {
-
-            Order order = new Order();
-            order.setOrderStatus(OrderStatusEnum.PRE_PAY);
-            order.setUserId(detailVO.getCreateBy());
-            order.setBuyState(detailVO.getBuyState());
-            order.setLeaseState(detailVO.getLeaseState());
-            double totalPrice = 0d;
-            //下单的地址信息
-            HarvestAddress harvestAddress = harvestAddressService.getById(orderDTO.getAddressId());
-            harvestAddress.setId(null);
-            order.setAddressId(orderDTO.getAddressId());
-            ToolUtil.copyProperties(harvestAddress, order);
-
-            OrderDetail orderDetail = new OrderDetail();
-            ToolUtil.copyProperties(detailVO,orderDetail);
-            orderDetail.setOrderId(order.getId());
-            orderDetail.setCreateBy(null);
-            orderDetailService.insertOrderUpdateOrderDetail(orderDetail);
-            //将购物车数据删除
-            ShoppingCart one = shoppingCartService.getOne(Wrappers.<ShoppingCart>lambdaQuery()
-                    .eq(ShoppingCart::getGoodId, orderDetail.getGoodId())
-                    .eq(ShoppingCart::getAttrSymbolPath, orderDetail.getAttrSymbolPath())
-                    .eq(ShoppingCart::getBuyState, orderDetail.getBuyState())
-                    .eq((ToolUtil.isNotEmpty(orderDetail.getLeaseState())),ShoppingCart::getLeaseState, orderDetail.getLeaseState())
-                    .eq(RuanyunBaseEntity::getCreateBy, securityUtil.getCurrUser().getId())
-            );
-            if (EmptyUtil.isNotEmpty(one)) {
-                shoppingCartService.removeById(one.getId());
-            }
-
-           if(detailVO.getBuyState().equals(2)){
-               totalPrice = totalPrice + (orderDetail.getBuyCount() * orderDetail.getGoodDeposit().doubleValue());
-           }else {
-               totalPrice = totalPrice + (orderDetail.getBuyCount() * orderDetail.getGoodNewPrice().doubleValue());
-           }
-
-            if (orderDetail.getSubtractMoney().doubleValue() > 0) {
-                totalPrice = totalPrice - orderDetail.getSubtractMoney().doubleValue();
-            }
-            order.setTotalPrice(new BigDecimal(totalPrice));
-
-            if (ToolUtil.isEmpty(order.getCreateBy())) {
-                order.setCreateBy(securityUtil.getCurrUser().getId());
-            } else {
-                order.setUpdateBy(securityUtil.getCurrUser().getId());
-            }
-
-            id+=order.getId()+",";
-            sumPrice += totalPrice;
-            Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(order)))
-                    .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
-                    .toFuture().join();
-        }
-
-        Map<String, Object> map = new ArrayMap<>();
-        map.put("id", id.substring(0,id.length() -1));
-        map.put("balance", userService.getAccountBalance(null));
-        map.put("totalPrice", sumPrice);
-
-        return new ResultUtil<>().setData(map,"插入或者更新成功!");
-    }
+    public Result<Object> insertOrder(OrderDto orderDTO) {
 
 
-    public List inserOrderDetail(JSONArray jsonArray){
+        String currentUserId = securityUtil.getCurrUser().getId();
 
-        List<DetailListVO> orderDetailList = new ArrayList<>();
-        for (int i = 0; i < jsonArray.length(); i++){
-            DetailListVO detailListVO= new DetailListVO();
+        //存储orderId
+        List<String> orderIds = Lists.newArrayList();
 
-            //这个是解析json字符串的，
-            OrderDetail orderDetail = JSON.parseObject(jsonArray.get(i).toString(), OrderDetail.class);
+        //1. 解析商品信息字符串
+        List<AppOrderGoodInfoDto> appOrderGoodInfo = JSONObject.parseArray(orderDTO.getGoodStr(), AppOrderGoodInfoDto.class);
 
-            //将商品是一个店铺的归类
-            Good byId = goodService.getById(orderDetail.getGoodId());
-            if (EmptyUtil.isNotEmpty(byId)) {
-                byId.setId(null);
-                ToolUtil.copyProperties(byId, orderDetail);
-                List<String> strings = ToolUtil.splitterStr(byId.getGoodPics());
-                orderDetail.setGoodPics(strings.get(0));
-            }
+       return Optional.ofNullable(ToolUtil.setListToNul(appOrderGoodInfo)).map(appOrderGoodInfoDtos -> {
 
-            if (!StringUtils.isEmpty(orderDetail.getDiscountMyId())) {
-                //处理商品优惠卷信息
-                DiscountVO detailById = discountMyService.getDetailById(orderDetail.getDiscountMyId());
-                if (EmptyUtil.isNotEmpty(detailById)) {
-                    int orderDetailMoney = detailById.getFullMoney().compareTo(orderDetail.getGoodNewPrice().divide(new BigDecimal(orderDetail.getBuyCount())));
-                    if (orderDetailMoney == -1) {
-                        detailById.setId(null);
-                        ToolUtil.copyProperties(detailById, orderDetail);
-                        orderDetail.setDiscountMyId(detailById.getId());
-                    }
+            appOrderGoodInfoDtos.parallelStream().forEach(appOrderGoodInfoDto -> {
+
+                //1. 生成订单
+                Order order = new Order();
+
+                order.setCreateBy(currentUserId);
+
+                //1.1 商家id
+                if (appOrderGoodInfoDto.getShopCartType().equals(ShopCartTypeEnum.GOOD)) {
+
+                    order.setUserId(Optional.ofNullable(goodService.getById(appOrderGoodInfoDto.getGoodId()))
+                    .map(Good::getCreateBy).orElse(null));
+
+                }else if (appOrderGoodInfoDto.getShopCartType().equals(ShopCartTypeEnum.GOOD_PACKAGE)) {
+
+                    order.setUserId(Optional.ofNullable(goodsPackageService.getById(appOrderGoodInfoDto.getGoodId()))
+                    .map(GoodsPackage::getCreateBy).orElse(null));
                 }
 
-            }
+                //1.2 总价格,支付定金价格
 
-            if (!StringUtils.isEmpty(orderDetail.getAttrSymbolPath())) {
-                SizeAndRolor sizeAndRolor = sizeAndRolorService.getOneByAttrSymbolPath(orderDetail.getAttrSymbolPath(),orderDetail.getCreateBy(),orderDetail.getGoodId());
-                if (EmptyUtil.isNotEmpty(sizeAndRolor)) {
-                    sizeAndRolor.setId(null);
-                    orderDetail.setIntegral(sizeAndRolor.getInventory());
-                    orderDetail.setGoodNewPrice(sizeAndRolor.getGoodPrice());
-                    orderDetail.setGoodPics(sizeAndRolor.getPic());
+                //1.3 判断购买类型
+                if (appOrderGoodInfoDto.getBuyType().equals(BuyTypeEnum.FULL_PURCHASE)) {
+
+                    order.setTotalPrice(Optional.ofNullable(goodService.getById(appOrderGoodInfoDto.getGoodId()))
+                            .map(Good::getGoodNewPrice).orElse(new BigDecimal(0)))
+                            .setBuyType(BuyTypeEnum.FULL_PURCHASE);
+
+                }else if (appOrderGoodInfoDto.getBuyType().equals(BuyTypeEnum.RENT)) {
+
+                    order.setTotalPrice(appOrderGoodInfoDto.getGoodDeposit())
+                            .setBuyType(BuyTypeEnum.RENT);
                 }
-            }
 
-            ToolUtil.copyProperties(orderDetail,detailListVO);
-            orderDetailList.add(detailListVO);
-        }
+                //1.4 优惠券满减
+                if (ToolUtil.isNotEmpty(appOrderGoodInfoDto.getDiscountId())) {
+
+                    Optional.ofNullable(discountCouponService.getDiscountCouponDetail(appOrderGoodInfoDto.getDiscountId()))
+                            .ifPresent(discountCoupon -> {
+
+                                order.setTotalPrice(order.getTotalPrice().subtract(discountCoupon.getSubtractMoney()));
+
+                                //设置优惠券已使用
+                                discountMyService.changeMyDisCouponStatus(discountCoupon.getId(), currentUserId);
+                            });
+
+                }
+
+                //1.4 收货人信息
+                Optional.ofNullable(harvestAddressService.getAddressDetail(orderDTO.getAddressId()))
+                        .ifPresent(harvestAddressVO -> ToolUtil.copyProperties(harvestAddressVO, order));
+
+                //1.5 订单类型
+                if (appOrderGoodInfoDto.getShopCartType().equals(ShopCartTypeEnum.GOOD)) {
+
+                    order.setTypeEnum(OrderTypeEnum.GOOD);
+                }else if (appOrderGoodInfoDto.getShopCartType().equals(ShopCartTypeEnum.GOOD_PACKAGE)) {
+
+                    order.setTypeEnum(OrderTypeEnum.GOODS_PACKAGE);
+                }
+
+                ToolUtil.copyProperties(orderDTO, order);
+
+                //除去id信息
+                order.setId(null);
+
+                if (this.save(order)) {
+
+                    //2  生成订单详情
+                    OrderDetail orderDetail = new OrderDetail();
+
+                    //2.2 参数信息
+                    ToolUtil.copyProperties(appOrderGoodInfoDto, orderDetail);
+
+                    //2.3 优惠券信息
+                    Optional.ofNullable(discountCouponService.getDiscountCouponDetail(appOrderGoodInfoDto.getDiscountId()))
+                            .ifPresent(discountCoupon -> {
+
+                                orderDetail.setDiscountId(discountCoupon.getId());
+                                orderDetail.setSubtractMoney(discountCoupon.getSubtractMoney());
+                            });
+
+                    orderDetail.setOrderId(order.getId());
+
+                    orderDetail.setCreateBy(currentUserId);
+
+                    orderDetailService.save(orderDetail);
+
+                    orderIds.add(order.getId());
+                }
 
 
-        return orderDetailList;
+                //清除购物车
+                Optional.ofNullable(shoppingCartService.getOne(Wrappers.<ShoppingCart>lambdaQuery()
+                        .eq(ShoppingCart::getGoodId, appOrderGoodInfoDto.getGoodId())
+                        .eq(ShoppingCart::getCreateBy, currentUserId)))
+                        .ifPresent(shoppingCart -> shoppingCartService.removeById(shoppingCart.getId()));
+            });
+
+            Map<String, Object> result = Maps.newHashMap();
+
+            result.put("ids", ToolUtil.joinerList(orderIds));
+
+            return new ResultUtil<>().setData(result, "订单生成成功！");
+
+        }).orElse(new ResultUtil<>().setErrorMsg(206, "json解析错误！"));
+
     }
 
 
     /**
      * 支付
-     * @param ids  订单id
-     * @param payTypeEnum
-     * @param payPassword
-     * @param status  是否单订单支付 0否  1是
-     * @return
+     * @param appPayOrder 支付参数
+     * @return Object
      */
     @Override
-    public Result<Object> payOrder(String ids, PayTypeEnum payTypeEnum, String payPassword,Integer status) {
+    public Result<Object> payOrder(AppPayOrderDto appPayOrder) {
 
+       return Optional.ofNullable(ToolUtil.setListToNul(this.listByIds(ToolUtil.splitterStr(appPayOrder.getIds()))))
+                .map(orders -> {
 
-        //统计订单总金额
-        BigDecimal totalPrice = null;
-        List<Order> orders = this.listByIds(ToolUtil.splitterStr(ids));
-        if (orders.size() == 0) {
+                    //1. 支付参数
+                    PayModel payModel = new PayModel();
+                    payModel.setOrderNums(appPayOrder.getIds());
+                    payModel.setTotalPrice(orders.parallelStream().map(Order::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add));
 
-            return new ResultUtil<>().setErrorMsg("该订单不存在!");
-        }
+                    //2. 处理支付
+                    //微信
+                      if (appPayOrder.getPayType().equals(PayTypeEnum.WE_CHAT)) {
 
-         if(ToolUtil.isEmpty(status)){
-            totalPrice = orders.parallelStream().map(Order::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
-        }else if(status.equals(1)){  //1.判断是单笔支付（这个status用作于支付尾款时候是否进行单笔的支付）
-            for (Order order : orders) {
-                if(order.getLeaseState().equals(1)){ //2.租赁如果是线上支付
+                        return payService.wxPayMethod(payModel);
 
-                    totalPrice = orderDetailMapper.selectOne(Wrappers.<OrderDetail>lambdaQuery().eq(OrderDetail::getOrderId,order.getId())).getGoodDalancePayment()
-                            .multiply(BigDecimal.valueOf(orderDetailMapper.selectOne(Wrappers.<OrderDetail>lambdaQuery().eq(OrderDetail::getOrderId,order.getId())).getBuyCount()));
+                        //支付宝
+                    } else if (appPayOrder.getPayType().equals(PayTypeEnum.ALI_PAY)) {
 
-                }else if(order.getLeaseState().equals(2)){//租赁如果是线下支付
-                    order.setOrderStatus(OrderStatusEnum.PRE_COMMENT);
-                    order.setPayTypeEnum(payTypeEnum);
-                    this.updateById(order);
-                    return new ResultUtil<>().setData(200, "支付尾款成功！");
-                }
-            }
+                        return payService.aliPayMethod(payModel);
 
-        }
+                        //余额支付
+                    } else if (appPayOrder.getPayType().equals(PayTypeEnum.BALANCE)) {
 
-        Result<Object> objectResult = new ResultUtil<>().setData(200, "支付成功!");
+                        User user = userService.getById(securityUtil.getCurrUser().getId());
 
-        PayModel payModel = new PayModel();
-        payModel.setOrderNums(ids);
-        payModel.setTotalPrice(totalPrice);
-        //微信
-        if (payTypeEnum.getCode() == PayTypeEnum.WE_CHAT.getCode()) {
+                        if (ToolUtil.isEmpty(user.getPayPassword())) {
 
-            objectResult = payService.wxPayMethod(payModel);
+                            return new ResultUtil<>().setErrorMsg(206, "暂未设置支付密码");
+                        }
+                        if (new BCryptPasswordEncoder().matches(appPayOrder.getPayPassword(), user.getPayPassword())) {
 
-            //支付宝
-        } else if (payTypeEnum.getCode() == PayTypeEnum.ALI_PAY.getCode()) {
+                            if (user.getBalance().compareTo(payModel.getTotalPrice()) < 0) {
 
-            objectResult = payService.aliPayMethod(payModel);
+                                return new ResultUtil<>().setErrorMsg(207, "余额不足！");
+                            }
 
-            //余额支付
-        } else if (payTypeEnum.getCode() == PayTypeEnum.BALANCE.getCode()) {
+                            orders.forEach(order -> {
 
-            User byId = userService.getById(securityUtil.getCurrUser().getId());
+                                //更新订单
+                                order.setPayTypeEnum(appPayOrder.getPayType());
+                                this.updateById(order);
 
-            if (ToolUtil.isEmpty(byId.getPayPassword())) {
+                                //2.减少用户余额,记录明细
+                                Optional.ofNullable(userService.getById(order.getCreateBy()))
+                                        .ifPresent(userCreate -> {
 
-                return new ResultUtil<>().setErrorMsg(206, "暂未设置支付密码");
-            }
-            if (new BCryptPasswordEncoder().matches(payPassword, byId.getPayPassword())) {
+                                            userCreate.setBalance(userCreate.getBalance().subtract(order.getTotalPrice()));
+                                            userService.updateById(user);
 
-                int i = byId.getBalance().compareTo(totalPrice);
-                if (i < 0) {
+                                            Balance balance = new Balance();
+                                            //生成余额明细
+                                            balance.setTitle("购买商品")
+                                                    .setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.SUB)
+                                                    .setOrderId(order.getId())
+                                                    .setCreateBy(order.getCreateBy());
+                                            balanceService.save(balance);
+                                        });
 
-                    return new ResultUtil<>().setErrorMsg(207, "余额不足");
-                }
-                orders.forEach(order -> {
+                                //3. 处理回调
+                                //3.1. 平台按照比例转账到商家支付宝账户
 
-                    //1.改变订单状态
-                    if(ToolUtil.isEmpty(status)){
-                        order.setOrderStatus(OrderStatusEnum.PRE_SEND);
-                    }else if(status.equals(1)){//单笔支付成功，状态改成商家收款
-                        order.setOrderStatus(OrderStatusEnum.SETTLE_RECEIPT);
-                    }
+                                TransferDto transfer = new TransferDto();
 
-                    order.setPayTypeEnum(payTypeEnum);
-                    this.updateById(order);
+                                //3.2 商家的支付宝账户
+                                transfer.setAliPayAcount(Optional.ofNullable(userService.getById(order.getUserId()))
+                                        .map(User::getAlipayAccount).orElse(null));
 
-                    //2.减少用户余额,记录明细
-                    Optional.ofNullable(userService.getById(order.getCreateBy()))
-                            .ifPresent(user -> {
+                                //3.3 需要支付给商家的钱款
+                                transfer.setAmount(profitPercentService.getProfitPercentLimitOne(ProfitTypeEnum.FIRST)
+                                        .getStoreProfit().multiply(order.getTotalPrice()));
 
-                                user.setBalance(user.getBalance().subtract(order.getTotalPrice()));
-                                userService.updateById(user);
+                                //3.4 转账操作
+                                try {
+                                    String result = payService.aliPayTransfer(transfer);
 
-                                //生成余额明细
-                                Balance balance = new Balance();
-                                if(ToolUtil.isEmpty(status)){
-                                    balance.setPrice(order.getTotalPrice());
-                                }else if(status.equals(1)){
-                                    balance.setPrice(payModel.getTotalPrice());
+                                    log.info("处理支付宝转账回调信息" + result);
+
+                                } catch (AlipayApiException e) {
+                                    e.printStackTrace();
                                 }
-
-                                balance.setTitle("购买商品")
-                                        .setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.SUB)
-                                        .setCreateBy(order.getCreateBy());
-                                balanceService.save(balance);
                             });
+                            return new ResultUtil<>().setData(200, "支付成功!");
+                        }else {
 
-                    //3. 处理回调
-                    //3.1. 平台按照比例转账到商家支付宝账户
-
-                    TransferDto transfer = new TransferDto();
-
-                    //3.2 商家的支付宝账户
-                    transfer.setAliPayAcount(Optional.ofNullable(userService.getById(order.getUserId()))
-                            .map(User::getAlipayAccount).orElse(null));
-
-                    //3.3 需要支付给商家的钱款
-                    transfer.setAmount(profitPercentService.getProfitPercentLimitOne(ProfitTypeEnum.FIRST)
-                            .getStoreProfit().multiply(order.getTotalPrice()));
-
-                    //3.4 转账操作
-                    try {
-                        String result = payService.aliPayTransfer(transfer);
-
-                        log.info("处理支付宝转账回调信息" + result);
-
-                    } catch (AlipayApiException e) {
-                        e.printStackTrace();
+                            return new ResultUtil<>().setErrorMsg(208, "支付密码不一致！");
+                        }
                     }
-                });
-                objectResult = new ResultUtil<>().setData(200, "支付成功!");
-            }else {
 
-                return new ResultUtil<>().setErrorMsg(208, "支付密码不一致！");
-            }
-        }
-        return objectResult;
+                      return null;
+                }).orElse(new ResultUtil<>().setErrorMsg(209, "参数为空！"));
     }
 
 
-
-    @Override
-    public void removeOrder(String ids) {
-        CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
-    }
-
-    @Override
-    public GoodsPackageOrderVO showGoodsPackageOrder(OrderShowDTO orderShowDTO) {
-        GoodsPackageOrderVO showOrderVO = new GoodsPackageOrderVO();
-        GoodsPackage byId = goodsPackageService.getById(orderShowDTO.getGoodId());
-        goodService.listByIds(ToolUtil.splitterStr(byId.getGoodIds()));
-
-        return showOrderVO;
-    }
-
-    /***
-     * 查询我的订单
-     * @param order
-     * @return
-     */
-    @Override
-    public List<OrderListVO> getOrderList(Order order) {
-        String id = securityUtil.getCurrUser().getId();
-        List<Order> list = this.list(Wrappers.<Order>lambdaQuery()
-                .eq(!StringUtils.isEmpty(order.getUserId()), Order::getUserId, order.getUserId())
-                .eq(Order::getCreateBy, id)
-                .eq(!EmptyUtil.isEmpty(order.getOrderStatus()), Order::getOrderStatus, order.getOrderStatus())
-                .orderByDesc(Order::getCreateTime));
-        return Optional.ofNullable(ToolUtil.setListToNul(list)).map(orders -> {
-            List<OrderListVO> orderListVOS = orders.parallelStream().map(orderO -> {
-                OrderListVO orderListVO = new OrderListVO();
-                List<OrderDetail> orderDetailList = orderDetailService.list(Wrappers.<OrderDetail>lambdaQuery()
-                        .eq(OrderDetail::getOrderId, orderO.getId()));
-                if (orderDetailList.size() > 0) {
-                    ToolUtil.copyProperties(orderDetailList.get(0), orderListVO);
-                    if (ToolUtil.isNotEmpty(orderDetailList.get(0).getAttrSymbolPath())) {
-                        orderListVO.setAttrSymbolPath(iItemAttrValService.getItemAttrVals(orderDetailList.get(0).getAttrSymbolPath()));
-                    }
-                }
-                ToolUtil.copyProperties(orderO, orderListVO);
-                orderListVO.setOrderStatusInt(orderO.getOrderStatus().getCode());
-                orderListVO.setOrderStatus(orderO.getOrderStatus().getValue());
-                return orderListVO;
-            }).collect(Collectors.toList());
-            return orderListVOS;
-        }).orElse(null);
-    }
-
-    /**
-     * 获取订单详情
-     *
-     * @param id
-     * @return
-     */
-    @Override
-    public OrderDetailVO getAppGoodDetail(String id) {
-        return Optional.ofNullable(this.getById(id)).map(order -> {
-            OrderDetailVO orderDetailVO = new OrderDetailVO();
-            List<OrderDetailListVO> orderListByOrderId = orderDetailService.getOrderListByOrderId(id);
-
-            ToolUtil.copyProperties(order, orderDetailVO);
-            orderDetailVO.setOrderDetails(orderListByOrderId);
-
-            if (EmptyUtil.isNotEmpty(order.getPayTypeEnum())) {
-                orderDetailVO.setPayTypeEnum(order.getPayTypeEnum().getValue());
-            }
-            orderDetailVO.setOrderStatus(order.getOrderStatus().getCode() + "");
-            User user = userMapper.selectById(order.getUserId());
-            if(ToolUtil.isNotEmpty(user)){
-                orderDetailVO.setShopName(user.getShopName());
-                orderDetailVO.setShopAddress(user.getAddress());
-            }
-
-            return orderDetailVO;
-        }).orElse(null);
-    }
-
-    /**
-     * @param order
-     * @return
-     */
-    @Override
-    public Object changeStatus(Order order) {
-        //确认发货 确认收货 评价
-        Order byId = this.getById(order.getId());
-
-        switch (order.getOrderStatus()) {
-            //已付款
-            case PRE_SEND:
-                if (byId.getOrderStatus().equals(OrderStatusEnum.PRE_PAY)) {
-                    return new ResultUtil<>().setErrorMsg(202, "该订单未生成");
-                }
-                byId.setPayTypeEnum(order.getPayTypeEnum());
-                break;
-
-            //待收货
-            case DELIVER_SEND:
-                if (!byId.getOrderStatus().equals(OrderStatusEnum.PRE_SEND)) {
-                    return new ResultUtil<>().setErrorMsg(202, "该订单未支付");
-                }
-                byId.setExpressCode(order.getExpressCode());
-                break;
-
-            //待支付尾款
-            case SETTLE_ACCOUNTS:
-                if (!byId.getOrderStatus().equals(OrderStatusEnum.PRE_SEND)) {
-                    return new ResultUtil<>().setErrorMsg(202, "该订单未支付");
-                }
-                break;
-
-            //等待商家收款
-            case SETTLE_RECEIPT:
-                if (!byId.getOrderStatus().equals(OrderStatusEnum.SETTLE_ACCOUNTS)) {
-                    return new ResultUtil<>().setErrorMsg(202, "该订单商家未收款");
-                }
-                break;
-
-            //待确定
-            case PRE_COMMENT:
-                if (byId.getOrderStatus().equals(OrderStatusEnum.PRE_SEND)) {
-                    return new ResultUtil<>().setErrorMsg(202, "该订单未发货");
-                }else if (byId.getOrderStatus().equals(OrderStatusEnum.SETTLE_ACCOUNTS)) {
-                    return new ResultUtil<>().setErrorMsg(202, "该订单未付尾款");
-                }
-                break;
-
-            //退款售后
-            case SALE_AFTER:
-                break;
-
-            //取消订单
-            case CANCEL_ORDER:
-                break;
-
-            //完成
-            case IS_COMPLETE:
-                break;
-
-            default:
-                break;
-        }
-
-        if(order.getOrderStatus().equals(OrderStatusEnum.DELIVER_SEND)){//判断传进来的是确定发货
-
-                 if(byId.getBuyState().equals(2)) {  //订单是租赁状态改成待付款
-
-                     order.setOrderStatus(OrderStatusEnum.SETTLE_ACCOUNTS);
-                }
-
-        }
-
-        byId.setOrderStatus(order.getOrderStatus());
-        this.updateById(byId);
-
-        //添加订单消息
-        OrderMessage orderMessage = new OrderMessage();
-        orderMessage.setTitle(Optional.ofNullable(orderDetailMapper.selectOne(Wrappers.<OrderDetail>lambdaQuery().eq(OrderDetail::getOrderId, byId.getId()))).map(OrderDetail::getGoodName).orElse(null))
-                .setPic(Optional.ofNullable(orderDetailMapper.selectOne(Wrappers.<OrderDetail>lambdaQuery().eq(OrderDetail::getOrderId, byId.getId()))).map(OrderDetail::getGoodPics).orElse(null))
-                .setOrderNum(byId.getOrderNum())
-                .setOrderStatus(byId.getOrderStatus().getValue())
-                .setTime(new Date())
-                .setCreateBy(byId.getCreateBy());
-        iOrderMessageService.insertOrderUpdateOrderMessage(orderMessage);
-        return null;
-    }
 
     @Override
     public Result<Object> confirmReceive(String orderId) {
@@ -589,9 +363,15 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         return Optional.ofNullable(this.getById(orderId)).map(order -> {
 
             //1. 更改订单状态
-            order.setOrderStatus(OrderStatusEnum.PRE_COMMENT);
-            this.updateById(order);
+            if (order.getBuyType().equals(BuyTypeEnum.FULL_PURCHASE)) {
 
+                order.setOrderStatus(OrderStatusEnum.PRE_COMMENT);
+            }else {
+
+                order.setOrderStatus(OrderStatusEnum.SETTLE_ACCOUNTS);
+            }
+
+            this.updateById(order);
 
             //2. 处理分销逻辑
             resolveOrderTwoProfit(orderId);
@@ -600,157 +380,231 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         }).orElse(new ResultUtil<>().setErrorMsg(201, "该订单不存在！"));
     }
 
-
     /**
-     * 下单展示
+     * 支付尾款
      *
-     * @param orderShowDTO
-     * @return
+     * @param orderOperateDto 实体
+     * @return Object
      */
     @Override
-    public ShowOrderVO showOrder(OrderShowDTO orderShowDTO) {
-        String id = securityUtil.getCurrUser().getId();
-        ShowOrderVO showOrderVO = new ShowOrderVO();
+    public Result<Object> payTheBalance(OrderOperateDto orderOperateDto) {
 
-        //查询地址信息
-        showOrderVO.setHarvestAddressVO(harvestAddressService.getAddressDetail(orderShowDTO.getAddressId()));
-        //获取商品的信息
-        //直接下单
-        List<AppGoodOrderVO> appGoodOrderVOS = new ArrayList<>();
-        if (orderShowDTO.getType() == 1) {
-            appGoodOrderVOS.add(this.getShowOrderVOOne(orderShowDTO));
-            //购物车多选下单
-        } else if (orderShowDTO.getType() == 2) {
-            List<ShoppingCart> shoppingCarts = shoppingCartService.listByIds(ToolUtil.splitterStr(orderShowDTO.getShoppingCartIds()));
-            for (ShoppingCart shoppingCart : shoppingCarts) {
-                appGoodOrderVOS.add(this.getShowOrderVOShoppingCart(shoppingCart, id));
-            }
-        }
-        showOrderVO.setAppGoodOrderVOS(appGoodOrderVOS);
+      return Optional.ofNullable(this.getById(orderOperateDto.getOrderId()))
+                .map(order -> {
 
-        //可获得积分
-        int integral = appGoodOrderVOS.stream().filter(appGoodOrderVO -> appGoodOrderVO.getIntegral() != null).mapToInt(AppGoodOrderVO::getIntegral).sum();
-        showOrderVO.setIntegral(integral);
+                    //1. 支付参数
+                    PayModel payModel = new PayModel();
+                    payModel.setOrderNums(order.getId());
+                    payModel.setTotalPrice(Optional.ofNullable(orderDetailService.getOrderDetailByOrderId(order.getId()))
+                    .map(OrderDetailVo::getGoodBalancePayment).orElse(new BigDecimal(0)));
 
-        showOrderVO.setSumMoney(this.getSumPrice(appGoodOrderVOS));
+                    //2. 处理支付
+                    //微信
+                    if (orderOperateDto.getPayType().equals(PayTypeEnum.WE_CHAT)) {
 
-        return showOrderVO;
+                        return payService.wxPayMethod(payModel);
+
+                        //支付宝
+                    } else if (orderOperateDto.getPayType().equals(PayTypeEnum.ALI_PAY)) {
+
+                        return payService.aliPayMethod(payModel);
+
+                        //余额支付
+                    } else if (orderOperateDto.getPayType().equals(PayTypeEnum.BALANCE)) {
+
+                        User user = userService.getById(securityUtil.getCurrUser().getId());
+
+                        if (ToolUtil.isEmpty(user.getPayPassword())) {
+
+                            return new ResultUtil<>().setErrorMsg(206, "暂未设置支付密码");
+                        }
+                        if (new BCryptPasswordEncoder().matches(orderOperateDto.getPayPassword(), user.getPayPassword())) {
+
+                            if (user.getBalance().compareTo(payModel.getTotalPrice()) < 0) {
+
+                                return new ResultUtil<>().setErrorMsg(207, "余额不足！");
+                            }
+
+
+                            //更新订单
+                            order.setRentPayType(orderOperateDto.getPayType())
+                                    .setRentType(RentTypeEnum.ONLINE_PAY)
+                                    .setOrderStatus(OrderStatusEnum.SETTLE_RECEIPT);
+                            this.updateById(order);
+
+
+                            //2.减少用户余额,记录明细
+                            Optional.ofNullable(userService.getById(order.getCreateBy()))
+                                    .ifPresent(userCreate -> {
+
+                                        userCreate.setBalance(userCreate.getBalance().subtract(order.getTotalPrice()));
+                                        userService.updateById(user);
+
+                                        Balance balance = new Balance();
+                                        //生成余额明细
+                                        balance.setTitle("购买商品")
+                                                .setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.SUB)
+                                                .setOrderId(order.getId())
+                                                .setCreateBy(order.getCreateBy());
+                                        balanceService.save(balance);
+                                    });
+
+                            //3. 处理回调
+                            //3.1. 平台按照比例转账到商家支付宝账户
+
+                            TransferDto transfer = new TransferDto();
+
+                            //3.2 商家的支付宝账户
+                            transfer.setAliPayAcount(Optional.ofNullable(userService.getById(order.getUserId()))
+                                    .map(User::getAlipayAccount).orElse(null));
+
+                            //3.3 需要支付给商家的钱款
+                            transfer.setAmount(profitPercentService.getProfitPercentLimitOne(ProfitTypeEnum.FIRST)
+                                    .getStoreProfit().multiply(order.getTotalPrice()));
+
+                            //3.4 转账操作
+                            try {
+                                String result = payService.aliPayTransfer(transfer);
+
+                                log.info("处理支付宝转账回调信息" + result);
+
+                            } catch (AlipayApiException e) {
+                                e.printStackTrace();
+                            }
+
+                            return new ResultUtil<>().setData(200, "支付成功!");
+                        }else {
+
+                            return new ResultUtil<>().setErrorMsg(208, "支付密码不一致！");
+                        }
+                    }
+
+                    return new ResultUtil<>().setSuccessMsg("支付尾款成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "当前订单不存在！"));
+    }
+
+    /**
+     * 确认尾款
+     *
+     * @param orderOperateDto 实体
+     * @return Object
+     */
+    @Override
+    public Result<Object> confirmTheBalance(OrderOperateDto orderOperateDto) {
+
+        return Optional.ofNullable(this.getById(orderOperateDto.getOrderId()))
+                .map(order -> {
+
+                    order.setOrderStatus(OrderStatusEnum.PRE_COMMENT);
+
+                    this.updateById(order);
+
+                    return new ResultUtil<>().setSuccessMsg("确认尾款成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "该订单不存在！"));
 
     }
 
     /**
-     * 商品详情，直接下单
+     * 去评价订单
      *
-     * @param orderShowDTO
+     * @param orderOperateDto 实体
+     * @return Object
      */
-    private AppGoodOrderVO getShowOrderVOOne(OrderShowDTO orderShowDTO) {
-        //查询商品信息
-        AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(orderShowDTO.getGoodId(), orderShowDTO.getAttrSymbolPath(),orderShowDTO.getBuyState());
-        //查询商品价格
-        SizeAndRolor one = sizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery()
-                .eq(SizeAndRolor::getAttrSymbolPath, orderShowDTO.getAttrSymbolPath())
-                .eq(SizeAndRolor::getGoodsId, orderShowDTO.getGoodId()));
+    @Override
+    public Result<Object> toEvaluate(OrderOperateDto orderOperateDto) {
 
-        if (EmptyUtil.isNotEmpty(one)) {
-            appGoodOrder.setGoodNewPrice(one.getGoodPrice()).setGoodPic(one.getPic()).setIntegral(one.getInventory());
-        }
-        appGoodOrder.setBuyCount(orderShowDTO.getCount());
-
-        //处理属性配置
-//        appGoodOrder.setItemAttrKeys(iItemAttrValService.getItemAttrVals(orderShowDTO.getAttrSymbolPath()));
-        if (!StringUtils.isEmpty(orderShowDTO.getDiscountCouponId())) {
-            //处理优惠券信息 订单的价格是否满足
-            DiscountVO detailById = discountMyService.getDetailById(orderShowDTO.getDiscountCouponId());
-            int i = detailById.getFullMoney().compareTo(new BigDecimal(appGoodOrder.getBuyCount()).multiply(appGoodOrder.getGoodNewPrice()));
-            if (i == -1) {
-                appGoodOrder.setDiscountMyId(detailById.getId());
-                detailById.setId(null);
-                ToolUtil.copyProperties(detailById, appGoodOrder);
-            }
-        }
-
-
-        return appGoodOrder;
+        // TODO: 2020/5/28 评价订单
+        return null;
     }
 
     /**
-     * 从购物车下单，获取商品信息
+     * 取消订单
      *
-     * @param shoppingCart
+     * @param orderOperateDto 实体
+     * @return Object
      */
-    private AppGoodOrderVO getShowOrderVOShoppingCart(ShoppingCart shoppingCart, String userId) {
-        AppGoodOrderVO appGoodOrderVO = new AppGoodOrderVO();
-        //查询商品信息
-        AppGoodOrderVO appGoodOrder = goodService.getAppGoodOrder(shoppingCart.getGoodId(), shoppingCart.getAttrSymbolPath(),null);
-        appGoodOrder.setBuyState(shoppingCart.getBuyState());
-        appGoodOrder.setLeaseState(shoppingCart.getLeaseState());
-        ToolUtil.copyProperties(appGoodOrder, appGoodOrderVO);
-        //查询商品价格
-        /*SizeAndRolor one = sizeAndRolorService.getOne(Wrappers.<SizeAndRolor>lambdaQuery()
-                .eq(SizeAndRolor::getAttrSymbolPath, shoppingCart.getAttrSymbolPath())
-                .eq(SizeAndRolor::getGoodsId, shoppingCart.getGoodId()));
-        if (EmptyUtil.isNotEmpty(one)){
-            appGoodOrderVO.setGoodNewPrice(one.getGoodPrice()).setGoodPic(one.getPic()).setIntegral(one.getInventory());
-        }*/
-        appGoodOrderVO.setBuyCount(shoppingCart.getCount());
-        //获取这个人，这个商品 能用的优惠券
-        String goodId = shoppingCart.getGoodId();
-        BigDecimal multiply = appGoodOrderVO.getGoodNewPrice().multiply(new BigDecimal(appGoodOrderVO.getBuyCount()));
-        List<DiscountVO> dealCanUseCoupon1 = discountMyService.getDealCanUseCoupon(userId, goodId, multiply);
-        if (EmptyUtil.isNotEmpty(dealCanUseCoupon1)) {
-            DiscountVO dealCanUseCoupon = dealCanUseCoupon1.get(0);
-            if (EmptyUtil.isNotEmpty(dealCanUseCoupon)) {
-                ToolUtil.copyProperties(dealCanUseCoupon, appGoodOrder);
-                appGoodOrder.setDiscountMyId(dealCanUseCoupon.getId());
-            }
+    @Override
+    public Result<Object> cancelOrder(OrderOperateDto orderOperateDto) {
+
+        return Optional.ofNullable(this.getById(orderOperateDto.getOrderId()))
+                .map(order -> {
+
+                    order.setOrderStatus(OrderStatusEnum.CANCEL_ORDER);
+
+                    this.updateById(order);
+
+                    return new ResultUtil<>().setSuccessMsg("取消订单成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "该订单不存在！"));
+
+    }
+
+
+    @Override
+    public Result<DataVo<AppMyOrderListVo>> getMyOrderList(PageVo pageVo, OrderStatusEnum orderStatus) {
+
+        IPage<Order> orderPage = this.page(PageUtil.initMpPage(pageVo), Wrappers.<Order>lambdaQuery()
+        .eq(ToolUtil.isNotEmpty(orderStatus), Order::getOrderStatus, orderStatus)
+        .eq(Order::getCreateBy, securityUtil.getCurrUser().getId())
+        .orderByDesc(Order::getCreateTime));
+
+        if (ToolUtil.isEmpty(orderPage.getRecords())) {
+
+            return new ResultUtil<DataVo<AppMyOrderListVo>>().setErrorMsg(201, "暂无订单数据！");
         }
 
-        return appGoodOrderVO;
+        DataVo<AppMyOrderListVo> result = new DataVo<>();
+
+        result.setDataResult(orderPage.getRecords().parallelStream().flatMap(order -> {
+
+            AppMyOrderListVo appMyOrderListVo = new AppMyOrderListVo();
+            appMyOrderListVo.setOrderDetailVo(orderDetailService.getOrderDetailByOrderId(order.getId()));
+            ToolUtil.copyProperties(order, appMyOrderListVo);
+
+            return Stream.of(appMyOrderListVo);
+        }).collect(Collectors.toList())).setTotalPage(orderPage.getPages())
+                .setCurrentPageNum(orderPage.getCurrent())
+                .setTotalSize(orderPage.getSize());
+
+        return new ResultUtil<DataVo<AppMyOrderListVo>>().setData(result, "获取我的订单数据成功！");
+
     }
 
     /**
-     * 计算订单总金额
+     * 获取我的订单详情
      *
-     * @param appGoodOrderVOS
+     * @param id 订单id
+     * @return AppMyOrderDetailVo
      */
-    private BigDecimal getSumPrice(List<AppGoodOrderVO> appGoodOrderVOS) {
-        BigDecimal sumPrice = new BigDecimal(0);
-        for (AppGoodOrderVO appGoodOrderVO : appGoodOrderVOS) {
-            if (StringUtils.isEmpty(appGoodOrderVO.getDiscountMyId())) {
-                //购买状态 1购买 2租赁
-                if(appGoodOrderVO.getBuyState().equals(2)){
-                    sumPrice = sumPrice.add(appGoodOrderVO.getGoodDeposit().multiply(new BigDecimal(Optional.ofNullable(appGoodOrderVO.getBuyCount()).orElse(1))));
-                }else {
-                    sumPrice = sumPrice.add(appGoodOrderVO.getGoodNewPrice().multiply(new BigDecimal(Optional.ofNullable(appGoodOrderVO.getBuyCount()).orElse(1))));
-                }
+    @Override
+    public Result<AppMyOrderDetailVo> getMyOrderDetail(String id) {
 
-            } else {
-                //购买状态 1购买 2租赁
-                if(appGoodOrderVO.getBuyState().equals(2)){
-                    sumPrice = sumPrice.add(appGoodOrderVO.getGoodDeposit().divide(new BigDecimal(appGoodOrderVO.getBuyCount()))).subtract(appGoodOrderVO.getSubtractMoney());
-                }else {
-                    sumPrice = sumPrice.add(appGoodOrderVO.getGoodNewPrice().divide(new BigDecimal(appGoodOrderVO.getBuyCount()))).subtract(appGoodOrderVO.getSubtractMoney());
-                }
+        return Optional.ofNullable(this.getById(id)).map(order -> {
 
-            }
-        }
-        return sumPrice;
+            AppMyOrderDetailVo appMyOrderDetail = new AppMyOrderDetailVo();
+            appMyOrderDetail.setOrderDetailVo(orderDetailService.getOrderDetailByOrderId(order.getId()));
+            ToolUtil.copyProperties(order, appMyOrderDetail);
+
+            return new ResultUtil<AppMyOrderDetailVo>().setData(appMyOrderDetail, "获取我的订单详情成功！");
+        }).orElse(new ResultUtil<AppMyOrderDetailVo>().setErrorMsg(201, "当前订单不存在！"));
     }
 
 
     /**
      * 微信回调
      *
-     * @param request
-     * @return
+     * @param request request
+     * @return String
      */
     @Override
     public String wxPayNotify(HttpServletRequest request) {
+
         String xmlMsg = HttpKit.readData(request);
+
         log.warn("微信支付回调消息参数=\n" + xmlMsg);
         Map<String, String> params = WxPayKit.xmlToMap(xmlMsg);
 
         String returnCode = params.get("return_code");
+
         //获取创建时候的 商户订单号（唯一就行）
         String orderNo = params.get("out_trade_no");
 
@@ -767,7 +621,8 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         if (WxPayKit.verifyNotify(params, WeChatConfig.KEY, SignType.HMACSHA256)) {
             if (WxPayKit.codeIsOk(returnCode)) {
 
-                this.settingOrder(orders);
+                // 处理回调逻辑
+                resolveOrderOneProfit(orders);
 
                 // 发送通知等
                 xml = new HashMap<>(2);
@@ -783,17 +638,18 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     /**
      * 支付宝回调
      *
-     * @param request
-     * @return
+     * @param request request
+     * @return String
      */
     @Override
     public String aliPayNotify(HttpServletRequest request) {
+
         Map<String, String> params = AliPayUtilTool.toMap(request);
+
         log.warn("支付宝回调消息参数=\n" + JSONUtil.toJsonPrettyStr(params));
         JSONObject object = new JSONObject();
-        try {
 
-            boolean verifyResult = AlipaySignature.rsaCheckV1(params, AlipayConfig.ALIPAY_PUBLIC_KEY, AlipayConfig.CHARSET, AlipayConfig.SIGN_TYPE);
+        try {
 
             //付款状态
             String tradeStatus = params.get("trade_status");
@@ -820,7 +676,6 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             } else {
 
                 System.out.println("notify_url 验证失败");
-                // TODO
                 object.put("return_code", "-1");
                 object.put("return_msg", "notify_url 验证失败，请重新下单");
             }
@@ -836,11 +691,88 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     }
 
     @Override
-    public List<Order> getOrderListByStoreId(String storeId) {
+    public Result<Object> sendGood(OrderOperateDto orderOperateDto) {
 
-        return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<Order>lambdaQuery()
-                .eq(Order::getUserId, storeId).orderByDesc(Order::getCreateTime))))
-                .orElse(null);
+        return Optional.ofNullable(this.getById(orderOperateDto.getOrderId()))
+                .map(order -> {
+
+                    order.setExpressCode(orderOperateDto.getExpressCode())
+                            .setOrderStatus(OrderStatusEnum.DELIVER_SEND);
+
+                    this.updateById(order);
+
+                    return new ResultUtil<>().setSuccessMsg("发货订单成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "该订单不存在！"));
+    }
+
+    @Override
+    public Result<DataVo<BackOrderListVO>> getBackOrderList(BackOrderListDto backOrderListDto, PageVo pageVo) {
+
+
+        //根据筛选条件构建查询分页数据
+        Page<Order> orderPage = this.page(PageUtil.initMpPage(pageVo), Wrappers.<Order>lambdaQuery()
+
+         //根据手机号模糊查询
+        .like(ToolUtil.isNotEmpty(backOrderListDto.getPhone()), Order::getPhone, backOrderListDto.getPhone())
+
+         //根据订单状态查询
+        .eq(ToolUtil.isNotEmpty(backOrderListDto.getOrderStatus()), Order::getOrderStatus, backOrderListDto.getOrderStatus())
+
+         //根据购买状态
+        .eq(ToolUtil.isNotEmpty(backOrderListDto.getBuyState()), Order::getBuyType, backOrderListDto.getBuyState())
+
+         //大于支付开始时间
+        .ge(ToolUtil.isNotEmpty(backOrderListDto.getPayTimeBeginTime()), Order::getCreateTime, backOrderListDto.getPayTimeBeginTime())
+
+         //小于支付结束时间
+        .le(ToolUtil.isNotEmpty(backOrderListDto.getPayTimeEndTime()), Order::getCreateTime, backOrderListDto.getPayTimeEndTime())
+
+         //管理员和商家筛选查询
+        .eq(ToolUtil.isNotEmpty(backOrderListDto.getStoreId()), Order::getCreateBy, backOrderListDto.getStoreId())
+
+         //默认按照订单创建时间排序
+        .orderByDesc(Order::getCreateTime));
+
+
+        //封装数据
+
+        //1. 判断数据是否为空
+        if (ToolUtil.isEmpty(orderPage.getRecords())) {
+
+            return new ResultUtil<DataVo<BackOrderListVO>>().setErrorMsg(201, "暂无数据！");
+        }
+
+
+        //2. 封装数据
+        DataVo<BackOrderListVO> result = new DataVo<>();
+
+        result.setDataResult(orderPage.getRecords().parallelStream().flatMap(order -> {
+
+            BackOrderListVO backOrderListVO = new BackOrderListVO();
+
+            //2.1 所属店铺
+            backOrderListVO.setStoreName(Optional.ofNullable(userService.getById(order.getUserId()))
+            .map(User::getNickName).orElse("-"));
+
+            // TODO: 2020/5/28 运费金额
+            backOrderListVO.setFreightPrice(new BigDecimal(0));
+
+            ToolUtil.copyProperties(order, backOrderListVO);
+
+            return Stream.of(backOrderListVO);
+        }).collect(Collectors.toList())).setTotalSize(orderPage.getSize())
+                .setCurrentPageNum(orderPage.getCurrent())
+                .setTotalPage(orderPage.getTotal());
+
+        //3. 筛选店铺
+        if (ToolUtil.isNotEmpty(backOrderListDto.getStoreName())) {
+
+            result.setDataResult(result.getDataResult().parallelStream().filter(backOrderListVO ->
+                    backOrderListVO.getStoreName().contains(backOrderListDto.getStoreName()))
+            .collect(Collectors.toList())).setTotalSize((long) result.getDataResult().size());
+        }
+
+        return new ResultUtil<DataVo<BackOrderListVO>>().setData(result, "获取订单列表数据成功！");
     }
 
     /***
@@ -868,7 +800,16 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         orders.parallelStream().forEach(order -> {
 
             //1. 处理订单状态
-            order.setOrderStatus(OrderStatusEnum.PRE_SEND);
+
+            if (order.getOrderStatus().equals(OrderStatusEnum.PRE_PAY)) {
+
+                order.setOrderStatus(OrderStatusEnum.PRE_SEND);
+
+            }else if (order.getOrderStatus().equals(OrderStatusEnum.SETTLE_ACCOUNTS)) {
+
+                order.setOrderStatus(OrderStatusEnum.SETTLE_RECEIPT);
+            }
+
             this.updateById(order);
 
             //2. 平台按照比例转账到商家支付宝账户
@@ -904,6 +845,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                             balance.setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.ADD)
                                     .setTitle("订单" + order.getOrderNum() + "收入")
                                     .setPrice(transferDto.getAmount())
+                                    .setOrderId(order.getId())
                                     .setCreateBy(order.getUserId());
                             balanceService.save(balance);
 
@@ -963,6 +905,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                       balance.setTitle("佣金到账")
                               .setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.ADD)
                               .setPrice(personProfitMoney)
+                              .setOrderId(orderId)
                               .setCreateBy(order.getCreateBy());
                       balanceService.save(balance);
 
@@ -1010,6 +953,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                             balance.setTitle("佣金到账")
                                     .setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.ADD)
                                     .setPrice(personProfitMoney)
+                                    .setOrderId(orderId)
                                     .setCreateBy(user.getId());
                             balanceService.save(balance);
 
@@ -1031,119 +975,12 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
                         });
 
-
                     });
         });
 
 
     }
 
-
-    /***
-     * 支付宝、微信回调 处理订单
-     */
-    private void settingOrder(List<Order> orders) {
-
-        orders.parallelStream().forEach(order ->  {
-
-            //更新订单信息
-            order.setOrderStatus(OrderStatusEnum.PRE_SEND);
-            this.updateById(order);
-
-
-            // TODO: 2020/5/13 0013 处理分账逻辑
-
-        });
-
-    }
-
-
-    /*****************************************************后端模块开始*************************************************************/
-
-
-    /**
-     * 获取获取订单列表
-     */
-    @Override
-    public List PCgetShopOrderList(PcOrderDTO pcOrderDTO){
-
-        //查询登录用户的权限
-        String userRole = goodService.getRoleUserList(securityUtil.getCurrUser().getId());
-
-        //判断权限是否为空
-        if(ToolUtil.isEmpty(userRole)){
-
-            return null;
-        }else {
-
-            //查询订单表
-            List<Order> orderList = new ArrayList<>();
-
-            //登录角色是管理员
-            if(userRole.equals(CommonConstant.ADMIN)){
-
-                //管理员查全部
-                orderList = this.list(new QueryWrapper<Order>().lambda()
-                        .eq(ToolUtil.isNotEmpty(pcOrderDTO.getId()),Order::getId,pcOrderDTO.getId())
-                        .eq(ToolUtil.isNotEmpty(pcOrderDTO.getOrderStatus()),Order::getOrderStatus,pcOrderDTO.getOrderStatus())
-                        .eq(ToolUtil.isNotEmpty(pcOrderDTO.getPayTypeEnum()),Order::getPayTypeEnum,pcOrderDTO.getPayTypeEnum())
-
-                );//订单id
-
-                //登录是商家或者个人商家
-            }else if(userRole.equals(CommonConstant.STORE)||userRole.equals(CommonConstant.PER_STORE)){
-
-                //查商家自己下的订单
-                orderList = this.list(new QueryWrapper<Order>().lambda().eq(Order::getUserId,securityUtil.getCurrUser().getId())
-                        .eq(ToolUtil.isNotEmpty(pcOrderDTO.getId()),Order::getId,pcOrderDTO.getId())
-                        .eq(ToolUtil.isNotEmpty(pcOrderDTO.getOrderStatus()),Order::getOrderStatus,pcOrderDTO.getOrderStatus())
-                        .eq(ToolUtil.isNotEmpty(pcOrderDTO.getPayTypeEnum()),Order::getPayTypeEnum,pcOrderDTO.getPayTypeEnum())
-                );//订单id
-
-            }
-
-            //判断订单表不为空
-            if(ToolUtil.isNotEmpty(orderList)){
-
-                List<PCgetShopOrderListVO> pCgetShopOrderListVO = orderList.parallelStream()
-                        .map(shopOrderList->{
-
-                            PCgetShopOrderListVO shopOrder = new PCgetShopOrderListVO();
-
-                            //订单明细表
-                            OrderDetail orderDetai = orderDetailMapper.selectOne(Wrappers.<OrderDetail>lambdaQuery()
-                                    .eq(OrderDetail::getOrderId,shopOrderList.getId()));
-
-                            ToolUtil.copyProperties(orderDetai,shopOrder);
-
-                            //订单表
-                            ToolUtil.copyProperties(shopOrderList,shopOrder);
-
-                            //店铺名称
-                            shopOrder.setShopName(userService.getUserIdByUserName(shopOrderList.getUserId()));
-
-                            //商家类型
-                            shopOrder.setShopType(goodService.getRoleUserList(shopOrderList.getUserId()));
-
-                            //商品属性
-                            shopOrder.setAttrSymbolPathName(iSizeAndRolorService.attrSymbolPathName(orderDetai.getAttrSymbolPath()));
-
-                            return shopOrder;
-                        })//筛选
-                        .filter(pcOrderVo->pcOrderVo.getShopName().contains(ToolUtil.isNotEmpty(pcOrderDTO.getShopName())?pcOrderDTO.getShopName():pcOrderVo.getShopName()))
-                        .filter(pcOrderVo->pcOrderVo.getGoodName().contains(ToolUtil.isNotEmpty(pcOrderDTO.getGoodName())?pcOrderDTO.getGoodName():pcOrderVo.getGoodName()))
-                        .filter(pcOrderVo->pcOrderVo.getShopType().equals(ToolUtil.isNotEmpty(pcOrderDTO.getCommonConstant())?pcOrderDTO.getCommonConstant():pcOrderVo.getShopType()))
-                        .collect(Collectors.toList());
-
-                return pCgetShopOrderListVO;
-            }else {
-
-                return null;
-            }
-
-        }
-
-    }
 
     @Override
     public Result<Object> insertOffLineOrder(OffLineOrderDto offLineOrderDto) {
@@ -1176,45 +1013,24 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         .orElse(new BigDecimal(0));
     }
 
-    /**
-     * 商家查询用户的订单详情
-     * @param id 订单id
-     * @return
-     */
+
     @Override
-    public Result<Object> shopQueryUserOrderrDetail(String id, String shopId) {
+    public Boolean judgeOrderFreeze(String orderId) {
 
-        //按订单id和商家id查看订单详情
-        Order order = this.getOne(Wrappers.<Order>lambdaQuery().eq(Order::getId,id).eq(Order::getUserId,shopId));
+        return Optional.ofNullable(this.getById(orderId))
+                .map(order -> DateUtil.offsetDay(order.getCreateTime(),
+                        icommonParamService.getCommonParamVo()
+                .getFreezeOrderTime()).getTime() >= DateUtil.date().getTime())
+                .orElse(false);
+    }
 
-        if(ToolUtil.isNotEmpty(order)){
+    @Override
+    public List<Order> getOrderListByStoreId(String storeId) {
 
-            OrderDetailVO orderDetailVO = new OrderDetailVO();
-
-            ToolUtil.copyProperties(order,orderDetailVO);
-
-            //商品详情
-            List<OrderDetailListVO> orderListByOrderId = orderDetailService.getOrderListByOrderId(id);
-            orderDetailVO.setOrderDetails(orderListByOrderId);
-
-            //支付状态
-            if (EmptyUtil.isNotEmpty(order.getPayTypeEnum())){  orderDetailVO.setPayTypeEnum(order.getPayTypeEnum().getValue());  }
-
-            //订单状态
-            orderDetailVO.setOrderStatus(order.getOrderStatus().getCode() + "");
-
-            //商家信息
-            User user = userMapper.selectById(order.getUserId());
-            if(ToolUtil.isNotEmpty(user)){
-                orderDetailVO.setShopName(user.getShopName());
-                orderDetailVO.setShopAddress(user.getAvatar());
-            }
-
-            return  new ResultUtil<>().setData(orderDetailVO,"获取订单信息成功！");
-
-        }
-
-        return  new ResultUtil<>().setErrorMsg(201,"信息错误！获取订单信息失败！");
+        return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<Order>lambdaQuery()
+        .eq(Order::getUserId, storeId)
+        .orderByDesc(Order::getCreateTime))))
+        .orElse(null);
     }
 
 

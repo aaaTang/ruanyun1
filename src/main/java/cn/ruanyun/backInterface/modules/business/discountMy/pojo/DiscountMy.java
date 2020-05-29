@@ -3,6 +3,7 @@ package cn.ruanyun.backInterface.modules.business.discountMy.pojo;
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import com.baomidou.mybatisplus.annotation.TableName;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import javax.persistence.Entity;
@@ -21,14 +22,12 @@ public class DiscountMy extends RuanyunBaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-      /**
-     * 优惠券id
-     */
+    @ApiModelProperty(value = "优惠券id")
     private String discountCouponId;
-    //0未使用，1已使用，2过期
+
+    @ApiModelProperty(value = "0未使用，1已使用，2过期")
     private Integer status = CommonConstant.STATUS_NORMAL;
-    /**
-     * 优惠卷有效时间
-     */
+
+    @ApiModelProperty(value = "优惠卷有效时间")
     private Date discountCouponTime;
 }

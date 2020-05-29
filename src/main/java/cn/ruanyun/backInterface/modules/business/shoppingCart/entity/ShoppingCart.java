@@ -2,6 +2,8 @@ package cn.ruanyun.backInterface.modules.business.shoppingCart.entity;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.enums.BuyTypeEnum;
+import cn.ruanyun.backInterface.common.enums.ShopCartTypeEnum;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -25,50 +27,33 @@ public class ShoppingCart extends RuanyunBaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 商品id
-     */
+    @ApiModelProperty(value = "商品id")
     private String goodId;
 
-    /**
-     * 规格和规格属性id
-     */
+    @ApiModelProperty(value = "商品名称")
+    private String name;
+
+    @ApiModelProperty(value = "商品图片")
+    private String pic;
+
+    @ApiModelProperty(value = "属性")
     private String attrSymbolPath;
 
-    /**
-     * 购买数量
-     */
-    private Integer count;
+    @ApiModelProperty(value = "购买数量")
+    private Integer buyCount;
 
-    /**
-     * 优惠券id
-     */
-    private String discountCouponId;
-
-    /**
-     * 商品新价格
-     */
-    private BigDecimal goodNewPrice;
-
-    /**
-     * 总价格
-     */
-    private BigDecimal totalPrice = new BigDecimal(0);
-
-
-    /**
-     *  商品定金
-     */
+    @ApiModelProperty(value = "定金")
     private BigDecimal goodDeposit;
 
-    /**
-     *  商品尾款
-     */
-    private BigDecimal goodDalancePayment;
+    @ApiModelProperty(value = "尾款")
+    private BigDecimal goodBalancePayment;
 
-    @ApiModelProperty(value = "购买状态 1购买 2租赁 3购买和租赁")
-    private Integer buyState;
+    @ApiModelProperty(value = "价格")
+    private BigDecimal price;
 
-    @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")
-    private Integer leaseState;
+    @ApiModelProperty(value = "购买类型")
+    private BuyTypeEnum buyType;
+
+    @ApiModelProperty(value = "购物车商品类型")
+    private ShopCartTypeEnum shopCartType;
 }

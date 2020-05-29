@@ -80,7 +80,7 @@ public class User extends RuanyunBaseEntity {
     /**
      * 个人余额
      */
-    private BigDecimal Balance = new BigDecimal(0);
+    private BigDecimal balance = new BigDecimal(0);
 
 
     /**

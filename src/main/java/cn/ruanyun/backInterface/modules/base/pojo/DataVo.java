@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.base.pojo;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -13,18 +14,15 @@ public class DataVo<T> {
      */
     private Integer totalNumber;
 
-    /**
-     * mybatisPlus 分页
-     */
+    @ApiModelProperty(value = "数据总大小")
     private Long totalSize;
 
-    /**
-     * 当前页
-     */
+    @ApiModelProperty(value = "当前页")
     private Long currentPageNum;
 
-    /**
-     * 数据集合
-     */
+    @ApiModelProperty(value = "数据集合")
     private List<T> dataResult;
+
+    @ApiModelProperty(value = "总页数")
+    private Long totalPage;
 }

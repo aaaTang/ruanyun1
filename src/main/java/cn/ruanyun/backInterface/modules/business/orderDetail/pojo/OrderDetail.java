@@ -2,6 +2,8 @@ package cn.ruanyun.backInterface.modules.business.orderDetail.pojo;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.enums.BuyTypeEnum;
+import cn.ruanyun.backInterface.common.enums.ShopCartTypeEnum;
 import cn.ruanyun.backInterface.modules.business.discountMy.pojo.DiscountMy;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;
@@ -23,68 +25,45 @@ public class OrderDetail extends RuanyunBaseEntity {
 
     private static final long serialVersionUID = 1L;
 
+    @ApiModelProperty(value = "订单id")
     private String orderId;
 
     @ApiModelProperty(value = "商品id")
     private String goodId;
 
-    /**
-     * 商品名称
-     */
-    private String goodName;
+    @ApiModelProperty(value = "商品名称")
+    private String name;
 
-    /**
-     * 商品图片
-     */
-    private String goodPics;
+    @ApiModelProperty(value = "商品图片")
+    private String pic;
 
-    /**
-     * 商品新价格
-     */
-    private BigDecimal goodNewPrice;
-
-    /**
-     * 积分
-     */
-    private Integer integral;
-
-    /**
-     * 属性
-     */
+    @ApiModelProperty(value = "属性")
     private String attrSymbolPath;
 
-    /**
-     * 购买数量
-     */
+    @ApiModelProperty(value = "购买数量")
     private Integer buyCount;
 
-    /** 我的优惠券id
-     *
-     */
-    private String discountMyId;
+    @ApiModelProperty(value = "价格")
+    private BigDecimal price;
 
-    /**
-     * 满多少
-     */
-    private BigDecimal fullMoney;
-    /**
-     * 减多少
-     */
-    private BigDecimal subtractMoney;
-
-    /**
-     *  商品定金
-     */
+    @ApiModelProperty(value = "定金")
     private BigDecimal goodDeposit;
 
-    /**
-     *  商品尾款
-     */
-    private BigDecimal goodDalancePayment;
+    @ApiModelProperty(value = "尾款")
+    private BigDecimal goodBalancePayment;
 
-    @ApiModelProperty(value = "购买状态 1购买 2租赁 3购买和租赁")
-    private Integer buyState;
+    @ApiModelProperty(value = "购买类型")
+    private BuyTypeEnum buyType;
 
-    @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")
-    private Integer leaseState;
+    @ApiModelProperty(value = "商品类型")
+    private ShopCartTypeEnum shopCartType;
+
+    @ApiModelProperty(value = "优惠券id")
+    private String discountId;
+
+    @ApiModelProperty(value = "满减金额")
+    private BigDecimal subtractMoney = new BigDecimal(0);
+
+
+
 }

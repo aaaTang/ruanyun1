@@ -2,9 +2,7 @@ package cn.ruanyun.backInterface.modules.business.order.pojo;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
-import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
-import cn.ruanyun.backInterface.common.enums.OrderTypeEnum;
-import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
+import cn.ruanyun.backInterface.common.enums.*;
 import cn.ruanyun.backInterface.common.utils.CommonUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -29,67 +27,56 @@ public class Order extends RuanyunBaseEntity {
 
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 订单号
-     */
-    private String orderNum = CommonUtil.getRandomNum();
-    /**
-     * 订单状态
-     */
-    private OrderStatusEnum orderStatus = OrderStatusEnum.PRE_PAY;
-    /**
-     * 订单类型枚举
-     */
-    private OrderTypeEnum typeEnum;
-    /**
-     * 商家id
-     */
+
+    @ApiModelProperty(value = "商家id")
     private String userId;
-    /**
-     * 支付类型
-     */
-    private PayTypeEnum payTypeEnum;
-    /**
-     * 总价格
-     */
-    private BigDecimal totalPrice = new BigDecimal(0);
-    /**
-     * 快递单号
-     */
-    private String expressCode;
 
-    /**
-     * 收获地址id
-     */
-    private String addressId;
-    /**
-     * 收货人
-     */
-    private String consignee;
-
-    /**
-     * 收获手机号
-     */
-    private String phone;
-
-    /**
-     * 收获地址
-     */
-    private String address;
-
-    /**
-     * 员工id(销售员工)
-     */
+    @ApiModelProperty(value = "员工id(销售员工)")
     private String staffId;
 
-    /**
-     * 商品描述
-     */
-    private String goodDesc;
+    @ApiModelProperty(value = "订单编号")
+    private String orderNum = CommonUtil.getRandomNum();
 
-    @ApiModelProperty(value = "购买状态 1购买 2租赁 3购买和租赁")
-    private Integer buyState;
+    @ApiModelProperty(value = "订单状态")
+    private OrderStatusEnum orderStatus = OrderStatusEnum.PRE_PAY;
 
-    @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")
-    private Integer leaseState;
+    @ApiModelProperty(value = "订单类型")
+    private OrderTypeEnum typeEnum;
+
+    @ApiModelProperty(value = "支付类型")
+    private PayTypeEnum payTypeEnum;
+
+    @ApiModelProperty(value = "购买类型")
+    private BuyTypeEnum buyType;
+
+    @ApiModelProperty(value = "支付尾款类型")
+    private RentTypeEnum rentType = RentTypeEnum.NO_PAY;
+
+    @ApiModelProperty(value = "尾款支付类型")
+    private PayTypeEnum rentPayType;
+
+    @ApiModelProperty(value = "总价格")
+    private BigDecimal totalPrice;
+
+    @ApiModelProperty(value = "支付尾款金额")
+    private BigDecimal payGoodBalancePayment = new BigDecimal(0);
+
+    /*---------收货人信息------------*/
+
+    @ApiModelProperty(value = "收货人")
+    private String consignee;
+
+    @ApiModelProperty(value = "收获手机号")
+    private String phone;
+
+    @ApiModelProperty(value = "收获手机号")
+    private String address;
+
+    /*-----------快递信息--------------*/
+
+    @ApiModelProperty(value = "快递单号")
+    private String expressCode;
+
+    @ApiModelProperty(value = "运费")
+    private BigDecimal freight = new BigDecimal(0);
 }

@@ -15,7 +15,7 @@ public interface IItemAttrValService extends IService<ItemAttrVal> {
     /**
      * 插入或者更新itemAttrVal
      *
-     * @param itemAttrVal
+     * @param itemAttrVal itemAttrVal
      */
     void insertOrderUpdateItemAttrVal(ItemAttrVal itemAttrVal);
 
@@ -23,22 +23,22 @@ public interface IItemAttrValService extends IService<ItemAttrVal> {
     /**
      * 移除itemAttrVal
      *
-     * @param ids
+     * @param ids ids
      */
     void removeItemAttrVal(String ids);
 
     /**
      * 通过属性值，获取属性的名字
      *
-     * @param ids
-     * @return
+     * @param ids ids
+     * @return String
      */
     List<String> getItemAttrVals(String ids);
 
 
     /**
      * 获取规格属性值列表
-     * @return
+     * @return ItemAttrVal
      */
-    List getItemAttrValList(String keyId);
+    List<ItemAttrVal> getItemAttrValList(String keyId);
 }

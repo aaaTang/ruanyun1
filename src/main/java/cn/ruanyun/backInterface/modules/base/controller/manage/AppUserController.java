@@ -11,8 +11,12 @@ import cn.ruanyun.backInterface.modules.base.dto.WechatLoginDto;
 import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import cn.ruanyun.backInterface.modules.base.vo.UserBalanceVo;
 import cn.ruanyun.backInterface.modules.base.vo.UserPayPasswordVo;
 import cn.ruanyun.backInterface.modules.base.vo.UserProfitVO;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
 import jdk.nashorn.internal.ir.Optimistic;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +37,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/ruanyun/appUser")
 @Transactional
+@Api(tags = "app用户管理接口")
 public class AppUserController {
 
 
@@ -66,10 +71,11 @@ public class AppUserController {
 
     /**
      * 通过手机号和密码登录
-     * @param user
-     * @return
+     * @param user user
+     * @return Object
      */
     @PostMapping("/loginByPhoneAndPassword")
+    @ApiOperation(value = "通过手机号和密码登录")
     public Result<Object> loginByPhoneAndPassword(UserDTO user) {
 
         return userService.loginByPhoneAndPassword(user);
@@ -224,5 +230,14 @@ public class AppUserController {
 
         return userService.bindMobile(wechatLoginDto);
     }
+
+
+    @PostMapping("/getUserBalance")
+    @ApiOperation(value = "获取用户余额明细")
+    public Result<UserBalanceVo> getUserBalance() {
+
+        return new ResultUtil<UserBalanceVo>().setData(userService.getUserBalance(), "获取用户余额明细成功！");
+    }
+
 
 }

@@ -129,6 +129,19 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
 
     }
 
+    @Override
+    public void changeMyDisCouponStatus(String disCouponId, String userId) {
+
+        Optional.ofNullable(this.getOne(Wrappers.<DiscountMy>lambdaQuery()
+        .eq(DiscountMy::getDiscountCouponId, disCouponId)
+        .eq(DiscountMy::getCreateBy, userId)))
+        .ifPresent(discountMy -> {
+
+            discountMy.setStatus(1);
+            this.updateById(discountMy);
+        });
+    }
+
 
     /**
      * 领取优惠券

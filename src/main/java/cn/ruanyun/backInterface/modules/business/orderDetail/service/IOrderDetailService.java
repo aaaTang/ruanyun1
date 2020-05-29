@@ -1,12 +1,8 @@
 package cn.ruanyun.backInterface.modules.business.orderDetail.service;
 
-import cn.ruanyun.backInterface.modules.business.comment.pojo.Comment;
-import cn.ruanyun.backInterface.modules.business.orderDetail.VO.OrderDetailListVO;
+import cn.ruanyun.backInterface.modules.business.orderDetail.vo.OrderDetailVo;
 import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
-
-import java.util.List;
 
 /**
  * 子订单接口
@@ -16,36 +12,20 @@ public interface IOrderDetailService extends IService<OrderDetail> {
 
 
     /**
-     * 插入或者更新orderDetail
-     *
-     * @param orderDetail
-     */
-    void insertOrderUpdateOrderDetail(OrderDetail orderDetail);
-
-
-    /**
-     * 移除orderDetail
-     *
-     * @param ids
-     */
-    void removeOrderDetail(String ids);
-
-
-    /**
      * 获取销量
      *
-     * @param id
-     * @return
+     * @param id id
+     * @return Integer
      */
     Integer getGoodSalesVolume(String id);
 
+
     /**
-     * 获取订单列表
-     *
-     * @param orderId
-     * @return
+     * 通过订单id获取订单商品详情
+     * @param orderId 订单id
+     * @return OrderDetailVo
      */
-    List<OrderDetailListVO> getOrderListByOrderId(String orderId);
+    OrderDetailVo getOrderDetailByOrderId(String orderId);
 
 }
 

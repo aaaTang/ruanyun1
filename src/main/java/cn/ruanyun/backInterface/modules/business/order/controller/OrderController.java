@@ -1,6 +1,5 @@
 package cn.ruanyun.backInterface.modules.business.order.controller;
 
-import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
 import cn.ruanyun.backInterface.common.exception.RuanyunException;
@@ -9,21 +8,24 @@ import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.modules.business.good.DTO.GoodDTO;
-import cn.ruanyun.backInterface.modules.business.order.DTO.OffLineOrderDto;
-import cn.ruanyun.backInterface.modules.business.order.DTO.OrderDTO;
-import cn.ruanyun.backInterface.modules.business.order.DTO.OrderShowDTO;
-import cn.ruanyun.backInterface.modules.business.order.DTO.PcOrderDTO;
+import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
+import cn.ruanyun.backInterface.modules.business.order.dto.*;
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
 import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
+import cn.ruanyun.backInterface.modules.business.order.vo.AppMyOrderDetailVo;
+import cn.ruanyun.backInterface.modules.business.order.vo.AppMyOrderListVo;
+import cn.ruanyun.backInterface.modules.business.order.vo.BackOrderListVO;
 import com.google.api.client.util.Maps;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -33,216 +35,111 @@ import java.util.Optional;
  */
 @Slf4j
 @RestController
-    @RequestMapping("/ruanyun/order")
+@RequestMapping("/ruanyun/order")
 @Transactional
+@Api(tags = "订单接口")
 public class OrderController {
 
     @Autowired
     private IOrderService iOrderService;
 
 
-   /**
-     * app 商品直接下单
-     * @param orderDTO
-     * @return
-    */
-    @PostMapping(value = "/insertOrder")
-    public Result<Object> insertOrder(OrderDTO orderDTO){
-        try {
-            //return  iOrderService.insertOrderUpdateOrder(orderDTO);
-            return  iOrderService.insertOrder(orderDTO);
-        }catch (Exception e) {
-            return new ResultUtil<>().setErrorMsg(201, e.getMessage());
-        }
+    /*-----------------------------创建订单----------------------*/
+
+    @PostMapping("/insertOrder")
+    @ApiOperation(value = "下单")
+    public Result<Object> insertOrder(OrderDto orderDTO) {
+
+        return iOrderService.insertOrder(orderDTO);
     }
 
-    /**
-     * 支付
-     * @param payTypeEnum
-     * @return
-     */
-    @PostMapping(value = "/orderPay")
-    public Result<Object> orderPay(String id , PayTypeEnum payTypeEnum, String payPassword,Integer status){
-        try {
-            return iOrderService.payOrder(id, payTypeEnum, payPassword,status);
-        }catch (Exception e) {
-            return new ResultUtil<>().setErrorMsg(201, e.getMessage());
-        }
+    @PostMapping("/insertOffLineOrder")
+    @ApiOperation(value = "新增线下订单")
+    public Result<Object> insertOffLineOrder(OffLineOrderDto offLineOrderDto) {
+
+        return iOrderService.insertOffLineOrder(offLineOrderDto);
     }
 
 
-    /**
-     * 下单之前获取订单的信息
-     * @param orderShowDTO
-     * @return
-     */
-    @PostMapping(value = "/showOrder")
-    public Result<Object> showOrder(OrderShowDTO orderShowDTO){
-        return new ResultUtil<>().setData(iOrderService.showOrder(orderShowDTO),"获取详情成功！");
-    }
+    /*-----------------------------支付----------------------*/
 
-    /**
-     * 下单之前获取订单的信息  直接购买套餐商品
-     * @param orderShowDTO
-     * @return
-     */
-    @PostMapping(value = "/showGoodsPackageOrder")
-    public Result<Object> showGoodsPackageOrder(OrderShowDTO orderShowDTO){
-        return new ResultUtil<>().setData(iOrderService.showGoodsPackageOrder(orderShowDTO),"获取详情成功！");
-    }
+    @PostMapping("/payOrder")
+    @ApiOperation(value = "订单支付")
+    public Result<Object> payOrder(AppPayOrderDto appPayOrder) {
 
-    /**
-     * 移除数据
-     * @param ids
-     * @return
-    */
-    @PostMapping(value = "/removeOrder")
-    public Result<Object> removeOrder(String ids){
-        try {
-            iOrderService.removeOrder(ids);
-            return new ResultUtil<>().setSuccessMsg("移除成功！");
-        }catch (Exception e) {
-
-            return new ResultUtil<>().setErrorMsg(201, e.getMessage());
-        }
+        return iOrderService.payOrder(appPayOrder);
     }
 
 
-    /**
-     * 获取 我的订单
-     * @param order
-     * @param pageVo
-     * @return
-     */
-    @PostMapping("/getMyOrderList")
-    public Result<Object> getMyOrderList(Order order, PageVo pageVo) {
-        return Optional.ofNullable(iOrderService.getOrderList(order))
-                .map(orderListVOS -> {
-                    Map<String,Object> result = Maps.newHashMap();
-                    result.put("size",orderListVOS.size());
-                    result.put("data", PageUtil.listToPage(pageVo,orderListVOS));
-                    return new ResultUtil<>().setData(result,"获取订单列表成功！");
-                })
-                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    /*-----------------------------订单操作----------------------*/
+
+    @PostMapping("/sendGood")
+    @ApiOperation(value = "订单发货")
+    public Result<Object> sendGood(OrderOperateDto orderOperateDto) {
+
+        return iOrderService.sendGood(orderOperateDto);
     }
 
-    /**
-     * 获取订单详情
-     * @param id
-     * @return
-     */
-    @PostMapping("/getOrderDetailVO")
-    public Result<Object> getOrderDetailVO(String id) {
-        return Optional.ofNullable(iOrderService.getById(id))
-                .map(good -> new ResultUtil<>().setData(iOrderService.getAppGoodDetail(id),"获取订单详情成功！"))
-                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
-    }
-
-    /**
-     * 商家查询用户的订单详情
-     * @param id 订单id
-     * @param shopId 商家id
-     * @return
-     */
-    @PostMapping("/shopQueryUserOrderrDetail")
-    public Result<Object> shopQueryUserOrderrDetail(String id,String shopId) {
-
-        if(ToolUtil.isEmpty(id)&&ToolUtil.isEmpty(shopId)){
-            return new ResultUtil<>().setErrorMsg(201, "订单信息错误！请联系管理员！");
-        }
-
-        return iOrderService.shopQueryUserOrderrDetail(id,shopId);
-    }
-
-
-
-    /**
-     * 改变订单状态  取消订单 确认收货
-     * @param order
-     * @return
-     */
-    @PostMapping("/changeStatus")
-    public Result<Object> changeStatus(Order order) {
-        return Optional.ofNullable(iOrderService.getById(order))
-                .map(byid -> new ResultUtil<>().setData(iOrderService.changeStatus(order),"操作成功！"))
-                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
-    }
-
-    /**
-     * @param request
-     * @Description TD: 微信回调地址 异步通知
-     * @Return java.lang.String
-     * @Author sangsang
-     * @Date 2020/2/11 11:56
-     **/
-    @RequestMapping(value = "/wxPayNotify", method = {RequestMethod.POST, RequestMethod.GET})
-    public String wxReturnUrl(HttpServletRequest request) {
-        return iOrderService.wxPayNotify(request);
-    }
-
-    /**
-     * 支付宝回调
-     * @param request
-     * @return
-     */
-    @RequestMapping(value = "/aliPayNotify", method = {RequestMethod.POST, RequestMethod.GET})
-    public String aliReturnUrl(HttpServletRequest request) {
-        return iOrderService.aliPayNotify(request);
-    }
-
-
-    /**
-     * 确认收货
-     * @param orderId 订单id
-     * @return  Result<Object>
-     */
     @PostMapping("/confirmReceive")
+    @ApiOperation(value = "确认收货")
+    @ApiImplicitParams(@ApiImplicitParam(name = "orderId", value = "订单id", dataType = "string", paramType = "query"))
     public Result<Object> confirmReceive(String orderId) {
 
         return iOrderService.confirmReceive(orderId);
     }
 
+    @PostMapping("/payTheBalance")
+    @ApiOperation(value = "支付尾款")
+    public Result<Object> payTheBalance(OrderOperateDto orderOperateDto) {
 
-    /*************************************************后端管理开始*****************************************************/
+        return iOrderService.payTheBalance(orderOperateDto);
+    }
 
+    @PostMapping("/confirmTheBalance")
+    @ApiOperation(value = "确认尾款")
+    public Result<Object> confirmTheBalance(OrderOperateDto orderOperateDto) {
 
-    /**
-     * 后端获取订单信息列表
-     * @param pageVo
-     * @return
-     */
-    @PostMapping("/PCgetShopOrderList")
-    public Result<Object> PCgetShopOrderList(PcOrderDTO pcOrderDTO, PageVo pageVo) {
-        return Optional.ofNullable(iOrderService.PCgetShopOrderList(pcOrderDTO))
-                .map(pcMyorderListVOS -> {
-                    Map<String,Object> result = Maps.newHashMap();
-                    result.put("size",pcMyorderListVOS.size());
-                    result.put("data", PageUtil.listToPage(pageVo,pcMyorderListVOS));
-                    return new ResultUtil<>().setData(result,"后端获取订单信息列表成功！");
-                })
-                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+        return iOrderService.confirmTheBalance(orderOperateDto);
+    }
+
+    @PostMapping("/toEvaluate")
+    @ApiOperation(value = "去评价订单")
+    public Result<Object> toEvaluate(OrderOperateDto orderOperateDto) {
+
+        return iOrderService.toEvaluate(orderOperateDto);
     }
 
 
-    /**
-     * 添加线下订单
-     * @param offLineOrderDto offLineOrderDto
-     * @return Object
-     */
-    @PostMapping("/insertOffLineOrder")
-    public Result<Object> insertOffLineOrder(OffLineOrderDto offLineOrderDto) {
+    @PostMapping("/cancelOrder")
+    @ApiOperation(value = "取消订单")
+    public Result<Object> cancelOrder(OrderOperateDto orderOperateDto) {
 
-        try {
-
-            return iOrderService.insertOffLineOrder(offLineOrderDto);
-
-        }catch (RuanyunException e) {
-
-            return new ResultUtil<>().setErrorMsg(201, e.getMsg());
-        }
+        return iOrderService.cancelOrder(orderOperateDto);
     }
 
 
+    /*-----------------------------查询订单----------------------*/
 
-    /*************************************************后端管理结束*****************************************************/
+    @PostMapping("/getMyOrderList")
+    @ApiOperation(value = "获取我的订单列表")
+    public Result<DataVo<AppMyOrderListVo>> getMyOrderList(PageVo pageVo, OrderStatusEnum orderStatus) {
+
+        return iOrderService.getMyOrderList(pageVo, orderStatus);
+    }
+
+
+    @PostMapping("/getMyOrderDetail")
+    @ApiOperation(value = "获取我的订单详情")
+    public Result<AppMyOrderDetailVo> getMyOrderDetail(String id) {
+
+        return iOrderService.getMyOrderDetail(id);
+    }
+
+
+    @PostMapping("/getBackOrderList")
+    @ApiOperation(value = "获取后台订单列表")
+    public Result<DataVo<BackOrderListVO>> getBackOrderList(BackOrderListDto backOrderListDto, PageVo pageVo) {
+
+        return iOrderService.getBackOrderList(backOrderListDto, pageVo);
+    }
 }

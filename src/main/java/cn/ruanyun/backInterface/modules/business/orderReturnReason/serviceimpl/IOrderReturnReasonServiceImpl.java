@@ -29,33 +29,41 @@ import java.util.concurrent.CompletableFuture;
 public class IOrderReturnReasonServiceImpl extends ServiceImpl<OrderReturnReasonMapper, OrderReturnReason> implements IOrderReturnReasonService {
 
 
-       @Autowired
-       private SecurityUtil securityUtil;
+    @Autowired
+    private SecurityUtil securityUtil;
 
-       @Override
-       public void insertOrderUpdateOrderReturnReason(OrderReturnReason orderReturnReason) {
-           if (ToolUtil.isEmpty(orderReturnReason.getCreateBy())) {
-               orderReturnReason.setCreateBy(securityUtil.getCurrUser().getId());
-           } else {
-               orderReturnReason.setUpdateBy(securityUtil.getCurrUser().getId());
-           }
-           Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(orderReturnReason)))
-                   .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
-                   .toFuture().join();
-       }
+    @Override
+    public void insertOrderUpdateOrderReturnReason(OrderReturnReason orderReturnReason) {
+        if (ToolUtil.isEmpty(orderReturnReason.getCreateBy())) {
+            orderReturnReason.setCreateBy(securityUtil.getCurrUser().getId());
+        } else {
+            orderReturnReason.setUpdateBy(securityUtil.getCurrUser().getId());
+        }
+        Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(orderReturnReason)))
+                .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
+                .toFuture().join();
+    }
 
-      @Override
-      public void removeOrderReturnReason(String ids) {
-          CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
-      }
+    @Override
+    public void removeOrderReturnReason(String ids) {
+        CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
+    }
+
+    @Override
+    public String getReturnReason(String id) {
+
+        return Optional.ofNullable(this.getById(id))
+                .map(OrderReturnReason::getReason)
+                .orElse(null);
+    }
 
     /**
      * 获取退款
-     * @param orderReturnReason
-     * @return
+     * @param orderReturnReason orderReturnReason
+     * @return OrderReturnReason
      */
     @Override
-    public List getOrderReturnReasonList(OrderReturnReason orderReturnReason) {
+    public List<OrderReturnReason> getOrderReturnReasonList(OrderReturnReason orderReturnReason) {
         return Optional.ofNullable(ToolUtil.setListToNul(this.list())).orElse(null);
     }
 }

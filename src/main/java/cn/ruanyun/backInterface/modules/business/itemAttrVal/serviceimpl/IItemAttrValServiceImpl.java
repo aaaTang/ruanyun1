@@ -33,32 +33,32 @@ import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 public class IItemAttrValServiceImpl extends ServiceImpl<ItemAttrValMapper, ItemAttrVal> implements IItemAttrValService {
 
 
-       @Autowired
-       private SecurityUtil securityUtil;
+    @Autowired
+    private SecurityUtil securityUtil;
 
-       @Override
-       public void insertOrderUpdateItemAttrVal(ItemAttrVal itemAttrVal) {
+    @Override
+    public void insertOrderUpdateItemAttrVal(ItemAttrVal itemAttrVal) {
 
-           if (ToolUtil.isEmpty(itemAttrVal.getCreateBy())) {
-               itemAttrVal.setCreateBy(securityUtil.getCurrUser().getId());
-           } else {
-               itemAttrVal.setUpdateBy(securityUtil.getCurrUser().getId());
-           }
-           Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(itemAttrVal)))
-                   .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
-                   .toFuture().join();
-       }
+        if (ToolUtil.isEmpty(itemAttrVal.getCreateBy())) {
+            itemAttrVal.setCreateBy(securityUtil.getCurrUser().getId());
+        } else {
+            itemAttrVal.setUpdateBy(securityUtil.getCurrUser().getId());
+        }
+        Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(itemAttrVal)))
+                .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
+                .toFuture().join();
+    }
 
-      @Override
-      public void removeItemAttrVal(String ids) {
-          CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
-      }
+    @Override
+    public void removeItemAttrVal(String ids) {
+        CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
+    }
 
 
     /**
      * 通过属性值，获取属性的名字
-     * @param ids
-     * @return
+     * @param ids ids
+     * @return return
      */
     @Override
     public List<String> getItemAttrVals(String ids) {
@@ -70,12 +70,12 @@ public class IItemAttrValServiceImpl extends ServiceImpl<ItemAttrValMapper, Item
 
     /**
      * 获取规格属性值列表
-     * @return
+     * @return ItemAttrVal
      */
     @Override
-    public List getItemAttrValList(String keyId) {
+    public List<ItemAttrVal> getItemAttrValList(String keyId) {
         return Optional.ofNullable(this.list(new QueryWrapper<ItemAttrVal>().lambda()
-            .eq(ToolUtil.isNotEmpty(keyId),ItemAttrVal::getAttrId,keyId)
+                .eq(ToolUtil.isNotEmpty(keyId),ItemAttrVal::getAttrId,keyId)
         )).orElse(null);
     }
 

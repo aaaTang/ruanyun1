@@ -141,25 +141,30 @@ public class IPayServiceImpl implements IPayService {
 
 		Map<String, String> params = UnifiedOrderModel
 				.builder()
+
 				//"应用ID"
 				.appid(WeChatConfig.APP_ID)
+
 				//"商户号"
 				.mch_id(WeChatConfig.MCH_ID)
+
 				//"随机字符串"
 				.nonce_str(RandomUtil.randomNumbers(10))
-				.body("阜阳生鲜订单支付")
+
+				.body("商品支付")
 				.attach("附加数据")
+
 				//"商户订单号"
 				.out_trade_no(payModel.getOrderNums())
+
 				//“价格”
-//				(Math.Round((decimal)order.Amount * 100, 0)).ToString();
 				.total_fee(String.valueOf(payModel.getTotalPrice().multiply(new BigDecimal(100)).intValue()))
-//			    .spbill_create_ip(ip)
-				//"通知地址  ==  接收微信支付异步通知回调地址，通知url必须为直接可访问的url，不能携带参数"
 				.notify_url(WeChatConfig.NOTIFY_URL)
+
 				//"APP = 交易方式"
 				.trade_type(WeChatConfig.TRADE_TYPE)
 				.build()
+
 				//"商户密钥"
 				.createSign(WeChatConfig.KEY, SignType.HMACSHA256);
 

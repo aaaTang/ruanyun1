@@ -100,17 +100,18 @@ public class ICommentServiceImpl extends ServiceImpl<CommentMapper, Comment> imp
                     .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
                     .toFuture().join();
         }
+
         //评论结束，改变订单状态
         Order order = new Order();
         order.setId(commentDTO.getOrderId());
         order.setOrderStatus(OrderStatusEnum.IS_COMPLETE);
-        orderService.changeStatus(order);
+        orderService.updateById(order);
+
         //添加商铺评分
         Grade grade = new Grade();
         grade.setStartLevel(Double.parseDouble(commentDTO.getStartLevel()));
         grade.setUserId(userId);
         gradeService.save(grade);
-
 
     }
 

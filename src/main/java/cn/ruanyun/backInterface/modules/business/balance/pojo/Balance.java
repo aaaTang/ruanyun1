@@ -28,6 +28,10 @@ public class Balance extends RuanyunBaseEntity {
      */
     private String title;
 
+    /**
+     * 订单id
+     */
+    private String orderId;
 
     /**
      * 加减

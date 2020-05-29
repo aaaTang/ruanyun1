@@ -1,15 +1,18 @@
 package cn.ruanyun.backInterface.modules.business.shoppingCart.controller;
 
+import cn.ruanyun.backInterface.common.exception.RuanyunException;
 import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
+import cn.ruanyun.backInterface.modules.business.shoppingCart.VO.ShoppingCartVO;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.entity.ShoppingCart;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
 import com.alibaba.druid.util.StringUtils;
 import com.google.common.collect.Maps;
-import io.swagger.annotations.Api;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +29,7 @@ import java.util.Optional;
  */
 @Slf4j
 @RestController
-@Api(description = "购物车管理接口")
+@Api(tags = "购物车管理接口")
 @RequestMapping("/ruanyun/shoppingCart")
 @Transactional
 public class ShoppingCartController {
@@ -34,87 +37,60 @@ public class ShoppingCartController {
     @Autowired
     private IShoppingCartService iShoppingCartService;
 
+
     @PostMapping("/insertShoppingCart")
+    @ApiOperation(value = "加入购物车")
     public Result<Object> insertShoppingCart(ShoppingCart shoppingCart) {
-        if (StringUtils.isEmpty(shoppingCart.getAttrSymbolPath())){
-            return new ResultUtil<>().setErrorMsg(202,"请选择属性！");
-        }
-        if(ToolUtil.isEmpty(shoppingCart.getBuyState())){
-            return new ResultUtil<>().setErrorMsg(202,"请选择购买方式！");
-        }
 
-        iShoppingCartService.insertShoppingCart(shoppingCart);
-        return new ResultUtil<>().setSuccessMsg("添加购物车成功！");
+        try {
+
+            iShoppingCartService.insertShoppingCart(shoppingCart);
+            return new ResultUtil<>().setSuccessMsg("添加购物车成功！");
+        }catch (RuanyunException e) {
+
+            throw new RuanyunException(e.getMsg());
+        }
     }
 
-    /**
-     * 移除购物车
-     * @param ids
-     * @return
-     */
     @PostMapping("/removeShoppingCart")
-    public Result<Object> removeShoppingCart(String[] ids) {
+    @ApiOperation(value = "移除购物车")
+    public Result<Object> removeShoppingCart(String ids) {
 
-        iShoppingCartService.removeShoppingCart(ids);
-        return new ResultUtil<>().setSuccessMsg("移除购物车成功！");
-    }
+        try {
 
-    /**
-     * 更新购物车
-     * @param shoppingCart
-     * @return
-     */
-    @PostMapping("/updateShoppingCart")
-    public Result<Object> updateShoppingCart(ShoppingCart shoppingCart) {
+            iShoppingCartService.removeShoppingCart(ids);
+            return new ResultUtil<>().setSuccessMsg("添加购物车成功！");
+        }catch (RuanyunException e) {
 
-        return iShoppingCartService.updateShoppingCart(shoppingCart);
+            throw new RuanyunException(e.getMsg());
+        }
     }
 
 
-    /**
-     * 获取我的购物车数据
-     * @param pageVo
-     * @return
-     */
-    @PostMapping("/shoppingCartVOList")
-    public Result<Object> shoppingCartVOList(PageVo pageVo, String ids) {
+    @PostMapping("/getMyShoppingCart")
+    @ApiOperation(value = "获取我的购物车数据")
+    public Result<DataVo<ShoppingCartVO>> getMyShoppingCart(PageVo pageVo) {
 
-        return Optional.ofNullable(iShoppingCartService.shoppingCartVOList(ids))
-                .map(shoppingCartVos -> {
-
-                    Map<String,Object> result = Maps.newHashMap();
-                    result.put("size",shoppingCartVos.size());
-                    result.put("data", PageUtil.listToPage(pageVo,shoppingCartVos));
-
-                    return new ResultUtil<>().setData(result,"获取我的购物车数据成功！");
-                }).orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
-    }
-   /* *
-     * 获取我的购物车数据
-     * @param pageVo
-     * @return
-     * */
-
-    @PostMapping("/changeCount")
-    public Result<Object> changeCount(String id,Integer count) {
-        iShoppingCartService.changeCount(id,count);
-        return new ResultUtil<>().setData(null,"修改成功！");
+        return iShoppingCartService.getMyShoppingCart(pageVo);
     }
 
 
-    /**
-     * 我的购物车数量
-     * @return
-     */
     @PostMapping("/getGoodsCartNum")
+    @ApiOperation(value = "获取购物车数量")
     public Result<Object> getGoodsCartNum() {
 
-        Map<String,Object> result = Maps.newHashMap();
-        result.put("size", iShoppingCartService.getGoodsCartNum());
-        return new ResultUtil<>().setData(result,"获取我的购物车数据成功！");
+        return new ResultUtil<>().setData(iShoppingCartService.getGoodsCartNum(), "获取购物车数量成功！");
     }
 
 
+    @PostMapping("/changeShopCartNum")
+    @ApiOperation(value = "修改购物车数量")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "购物车id", dataType = "string", paramType = "query"),
+            @ApiImplicitParam(name = "count", value = "数量", dataType = "string", paramType = "query")
+    })
+    public Result<Object> changeShopCartNum(String id, Integer count) {
 
-
+        return iShoppingCartService.changeShopCartNum(id, count);
+    }
 }

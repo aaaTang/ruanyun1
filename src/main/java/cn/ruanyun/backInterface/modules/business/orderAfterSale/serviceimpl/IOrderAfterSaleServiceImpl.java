@@ -4,9 +4,11 @@ import cn.ruanyun.backInterface.common.enums.AfterSaleStatusEnum;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
 import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
 import cn.ruanyun.backInterface.modules.business.orderAfterSale.VO.OrderAfterSaleVO;
+import cn.ruanyun.backInterface.modules.business.orderAfterSale.dto.OrderAfterSaleDto;
 import cn.ruanyun.backInterface.modules.business.orderAfterSale.mapper.OrderAfterSaleMapper;
 import cn.ruanyun.backInterface.modules.business.orderAfterSale.pojo.OrderAfterSale;
 import cn.ruanyun.backInterface.modules.business.orderAfterSale.service.IOrderAfterSaleService;
@@ -37,118 +39,94 @@ import java.util.concurrent.CompletableFuture;
 public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper, OrderAfterSale> implements IOrderAfterSaleService {
 
 
-       @Autowired
-       private SecurityUtil securityUtil;
-       @Autowired
-       private IOrderService orderService;
-       @Autowired
-       private IOrderReturnReasonService orderReturnReasonService;
-       @Autowired
-       private IOrderDetailService orderDetailService;
+    @Autowired
+    private SecurityUtil securityUtil;
+    @Autowired
+    private IOrderService orderService;
+    @Autowired
+    private IOrderReturnReasonService orderReturnReasonService;
+    @Autowired
+    private IOrderDetailService orderDetailService;
 
-       @Override
-       public Result<Object> insertUpdate(OrderAfterSale orderAfterSale) {
-           String userId = securityUtil.getCurrUser().getId();
-           if (StringUtils.isNotBlank(orderAfterSale.getReturnReasonId())){
-               orderAfterSale.setReturnReason(orderReturnReasonService.getById(orderAfterSale.getReturnReasonId()).getReason());
-           }
-           if (StringUtils.isNotBlank(orderAfterSale.getOrderId())){
-               Order byId = orderService.getById(orderAfterSale.getOrderId());
-               orderAfterSale.setTotalPrice(byId.getTotalPrice());
-               orderAfterSale.setOrderStatus(byId.getOrderStatus());
-           }
-           if (ToolUtil.isEmpty(orderAfterSale.getCreateBy())) {
-               OrderAfterSale one = this.getOne(Wrappers.<OrderAfterSale>lambdaQuery()
-                       .eq(OrderAfterSale::getOrderId, orderAfterSale.getOrderId())
-                        .ne(OrderAfterSale::getStatus,AfterSaleStatusEnum.REVOCATION));
-               if (EmptyUtil.isNotEmpty(one)){
-                    return new ResultUtil<>().setErrorMsg(202,"该订单已申请售后！");
-               }
-               orderAfterSale.setCreateBy(userId);
-               Order order = new Order();
-               order.setId(orderAfterSale.getOrderId());
-               order.setOrderStatus(OrderStatusEnum.SALE_AFTER);
-               orderService.changeStatus(order);
-               orderAfterSale.setTotalPrice(orderService.getById(orderAfterSale.getOrderId()).getTotalPrice());
-           } else {
-               orderAfterSale.setStatus(AfterSaleStatusEnum.APPLY);
-               orderAfterSale.setUpdateBy(userId);
-           }
-           Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(orderAfterSale)))
-                   .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
-                   .toFuture().join();
-           return new ResultUtil<>().setSuccessMsg("插入或者更新成功!");
-       }
-
-      @Override
-      public void removeOrderAfterSale(String ids) {
-          CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
-      }
-
-    /***
-     * 改变售后状态
-     * @param orderAfterSale
-     * @return
-     */
+    @Autowired
+    private IBalanceService balanceService;
     @Override
-    public Object changeStatus(OrderAfterSale orderAfterSale) {
-        OrderAfterSale byId = this.getById(orderAfterSale.getId());
-        Order order = new Order();
-        switch(orderAfterSale.getStatus()){
-            //申请
-            case APPLY:
-                break;
-            //审核通过
-            case APPLY_PASS:
-                break;
-            //发货
-            case GOOD_DELIVER:
-                byId.setExpressCode(orderAfterSale.getExpressCode());
-                break;
-            //确认退款
-            case FINISH:
-                order.setId(byId.getOrderId());
-                order.setOrderStatus(OrderStatusEnum.RETURN_FINISH);
-                orderService.changeStatus(order);
-                break;
-            //货物不完整
-            case GOOD_NO_PASS:
-                break;
-            //审核不通过
-            case APPLY_NO_PASS:
-                break;
-            //撤销
-            case REVOCATION:
-                order = orderService.getById(byId.getOrderId());
-                order.setOrderStatus(byId.getOrderStatus());
-                order.setId(byId.getOrderId());
-                orderService.updateById(order);
-                break;
-            default:
-                break;
+    public Result<Object> insertUpdate(OrderAfterSale orderAfterSale) {
+
+        //设置退款订单信息
+        Optional.ofNullable(orderService.getById(orderAfterSale.getOrderId()))
+                .ifPresent(order -> {
+
+                    orderAfterSale.setRefundMoney(order.getTotalPrice());
+                    orderAfterSale.setOrderStatus(order.getOrderStatus());
+                });
+
+        orderAfterSale.setCreateBy(securityUtil.getCurrUser().getId());
+
+        if (this.save(orderAfterSale)) {
+
+            //更改订单状态
+            Order order = new Order();
+            order.setOrderStatus(OrderStatusEnum.SALE_AFTER);
+            orderService.updateById(order);
         }
-        byId.setStatus(orderAfterSale.getStatus());
-        this.updateById(orderAfterSale);
-        return null;
+
+        return new ResultUtil<>().setSuccessMsg("提交售后信息成功");
     }
+
+    @Override
+    public void removeOrderAfterSale(String ids) {
+        CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
+    }
+
+
+    @Override
+    public void resolveOrderAfterSale(OrderAfterSaleDto orderAfterSaleDto) {
+
+        Optional.ofNullable(this.getById(orderAfterSaleDto.getId()))
+                .ifPresent(orderAfterSale -> {
+
+                    //1. 更改售后订单状态
+                    orderAfterSale.setActualRefundMoney(orderAfterSaleDto.getActualRefundMoney());
+                    this.updateById(orderAfterSale);
+
+                    //2. 更改订单状态
+                    Optional.ofNullable(orderService.getById(orderAfterSale.getOrderId()))
+                            .ifPresent(order -> {
+
+                                //异步执行修改订单操作
+                                CompletableFuture.runAsync(() -> {
+
+                                    order.setOrderStatus(OrderStatusEnum.RETURN_FINISH);
+                                    orderService.updateById(order);
+                                }).join();
+
+
+                                //3. 消费以及分佣返回 记录明细
+                                balanceService.resolveReturnMoneyByBalance(order.getId(), order.getCreateBy(), orderAfterSaleDto.getActualRefundMoney());
+
+                            });
+                });
+    }
+
 
     /**
      * app通过订单id获取售后信息
      *
-     * @param orderId
-     * @return
+     * @param orderId 订单id
+     * @return OrderAfterSaleVO
      */
     @Override
-    public Object getByOrderId(String orderId) {
+    public OrderAfterSaleVO getByOrderId(String orderId) {
+
         return Optional.ofNullable(this.getOne(Wrappers.<OrderAfterSale>lambdaQuery()
                 .eq(OrderAfterSale::getOrderId,orderId)
-                .ne(OrderAfterSale::getStatus,AfterSaleStatusEnum.REVOCATION)
         )).map(orderAfterSale -> {
+
             OrderAfterSaleVO orderAfterSaleVO = new OrderAfterSaleVO();
+            orderAfterSaleVO.setReturnReason(orderReturnReasonService.getReturnReason(orderAfterSale.getReturnReasonId()));
             ToolUtil.copyProperties(orderAfterSale,orderAfterSaleVO);
-            orderAfterSaleVO.setStatusCode(orderAfterSale.getStatus().getCode());
-            orderAfterSaleVO.setTypeCode(orderAfterSale.getType().getCode());
-            orderAfterSaleVO.setOrderDetails(orderDetailService.getOrderListByOrderId(orderId));
+            orderAfterSaleVO.setOrderDetails(orderDetailService.getOrderDetailByOrderId(orderId));
             return orderAfterSaleVO;
         }).orElse(null);
     }

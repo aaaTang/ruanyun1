@@ -42,7 +42,7 @@ public class SizeAndRolor extends RuanyunBaseEntity {
     private Integer inventory;
 
     /**
-     *图片
+     * 图片
      */
     private String pic;
 
@@ -55,5 +55,4 @@ public class SizeAndRolor extends RuanyunBaseEntity {
      *  商品尾款
      */
     private BigDecimal goodDalancePayment;
-
 }

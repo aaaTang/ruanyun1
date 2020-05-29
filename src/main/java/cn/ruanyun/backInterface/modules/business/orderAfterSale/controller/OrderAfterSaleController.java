@@ -1,11 +1,14 @@
 package cn.ruanyun.backInterface.modules.business.orderAfterSale.controller;
 
+import cn.ruanyun.backInterface.common.exception.RuanyunException;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
+import cn.ruanyun.backInterface.modules.business.orderAfterSale.dto.OrderAfterSaleDto;
 import cn.ruanyun.backInterface.modules.business.orderAfterSale.pojo.OrderAfterSale;
 import cn.ruanyun.backInterface.modules.business.orderAfterSale.service.IOrderAfterSaleService;
+import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,60 +26,39 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/ruanyun/orderAfterSale")
 @Transactional
+@Api(tags = "售后管理接口")
 public class OrderAfterSaleController {
+
 
     @Autowired
     private IOrderAfterSaleService iOrderAfterSaleService;
 
 
-   /**
-     * 更新或者插入数据
-     * @param orderAfterSale
-     * @return
-    */
-    @PostMapping(value = "/insertUpdate")
-    public Result<Object> insertUpdate(OrderAfterSale orderAfterSale){
-
-        try {
-            return iOrderAfterSaleService.insertUpdate(orderAfterSale);
-        }catch (Exception e) {
-            return new ResultUtil<>().setErrorMsg(201, e.getMessage());
-        }
-    }
-
-
     /**
-     * 移除数据
-     * @param ids
-     * @return
-    */
-    @PostMapping(value = "/removeOrderAfterSale")
-    public Result<Object> removeOrderAfterSale(String ids){
-        try {
-            iOrderAfterSaleService.removeOrderAfterSale(ids);
-            return new ResultUtil<>().setSuccessMsg("移除成功！");
-        }catch (Exception e) {
-
-            return new ResultUtil<>().setErrorMsg(201, e.getMessage());
-        }
-    }
-
-    /**
-     * 改变订单状态  取消订单 确认收货
-     * @param orderAfterSale
-     * @return
+     * 商家处理售后订单(&&管理员强制退款)
+     * @param orderAfterSaleDto orderAfterSaleDto
+     * @return Object
      */
-    @PostMapping("/changeStatus")
-    public Result<Object> changeStatus(OrderAfterSale orderAfterSale) {
-        return Optional.ofNullable(iOrderAfterSaleService.getById(orderAfterSale.getId()))
-                .map(byid -> new ResultUtil<>().setData(iOrderAfterSaleService.changeStatus(orderAfterSale),"操作成功！"))
-                .orElse(new ResultUtil<>().setErrorMsg(202,"订单不存在！"));
+    @PostMapping("/resolveOrderAfterSale")
+    public Result<Object> resolveOrderAfterSale(OrderAfterSaleDto orderAfterSaleDto) {
+
+        try {
+
+            iOrderAfterSaleService.resolveOrderAfterSale(orderAfterSaleDto);
+
+            return new ResultUtil<>().setSuccessMsg("处理退款成功！");
+        }catch (RuanyunException e) {
+
+            throw new RuanyunException(e.getMsg());
+        }
+
     }
+
 
     /**
      * app通过订单id获取售后信息
-     * @param orderId
-     * @return
+     * @param orderId 订单id
+     * @return Object
      */
     @PostMapping("/appOrderAfterSaleDetail")
     public Result<Object> appOrderAfterSaleDetail(String orderId) {
@@ -84,5 +66,7 @@ public class OrderAfterSaleController {
                 .map(byid -> new ResultUtil<>().setData(iOrderAfterSaleService.getByOrderId(orderId),"操作成功！"))
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
+
+
 
 }

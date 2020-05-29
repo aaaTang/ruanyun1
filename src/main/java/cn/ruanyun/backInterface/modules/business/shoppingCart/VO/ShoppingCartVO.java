@@ -1,6 +1,8 @@
 package cn.ruanyun.backInterface.modules.business.shoppingCart.VO;
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.enums.BuyTypeEnum;
+import cn.ruanyun.backInterface.common.enums.ShopCartTypeEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -20,58 +22,34 @@ public class ShoppingCartVO {
 
     private String id;
 
-    /**
-     * 商品名称
-     */
+    @ApiModelProperty(value = "商品id")
+    private String goodId;
+
+    @ApiModelProperty(value = "商品名称")
     private String name;
 
-    /**
-     * 商品id
-     */
-    private String goodsId;
-
-    /**
-     * 商品图片
-     */
+    @ApiModelProperty(value = "商品图片")
     private String pic;
 
-    /**
-     * 属性信息
-     */
+    @ApiModelProperty(value = "属性信息")
     private List<String> itemAttrKeys;
 
-    /**
-     * 购买数量
-     */
-    private Long count;
+    @ApiModelProperty(value = "购买数量")
+    private Integer buyCount;
 
-    /**
-     * 购买总金额
-     */
-    private BigDecimal totalPrice = new BigDecimal(0);
-
-    /**
-     * 商品单价
-     */
-    private BigDecimal goodPrice = new BigDecimal(0);
-    /**
-     * 商品库存
-     */
-    private Integer inventory;
-
-    /**
-     *  商品定金
-     */
+    @ApiModelProperty(value = "定金")
     private BigDecimal goodDeposit;
 
-    /**
-     *  商品尾款
-     */
-    private BigDecimal goodDalancePayment;
+    @ApiModelProperty(value = "尾款")
+    private BigDecimal goodBalancePayment;
 
-    @ApiModelProperty(value = "购买状态 1购买 2租赁 3购买和租赁")
-    private Integer buyState;
+    @ApiModelProperty(value = "价格")
+    private BigDecimal price;
 
-    @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")
-    private Integer leaseState = CommonConstant.STATUS_NORMAL;
+    @ApiModelProperty(value = "购买类型")
+    private BuyTypeEnum buyType;
+
+    @ApiModelProperty(value = "购物车商品类型")
+    private ShopCartTypeEnum shopCartType;
+
 }

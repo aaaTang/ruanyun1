@@ -51,4 +51,12 @@ public interface IDiscountMyService extends IService<DiscountMy> {
      * @return
      */
     List<DiscountVO> getDealCanUseCoupon(String id, String goodId, BigDecimal multiply);
+
+
+    /**
+     * 改变我的优惠券为已使用的状态
+     * @param disCouponId 优惠券id
+     */
+    void changeMyDisCouponStatus(String disCouponId, String userId);
+
 }

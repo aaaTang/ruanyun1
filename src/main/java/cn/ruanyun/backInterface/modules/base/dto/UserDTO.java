@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.base.dto;
 
 import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -14,49 +15,32 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class UserDTO {
 
-    /**
-     * 手机号
-     */
+
+    @ApiModelProperty("手机号")
     private String mobile;
 
-    /**
-     * 用戶昵称
-     */
+    @ApiModelProperty(value = "用戶昵称", hidden = true)
     private String nickName;
 
-    /**
-         * 姓名
-     */
+    @ApiModelProperty(value = "姓名", hidden = true)
     private String username;
 
-
-    /**
-     * 用户角色类型
-     */
+    @ApiModelProperty(value = "用户角色类型", hidden = true)
     private UserTypeEnum userType;
 
-    /**
-     * 验证码
-     */
+    @ApiModelProperty(value = "验证码", hidden = true)
     private String code;
 
-    /**
-     * 密码
-     */
+    @ApiModelProperty("密码")
     private String password;
 
-    /**
-     * 邀请码
-     */
+    @ApiModelProperty(value = "邀请码", hidden = true)
     private String invitationCode;
 
-    /**
-     *是否严选 0：不是 1：是
-     */
+    @ApiModelProperty(value = "是否严选 0：不是 1：是", hidden = true)
     private Integer isBest;
-    /**
-     *用户地址
-     */
+
+    @ApiModelProperty(value = "用户地址", hidden = true)
     private String address;
 
 }

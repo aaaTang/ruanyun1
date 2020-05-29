@@ -12,8 +12,20 @@ import com.fasterxml.jackson.annotation.JsonValue;
  **/
 public enum StoreTypeEnum {
 
+    /**
+     * 个人商家
+     */
     INDIVIDUALS_IN(1,"个人商家"),
-    MERCHANTS_SETTLED(2,"商家");
+
+    /**
+     * 商家
+     */
+    MERCHANTS_SETTLED(2,"商家"),
+
+    /**
+     * 工作室个人商家
+     */
+    STUDIO_MERCHANTS(3, "工作室个人商家");
 
     StoreTypeEnum(int code, String value) {
         this.code = code;

@@ -1,30 +1,19 @@
 package cn.ruanyun.backInterface.common.enums;
 
-import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 
 /**
  * 订单类型枚举
+ * @author root
  */
 public enum OrderTypeEnum {
-
-
-    /**
-     * 预约
-     */
-    APPOINTMENT (1,"预约"),
-
-    /**
-     * 订单
-     */
-    ORDER(2,"订单"),
 
     /**
      * 套餐订单
      */
-    GOODSPACKAGE (1,"套餐订单"),
+    GOODS_PACKAGE (1,"套餐订单"),
 
     /**
      * 商品订单

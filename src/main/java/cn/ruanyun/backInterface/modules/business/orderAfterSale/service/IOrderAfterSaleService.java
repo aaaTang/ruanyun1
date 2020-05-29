@@ -1,6 +1,8 @@
 package cn.ruanyun.backInterface.modules.business.orderAfterSale.service;
 
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.orderAfterSale.VO.OrderAfterSaleVO;
+import cn.ruanyun.backInterface.modules.business.orderAfterSale.dto.OrderAfterSaleDto;
 import cn.ruanyun.backInterface.modules.business.orderAfterSale.pojo.OrderAfterSale;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -11,32 +13,32 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface IOrderAfterSaleService extends IService<OrderAfterSale> {
 
 
-      /**
-        * 插入或者更新orderAfterSale
-        * @param orderAfterSale
-       */
-      Result<Object> insertUpdate(OrderAfterSale orderAfterSale);
-
-
-
-      /**
-       * 移除orderAfterSale
-       * @param ids
-       */
-     void removeOrderAfterSale(String ids);
-
-    /***
-     * 改变售后状态
-     * @param orderAfterSale
-     * @return
+    /**
+     * 更新或者修改售後單
+     * @param orderAfterSale 实体
+     * @return Object
      */
-    Object changeStatus(OrderAfterSale orderAfterSale);
+    Result<Object> insertUpdate(OrderAfterSale orderAfterSale);
+
+
+    /**
+     * 移除售后订单表
+     * @param ids ids
+     */
+    void removeOrderAfterSale(String ids);
+
+
+    /**
+     * 处理售后订单
+     * @param orderAfterSaleDto orderAfterSaleDto
+     */
+    void resolveOrderAfterSale(OrderAfterSaleDto orderAfterSaleDto);
 
 
     /**
      * app通过订单id获取售后信息
-     * @param orderId
-     * @return
+     * @param orderId 订单id
+     * @return OrderAfterSaleVO
      */
-    Object getByOrderId(String orderId);
+    OrderAfterSaleVO getByOrderId(String orderId);
 }
