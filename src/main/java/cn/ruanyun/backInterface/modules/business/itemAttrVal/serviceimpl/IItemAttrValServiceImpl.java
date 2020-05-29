@@ -3,6 +3,7 @@ package cn.ruanyun.backInterface.modules.business.itemAttrVal.serviceimpl;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.mapper.ItemAttrValMapper;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.pojo.ItemAttrVal;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrValService;
+import cn.ruanyun.backInterface.modules.business.itemAttrVal.vo.ItemAttrValVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -65,6 +67,19 @@ public class IItemAttrValServiceImpl extends ServiceImpl<ItemAttrValMapper, Item
         return Optional.ofNullable(ToolUtil.setListToNul(this.listByIds(ToolUtil.splitterStr(ids)))).map(itemAttrVals -> {
             return itemAttrVals.parallelStream().map(ItemAttrVal::getAttrValue).collect(Collectors.toList());
         }).orElse(null);
+    }
+
+    @Override
+    public List<ItemAttrValVo> getItemAttrValVo(String ids) {
+
+        return Optional.ofNullable(ToolUtil.setListToNul(this.listByIds(ToolUtil.splitterStr(ids))))
+                .map(itemAttrVals -> itemAttrVals.parallelStream().flatMap(itemAttrVal -> {
+
+                    ItemAttrValVo itemAttrValVo = new ItemAttrValVo();
+                    ToolUtil.copyProperties(itemAttrVal, itemAttrValVo);
+                    return Stream.of(itemAttrValVo);
+                }).collect(Collectors.toList()))
+                .orElse(null);
     }
 
 

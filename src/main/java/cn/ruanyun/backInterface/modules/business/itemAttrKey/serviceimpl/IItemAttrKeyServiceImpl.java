@@ -2,13 +2,11 @@ package cn.ruanyun.backInterface.modules.business.itemAttrKey.serviceimpl;
 
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.modules.business.itemAttrKey.VO.ItemAttrKeyVO;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.VO.WebItemAttrKeyVO;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.mapper.ItemAttrKeyMapper;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.pojo.ItemAttrKey;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.service.IItemAttrKeyService;
-import cn.ruanyun.backInterface.modules.business.itemAttrVal.VO.ItemAttrValVO;
-import cn.ruanyun.backInterface.modules.business.itemAttrVal.VO.WebItemAttrValVO;
+import cn.ruanyun.backInterface.modules.business.itemAttrVal.vo.WebItemAttrValVo;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.mapper.ItemAttrValMapper;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.pojo.ItemAttrVal;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -83,10 +81,10 @@ public class IItemAttrKeyServiceImpl extends ServiceImpl<ItemAttrKeyMapper, Item
             List<ItemAttrVal> itemAttrVal =
                     itemAttrValMapper.selectList(Wrappers.<ItemAttrVal>lambdaQuery().eq(ItemAttrVal::getAttrId,attrKey.getId()));
 
-            List<WebItemAttrValVO> itemAttrValVOList = new ArrayList<>();
+            List<WebItemAttrValVo> itemAttrValVOList = new ArrayList<>();
 
             for (ItemAttrVal attrVal : itemAttrVal) {
-                WebItemAttrValVO attrValVO = new WebItemAttrValVO();
+                WebItemAttrValVo attrValVO = new WebItemAttrValVo();
                 attrValVO.setId(attrVal.getId()).setTitle(attrVal.getAttrValue());
 
                 itemAttrValVOList.add(attrValVO);

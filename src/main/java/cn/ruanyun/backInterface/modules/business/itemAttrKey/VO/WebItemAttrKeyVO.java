@@ -1,7 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.itemAttrKey.VO;
 
-import cn.ruanyun.backInterface.modules.business.itemAttrVal.VO.ItemAttrValVO;
-import cn.ruanyun.backInterface.modules.business.itemAttrVal.VO.WebItemAttrValVO;
+import cn.ruanyun.backInterface.modules.business.itemAttrVal.vo.WebItemAttrValVo;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -25,5 +24,5 @@ public class WebItemAttrKeyVO {
     /**
      * 规格属性
      */
-    private List<WebItemAttrValVO> children;
+    private List<WebItemAttrValVo> children;
 }

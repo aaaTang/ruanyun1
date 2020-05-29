@@ -3,36 +3,26 @@ package cn.ruanyun.backInterface.common.enums;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-
 /**
- * 订单类型枚举
- * @author root
- */
-public enum OrderTypeEnum {
+ * 布尔类型
+ * @program: ruanyun
+ * @description:
+ * @author: fei
+ * @create: 2020-02-13 11:29
+ **/
+public enum DayTimeTypeEnum {
 
     /**
-     * 套餐订单
+     * 上午
      */
-    GOODS_PACKAGE (1,"套餐订单"),
+    A_M(1,"上午"),
 
     /**
-     * 商品订单
+     * 下午
      */
-    GOOD(2,"商品订单"),
+    P_M(2,"下午");
 
-    /**
-     * 线下订单
-     */
-    OFFLINE_ORDER(3, "线下订单"),
-
-    /**
-     * 档期预约订单
-     */
-    SCHEDULE_ORDER(4, "档期预约订单");
-
-
-
-    OrderTypeEnum(int code, String value) {
+    DayTimeTypeEnum(int code, String value) {
         this.code = code;
         this.value = value;
     }
@@ -55,3 +45,4 @@ public enum OrderTypeEnum {
     private  String value;
 
 }
+

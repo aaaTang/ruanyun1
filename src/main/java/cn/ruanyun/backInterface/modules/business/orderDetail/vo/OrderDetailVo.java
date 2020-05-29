@@ -3,6 +3,7 @@ package cn.ruanyun.backInterface.modules.business.orderDetail.vo;
 import cn.ruanyun.backInterface.common.enums.BuyTypeEnum;
 import cn.ruanyun.backInterface.common.enums.ShopCartTypeEnum;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
+import cn.ruanyun.backInterface.modules.business.itemAttrVal.vo.ItemAttrValVo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -30,7 +31,7 @@ public class OrderDetailVo {
     private String pic;
 
     @ApiModelProperty(value = "属性")
-    private List<String> attrSymbolPath;
+    private List<ItemAttrValVo> attrSymbolPath;
 
     @ApiModelProperty(value = "购买数量")
     private Integer buyCount;

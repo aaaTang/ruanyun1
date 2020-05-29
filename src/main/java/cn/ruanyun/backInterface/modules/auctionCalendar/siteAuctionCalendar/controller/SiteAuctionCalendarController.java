@@ -4,6 +4,11 @@ import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.auctionCalendar.siteAuctionCalendar.pojo.SiteAuctionCalendar;
 import cn.ruanyun.backInterface.modules.auctionCalendar.siteAuctionCalendar.service.ISiteAuctionCalendarService;
+import cn.ruanyun.backInterface.modules.auctionCalendar.siteAuctionCalendar.vo.SiteAuctionCalendarVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,18 +24,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/ruanyun/siteAuctionCalendar")
 @Transactional
+@Api(tags = "场所档期管理接口")
 public class SiteAuctionCalendarController {
 
     @Autowired
     private ISiteAuctionCalendarService iSiteAuctionCalendarService;
 
 
-   /**
-     * 更新或者插入数据
-     * @param siteAuctionCalendar
-     * @return
-    */
     @PostMapping(value = "/insertOrderUpdateSiteAuctionCalendar")
+    @ApiOperation("插入或者更新档期")
     public Result<Object> insertOrderUpdateSiteAuctionCalendar(SiteAuctionCalendar siteAuctionCalendar){
 
         try {
@@ -44,12 +46,8 @@ public class SiteAuctionCalendarController {
     }
 
 
-    /**
-     * 移除数据
-     * @param ids
-     * @return
-    */
     @PostMapping(value = "/removeSiteAuctionCalendar")
+    @ApiOperation("移除档期")
     public Result<Object> removeSiteAuctionCalendar(String ids){
 
         try {
@@ -62,4 +60,11 @@ public class SiteAuctionCalendarController {
         }
     }
 
+    @PostMapping("/getSiteNoAuctionCalendar")
+    @ApiOperation("获取该场地没有档期的时间")
+    @ApiImplicitParams(@ApiImplicitParam(name = "siteId", value = "场所id", dataType = "string", paramType = "query"))
+    public Result<List<SiteAuctionCalendarVo>> getSiteNoAuctionCalendar(String siteId) {
+
+        return iSiteAuctionCalendarService.getSiteNoAuctionCalendar(siteId);
+    }
 }

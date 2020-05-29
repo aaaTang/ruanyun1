@@ -1,10 +1,9 @@
 package cn.ruanyun.backInterface.modules.business.itemAttrKey.VO;
 
-import cn.ruanyun.backInterface.modules.business.itemAttrVal.VO.ItemAttrValVO;
+import cn.ruanyun.backInterface.modules.business.itemAttrVal.vo.ItemAttrValVo;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -21,7 +20,7 @@ public class ItemAttrKeyVO {
     /**
      * 规格属性
      */
-    private List<ItemAttrValVO> val;
+    private List<ItemAttrValVo> val;
 
 
 }

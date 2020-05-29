@@ -26,8 +26,7 @@ public class Site extends RuanyunBaseEntity {
     @ApiModelProperty("场地规格参数")
     private String siteItemValue;
 
-
-
-
+    @ApiModelProperty(value = "场地介绍图片")
+    private String sitePics;
 
 }

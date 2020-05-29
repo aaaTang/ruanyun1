@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.itemAttrVal.service;
 
+import cn.ruanyun.backInterface.modules.business.itemAttrVal.vo.ItemAttrValVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.pojo.ItemAttrVal;
 
@@ -35,6 +36,14 @@ public interface IItemAttrValService extends IService<ItemAttrVal> {
      */
     List<String> getItemAttrVals(String ids);
 
+
+    /**
+     * 通过属性值，获取属性的参数
+     *
+     * @param ids ids
+     * @return String
+     */
+    List<ItemAttrValVo> getItemAttrValVo(String ids);
 
     /**
      * 获取规格属性值列表

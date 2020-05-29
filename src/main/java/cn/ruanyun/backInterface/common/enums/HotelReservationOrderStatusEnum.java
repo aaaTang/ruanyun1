@@ -3,36 +3,36 @@ package cn.ruanyun.backInterface.common.enums;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-
 /**
- * 订单类型枚举
- * @author root
- */
-public enum OrderTypeEnum {
+ * @program: xboot-plus
+ * @description: 退货状态枚举
+ * @author: fei
+ * @create: 2020-02-13 14:45
+ **/
+public enum HotelReservationOrderStatusEnum {
+
 
     /**
-     * 套餐订单
+     * 待付款
      */
-    GOODS_PACKAGE (1,"套餐订单"),
+    PRE_PAY(1, "待付款"),
 
     /**
-     * 商品订单
+     * 待使用
      */
-    GOOD(2,"商品订单"),
+    PRE_USE(2, "待使用"),
 
     /**
-     * 线下订单
+     * 已完成
      */
-    OFFLINE_ORDER(3, "线下订单"),
+    COMPLETE(3, "已完成"),
 
     /**
-     * 档期预约订单
+     * 取消
      */
-    SCHEDULE_ORDER(4, "档期预约订单");
+    CANCEL(4, "取消");
 
-
-
-    OrderTypeEnum(int code, String value) {
+     HotelReservationOrderStatusEnum(int code, String value) {
         this.code = code;
         this.value = value;
     }

@@ -3,6 +3,7 @@ package cn.ruanyun.backInterface.modules.business.shoppingCart.VO;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.BuyTypeEnum;
 import cn.ruanyun.backInterface.common.enums.ShopCartTypeEnum;
+import cn.ruanyun.backInterface.modules.business.itemAttrVal.vo.ItemAttrValVo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -32,7 +33,7 @@ public class ShoppingCartVO {
     private String pic;
 
     @ApiModelProperty(value = "属性信息")
-    private List<String> itemAttrKeys;
+    private List<ItemAttrValVo> itemAttrKeys;
 
     @ApiModelProperty(value = "购买数量")
     private Integer buyCount;

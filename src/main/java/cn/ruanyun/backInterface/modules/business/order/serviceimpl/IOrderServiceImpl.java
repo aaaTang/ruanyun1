@@ -249,9 +249,33 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
             result.put("ids", ToolUtil.joinerList(orderIds));
 
+            //当前用户余额
+            result.put("balance", userService.getById(currentUserId).getBalance());
+
             return new ResultUtil<>().setData(result, "订单生成成功！");
 
-        }).orElse(new ResultUtil<>().setErrorMsg(206, "json解析错误！"));
+        }).orElseGet(() -> {
+
+
+           Order order = new Order();
+
+           Map<String, Object> result = Maps.newHashMap();
+
+           ToolUtil.copyProperties(orderDTO, order);
+
+           if (this.save(order)) {
+
+               result.put("ids", order.getId());
+
+               //当前用户余额
+               result.put("balance", userService.getById(currentUserId).getBalance());
+
+               return new ResultUtil<>().setData(result, "生成档期订单成功！");
+
+           }
+
+           return new ResultUtil<>().setErrorMsg(208, "创建档期订单失败！");
+       });
 
     }
 
@@ -563,7 +587,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             return Stream.of(appMyOrderListVo);
         }).collect(Collectors.toList())).setTotalPage(orderPage.getPages())
                 .setCurrentPageNum(orderPage.getCurrent())
-                .setTotalSize(orderPage.getSize());
+                .setTotalSize(orderPage.getTotal());
 
         return new ResultUtil<DataVo<AppMyOrderListVo>>().setData(result, "获取我的订单数据成功！");
 

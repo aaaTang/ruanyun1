@@ -114,7 +114,7 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
         result.setDataResult(shoppingCartPage.getRecords().parallelStream().flatMap(shoppingCart -> {
 
             ShoppingCartVO shoppingCartVO = new ShoppingCartVO();
-            shoppingCartVO.setItemAttrKeys(iItemAttrValService.getItemAttrVals(shoppingCart.getAttrSymbolPath()));
+            shoppingCartVO.setItemAttrKeys(iItemAttrValService.getItemAttrValVo(shoppingCart.getAttrSymbolPath()));
             ToolUtil.copyProperties(shoppingCart, shoppingCartVO);
 
             return Stream.of(shoppingCartVO);

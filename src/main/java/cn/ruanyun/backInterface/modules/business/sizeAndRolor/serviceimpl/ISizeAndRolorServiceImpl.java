@@ -6,11 +6,10 @@ import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.VO.ItemAttrKeyVO;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.mapper.ItemAttrKeyMapper;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.pojo.ItemAttrKey;
-import cn.ruanyun.backInterface.modules.business.itemAttrVal.VO.ItemAttrValVO;
+import cn.ruanyun.backInterface.modules.business.itemAttrVal.vo.ItemAttrValVo;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.mapper.ItemAttrValMapper;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.pojo.ItemAttrVal;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.VO.WebInventoryVO;
-import cn.ruanyun.backInterface.modules.business.sizeAndRolor.VO.inventoryVO;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.VO.itemListVO;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.VO.itemVO;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
@@ -24,10 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import reactor.core.publisher.Mono;
@@ -165,10 +162,10 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
                         new QueryWrapper<ItemAttrVal>().lambda().eq(ItemAttrVal::getAttrId,itemAttrKey.getId())))
                         .orElse(null);
 
-                List<ItemAttrValVO> itemAttrValVO = new ArrayList<>();
+                List<ItemAttrValVo> itemAttrValVO = new ArrayList<>();
                 //循环规格属性
                 for (ItemAttrVal itemVal : itemAttrVal) {
-                    ItemAttrValVO attrVal= new ItemAttrValVO();
+                    ItemAttrValVo attrVal= new ItemAttrValVo();
                     attrVal.setId(itemVal.getId()).setAttrValue(itemVal.getAttrValue());
                     itemAttrValVO.add(attrVal);
                 }
