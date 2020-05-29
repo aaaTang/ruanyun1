@@ -72,6 +72,11 @@ public class IItemAttrValServiceImpl extends ServiceImpl<ItemAttrValMapper, Item
     @Override
     public List<ItemAttrValVo> getItemAttrValVo(String ids) {
 
+        if (ToolUtil.isEmpty(ids)) {
+
+            return null;
+        }
+
         return Optional.ofNullable(ToolUtil.setListToNul(this.listByIds(ToolUtil.splitterStr(ids))))
                 .map(itemAttrVals -> itemAttrVals.parallelStream().flatMap(itemAttrVal -> {
 
