@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.good.VO;
 
+import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -10,6 +11,7 @@ public class AppOneClassGoodListVO {
 
     private String id;
 
+    private Integer typeEnum;
 
     /**
      * 商品名称

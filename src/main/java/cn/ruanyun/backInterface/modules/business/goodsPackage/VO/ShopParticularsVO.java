@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 import javax.persistence.Column;
 import java.util.List;
 
+
 @Data
 @Accessors(chain = true)
 public class ShopParticularsVO {
@@ -49,6 +50,16 @@ public class ShopParticularsVO {
      */
     @Column(length = 1000)
     private String  pic ;
+
+    /**
+     * 商品视频
+     */
+    private String goodVideo;
+
+    /**
+     * 商品视频展示图
+     */
+    private String goodVideoPic;
 
     /**
      * 店铺评分

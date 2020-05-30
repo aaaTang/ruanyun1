@@ -98,6 +98,7 @@ public class ISiteServiceImpl extends ServiceImpl<SiteMapper, Site> implements I
         return Optional.ofNullable(this.getById(id)).map(site -> {
 
             SiteDetailVo siteDetailVo = new SiteDetailVo();
+            ToolUtil.copyProperties(site,siteDetailVo);
             siteDetailVo.setSiteItemValues(iItemAttrValService.getItemAttrVals(site.getSiteItemValue()))
                     .setSitePics(ToolUtil.splitterStr(site.getSitePics()));
 

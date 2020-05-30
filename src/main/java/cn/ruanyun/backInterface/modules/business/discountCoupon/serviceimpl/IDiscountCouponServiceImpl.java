@@ -235,14 +235,16 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
             List<DiscountCoupon> discountCoupons = new ArrayList<>();
 
             //2.判断角色管理员还是商家或者个人商家
-            if (roleName.equals(CommonConstant.ADMIN)) { //管理员
+            //管理员
+            if (roleName.equals(CommonConstant.ADMIN)) {
                 discountCoupons = this.list(new QueryWrapper<DiscountCoupon>().lambda()
                         .eq((ToolUtil.isNotEmpty(discountCouponDTO.getId())), DiscountCoupon::getId, discountCouponDTO.getId())
                         .eq((ToolUtil.isNotEmpty(discountCouponDTO.getDisCouponType())), DiscountCoupon::getDisCouponType, discountCouponDTO.getDisCouponType())
                         .orderByDesc(DiscountCoupon::getCreateTime)
                 );
 
-            } else if (roleName.equals(CommonConstant.STORE) || roleName.equals(CommonConstant.PER_STORE)) {//商家或者个人商家
+                //商家或者个人商家
+            } else if (roleName.equals(CommonConstant.STORE) || roleName.equals(CommonConstant.PER_STORE)) {
 
                 discountCoupons = this.list(new QueryWrapper<DiscountCoupon>().lambda().eq((ToolUtil.isNotEmpty(discountCouponDTO.getId())), DiscountCoupon::getId, discountCouponDTO.getId())
                         .eq((ToolUtil.isNotEmpty(discountCouponDTO.getDisCouponType())), DiscountCoupon::getDisCouponType, discountCouponDTO.getDisCouponType())

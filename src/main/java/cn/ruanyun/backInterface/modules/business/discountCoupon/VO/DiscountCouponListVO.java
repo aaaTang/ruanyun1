@@ -1,11 +1,16 @@
 package cn.ruanyun.backInterface.modules.business.discountCoupon.VO;
 
 import cn.ruanyun.backInterface.common.enums.DisCouponTypeEnum;
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 public class DiscountCouponListVO {
@@ -48,4 +53,6 @@ public class DiscountCouponListVO {
      * 是否使用
      */
     private Boolean isReceive;
+
+
 }

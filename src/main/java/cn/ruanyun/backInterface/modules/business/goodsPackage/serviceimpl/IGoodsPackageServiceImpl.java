@@ -100,11 +100,16 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
            if(ToolUtil.isNotEmpty(goodsPackage)){
                ToolUtil.copyProperties(goodsPackage,goodsPackageParticularsVO);
 
-               goodsPackageParticularsVO.setPics(goodsPackage.getGoodPics())//套餐图片
-               .setMyFavorite(iMyFavoriteService.getMyFavorite(goodsPackage.getId(),GoodTypeEnum.GOODSPACKAGE))//是否收藏套餐
-               .setProductsIntroduction(iGoodsIntroduceService.goodsIntroduceList(null,goodsPackage.getId(),1))//商品介绍
-               .setPurchaseNotes(iGoodsIntroduceService.goodsIntroduceList(null,goodsPackage.getId(),2))//购买须知
-               .setStoreAuditVO(storeAuditService.getStoreAudisByid(goodsPackage.getCreateBy()))//商铺信息
+               //套餐图片
+               goodsPackageParticularsVO.setPics(goodsPackage.getGoodPics())
+               //是否收藏套餐
+               .setMyFavorite(iMyFavoriteService.getMyFavorite(goodsPackage.getId(),GoodTypeEnum.GOODSPACKAGE))
+               //商品介绍
+               .setProductsIntroduction(iGoodsIntroduceService.goodsIntroduceList(null,goodsPackage.getId(),1))
+               //购买须知
+               .setPurchaseNotes(iGoodsIntroduceService.goodsIntroduceList(null,goodsPackage.getId(),2))
+                //商铺信息
+               .setStoreAuditVO(storeAuditService.getStoreAudisByid(goodsPackage.getCreateBy()))
                .setWhetherBookingOrder(iBookingOrderService.getWhetherBookingOrder(goodsPackage.getCreateBy(), securityUtil.getCurrUser().getId()))
                //购买状态 1购买 2租赁
                .setBuyState(Optional.ofNullable(goodCategoryMapper.selectById(goodsPackage.getGoodCategoryId())).map(GoodCategory::getBuyState).orElse(null))
@@ -153,7 +158,8 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     @Override
     public ShopParticularsVO getShopParticulars(String ids, String longitude, String latitude){
 
-        User user = iUserService.getById(ids);//获取店铺详情
+        //获取店铺详情
+        User user = iUserService.getById(ids);
         ShopParticularsVO shopParticularsVO = new ShopParticularsVO();
         if (ToolUtil.isNotEmpty(user)) {
 
@@ -171,7 +177,8 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
                 vo.setIsReceive(iDiscountCouponServiceImpl.getDetailById(dc));
                 dvo.add(vo);
             }
-            shopParticularsVO.setDiscountList(dvo);//优惠券
+            //优惠券
+            shopParticularsVO.setDiscountList(dvo);
 
 
             //TODO::2020/4/13 店铺评分 未处理

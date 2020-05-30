@@ -30,7 +30,6 @@ public class GoodsPackageParticularsVO {
      * 商品视频
      */
     private String goodVideo;
-
     /**
      * 商品视频展示图
      */

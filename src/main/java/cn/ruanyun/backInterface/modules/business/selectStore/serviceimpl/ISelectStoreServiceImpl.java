@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -96,7 +97,7 @@ public class ISelectStoreServiceImpl extends ServiceImpl<SelectStoreMapper, Sele
                     }
 
                     return Stream.of(selectStoreListVO);
-                }).collect(Collectors.toList()))
+                }).filter(Objects::nonNull).collect(Collectors.toList()))
                 .orElse(null);
     }
 

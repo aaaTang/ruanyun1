@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.auctionCalendar.siteAuctionCalendar.serviceimpl;
 
+import cn.ruanyun.backInterface.common.enums.DayTimeTypeEnum;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.auctionCalendar.siteAuctionCalendar.mapper.SiteAuctionCalendarMapper;
@@ -13,6 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -63,8 +67,11 @@ public class ISiteAuctionCalendarServiceImpl extends ServiceImpl<SiteAuctionCale
     @Override
     public Result<List<SiteAuctionCalendarVo>> getSiteNoAuctionCalendar(String siteId) {
 
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
         return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<SiteAuctionCalendar>lambdaQuery()
                 .eq(SiteAuctionCalendar::getSiteId, siteId)
+                .ge(SiteAuctionCalendar::getNoScheduleTime,simpleDateFormat.format(new Date()))
                 .orderByDesc(SiteAuctionCalendar::getCreateTime))))
                 .map(siteAuctionCalendars -> new ResultUtil<List<SiteAuctionCalendarVo>>()
                 .setData(siteAuctionCalendars.parallelStream().flatMap(siteAuctionCalendar -> {
@@ -77,4 +84,6 @@ public class ISiteAuctionCalendarServiceImpl extends ServiceImpl<SiteAuctionCale
                 }).collect(Collectors.toList()), "获取没有档期列表成功！"))
                 .orElse(new ResultUtil<List<SiteAuctionCalendarVo>>().setErrorMsg(201, "暂无数据！"));
     }
+
+
 }
