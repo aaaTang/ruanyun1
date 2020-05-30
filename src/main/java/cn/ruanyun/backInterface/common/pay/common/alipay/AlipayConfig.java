@@ -26,7 +26,7 @@ public class AlipayConfig {
 
 	// 服务器  异步通知
 //	public static final String NOTIFY_URL= "http://localhost:8888/xboot/alipay/alipayNotifyNotice.action";
-	public static final String NOTIFY_URL= "http://121.196.28.116:8083/ruanyun/order/aliPayNotify";
+	public static final String NOTIFY_URL= "http://121.196.28.116:9093/ruanyun/order/aliPayNotify";
 //	public static final String NOTIFY_URL= "http://vpd8ra.natappfree.cc/ruanyun/order/aliPayNotify";
 
 	// 页面跳转  同步通知

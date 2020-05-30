@@ -175,9 +175,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 //1.3 判断购买类型
                 if (appOrderGoodInfoDto.getBuyType().equals(BuyTypeEnum.FULL_PURCHASE)) {
 
-                    order.setTotalPrice(Optional.ofNullable(goodService.getById(appOrderGoodInfoDto.getGoodId()))
-                            .map(Good::getGoodNewPrice).orElse(new BigDecimal(0)))
-                            .setBuyType(BuyTypeEnum.FULL_PURCHASE);
+                    order.setTotalPrice(appOrderGoodInfoDto.getPrice());
 
                 }else if (appOrderGoodInfoDto.getBuyType().equals(BuyTypeEnum.RENT)) {
 

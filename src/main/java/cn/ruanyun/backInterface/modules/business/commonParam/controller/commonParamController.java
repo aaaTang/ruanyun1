@@ -5,6 +5,8 @@ import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.commonParam.pojo.commonParam;
 import cn.ruanyun.backInterface.modules.business.commonParam.service.IcommonParamService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +23,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/ruanyun/commonParam")
 @Transactional
+@Api(tags = "公众参数接口")
 public class commonParamController {
 
     @Autowired
@@ -32,12 +35,14 @@ public class commonParamController {
      * @return Object
      */
     @PostMapping("/insertOrUpdateCommonParam")
-    private Result<Object> insertOrUpdateCommonParam(commonParam commonParam) {
+    @ApiOperation("插入或者修改公众参数")
+    public Result<Object> insertOrUpdateCommonParam(commonParam commonParam) {
 
         try {
 
-            icommonParamService.insertOrUpdateCommonParam(commonParam);
+            icommonParamService.saveOrUpdate(commonParam);
             return new ResultUtil<>().setSuccessMsg("添加或者修改成功！");
+
         }catch (RuanyunException ruanyunException) {
 
             throw new RuntimeException(ruanyunException.getMessage());
@@ -49,6 +54,7 @@ public class commonParamController {
      * @return Object
      */
     @PostMapping("/getCommonParamVo")
+    @ApiOperation(value = "获取数据")
     public Result<Object> getCommonParamVo() {
 
         return Optional.ofNullable(icommonParamService.getCommonParamVo())

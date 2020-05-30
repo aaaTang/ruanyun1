@@ -71,6 +71,20 @@ public class OrderController {
         return iOrderService.payOrder(appPayOrder);
     }
 
+    @PostMapping("/aliPayNotify")
+    @ApiOperation(value = "支付回调")
+    public Result<Object> aliPayNotify(HttpServletRequest request) {
+
+        return new ResultUtil<>().setData(iOrderService.aliPayNotify(request), "支付回调");
+    }
+
+    @PostMapping("/wxPayNotify")
+    @ApiOperation(value = "微信回调")
+    public Result<Object> wxPayNotify(HttpServletRequest request) {
+
+        return new ResultUtil<>().setData(iOrderService.wxPayNotify(request), "微信回调");
+    }
+
 
     /*-----------------------------订单操作----------------------*/
 

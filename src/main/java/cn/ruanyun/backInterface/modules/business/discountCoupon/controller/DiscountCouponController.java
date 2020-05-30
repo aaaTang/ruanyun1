@@ -131,7 +131,7 @@ public class DiscountCouponController {
      * @return
      */
     @PostMapping("/PcGetDiscountCouponList")
-    public Result<Object> PcGetDiscountCouponList(PageVo pageVo, DiscountCouponDTO discountCouponDTO) {
+    public Result<Object> pcGetDiscountCouponList(PageVo pageVo, DiscountCouponDTO discountCouponDTO) {
         return Optional.ofNullable(iDiscountCouponService.PcGetDiscountCouponList(discountCouponDTO))
                 .map(pcDiscountCouponList -> {
                     Map<String,Object> result = Maps.newHashMap();
@@ -141,12 +141,4 @@ public class DiscountCouponController {
                 })
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
-
-
-
-
-
-
-
-
 }

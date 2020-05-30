@@ -122,6 +122,7 @@ public class IBalanceServiceImpl extends ServiceImpl<BalanceMapper, Balance> imp
 
         return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<Balance>lambdaQuery()
         .eq(Balance::getCreateBy, userId)
+        .eq(Balance::getAddOrSubtractTypeEnum, AddOrSubtractTypeEnum.ADD)
         .orderByDesc(Balance::getCreateTime))))
         .map(balances -> balances.parallelStream().filter(balance -> orderService.judgeOrderFreeze(balance.getOrderId()))
         .map(Balance::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add))
