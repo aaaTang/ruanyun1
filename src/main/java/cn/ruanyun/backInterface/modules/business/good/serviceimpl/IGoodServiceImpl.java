@@ -463,7 +463,8 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                 ShopAndPackageVO shopAndPackageVO = new ShopAndPackageVO();//商家基础信息
                 ToolUtil.copyProperties(u,shopAndPackageVO);
 
-                shopAndPackageVO.setGrade(Double.parseDouble(gradeService.getShopScore(userRole.getUserId())))
+                shopAndPackageVO.setNickName(u.getShopName())
+                        .setGrade(Double.parseDouble(gradeService.getShopScore(userRole.getUserId())))
                         .setCommentNum(Optional.ofNullable(commentService.getCommentVOByGoodId(userRole.getUserId()))
                                 .map(List::size)
                                 .orElse(0));

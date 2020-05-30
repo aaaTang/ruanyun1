@@ -44,11 +44,7 @@ public interface IDiscountCouponService extends IService<DiscountCoupon> {
      */
     List<DiscountCoupon> getDiscountCouponList(DiscountCoupon discountCoupon);
 
-    /**
-     * 商家获取添加的优惠券
-     * @return
-     */
-   List<DiscountCoupon> getDiscountCouponListByStoreAuditOid(String storeAuditOid);
+
 
     /**
      * 按商品获取优惠券

@@ -28,6 +28,6 @@ public class DiscountMy extends RuanyunBaseEntity {
     @ApiModelProperty(value = "0未使用，1已使用，2过期")
     private Integer status = CommonConstant.STATUS_NORMAL;
 
-    @ApiModelProperty(value = "优惠卷有效时间")
-    private Date discountCouponTime;
+    /*@ApiModelProperty(value = "优惠卷有效时间")
+    private Date discountCouponTime;*/
 }

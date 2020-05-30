@@ -4,6 +4,7 @@ import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
 import cn.ruanyun.backInterface.common.enums.DisCouponTypeEnum;
 import cn.ruanyun.backInterface.common.enums.Disabled;
+import cn.ruanyun.backInterface.common.enums.UsableRangeTypeEnum;
 import cn.ruanyun.backInterface.common.utils.EmptyUtil;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
@@ -158,7 +159,6 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
 
                 Optional.ofNullable(this.list(Wrappers.<DiscountCoupon>lambdaQuery()
                         .eq(ToolUtil.isNotEmpty(discountCoupon.getCreateBy()), DiscountCoupon::getCreateBy, discountCoupon.getCreateBy())
-                        //.eq(!StringUtils.isEmpty(discountCoupon.getStoreAuditOid()), DiscountCoupon::getStoreAuditOid, discountCoupon.getStoreAuditOid())
                         .eq(!StringUtils.isEmpty(discountCoupon.getGoodsPackageId()), DiscountCoupon::getGoodsPackageId, discountCoupon.getGoodsPackageId())
                         .eq(!EmptyUtil.isEmpty(discountCoupon.getDisCouponType()), DiscountCoupon::getGoodsPackageId, discountCoupon.getGoodsPackageId())
                         .eq(DiscountCoupon::getDelFlag, CommonConstant.STATUS_NORMAL)
@@ -189,9 +189,11 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
         discountCouponList.forEach(discountCoupon1 -> {
             DiscountCouponListVO discountCouponListVO = new DiscountCouponListVO();
             ToolUtil.copyProperties(discountCoupon1, discountCouponListVO);
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
+
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
             discountCouponListVO.setValidityPeriod(simpleDateFormat.format(discountCoupon1.getValidityPeriod()));
+
             //登录的用户是否领取
             discountCouponListVO.setIsReceive(this.getDetailById(discountCoupon1));
             discountVOS.add(discountCouponListVO);
@@ -199,18 +201,6 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
         return discountVOS;
     }
 
-
-    /**
-     * 管理后台商家获取优惠券
-     *
-     * @return
-     */
-    @Override
-    public List<DiscountCoupon> getDiscountCouponListByStoreAuditOid(String storeAuditOid) {
-        DiscountCoupon discountCoupon = new DiscountCoupon();
-        //discountCoupon.setStoreAuditOid(storeAuditOid);
-        return this.getDiscountCouponList(discountCoupon);
-    }
 
 
     @Override
@@ -276,6 +266,15 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
                             //创建人名称
                             .setCreateName(Optional.ofNullable(userMapper.selectById(discountCoupon.getCreateBy())).map(User::getNickName).orElse("-"));
 
+                    //优惠券是否过期
+                    int time = discountCoupon.getValidityPeriod().compareTo(new Date());
+
+                    if(time>0){
+                        pc.setPastDue(BooleanTypeEnum.NO);
+                    }else {
+                        pc.setPastDue(BooleanTypeEnum.YES);
+                    }
+
                     return pc;
                 }).filter(pcVO -> pcVO.getCreateName().contains(ToolUtil.isNotEmpty(discountCouponDTO.getCreateName()) ? discountCouponDTO.getCreateName() : pcVO.getCreateName()))
 
@@ -302,9 +301,11 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
     @Override
     public List<PlatformDiscountCouponVO> getPlatformDiscountCoupon() {
 
+        //查询平台发布的优惠券
         return Optional.ofNullable(this.list(new QueryWrapper<DiscountCoupon>().lambda()
                 .eq(DiscountCoupon::getDisCouponType, DisCouponTypeEnum.ALL_SHOP)
                 .eq(DiscountCoupon::getDelFlag, CommonConstant.STATUS_NORMAL)
+                .eq(DiscountCoupon::getUsableRangeTypeEnum, UsableRangeTypeEnum.CLASSIFY)
                 .ge(DiscountCoupon::getValidityPeriod, new Date())
                 .orderByDesc(DiscountCoupon::getCreateTime)
 
@@ -314,6 +315,7 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
                 PlatformDiscountCouponVO p = new PlatformDiscountCouponVO();
                 ToolUtil.copyProperties(discountCoupon, p);
 
+                //查询商家是否参加这个优惠券活动
                 DiscountShop discountShop = discountShopMapper.selectOne(new QueryWrapper<DiscountShop>().lambda()
                         .eq(DiscountShop::getDiscountId, discountCoupon.getId())
                         .eq(DiscountShop::getCreateBy, securityUtil.getCurrUser().getId())
@@ -327,13 +329,17 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
                         p.setJoin(CommonConstant.NO);
                 }
 
-
                 return Stream.of(p);
+                //筛选出分类和商家一样的
+            }).filter(platformDiscountCouponVO -> platformDiscountCouponVO.getUsableRangeId()
+                    .equals(Optional.ofNullable(userMapper.selectById(securityUtil.getCurrUser().getId()))
+                            .map(User::getClassId).orElse(null)))
 
-            }).collect(Collectors.toList());
-
+                    .collect(Collectors.toList());
             return platformDiscountCouponVOS;
         }).orElse(null);
+
+
     }
 
 

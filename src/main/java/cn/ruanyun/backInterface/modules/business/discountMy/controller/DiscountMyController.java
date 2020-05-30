@@ -61,16 +61,7 @@ public class DiscountMyController {
         return new ResultUtil<>().setData(discountMyService.getById(id),"获取详情成功！");
     }
 
-    /**
-     * 获取在当前商品下使用的优惠券
-     * @param productId
-     * @return
-     */
-    @PostMapping("/getCanUseCoupon")
-    public Result<Object> getCanUseCoupon(String productId){
-        return Optional.ofNullable(discountMyService.getCanUseCoupon(productId)).map(myCoupon -> new ResultUtil<>().setData(myCoupon,"获取可以使用的优惠券成功！"))
-                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
-    }
+
 
     /**
      * 获取下单的时候，可以选择的优惠券

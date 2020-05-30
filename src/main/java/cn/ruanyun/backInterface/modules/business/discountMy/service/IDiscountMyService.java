@@ -16,8 +16,8 @@ public interface IDiscountMyService extends IService<DiscountMy> {
 
     /**
      * 获取我的优惠券
-     * @param status
-     * @return
+     * @param status 状态
+     * @return 优惠券
      */
     List<DiscountVO> getMyCoupon(Integer status);
 
@@ -28,20 +28,6 @@ public interface IDiscountMyService extends IService<DiscountMy> {
      */
     Result<Object> receiveCoupon(String couponId);
 
-
-    /**
-     * 获取当前商品可以使用的优惠券
-     * @param productId
-     * @return
-     */
-    List<DiscountVO> getCanUseCoupon(String productId);
-
-    /***
-     *
-     * @param discountCouponId
-     * @return
-     */
-    DiscountVO getDetailById(String discountCouponId);
 
     /***
      *

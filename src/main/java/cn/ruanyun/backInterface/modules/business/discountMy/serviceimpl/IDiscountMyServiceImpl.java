@@ -32,10 +32,7 @@ import javax.annotation.Resource;
 import javax.xml.transform.sax.SAXResult;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -64,42 +61,39 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
     @Override
     public List<DiscountVO> getMyCoupon(Integer status) {
 
+        List<DiscountVO> discountVOList = new ArrayList<>();
 
-        return Optional.ofNullable(ToolUtil.setListToNul(
-                this.list(Wrappers.<DiscountMy>lambdaQuery()
-                         .eq(DiscountMy::getCreateBy,securityUtil.getCurrUser().getId())
-                .eq(ToolUtil.isNotEmpty(status) && status != 2, DiscountMy::getStatus,status)
-                .eq(ToolUtil.isNotEmpty(status) && status == 2, DiscountMy::getStatus, CommonConstant.STATUS_NORMAL)
-                .le(ToolUtil.isNotEmpty(status) && status == 2, DiscountMy::getDiscountCouponTime,new Date())
+        //我的优惠券
+        this.list(Wrappers.<DiscountMy>lambdaQuery()
+                .eq(DiscountMy::getCreateBy,securityUtil.getCurrUser().getId())
+                .orderByDesc(DiscountMy::getCreateTime)).forEach(discountMy -> {
 
-                        .orderByDesc(DiscountMy::getCreateTime)))
-        ).map(list ->{
-            List<DiscountVO> discountVOS = list.parallelStream().flatMap(discountMy -> {
-                DiscountVO byId = new DiscountVO();
-                ToolUtil.copyProperties(discountCouponMapper.selectById(discountMy.getDiscountCouponId()),byId);
-                byId.setStatus(discountMy.getStatus());
+           DiscountVO discountVO = new DiscountVO();
 
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                byId.setValidityPeriod(simpleDateFormat.format(discountMy.getDiscountCouponTime()));
+            DiscountCoupon discountCoupon =  discountCouponMapper.selectById(discountMy.getDiscountCouponId());
+           ToolUtil.copyProperties(discountCoupon,discountVO);
+           discountVO.setStatus(discountMy.getStatus());
 
-                return Stream.of(byId);
-            }).collect(Collectors.toList());
-            return discountVOS;
-        }).orElse(null);
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            discountVO.setValidityPeriod(simpleDateFormat.format(discountCoupon.getValidityPeriod()));
+
+
+                //判断当前时间是否大于订单有效时间
+               int time =discountCouponMapper.selectById(discountMy.getDiscountCouponId()).getValidityPeriod().compareTo(new Date());
+                    //小于当前时间赋值2
+               if(time<=0){discountVO.setStatus(2);}
+
+               if(discountVO.getStatus().equals(status)){
+                   discountVOList.add(discountVO);
+               }
+
+
+       });
+
+        return discountVOList;
+
     }
 
-
-    public DiscountVO getDetailById(String id){
-        return Optional.ofNullable(this.getOne(Wrappers.<DiscountMy>lambdaQuery().eq(DiscountMy::getDiscountCouponId,id)))
-                .map(discountMy -> {
-                    DiscountVO discountVO = new DiscountVO();
-                    DiscountCoupon byId = discountService.getById(discountMy.getDiscountCouponId());
-                    ToolUtil.copyProperties(byId,discountVO);
-                    discountVO.setDisCouponType(byId.getDisCouponType());
-                    discountVO.setStatus(discountMy.getStatus());
-                    return discountVO;
-                }).orElse(null);
-    }
 
     /**
      * 处理某个订单下面的商品能够使用的优惠券
@@ -152,11 +146,13 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
 
                         }
                         return discountVO;
-                    }).collect(Collectors.toList());
+                    }).filter(Objects::nonNull).collect(Collectors.toList());
                     return discountVOList;
                 }).orElse(null);
 
     }
+
+
 
     @Override
     public void changeMyDisCouponStatus(String disCouponId, String userId) {
@@ -185,43 +181,11 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
                     DiscountMy discountMy = new DiscountMy();
                     discountMy.setDiscountCouponId(couponId);
                     discountMy.setCreateBy(securityUtil.getCurrUser().getId());
-                    discountMy.setDiscountCouponTime(Optional.ofNullable(discountCouponMapper.selectById(couponId)).map(DiscountCoupon::getValidityPeriod).orElse(new Date()));
                     this.save(discountMy);
                     return new ResultUtil<>().setSuccessMsg("领取优惠券成功！");
                 });
     }
 
-    @Override
-    public List<DiscountVO> getCanUseCoupon( String productId) {
-        /*return Optional.ofNullable(getCanUseCouponId(securityUtil.getCurrUser().getId(),productId)).map(strings -> discountService.getList(JOINER.join(strings)))
-                .orElse(null);*/
-       return  null;
-    }
 
-    public List<String> getCanUseCouponId(String userId, String productId){
-       //1.先找出自己的优惠券
-        List<DiscountMy> myCoupons = this.list(Wrappers.<DiscountMy>lambdaQuery()
-                .eq(DiscountMy::getCreateBy,userId));
-        //2.过滤出能用的优惠券
-        ;
-     /*   return Optional.ofNullable(ToolUtil.setListToNul(myCoupons)).map(myCouponsList -> myCouponsList.parallelStream()
-                .takeWhile(myCoupon -> discountService.getOne(Wrappers.<DiscountCoupon>lambdaQuery()
-                        .eq(DiscountCoupon::getId,myCoupons.get(1).getDiscountCouponId())).equals(Disabled.Yes.getCode()))
-                .takeWhile(myCoupon -> judgeCouponInProduct(productId,myCoupon.())).flatMap(myCoupon -> Stream.of(myCoupon.getCode()))
-                .collect(Collectors.toList())).orElse(null);*/
-     return  null;
-    }
-
-    /**
-     * 判断此优惠券是否可用
-     * @param productId
-     * @param couponId
-     * @return
-     */
-    public Boolean judgeCouponInProduct(String productId, String couponId){
-      return Optional.ofNullable(discountService.getOne(Wrappers.<DiscountCoupon>lambdaQuery()
-                .eq(DiscountCoupon::getId,productId)))
-                .map(productCoupon -> true).orElse(false);
-    }
 
 }
