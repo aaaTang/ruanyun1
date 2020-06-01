@@ -3,9 +3,11 @@ package cn.ruanyun.backInterface.modules.base.service.mybatis;
 
 import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.base.dto.StoreListDto;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.dto.UserUpdateDTO;
 import cn.ruanyun.backInterface.modules.base.dto.WechatLoginDto;
+import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.vo.*;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -238,5 +240,29 @@ public interface IUserService extends IService<User> {
      * @return UserBalanceVo
      */
     UserBalanceVo getUserBalance();
+
+
+    /**
+     * 判断用户当前分数
+     * @param userId 用户id
+     * @return 分数
+     */
+    Integer getUserCurrentScore(String userId);
+
+
+    /**
+     * 判断门店等级 0.没有等级 1.铜牌 2.银牌 3.金牌 4.钻石
+     * @param userId 用户id
+     * @return Integer
+     */
+    Integer judgeStoreLevel(String userId);
+
+
+    /**
+     * 获取门店列表
+     * @param storeListDto storeListDto
+     * @return DataVo<StoreListVo>
+     */
+    Result<DataVo<StoreListVo>> getStoreList(StoreListDto storeListDto);
 
 }

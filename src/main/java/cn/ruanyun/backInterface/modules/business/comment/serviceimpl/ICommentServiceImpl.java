@@ -257,6 +257,14 @@ public class ICommentServiceImpl extends ServiceImpl<CommentMapper, Comment> imp
         return  this.getCommentList(comment);
     }
 
+    @Override
+    public Integer getCommentByStore(String storeId) {
+
+        return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<Comment>lambdaQuery()
+        .eq(Comment::getUserId, storeId))))
+        .map(List::size)
+        .orElse(0);
+    }
 
 
 }

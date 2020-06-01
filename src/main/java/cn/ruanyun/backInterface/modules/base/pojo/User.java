@@ -123,9 +123,15 @@ public class User extends RuanyunBaseEntity {
     @ApiModelProperty("微信账号")
     private String wechatAccount;
 
+    @ApiModelProperty("分数")
+    private Integer score = 0;
+
     @ApiModelProperty(value = "到店礼")
     @Column(length = 1000)
     private String toStoreGift;
+
+    @ApiModelProperty("开始时间,结束时间")
+    private String businessHours;
 
     @ApiModelProperty(value = "订单礼")
     @Column(length = 1000)

@@ -5,12 +5,14 @@ import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.base.dto.StoreListDto;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.dto.UserUpdateDTO;
 import cn.ruanyun.backInterface.modules.base.dto.WechatLoginDto;
 import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import cn.ruanyun.backInterface.modules.base.vo.StoreListVo;
 import cn.ruanyun.backInterface.modules.base.vo.UserBalanceVo;
 import cn.ruanyun.backInterface.modules.base.vo.UserPayPasswordVo;
 import cn.ruanyun.backInterface.modules.base.vo.UserProfitVO;
@@ -240,4 +242,10 @@ public class AppUserController {
     }
 
 
+    @PostMapping("/storeListDto")
+    @ApiOperation("获取商家列表")
+    public Result<DataVo<StoreListVo>> getStoreList(StoreListDto storeListDto) {
+
+        return userService.getStoreList(storeListDto);
+    }
 }

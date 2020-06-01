@@ -62,4 +62,13 @@ public interface ICommentService extends IService<Comment> {
      * @return
      */
     List PcGetGoodsComment(Comment comment);
+
+
+    /**
+     * 获取商家的评论条数
+     * @param storeId 商家id
+     * @return 评论条数
+     */
+    Integer getCommentByStore(String storeId);
+
 }

@@ -693,6 +693,22 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                 .orElse(null);
     }
 
+    @Override
+    public BigDecimal getLowPriceByStoreId(String storeId) {
+
+
+        // TODO: 2020/5/30 0030  婚宴酒店的最低价格
+
+
+        return Optional.ofNullable(this.list(Wrappers.<Good>lambdaQuery()
+        .eq(Good::getCreateBy, storeId)))
+        .map(goods -> goods.parallelStream().min(Comparator.comparing(Good::getGoodNewPrice)).map(Good::getGoodNewPrice)
+                .orElse(new BigDecimal(0)))
+        .orElse(new BigDecimal(0));
+
+
+    }
+
     /**
      * PC获取商家的套餐列表
      * @return

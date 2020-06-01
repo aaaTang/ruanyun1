@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 /**
@@ -48,8 +49,10 @@ public class AppOrderGoodInfoDto {
     private BigDecimal price;
 
     @ApiModelProperty(value = "购买类型")
+    @NotNull
     private BuyTypeEnum buyType;
 
     @ApiModelProperty(value = "购物车商品类型")
+    @NotNull
     private ShopCartTypeEnum shopCartType;
 }

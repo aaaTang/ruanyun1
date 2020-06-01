@@ -1,6 +1,8 @@
 package cn.ruanyun.backInterface.modules.business.storeAudit.service;
 
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.base.dto.StoreListDto;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.business.storeAudit.DTO.StoreAuditDTO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditListVO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditVO;
@@ -49,6 +51,13 @@ public interface IStoreAuditService extends IService<StoreAudit> {
      * @return StoreAuditListVO
      */
     StoreAuditListVO getStoreAudisByid(String id);
+
+
+    /**
+     * 查找所有审核通过的店主id
+     * @return String
+     */
+    List<User> getStoreIdByCheckPass(StoreListDto storeListDto);
 
 
 }

@@ -6,11 +6,14 @@ import cn.hutool.http.HttpUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import cn.ruanyun.backInterface.common.utils.*;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.base.dto.StoreListDto;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
 import cn.ruanyun.backInterface.modules.base.dto.UserUpdateDTO;
 import cn.ruanyun.backInterface.modules.base.dto.WechatLoginDto;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
+import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
 import cn.ruanyun.backInterface.modules.base.service.UserService;
@@ -21,12 +24,11 @@ import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.base.vo.*;
 import cn.ruanyun.backInterface.modules.business.area.service.IAreaService;
 import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
+import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
 import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.good.serviceimpl.IGoodServiceImpl;
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
-import cn.ruanyun.backInterface.modules.business.goodService.pojo.GoodService;
-import cn.ruanyun.backInterface.modules.business.goodService.service.IGoodServiceService;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
 import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
 import cn.ruanyun.backInterface.modules.business.myFootprint.service.IMyFootprintService;
@@ -37,11 +39,12 @@ import cn.ruanyun.backInterface.modules.business.staffManagement.mapper.StaffMan
 import cn.ruanyun.backInterface.modules.business.staffManagement.pojo.StaffManagement;
 import cn.ruanyun.backInterface.modules.business.storeAudit.mapper.StoreAuditMapper;
 import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
+import cn.ruanyun.backInterface.modules.business.storeAudit.service.IStoreAuditService;
+import cn.ruanyun.backInterface.modules.business.storeFirstRateService.service.IstoreFirstRateServiceService;
 import cn.ruanyun.backInterface.modules.business.userRelationship.pojo.UserRelationship;
 import cn.ruanyun.backInterface.modules.business.userRelationship.service.IUserRelationshipService;
 import cn.ruanyun.backInterface.modules.rongyun.service.IRongyunService;
 import com.alibaba.druid.util.StringUtils;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -58,6 +61,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -108,9 +112,16 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     private IMyFootprintService myFootprintService;
     @Resource
     private StaffManagementMapper staffManagementMapper;
-
     @Autowired
     private IGoodCategoryService goodCategoryService;
+    @Autowired
+    private IStoreAuditService storeAuditService;
+    @Autowired
+    private ICommentService commentService;
+    @Autowired
+    private IGoodService goodService;
+    @Autowired
+    private IstoreFirstRateServiceService storeFirstRateServiceService;
 
 
     @Override
@@ -304,8 +315,6 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                     ToolUtil.copyProperties(userUpdateDTO,byId);
                     byId.setShopName(userUpdateDTO.getShopName());
                     super.saveOrUpdate(byId);
-//                    //3.可以登录
-//                    String token = securityUtil.getToken(user.getUsername(), true);
                     return new ResultUtil<>().setSuccessMsg("修改成功！");
                 }).orElse(new ResultUtil<>().setErrorMsg(201, "当前用户不存在！"));
     }
@@ -907,5 +916,105 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         userBalanceVo.setFreezeBalance(balanceService.getOrderFreezeMoney(user.getId()))
                 .setNormalBalance(user.getBalance().subtract(userBalanceVo.getFreezeBalance()));
         return userBalanceVo;
+    }
+
+    @Override
+    public Integer getUserCurrentScore(String userId) {
+
+        AtomicReference<Integer> score = new AtomicReference<>(0);
+
+        Optional.ofNullable(this.getById(userId)).ifPresent(user -> {
+
+            //用户上传展示视频的分数
+            Optional.ofNullable(user.getPic()).ifPresent(pics -> score.updateAndGet(v -> v + 3));
+
+            //用户上传门店地址，定位，店铺电话，店铺营业时间的分数
+            Optional.ofNullable(user.getAddress()).flatMap(address -> Optional.ofNullable(user.getLatitude()))
+                    .flatMap(latitude -> Optional.ofNullable(user.getMobile()))
+                    .flatMap(mobile -> Optional.ofNullable(user.getBusinessHours()))
+                    .ifPresent(businessHours -> score.updateAndGet(v -> v + 1));
+        });
+
+        return score.get();
+    }
+
+    @Override
+    public Integer judgeStoreLevel(String userId) {
+
+       return Optional.ofNullable(this.getById(userId)).map(user -> {
+
+
+            if (30 < user.getScore() + getUserCurrentScore(userId)) {
+
+                return 0;
+            }else if (30 <= user.getScore() + getUserCurrentScore(userId) && user.getScore() + getUserCurrentScore(userId) < 60) {
+
+                return 1;
+            }else if (60 <= user.getScore() + getUserCurrentScore(userId) && user.getScore() + getUserCurrentScore(userId) < 70) {
+
+                return 2;
+            }else if (70 <= user.getScore() + getUserCurrentScore(userId) && user.getScore() + getUserCurrentScore(userId) < 85) {
+
+                return 3;
+            }else if (85 <= user.getScore() + getUserCurrentScore(userId) && user.getScore() + getUserCurrentScore(userId) < 95) {
+
+                return 4;
+            }else if (95 <= user.getScore() + getUserCurrentScore(userId) && user.getScore() + getUserCurrentScore(userId) < 100) {
+
+                return 5;
+            }
+
+            return null;
+
+        }).orElse(null);
+    }
+
+    @Override
+    public Result<DataVo<StoreListVo>> getStoreList(StoreListDto storeListDto) {
+
+        return Optional.ofNullable(storeAuditService.getStoreIdByCheckPass(storeListDto))
+                .map(users -> {
+                    
+                    //封装门店数据
+                    List<StoreListVo> storeListVos = users.parallelStream().flatMap(user -> {
+
+                        StoreListVo storeListVo = new StoreListVo();
+
+                        //等级
+                        storeListVo.setStoreLevel(judgeStoreLevel(user.getId()))
+
+                                // TODO: 2020/5/30 0030 星级 
+                                // TODO: 2020/5/30 0030 优质等级
+
+                                //评价条数
+                                .setCommentNum(commentService.getCommentByStore(user.getId()))
+
+                                //最低价格
+                                .setLowPrice(goodService.getLowPriceByStoreId(user.getId()))
+
+                                //距离
+                                .setDistance(DistanceUtil.getDistance(user.getLatitude(), user.getLongitude(), storeListDto.getLatitude(), storeListDto.getLongitude()))
+
+                                //优质服务
+                                .setFirstRateService(storeFirstRateServiceService.getStoreFirstRateService(user.getId()));
+
+                        ToolUtil.copyProperties(user, storeListVo);
+
+                        return Stream.of(storeListVo);
+                    }).sorted(Comparator.comparing(StoreListVo::getDistance).thenComparing(Comparator.comparing(StoreListVo::getStoreLevel)
+                    .thenComparing(StoreListVo::getStoreStarLevel)))
+                    .collect(Collectors.toList());
+                    
+                    DataVo<StoreListVo> result = new DataVo<>();
+
+                    PageVo pageVo = new PageVo();
+                    ToolUtil.copyProperties(storeListDto, result);
+                    result.setTotalNumber(storeListVos.size())
+                            .setDataResult(PageUtil.listToPage(pageVo, storeListVos));
+                    
+                    return new ResultUtil<DataVo<StoreListVo>>().setData(result, "获取门店列表数据成功！");
+                    
+                })
+                .orElse(new ResultUtil<DataVo<StoreListVo>>().setErrorMsg(201, "暂无数据！"));
     }
 }

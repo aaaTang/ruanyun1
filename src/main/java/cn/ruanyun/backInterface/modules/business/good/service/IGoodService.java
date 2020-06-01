@@ -152,4 +152,13 @@ public interface IGoodService extends IService<Good> {
      */
     PcGoodListVO PCgoodParticulars(String id);
 
+
+    /**
+     * 获取当前商家的最低价格
+     * @param storeId 商家id
+     * @return 最低价格
+     */
+    BigDecimal getLowPriceByStoreId(String storeId);
+
+
 }

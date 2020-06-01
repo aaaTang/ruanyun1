@@ -11,6 +11,7 @@ import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.base.dto.StoreListDto;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
@@ -126,6 +127,19 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
         storeAuditListVO.setCommonCount(commentService.count(Wrappers.<Comment>lambdaQuery().eq(Comment::getUserId,id)));
 
         return storeAuditListVO;
+    }
+
+    @Override
+    public List<User> getStoreIdByCheckPass(StoreListDto storeListDto) {
+
+        return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<StoreAudit>lambdaQuery()
+        .eq(StoreAudit::getCheckEnum, CheckEnum.CHECK_SUCCESS)
+        .eq(StoreAudit::getClassificationId, storeListDto.getGoodCategoryId())
+        .orderByDesc(StoreAudit::getCreateTime))))
+        .map(storeAudits -> storeAudits.parallelStream().map(storeAudit -> userService.getById(storeAudit.getCreateBy()))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList()))
+        .orElse(null);
     }
 
     @Override
