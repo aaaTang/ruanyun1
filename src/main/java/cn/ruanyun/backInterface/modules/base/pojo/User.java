@@ -97,8 +97,6 @@ public class User extends RuanyunBaseEntity {
     @ApiModelProperty("状态 默认0正常 -1拉黑")
     private Integer status = CommonConstant.USER_STATUS_NORMAL;
 
-
-
     /*--------------------商家信息--------------*/
 
     @ApiModelProperty(value = "轮播图")
@@ -136,4 +134,12 @@ public class User extends RuanyunBaseEntity {
     @ApiModelProperty(value = "订单礼")
     @Column(length = 1000)
     private String orderGift;
+
+    /*--------------------商家标签--------------*/
+
+    @ApiModelProperty("信任标识  0无  1有 ")
+    private Integer trustIdentity = CommonConstant.USER_STATUS_NORMAL;
+
+    @ApiModelProperty("连锁认证  0无  1有 ")
+    private Integer authentication = CommonConstant.USER_STATUS_NORMAL;
 }

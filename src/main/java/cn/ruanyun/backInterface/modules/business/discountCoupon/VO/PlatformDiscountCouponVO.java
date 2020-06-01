@@ -3,8 +3,12 @@ package cn.ruanyun.backInterface.modules.business.discountCoupon.VO;
 import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
 import cn.ruanyun.backInterface.common.enums.DisCouponTypeEnum;
 import cn.ruanyun.backInterface.common.enums.UsableRangeTypeEnum;
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
@@ -54,6 +58,12 @@ public class PlatformDiscountCouponVO {
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date validityPeriod;
+
+    @CreatedDate
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @ApiModelProperty(value = "创建时间", hidden = true)
+    private Date createTime;
 
     /**
      * 是否参加  1参加  2否

@@ -92,4 +92,9 @@ public class  AppGoodDetailVO {
 
     @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")
     private Integer leaseState;
+
+    /**
+     * 规格状态  0空   1有
+     */
+    private Integer SpecificationState;
 }

@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.good.VO;
 
+import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -19,7 +20,10 @@ public class AppGoodListVO {
 
     private String id;
 
-
+    /**
+     * 商品类型
+     */
+    private GoodTypeEnum typeEnum;
     /**
      * 商品名称
      */

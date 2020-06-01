@@ -29,6 +29,8 @@ import cn.ruanyun.backInterface.modules.business.goodService.service.IGoodServic
 import cn.ruanyun.backInterface.modules.business.goodsIntroduce.service.IGoodsIntroduceService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
 import cn.ruanyun.backInterface.modules.business.grade.service.IGradeService;
+import cn.ruanyun.backInterface.modules.business.itemAttrKey.mapper.ItemAttrKeyMapper;
+import cn.ruanyun.backInterface.modules.business.itemAttrKey.pojo.ItemAttrKey;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrValService;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
 import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
@@ -92,6 +94,8 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     private IGoodsPackageService iGoodsPackageService;
     @Autowired
     private IItemAttrValService iItemAttrValService;
+    @Resource
+    private ItemAttrKeyMapper itemAttrKeyMapper;
     @Autowired
     private IOrderDetailService orderDetailService;
     @Autowired
@@ -348,7 +352,17 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                     .setBuyState(Optional.ofNullable(goodCategoryMapper.selectById(good.getGoodCategoryId())).map(GoodCategory::getBuyState).orElse(null))
                     //租赁状态 1尾款线上支付  2尾款线下支付
                     .setLeaseState(Optional.ofNullable(goodCategoryMapper.selectById(good.getGoodCategoryId())).map(GoodCategory::getLeaseState).orElse(null))
-            ;
+                    ;
+
+            //规格状态  0空   1有
+           List<ItemAttrKey>  itemAttrKeyList = Optional.ofNullable(ToolUtil.setListToNul(itemAttrKeyMapper.selectList(new QueryWrapper<ItemAttrKey>().lambda()
+                    .eq(ItemAttrKey::getClassId,good.getGoodCategoryId())))).orElse(null);
+
+            if(ToolUtil.isNotEmpty(itemAttrKeyList)){
+                goodDetailVO.setSpecificationState(1);
+            }else {
+                goodDetailVO.setSpecificationState(0);
+            }
 
 
             //用户浏览商品足迹
@@ -381,6 +395,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
               AppGoodListVO appGoodListVO = getAppGoodListVO(good.getId());
                 AppOneClassGoodListVO oneClassGoodListVO = new AppOneClassGoodListVO();
                 ToolUtil.copyProperties(appGoodListVO,oneClassGoodListVO);
+                oneClassGoodListVO.setTypeEnum(appGoodListVO.getTypeEnum().getCode());
                 list.add(oneClassGoodListVO);
             }
         }
