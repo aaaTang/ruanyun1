@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.order.vo;
 
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
 import cn.ruanyun.backInterface.modules.business.orderDetail.vo.OrderDetailVo;
 import com.baomidou.mybatisplus.annotation.FieldFill;
@@ -68,5 +69,7 @@ public class AppMyOrderDetailVo {
     @ApiModelProperty(value = "下单时间")
     private Date createTime;
 
+    @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")
+    private Integer leaseState = CommonConstant.STATUS_NORMAL;
 
 }

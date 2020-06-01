@@ -1,13 +1,21 @@
 package cn.ruanyun.backInterface.modules.business.storeFirstRateService.controller;
 
+import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.storeFirstRateService.pojo.StoreFirstRateService;
 import cn.ruanyun.backInterface.modules.business.storeFirstRateService.service.IstoreFirstRateServiceService;
+import cn.ruanyun.backInterface.modules.merchant.authentication.DTO.AuthenticationDTO;
+import com.google.common.collect.Maps;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author fei
@@ -60,6 +68,31 @@ public class StoreFirstRateServiceController {
         }
     }
 
+    /**
+     * 审核商家优质服务
+     * @param storeFirstRateService 实体类
+     * @return
+     */
+    @PostMapping(value = "/checkStoreFirstRate")
+    public Result<Object> checkStoreFirstRate(StoreFirstRateService storeFirstRateService){
+
+        return istoreFirstRateServiceService.checkStoreFirstRate(storeFirstRateService);
+    }
+
+
+    @PostMapping("/getStoreFirstRateService")
+    @ApiOperation(value = "获取商家申请记录列表")
+    public Result<Object> getStoreFirstRateService(PageVo pageVo, StoreFirstRateService storeFirstRateService) {
+
+        return Optional.ofNullable(istoreFirstRateServiceService.getStoreFirstRateService(storeFirstRateService))
+                .map(firstRateServiceList -> {
+                    Map<String,Object> result = Maps.newHashMap();
+                    result.put("size",firstRateServiceList.size());
+                    result.put("data", PageUtil.listToPage(pageVo,firstRateServiceList));
+                    return new ResultUtil<>().setData(result,"获取商家申请记录列表成功！");
+                })
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
 
 
 }

@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.storeFirstRateService.service;
 
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.storeFirstRateService.VO.StoreFirstRateServiceVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.storeFirstRateService.pojo.StoreFirstRateService;
 
@@ -43,4 +44,10 @@ public interface IstoreFirstRateServiceService extends IService<StoreFirstRateSe
     List<String> getStoreFirstRateService(String storeId);
 
 
+    /**
+     * 获取商家申请记录列表
+     * @param storeFirstRateService 实体类
+     * @return
+     */
+    List<StoreFirstRateServiceVO> getStoreFirstRateService(StoreFirstRateService storeFirstRateService);
 }

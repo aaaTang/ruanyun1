@@ -50,6 +50,9 @@ public class ShoppingCartVO {
     @ApiModelProperty(value = "购买类型")
     private BuyTypeEnum buyType;
 
+    @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")
+    private Integer leaseState = CommonConstant.STATUS_NORMAL;
+
     @ApiModelProperty(value = "购物车商品类型")
     private ShopCartTypeEnum shopCartType;
 

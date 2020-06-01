@@ -7,8 +7,11 @@ import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodOrderVO;
+import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
+import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
+import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
 import cn.ruanyun.backInterface.modules.business.goodService.pojo.GoodService;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.pojo.ItemAttrKey;
 import cn.ruanyun.backInterface.modules.business.itemAttrKey.service.IItemAttrKeyService;
@@ -30,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -52,6 +56,12 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
 
     @Autowired
     private IItemAttrValService iItemAttrValService;
+
+    @Resource
+    private GoodCategoryMapper goodCategoryMapper;
+
+    @Resource
+    private GoodMapper goodMapper;
 
 
     /**
@@ -115,6 +125,13 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
 
             ShoppingCartVO shoppingCartVO = new ShoppingCartVO();
             shoppingCartVO.setItemAttrKeys(iItemAttrValService.getItemAttrValVo(shoppingCart.getAttrSymbolPath()));
+            //尾款方式
+            shoppingCartVO.setLeaseState(
+                   Optional.ofNullable(goodCategoryMapper.selectById(
+                           Optional.ofNullable(goodMapper.selectById(shoppingCart.getGoodId())).map(Good::getGoodCategoryId).orElse(null)
+                   )).map(GoodCategory::getLeaseState).orElse(null)
+
+            );
             ToolUtil.copyProperties(shoppingCart, shoppingCartVO);
 
             return Stream.of(shoppingCartVO);

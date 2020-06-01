@@ -11,7 +11,7 @@ public class AppOneClassGoodListVO {
 
     private String id;
 
-    private Integer typeEnum;
+    private GoodTypeEnum typeEnum;
 
     /**
      * 商品名称

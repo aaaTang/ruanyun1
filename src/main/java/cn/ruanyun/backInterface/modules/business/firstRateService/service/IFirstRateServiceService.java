@@ -33,5 +33,10 @@ public interface IFirstRateServiceService extends IService<FirstRateService> {
      */
     List<String> getFirstRateName(String ids);
 
-
+    /**
+     * 获取优质服务列表
+     * @param firstRateService 实体类
+     * @return
+     */
+    List<FirstRateService> getFirstRateService(FirstRateService firstRateService);
 }

@@ -21,8 +21,11 @@ import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService
 import cn.ruanyun.backInterface.modules.business.commonParam.service.IcommonParamService;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
 import cn.ruanyun.backInterface.modules.business.discountMy.service.IDiscountMyService;
+import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
+import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
+import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.service.IHarvestAddressService;
@@ -32,6 +35,7 @@ import cn.ruanyun.backInterface.modules.business.order.vo.*;
 import cn.ruanyun.backInterface.modules.business.order.mapper.OrderMapper;
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
 import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
+import cn.ruanyun.backInterface.modules.business.orderDetail.mapper.OrderDetailMapper;
 import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
 import cn.ruanyun.backInterface.modules.business.orderDetail.service.IOrderDetailService;
 import cn.ruanyun.backInterface.modules.business.orderDetail.vo.OrderDetailVo;
@@ -64,6 +68,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.*;
@@ -135,6 +140,15 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
     @Autowired
     private ICommentService iCommentService;
+
+    @Resource
+    private GoodCategoryMapper goodCategoryMapper;
+
+    @Resource
+    private OrderDetailMapper orderDetailMapper;
+
+    @Resource
+    private GoodMapper goodMapper;
 
 
     @Override
@@ -615,6 +629,18 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             AppMyOrderDetailVo appMyOrderDetail = new AppMyOrderDetailVo();
             appMyOrderDetail.setOrderDetailVo(orderDetailService.getOrderDetailByOrderId(order.getId()));
             ToolUtil.copyProperties(order, appMyOrderDetail);
+            //尾款方式
+            appMyOrderDetail.setLeaseState(
+                    //3.查尾款状态
+                    Optional.ofNullable(goodCategoryMapper.selectById(
+                            //2.查分类id
+                            Optional.ofNullable(goodMapper.selectById(
+                                    //1.查商品id
+                                    Optional.ofNullable(orderDetailMapper.selectById(order.getId())).map(OrderDetail::getGoodId).orElse(null)
+                            )).map(Good::getGoodCategoryId).orElse(null)
+                    )).map(GoodCategory::getLeaseState).orElse(null)
+
+            );
 
             return new ResultUtil<AppMyOrderDetailVo>().setData(appMyOrderDetail, "获取我的订单详情成功！");
         }).orElse(new ResultUtil<AppMyOrderDetailVo>().setErrorMsg(201, "当前订单不存在！"));

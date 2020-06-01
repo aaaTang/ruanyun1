@@ -395,7 +395,6 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
               AppGoodListVO appGoodListVO = getAppGoodListVO(good.getId());
                 AppOneClassGoodListVO oneClassGoodListVO = new AppOneClassGoodListVO();
                 ToolUtil.copyProperties(appGoodListVO,oneClassGoodListVO);
-                oneClassGoodListVO.setTypeEnum(appGoodListVO.getTypeEnum().getCode());
                 list.add(oneClassGoodListVO);
             }
         }

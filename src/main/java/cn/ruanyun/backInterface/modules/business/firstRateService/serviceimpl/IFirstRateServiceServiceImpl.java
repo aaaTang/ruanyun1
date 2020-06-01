@@ -3,6 +3,7 @@ package cn.ruanyun.backInterface.modules.business.firstRateService.serviceimpl;
 import cn.ruanyun.backInterface.modules.business.firstRateService.mapper.FirstRateServiceMapper;
 import cn.ruanyun.backInterface.modules.business.firstRateService.pojo.FirstRateService;
 import cn.ruanyun.backInterface.modules.business.firstRateService.service.IFirstRateServiceService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -71,4 +73,32 @@ public class IFirstRateServiceServiceImpl extends ServiceImpl<FirstRateServiceMa
                    .collect(Collectors.toList()))
                    .orElse(null);
     }
+
+
+    /**
+     * 获取优质服务列表
+     * @param firstRateService 实体类
+     * @return
+     */
+    @Override
+    public List<FirstRateService> getFirstRateService(FirstRateService firstRateService){
+
+           return Optional.ofNullable(this.list(new QueryWrapper<FirstRateService>().lambda()
+
+                   .eq(ToolUtil.isNotEmpty(firstRateService.getId()),FirstRateService::getId,firstRateService.getId())
+
+                   .eq(ToolUtil.isNotEmpty(firstRateService.getGoodCategoryId()),FirstRateService::getGoodCategoryId,firstRateService.getGoodCategoryId())
+
+                   .eq(ToolUtil.isNotEmpty(firstRateService.getItemName()),FirstRateService::getItemName,firstRateService.getItemName())
+
+                   .orderByDesc(FirstRateService::getCreateTime)
+
+           )).filter(Objects::nonNull).orElse(null);
+    }
+
+
+
+
+
+
 }
