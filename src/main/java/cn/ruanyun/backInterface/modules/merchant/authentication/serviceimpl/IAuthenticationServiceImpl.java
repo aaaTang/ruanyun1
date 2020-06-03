@@ -1,12 +1,14 @@
 package cn.ruanyun.backInterface.modules.merchant.authentication.serviceimpl;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.CheckEnum;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
+import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.merchant.authentication.DTO.AuthenticationDTO;
 import cn.ruanyun.backInterface.modules.merchant.authentication.mapper.AuthenticationMapper;
 import cn.ruanyun.backInterface.modules.merchant.authentication.pojo.Authentication;
@@ -49,6 +51,8 @@ public class IAuthenticationServiceImpl extends ServiceImpl<AuthenticationMapper
        private SecurityUtil securityUtil;
        @Resource
        private UserMapper userMapper;
+       @Resource
+       private IGoodService iGoodService;
 
        @Override
        public void insertOrderUpdateAuthentication(Authentication authentication) {
@@ -92,7 +96,7 @@ public class IAuthenticationServiceImpl extends ServiceImpl<AuthenticationMapper
                         User user = userMapper.selectById(authentication2.getCreateBy());
 
                         //连锁认证：品牌商家、品牌联盟
-                        user.setAuthentication(authentication.getAuthenticationTypeEnum().getCode());
+                        user.setAuthenticationTypeEnum(authentication.getAuthenticationTypeEnum());
 
                         userMapper.updateById(user);
                     }
@@ -109,11 +113,21 @@ public class IAuthenticationServiceImpl extends ServiceImpl<AuthenticationMapper
     @Override
     public List<AuthenticationVo> getAuthentication(AuthenticationDTO authenticationDTO){
 
+        //角色权限
+        String  userRole = iGoodService.getRoleUserList(securityUtil.getCurrUser().getId());
 
         return Optional.ofNullable(ToolUtil.setListToNul(this.list(new QueryWrapper<Authentication>().lambda()
+
             .eq(ToolUtil.isNotEmpty(authenticationDTO.getId()),Authentication::getId,authenticationDTO.getId())
+
+                //权限是商家或者是个人商家
+            .eq( userRole.equals(CommonConstant.PER_STORE)||userRole.equals(CommonConstant.STORE) ,Authentication::getCreateBy,securityUtil.getCurrUser().getId())
+
             .eq(ToolUtil.isNotEmpty(authenticationDTO.getStatus()),Authentication::getStatus,authenticationDTO.getStatus())
-            .eq(ToolUtil.isNotEmpty(authenticationDTO.getAuthenticationTypeEnum()),Authentication::getAuthenticationTypeEnum,authenticationDTO.getAuthenticationTypeEnum()))))
+
+            .eq(ToolUtil.isNotEmpty(authenticationDTO.getAuthenticationTypeEnum()),Authentication::getAuthenticationTypeEnum,authenticationDTO.getAuthenticationTypeEnum())
+
+            .orderByDesc(Authentication::getCreateTime))))
 
               .map(authentications -> authentications.parallelStream().flatMap(authentication1 -> {
 

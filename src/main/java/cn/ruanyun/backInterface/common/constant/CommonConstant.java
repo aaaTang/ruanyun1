@@ -225,6 +225,36 @@ public interface CommonConstant {
      */
     Integer COMMENTS_NUM_DESC = 6;
 
+    /**
+     * 门店等级升序 7
+     */
+    Integer STORE_LEVEL_ASC = 7;
+
+    /**
+     * 门店等级降序8
+     */
+    Integer STORE_LEVEL_DESC = 8;
+
+    /**
+     * 门店星级升序 9
+     */
+    Integer STORE_STAT_LEVEL_ASC = 9;
+
+    /**
+     * 门店星级降序10
+     */
+    Integer STORE_STAT_LEVEL_DESC = 10;
+
+    /**
+     * 距离升序 11
+     */
+    Integer DISTANCE_ASC = 11;
+
+    /**
+     * 距离降序12
+     */
+    Integer DISTANCE_DESC = 12;
+
 
     Integer YES = 0;
 

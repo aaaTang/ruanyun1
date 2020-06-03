@@ -2,6 +2,8 @@ package cn.ruanyun.backInterface.common.utils;
 
 import dm.jdbc.util.StringUtil;
 
+import javax.validation.constraints.NotNull;
+
 public class LocationUtils {
     /**
      * 赤道半径
@@ -60,7 +62,7 @@ public class LocationUtils {
      * @author honghh
      * @date 2019/2/15 0015 9:14
      */
-    public static double getDistance(String originLon, String originLat, String destinationLon, String destinationLat) {
+    public static double getDistance(@NotNull String originLon, @NotNull String originLat, @NotNull String destinationLon, @NotNull String destinationLat) {
         if (StringUtil.isEmpty(originLon)) {
             System.out.println("出发点 经度不可以为空！");
             return 0;

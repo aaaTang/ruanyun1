@@ -53,20 +53,16 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
 
        @Autowired
        private SecurityUtil securityUtil;
-
        @Resource
        private ItemAttrKeyMapper itemAttrKeyMapper;
-        @Autowired
-        private IItemAttrKeyService iItemAttrKeyService;
-
+       @Autowired
+       private IItemAttrKeyService iItemAttrKeyService;
        @Resource
        private ItemAttrValMapper itemAttrValMapper;
-
        @Resource
        private GoodMapper goodMapper;
-      @Resource
-      private GoodCategoryMapper goodCategoryMapper;
-
+       @Resource
+       private GoodCategoryMapper goodCategoryMapper;
        @Resource
        private SizeAndRolorMapper sizeAndRolorMapper;
 
@@ -102,7 +98,7 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
      * @param buyState 购买状态 1购买 2租赁
      * @return
      */
-    @Override
+   /* @Override
     public Map<String,Object> SizeAndRolorList(String goodsId,Integer buyState) {
 
         Map<String,Object> map = new HashMap<>();
@@ -157,6 +153,95 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
         }else {
             return  null;
         }
+    }*/
+
+
+    /**
+     * 获取商品规格和大小
+     * @param goodsId  商品id
+     * @param buyState 购买状态 1购买 2租赁
+     * @return
+     */
+    @Override
+    public Map<String,Object> SizeAndRolorList(String goodsId,Integer buyState) {
+
+        Map<String,Object> map = new HashMap<>();
+
+        List<ItemAttrKeyVO> itemAttrKeyVOS = new ArrayList<>();
+
+        //先查询出所有规格组合
+        List<SizeAndRolor> sizeAndRolor =  this.list(new QueryWrapper<SizeAndRolor>().lambda().eq(SizeAndRolor::getGoodsId,goodsId));
+
+       if(ToolUtil.isNotEmpty(sizeAndRolor)){
+           //循环组合
+           for (SizeAndRolor andRolor : sizeAndRolor) {
+
+               String[] valId = andRolor.getAttrSymbolPath().split(",");
+
+               //循环属性id
+               for (String s : valId) {
+
+
+                   //查询key的属性名称
+                   ItemAttrKeyVO itemAttrKeyVO1 =  Optional.ofNullable(itemAttrKeyMapper.selectById(
+                           Optional.ofNullable( itemAttrValMapper.selectById(s)).map(ItemAttrVal::getAttrId).orElse(null)
+                   )).map(itemAttrKey -> {
+                       ItemAttrKeyVO itemAttrKeyVO = new ItemAttrKeyVO();
+
+                       List<ItemAttrValVo> itemAttrValVoList = new ArrayList<>();
+
+                       //查询出组合有的属性值
+                       for (SizeAndRolor andRolor2 : sizeAndRolor) {
+
+                           String[] valId2 = andRolor2.getAttrSymbolPath().split(",");
+
+                           //循环属性id
+                           for (String s2 : valId2) {
+
+                               ItemAttrVal itemAttrVal = itemAttrValMapper.selectOne(new QueryWrapper<ItemAttrVal>().lambda().eq(ItemAttrVal::getId,s2).eq(ItemAttrVal::getAttrId,itemAttrKey.getId()));
+
+                               if(ToolUtil.isNotEmpty(itemAttrVal)){
+                                   ItemAttrValVo itemAttrValVo = new ItemAttrValVo();
+                                   ToolUtil.copyProperties(itemAttrVal,itemAttrValVo);
+                                   itemAttrValVoList.add(itemAttrValVo);
+                               }
+
+                           }
+
+                       }
+
+                       itemAttrKeyVO.setVal(itemAttrValVoList);
+
+                       ToolUtil.copyProperties(itemAttrKey,itemAttrKeyVO);
+                       return itemAttrKeyVO;
+                   }).orElse(null);
+                   itemAttrKeyVOS.add(itemAttrKeyVO1);
+               }
+
+           }
+
+           HashSet h = new HashSet(itemAttrKeyVOS);
+           itemAttrKeyVOS.clear();
+           itemAttrKeyVOS.addAll(h);
+
+           map.put("itemAttrKeyVOS",itemAttrKeyVOS);
+
+           Good good = Optional.ofNullable(goodMapper.selectOne(new QueryWrapper<Good>().lambda().eq(Good::getId,goodsId)))
+                   .orElse(null);
+
+           map.put("goodsPrice",good.getGoodNewPrice());//商品价格
+           map.put("pic",(good != null ? good.getGoodPics() : ""));//商品图片
+           map.put("inventory",99999);//商品库存
+
+           if(ToolUtil.isNotEmpty(sizeAndRolor)){
+               //商品现有的规格组合 给app做规格组合匹配
+               map.put("itemList",this.getItemList(sizeAndRolor));
+           }
+
+           return map;
+       }else {
+           return null;
+       }
     }
 
 

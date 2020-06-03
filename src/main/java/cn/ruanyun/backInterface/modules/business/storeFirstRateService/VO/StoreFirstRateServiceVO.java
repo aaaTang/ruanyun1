@@ -20,6 +20,9 @@ public class StoreFirstRateServiceVO {
     @ApiModelProperty("id")
     private String id;
 
+    @ApiModelProperty("商家名称")
+    private String shopName;
+
     @ApiModelProperty("优质服务Ids")
     private String firstRateServiceIds;
 

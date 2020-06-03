@@ -9,6 +9,7 @@ import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
+import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.storeAudit.DTO.StoreAuditDTO;
 import cn.ruanyun.backInterface.modules.merchant.authentication.DTO.AuthenticationDTO;
 import cn.ruanyun.backInterface.modules.merchant.authentication.pojo.Authentication;
@@ -56,6 +57,9 @@ public class ITrustIdentityServiceImpl extends ServiceImpl<TrustIdentityMapper, 
 
        @Resource
        private UserMapper  userMapper;
+
+       @Resource
+       private IGoodService iGoodService;
 
        @Override
        public void insertOrderUpdateTrustIdentity(TrustIdentity trustIdentity) {
@@ -118,9 +122,15 @@ public class ITrustIdentityServiceImpl extends ServiceImpl<TrustIdentityMapper, 
     @Override
     public List<TrustIdentityVO> getTrustIdentity(TrustIdentityDTO trustIdentityDTO){
 
+        //角色权限
+        String  userRole = iGoodService.getRoleUserList(securityUtil.getCurrUser().getId());
 
         return Optional.ofNullable(ToolUtil.setListToNul(this.list(new QueryWrapper<TrustIdentity>().lambda()
+
                 .eq(ToolUtil.isNotEmpty(trustIdentityDTO.getId()),TrustIdentity::getId,trustIdentityDTO.getId())
+
+                .eq(userRole.equals(CommonConstant.PER_STORE)||userRole.equals(CommonConstant.STORE),TrustIdentity::getCreateBy,securityUtil.getCurrUser().getId())
+
                 .eq(ToolUtil.isNotEmpty(trustIdentityDTO.getStatus()),TrustIdentity::getStatus,trustIdentityDTO.getStatus()))))
 
                 .map(trustIdentities -> trustIdentities.parallelStream().flatMap(trustIdentity -> {

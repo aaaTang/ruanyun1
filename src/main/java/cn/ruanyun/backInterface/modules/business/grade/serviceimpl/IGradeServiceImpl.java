@@ -59,11 +59,16 @@ public class IGradeServiceImpl extends ServiceImpl<GradeMapper, Grade> implement
     @Override
     public String getShopScore(String ids) {
         List<Grade> list = this.list(Wrappers.<Grade>lambdaQuery().eq(Grade::getUserId, ids));
-        return Optional.ofNullable(ToolUtil.setListToNul(list)).map(grades -> {
-            double score = 0;
-            score = list.stream().mapToDouble(Grade::getStartLevel).sum()/grades.size();
-            return score+"";
-        }).orElse("0");
+
+        if(list.size()>=10){
+            return Optional.ofNullable(ToolUtil.setListToNul(list)).map(grades -> {
+                double score = 0;
+                score = list.stream().mapToDouble(Grade::getStartLevel).sum()/grades.size();
+                return score+"";
+            }).orElse("0");
+        }else {
+            return "5";
+        }
 
     }
 }

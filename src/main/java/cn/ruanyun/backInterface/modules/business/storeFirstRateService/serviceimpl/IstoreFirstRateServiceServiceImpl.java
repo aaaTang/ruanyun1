@@ -11,6 +11,7 @@ import cn.ruanyun.backInterface.modules.business.firstRateService.mapper.FirstRa
 import cn.ruanyun.backInterface.modules.business.firstRateService.pojo.FirstRateService;
 import cn.ruanyun.backInterface.modules.business.firstRateService.service.IFirstRateServiceService;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
+import cn.ruanyun.backInterface.modules.business.storeFirstRateService.DTO.StoreFirstRateServiceDTO;
 import cn.ruanyun.backInterface.modules.business.storeFirstRateService.VO.StoreFirstRateServiceVO;
 import cn.ruanyun.backInterface.modules.business.storeFirstRateService.mapper.StoreFirstRateServiceMapper;
 import cn.ruanyun.backInterface.modules.business.storeFirstRateService.pojo.StoreFirstRateService;
@@ -92,11 +93,7 @@ public class IstoreFirstRateServiceServiceImpl extends ServiceImpl<StoreFirstRat
 
             if (ObjectUtil.equal(CheckEnum.CHECK_SUCCESS, storeFirstRateService.getCheckStatus())) {
 
-                //1. 移除该商家之前申请过的审核通过的优质服务列表
-                this.remove(Wrappers.<StoreFirstRateService>lambdaQuery().eq(StoreFirstRateService::getCheckStatus, CheckEnum.CHECK_SUCCESS)
-                .eq(StoreFirstRateService::getCreateBy, storeFirstRateServiceUpdate.getCreateBy()));
-
-                //2. 分值加一
+                //商家分值加一
                 Optional.ofNullable(userService.getById(storeFirstRateService.getCreateBy())).ifPresent(user -> {
 
                     user.setScore(user.getScore() + 1);
@@ -115,38 +112,30 @@ public class IstoreFirstRateServiceServiceImpl extends ServiceImpl<StoreFirstRat
 
     }
 
+
+    /**
+     * 获取商家请申请优质服务的记录列表
+     * @param storeFirstRateServiceDTO 实体类
+     * @return
+     */
     @Override
-    public List<String> getStoreFirstRateService(String storeId) {
-
-        return Optional.ofNullable(this.getOne(Wrappers.<StoreFirstRateService>lambdaQuery()
-        .eq(StoreFirstRateService::getCheckStatus, CheckEnum.CHECK_SUCCESS)
-        .eq(StoreFirstRateService::getCreateBy, storeId)))
-        .map(storeFirstRateService -> firstRateServiceService.getFirstRateName(storeFirstRateService.getFirstRateServiceIds()))
-        .orElse(null);
-    }
-
-
-    @Override
-    public List<StoreFirstRateServiceVO> getStoreFirstRateService(StoreFirstRateService storeFirstRateService){
+    public List<StoreFirstRateServiceVO> getStoreFirstRateService(StoreFirstRateServiceDTO storeFirstRateServiceDTO){
 
         //角色权限
        String  userRole = iGoodService.getRoleUserList(securityUtil.getCurrUser().getId());
 
-        //角色是商家或者个人商家赋值
-       if(userRole.equals(CommonConstant.PER_STORE)||userRole.equals(CommonConstant.PER_STORE)){
 
-           storeFirstRateService.setCreateBy(securityUtil.getCurrUser().getId());
-       }
 
         return Optional.ofNullable(this.list(new QueryWrapper<StoreFirstRateService>().lambda()
 
-            .eq(ToolUtil.isNotEmpty(storeFirstRateService.getId()),StoreFirstRateService::getId,storeFirstRateService.getId())
+            .eq(ToolUtil.isNotEmpty(storeFirstRateServiceDTO.getId()),StoreFirstRateService::getId,storeFirstRateServiceDTO.getId())
 
-            .eq(ToolUtil.isNotEmpty(storeFirstRateService.getCreateBy()),StoreFirstRateService::getCreateBy,storeFirstRateService.getCreateBy())
+             //判断角色是商家或者个人商家
+            .eq(userRole.equals(CommonConstant.PER_STORE)||userRole.equals(CommonConstant.STORE),StoreFirstRateService::getCreateBy,securityUtil.getCurrUser().getId())
 
-            .eq(ToolUtil.isNotEmpty(storeFirstRateService.getFirstRateServiceIds()),StoreFirstRateService::getFirstRateServiceIds,storeFirstRateService.getFirstRateServiceIds())
+            .eq(ToolUtil.isNotEmpty(storeFirstRateServiceDTO.getFirstRateServiceIds()),StoreFirstRateService::getFirstRateServiceIds,storeFirstRateServiceDTO.getFirstRateServiceIds())
 
-            .eq(ToolUtil.isNotEmpty(storeFirstRateService.getCheckStatus()),StoreFirstRateService::getCheckStatus,storeFirstRateService.getCheckStatus())
+            .eq(ToolUtil.isNotEmpty(storeFirstRateServiceDTO.getCheckStatus()),StoreFirstRateService::getCheckStatus,storeFirstRateServiceDTO.getCheckStatus())
 
             .orderByDesc(StoreFirstRateService::getCreateTime)
 
@@ -156,6 +145,9 @@ public class IstoreFirstRateServiceServiceImpl extends ServiceImpl<StoreFirstRat
                         ToolUtil.copyProperties(storeFirstRateService1,storeFirstRateServiceVO);
                         //标签名称
                         storeFirstRateServiceVO.setItemName(Optional.ofNullable(firstRateServiceMapper.selectById(storeFirstRateService1.getFirstRateServiceIds())).map(FirstRateService::getItemName).orElse("-"));
+                        //商家名称
+                        storeFirstRateServiceVO.setShopName(userService.getUserIdByUserName(storeFirstRateService1.getCreateBy()));
+
 
                     return Stream.of(storeFirstRateServiceVO);
 
@@ -164,5 +156,36 @@ public class IstoreFirstRateServiceServiceImpl extends ServiceImpl<StoreFirstRat
     }
 
 
+
+    /**
+     * 获取商家的优质服务名称
+     * @param createBy  创建人
+     * @param checkEnum 状态
+     * @return
+     */
+    @Override
+    public List<String> getStoreFirstRateServiceName(String createBy,CheckEnum checkEnum){
+
+
+        return Optional.ofNullable(ToolUtil.setListToNul(this.list(new QueryWrapper<StoreFirstRateService>().lambda()
+
+                .eq(ToolUtil.isNotEmpty(createBy),StoreFirstRateService::getCreateBy,createBy)
+
+                .eq(ToolUtil.isNotEmpty(checkEnum),StoreFirstRateService::getCheckStatus,checkEnum)
+
+                .orderByDesc(StoreFirstRateService::getCreateTime)
+
+        ))).map(firstRateServiceList -> firstRateServiceList.parallelStream().flatMap(storeFirstRateService1 ->{
+
+            StoreFirstRateServiceVO storeFirstRateServiceVO = new StoreFirstRateServiceVO();
+            ToolUtil.copyProperties(storeFirstRateService1,storeFirstRateServiceVO);
+            //标签名称
+            storeFirstRateServiceVO.setItemName(Optional.ofNullable(firstRateServiceMapper.selectById(storeFirstRateService1.getFirstRateServiceIds())).map(FirstRateService::getItemName).orElse("-"));
+
+            return Stream.of(storeFirstRateServiceVO);
+
+        }).map(StoreFirstRateServiceVO::getItemName).collect(Collectors.toList()))
+                .orElse(null);
+    }
 
 }

@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.firstRateService.serviceimpl;
 
+import cn.ruanyun.backInterface.modules.business.firstRateService.DTO.FirstRateServiceDTO;
 import cn.ruanyun.backInterface.modules.business.firstRateService.mapper.FirstRateServiceMapper;
 import cn.ruanyun.backInterface.modules.business.firstRateService.pojo.FirstRateService;
 import cn.ruanyun.backInterface.modules.business.firstRateService.service.IFirstRateServiceService;
@@ -77,19 +78,19 @@ public class IFirstRateServiceServiceImpl extends ServiceImpl<FirstRateServiceMa
 
     /**
      * 获取优质服务列表
-     * @param firstRateService 实体类
+     * @param firstRateServiceDTO 实体类
      * @return
      */
     @Override
-    public List<FirstRateService> getFirstRateService(FirstRateService firstRateService){
+    public List<FirstRateService> getFirstRateService(FirstRateServiceDTO firstRateServiceDTO){
 
            return Optional.ofNullable(this.list(new QueryWrapper<FirstRateService>().lambda()
 
-                   .eq(ToolUtil.isNotEmpty(firstRateService.getId()),FirstRateService::getId,firstRateService.getId())
+                   .eq(ToolUtil.isNotEmpty(firstRateServiceDTO.getId()),FirstRateService::getId,firstRateServiceDTO.getId())
 
-                   .eq(ToolUtil.isNotEmpty(firstRateService.getGoodCategoryId()),FirstRateService::getGoodCategoryId,firstRateService.getGoodCategoryId())
+                   .eq(ToolUtil.isNotEmpty(firstRateServiceDTO.getGoodCategoryId()),FirstRateService::getGoodCategoryId,firstRateServiceDTO.getGoodCategoryId())
 
-                   .eq(ToolUtil.isNotEmpty(firstRateService.getItemName()),FirstRateService::getItemName,firstRateService.getItemName())
+                   .eq(ToolUtil.isNotEmpty(firstRateServiceDTO.getItemName()),FirstRateService::getItemName,firstRateServiceDTO.getItemName())
 
                    .orderByDesc(FirstRateService::getCreateTime)
 

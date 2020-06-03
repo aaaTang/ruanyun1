@@ -1,6 +1,8 @@
 package cn.ruanyun.backInterface.modules.business.storeFirstRateService.service;
 
+import cn.ruanyun.backInterface.common.enums.CheckEnum;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.storeFirstRateService.DTO.StoreFirstRateServiceDTO;
 import cn.ruanyun.backInterface.modules.business.storeFirstRateService.VO.StoreFirstRateServiceVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.storeFirstRateService.pojo.StoreFirstRateService;
@@ -37,17 +39,17 @@ public interface IstoreFirstRateServiceService extends IService<StoreFirstRateSe
 
 
     /**
-     *
-     * @param storeId 商家id
-     * @return String
-     */
-    List<String> getStoreFirstRateService(String storeId);
-
-
-    /**
-     * 获取商家申请记录列表
-     * @param storeFirstRateService 实体类
+     * 获取商家请申请优质服务的记录列表
+     * @param storeFirstRateServiceDTO 实体类
      * @return
      */
-    List<StoreFirstRateServiceVO> getStoreFirstRateService(StoreFirstRateService storeFirstRateService);
+    List<StoreFirstRateServiceVO> getStoreFirstRateService(StoreFirstRateServiceDTO storeFirstRateServiceDTO);
+
+    /**
+     * 获取商家的优质服务名称
+     * @param createBy  创建人
+     * @param checkEnum 状态
+     * @return
+     */
+    List<String> getStoreFirstRateServiceName(String createBy, CheckEnum checkEnum);
 }

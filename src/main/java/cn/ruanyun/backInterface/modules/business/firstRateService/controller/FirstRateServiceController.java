@@ -4,6 +4,7 @@ import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.firstRateService.DTO.FirstRateServiceDTO;
 import cn.ruanyun.backInterface.modules.business.firstRateService.pojo.FirstRateService;
 import cn.ruanyun.backInterface.modules.business.firstRateService.service.IFirstRateServiceService;
 import cn.ruanyun.backInterface.modules.merchant.authentication.DTO.AuthenticationDTO;
@@ -72,9 +73,9 @@ public class FirstRateServiceController {
 
     @PostMapping("/getFirstRateService")
     @ApiOperation(value = "获取优质服务器列表")
-    public Result<Object> getFirstRateService(PageVo pageVo,FirstRateService firstRateService) {
+    public Result<Object> getFirstRateService(PageVo pageVo, FirstRateServiceDTO firstRateServiceDTO) {
 
-        return Optional.ofNullable(iFirstRateServiceService.getFirstRateService(firstRateService))
+        return Optional.ofNullable(iFirstRateServiceService.getFirstRateService(firstRateServiceDTO))
                 .map(firstRateServiceList -> {
                     Map<String,Object> result = Maps.newHashMap();
                     result.put("size",firstRateServiceList.size());
