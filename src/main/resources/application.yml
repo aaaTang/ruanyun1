@@ -250,6 +250,7 @@ ignored:
     - /ruanyun/versions/getVersions #查询当前手机系统版本
     - /ruanyun/appUser/wechatLogin #微信授权登录
     - /ruanyun/appUser/bindMobile #绑定手机号
+    - /kotlin/demo #测试kotlin
 # Actuator
 management:
   health:

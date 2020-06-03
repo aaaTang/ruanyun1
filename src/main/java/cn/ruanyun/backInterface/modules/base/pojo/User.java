@@ -3,6 +3,7 @@ package cn.ruanyun.backInterface.modules.base.pojo;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.enums.AuthenticationTypeEnum;
 import cn.ruanyun.backInterface.common.utils.CommonUtil;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
@@ -140,6 +141,6 @@ public class User extends RuanyunBaseEntity {
     @ApiModelProperty("信任标识  0无  1有 ")
     private Integer trustIdentity = CommonConstant.USER_STATUS_NORMAL;
 
-    @ApiModelProperty("连锁认证  0无  1有 ")
-    private Integer authentication = CommonConstant.USER_STATUS_NORMAL;
+    @ApiModelProperty("连锁认证")
+    private AuthenticationTypeEnum authenticationType;
 }

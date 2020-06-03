@@ -983,8 +983,9 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                         //等级
                         storeListVo.setStoreLevel(judgeStoreLevel(user.getId()))
 
-                                // TODO: 2020/5/30 0030 星级 
-                                // TODO: 2020/5/30 0030 优质等级
+                                // TODO: 2020/5/30 0030 星级
+                                .setStoreStarLevel(5)
+                                // TODO: 2020/5/30 0030 连锁认证
 
                                 //评价条数
                                 .setCommentNum(commentService.getCommentByStore(user.getId()))
