@@ -291,6 +291,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                         .eq(!StringUtils.isEmpty(goodDTO.getGoodCategoryId()),Good::getGoodCategoryId,goodDTO.getGoodCategoryId())
                         .eq(!EmptyUtil.isEmpty(goodDTO.getGoodTypeEnum()),Good::getTypeEnum, goodDTO.getGoodTypeEnum())
                         .eq(Good::getCreateBy, user.getId())
+                        .eq(Good::getDelFlag, CommonConstant.STATUS_NORMAL)
                         .lt(ToolUtil.isNotEmpty(goodDTO.getPriceHigh())&&ToolUtil.isNotEmpty(goodDTO.getPriceLow()),Good::getGoodNewPrice,goodDTO.getPriceHigh())
                         .gt(ToolUtil.isNotEmpty(goodDTO.getPriceHigh())&&ToolUtil.isNotEmpty(goodDTO.getPriceLow()),Good::getGoodNewPrice,goodDTO.getPriceLow()));
                 goods.addAll(g);
@@ -390,7 +391,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
       List<AppOneClassGoodListVO> list = new ArrayList<>();
 
         for (GoodCategory goodCategory : goodCategoryList) {
-            List<Good> goods = goodMapper.selectList(new QueryWrapper<Good>().lambda().eq(Good::getGoodCategoryId,goodCategory.getId()));
+            List<Good> goods = goodMapper.selectList(new QueryWrapper<Good>().lambda().eq(Good::getGoodCategoryId,goodCategory.getId()).eq(Good::getDelFlag,0));
             for (Good good : goods) {
               AppGoodListVO appGoodListVO = getAppGoodListVO(good.getId());
                 AppOneClassGoodListVO oneClassGoodListVO = new AppOneClassGoodListVO();
@@ -419,7 +420,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
        if(searchTypesEnum.equals(SearchTypesEnum.GOODS)){//商品
            //模糊查询商品
            List<Good> goods = this.list(new QueryWrapper<Good>().lambda()
-                   .like(ToolUtil.isNotEmpty(name),Good::getGoodName,name).eq(Good::getTypeEnum,GoodTypeEnum.GOOD));
+                   .like(ToolUtil.isNotEmpty(name),Good::getGoodName,name).eq(Good::getTypeEnum,GoodTypeEnum.GOOD).eq(Good::getDelFlag,CommonConstant.STATUS_NORMAL));
 
            List<AppGoodListVO> appGoodListVOList = goods.parallelStream().map(good -> {
                AppGoodListVO appGoodListVO = new AppGoodListVO();
@@ -443,8 +444,10 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
            }).collect(Collectors.toList());
            if(ToolUtil.isNotEmpty(appGoodListVOList)){ return appGoodListVOList; }else {return null;}
        }else if(searchTypesEnum.equals(SearchTypesEnum.PACKAGE)){//套餐
+
          return Optional.ofNullable(iGoodsPackageService.AppGoodsPackageList(null,name)).orElse(null);
        }else if(searchTypesEnum.equals(SearchTypesEnum.SHOP)){//商家
+
             return this.getShopAndPackage(name);
        }
 
@@ -491,7 +494,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
         for (ShopAndPackageVO shopAndPackageVO : shopAndPackage) {
             List<AppGoodInfoVO> appGoodInfoVOList = new ArrayList<>();
             List<Good> g = goodMapper.selectList(new QueryWrapper<Good>().lambda()
-                    .eq(Good::getCreateBy, shopAndPackageVO.getId()));
+                    .eq(Good::getCreateBy, shopAndPackageVO.getId()).eq(Good::getDelFlag,CommonConstant.STATUS_NORMAL));
             for (Good good : g) {
                 AppGoodInfoVO appGoodInfoVO = new AppGoodInfoVO();
                 ToolUtil.copyProperties(good,appGoodInfoVO);
@@ -790,7 +793,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     @Override
     public  List<AppForSaleGoodsVO> getAppForSaleGoods(String ids) {
         //查询商家创建的商品
-        List<Good> good =this.list(new QueryWrapper<Good>().lambda().eq(Good::getCreateBy,ids).eq(Good::getTypeEnum,GoodTypeEnum.GOOD));
+        List<Good> good =this.list(new QueryWrapper<Good>().lambda().eq(Good::getCreateBy,ids).eq(Good::getTypeEnum,GoodTypeEnum.GOOD).eq(Good::getDelFlag,CommonConstant.STATUS_NORMAL));
 
         List<AppForSaleGoodsVO> forSaleGoodsVO = new ArrayList<>();
          for (Good g : good) {

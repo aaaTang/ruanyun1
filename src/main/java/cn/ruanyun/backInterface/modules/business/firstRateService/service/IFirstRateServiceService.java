@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.firstRateService.service;
 
+import cn.ruanyun.backInterface.modules.business.firstRateService.DTO.FirstRateServiceDTO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.firstRateService.pojo.FirstRateService;
 
@@ -35,8 +36,8 @@ public interface IFirstRateServiceService extends IService<FirstRateService> {
 
     /**
      * 获取优质服务列表
-     * @param firstRateService 实体类
+     * @param firstRateServiceDTO 实体类
      * @return
      */
-    List<FirstRateService> getFirstRateService(FirstRateService firstRateService);
+    List<FirstRateService> getFirstRateService(FirstRateServiceDTO firstRateServiceDTO);
 }

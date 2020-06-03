@@ -2,6 +2,8 @@ package cn.ruanyun.backInterface.modules.business.goodsPackage.VO;
 
 import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.WhetherBookingOrderVO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
+import cn.ruanyun.backInterface.modules.business.storeActivity.VO.StoreActivityVO;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -86,4 +88,20 @@ public class ShopParticularsVO {
      */
     private WhetherBookingOrderVO whetherBookingOrder;
 
+    @ApiModelProperty("店铺营业时间")
+    private String openTime;
+
+    @ApiModelProperty("优质服务")
+    private List<String> firstRateService;
+
+    @ApiModelProperty("个人简介")
+    @Column(length = 500)
+    private String individualResume;
+
+    @ApiModelProperty("门店活动")
+    private List<StoreActivityVO> activity;
+
+    @ApiModelProperty(value = "到店礼")
+    @Column(length = 1000)
+    private String toStoreGift;
 }

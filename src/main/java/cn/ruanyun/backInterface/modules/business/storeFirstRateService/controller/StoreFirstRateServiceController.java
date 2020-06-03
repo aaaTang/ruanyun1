@@ -4,6 +4,7 @@ import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.storeFirstRateService.DTO.StoreFirstRateServiceDTO;
 import cn.ruanyun.backInterface.modules.business.storeFirstRateService.pojo.StoreFirstRateService;
 import cn.ruanyun.backInterface.modules.business.storeFirstRateService.service.IstoreFirstRateServiceService;
 import cn.ruanyun.backInterface.modules.merchant.authentication.DTO.AuthenticationDTO;
@@ -81,15 +82,15 @@ public class StoreFirstRateServiceController {
 
 
     @PostMapping("/getStoreFirstRateService")
-    @ApiOperation(value = "获取商家申请记录列表")
-    public Result<Object> getStoreFirstRateService(PageVo pageVo, StoreFirstRateService storeFirstRateService) {
+    @ApiOperation(value = "获取商家请申请优质服务的记录列表")
+    public Result<Object> getStoreFirstRateService(PageVo pageVo, StoreFirstRateServiceDTO storeFirstRateServiceDTO) {
 
-        return Optional.ofNullable(istoreFirstRateServiceService.getStoreFirstRateService(storeFirstRateService))
+        return Optional.ofNullable(istoreFirstRateServiceService.getStoreFirstRateService(storeFirstRateServiceDTO))
                 .map(firstRateServiceList -> {
                     Map<String,Object> result = Maps.newHashMap();
                     result.put("size",firstRateServiceList.size());
                     result.put("data", PageUtil.listToPage(pageVo,firstRateServiceList));
-                    return new ResultUtil<>().setData(result,"获取商家申请记录列表成功！");
+                    return new ResultUtil<>().setData(result,"获取商家请申请优质服务的记录列表成功！");
                 })
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }

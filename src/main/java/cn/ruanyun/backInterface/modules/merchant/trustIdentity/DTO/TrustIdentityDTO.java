@@ -16,4 +16,9 @@ public class TrustIdentityDTO {
      * 状态
      */
     private CheckEnum status;
+
+    /**
+     * 创建人
+     */
+    private String createBy;
 }

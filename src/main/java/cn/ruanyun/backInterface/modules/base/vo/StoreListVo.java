@@ -1,5 +1,7 @@
 package cn.ruanyun.backInterface.modules.base.vo;
 
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.enums.AuthenticationTypeEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -21,14 +23,14 @@ public class StoreListVo {
     @ApiModelProperty("用户头像")
     private String avatar;
 
-    @ApiModelProperty("门店等级 判断门店等级 0.没有等级 1.铜牌 2.银牌 3.金牌 4.钻石")
+    @ApiModelProperty("门店等级 判断门店等级 1.没有等级 2.普通 3.铜牌 4.银牌 5.金牌 6.钻石")
     private Integer storeLevel;
 
     @ApiModelProperty("门店名称")
-    private String nickName;
+    private String shopName;
 
     @ApiModelProperty(value = "门店星级")
-    private Integer storeStarLevel;
+    private Double storeStarLevel;
 
     @ApiModelProperty("评价条数")
     private Integer commentNum;
@@ -42,11 +44,18 @@ public class StoreListVo {
     @ApiModelProperty("距离")
     private Double distance;
 
-    // TODO: 2020/5/30 0030 连锁认证
+    @ApiModelProperty("信任标识  0无  1有 ")
+    private Integer trustIdentity = CommonConstant.USER_STATUS_NORMAL;
+
+    @ApiModelProperty("连锁认证 PRE_CHECK(0,待确定) MERCHANT(1,品牌商家) ALLIANCE(2,品牌联盟) ")
+    private AuthenticationTypeEnum authenticationTypeEnum;
 
     @ApiModelProperty("优质服务")
     private List<String> firstRateService;
 
     @ApiModelProperty(value = "到店礼")
     private String toStoreGift;
+
+    @ApiModelProperty(value = "商家类型 （1，酒店 2.主持人 3.默认）")
+    private Integer storeType;
 }

@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.goodsPackage.serviceimpl;
 
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.*;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
@@ -26,7 +27,9 @@ import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
 import cn.ruanyun.backInterface.modules.business.grade.service.IGradeService;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
+import cn.ruanyun.backInterface.modules.business.storeActivity.service.IStoreActivityService;
 import cn.ruanyun.backInterface.modules.business.storeAudit.service.IStoreAuditService;
+import cn.ruanyun.backInterface.modules.business.storeFirstRateService.service.IstoreFirstRateServiceService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -82,8 +85,10 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     private IMyFavoriteService iMyFavoriteService;
     @Resource
     private GoodCategoryMapper goodCategoryMapper;
-
-
+    @Autowired
+    private IstoreFirstRateServiceService storeFirstRateServiceService;
+    @Autowired
+    private IStoreActivityService iStoreActivityService;
 
 
     /**
@@ -135,6 +140,7 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
                 .eq(EmptyUtil.isNotEmpty(classId),GoodsPackage::getClassId,classId)
                 .eq(EmptyUtil.isNotEmpty(areaId),GoodsPackage::getAreaId,areaId)
                 .eq(EmptyUtil.isNotEmpty(createBy),GoodsPackage::getCreateBy,createBy)
+                .eq(GoodsPackage::getDelFlag,CommonConstant.STATUS_NORMAL)
                 .orderByDesc(EmptyUtil.isNotEmpty(newPrice)&&newPrice.equals(1),GoodsPackage::getNewPrice)
                 .orderByAsc(EmptyUtil.isNotEmpty(newPrice)&&newPrice.equals(0),GoodsPackage::getNewPrice)
         );
@@ -166,20 +172,17 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
             ToolUtil.copyProperties(user, shopParticularsVO);
 
             //获取店铺通用优惠券
-            List<DiscountCoupon> discountCoupon = iDiscountCouponService.list(new QueryWrapper<DiscountCoupon>().lambda()
-                    .eq(DiscountCoupon::getDisCouponType, DisCouponTypeEnum.ALL_USE)
-                    .eq(DiscountCoupon::getCreateBy, ids));
+            List<DiscountCouponListVO>  discountCouponListVOS = iDiscountCouponService.getDiscountCouponListByCreateBy(ids);
 
-            List<DiscountCouponListVO> dvo = new ArrayList<>();
-            for (DiscountCoupon dc : discountCoupon) {
-                DiscountCouponListVO vo = new DiscountCouponListVO();
-                ToolUtil.copyProperties(dc, vo);
-                vo.setIsReceive(iDiscountCouponServiceImpl.getDetailById(dc));
-                dvo.add(vo);
-            }
             //优惠券
-            shopParticularsVO.setDiscountList(dvo);
+            shopParticularsVO.setDiscountList(discountCouponListVOS);
 
+            //优质服务
+            shopParticularsVO.setFirstRateService(
+                    storeFirstRateServiceService.getStoreFirstRateServiceName(user.getId(),CheckEnum.CHECK_SUCCESS));
+
+            //门店活动
+            shopParticularsVO.setActivity(iStoreActivityService.getStoreActivity(ids,null));
 
             //TODO::2020/4/13 店铺评分 未处理
             shopParticularsVO.setScore(gradeService.getShopScore(ids));
@@ -206,7 +209,8 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
         List<Good>  goodsPackage = goodMapper.selectList(new QueryWrapper<Good>().lambda()
                 .eq(ToolUtil.isNotEmpty(ids),Good::getCreateBy,ids)
                 .like(ToolUtil.isNotEmpty(name),Good::getGoodName,name)
-                .eq(Good::getTypeEnum,GoodTypeEnum.GOODSPACKAGE));
+                .eq(Good::getTypeEnum,GoodTypeEnum.GOODSPACKAGE)
+                .eq(Good::getDelFlag, CommonConstant.STATUS_NORMAL));
 
         List<AppGoodsPackageListVO> appGoodsPackageList = new ArrayList<>();
 
@@ -278,11 +282,14 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
                     .setAvatar(user.getAvatar())
                     .setShopName(user.getShopName())
                     .setIndividualResume(user.getIndividualResume())
-                    .setGoodsNum(iGoodService.getAppForSaleGoods(ids).size())//获取商品数量
-                    .setFollowAttentionNum(followAttentionService.getMefansNum(ids))//获取店铺关注数量
+                    //获取商品数量
+                    .setGoodsNum(iGoodService.getAppForSaleGoods(ids).size())
+                    //获取店铺关注数量
+                    .setFollowAttentionNum(followAttentionService.getMefansNum(ids))
                     //TODO::评论数量 暂无
                      .setEvaluateNum(null)
-                    .setMyFollowAttention(followAttentionService.getMyFollowAttentionShop(ids,FollowTypeEnum.Follow_SHOP))//当前登录用户是否关注这个店铺
+                    //当前登录用户是否关注这个店铺
+                    .setMyFollowAttention(followAttentionService.getMyFollowAttentionShop(ids,FollowTypeEnum.Follow_SHOP))
             ;
                 if(ToolUtil.isNotEmpty(user.getPic())){
                     String[] pic = user.getPic().split(",");

@@ -4,6 +4,7 @@ package cn.ruanyun.backInterface.modules.base.serviceimpl.mybatis;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.http.HttpUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.enums.CheckEnum;
 import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.PageVo;
@@ -25,10 +26,16 @@ import cn.ruanyun.backInterface.modules.base.vo.*;
 import cn.ruanyun.backInterface.modules.business.area.service.IAreaService;
 import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
 import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
+import cn.ruanyun.backInterface.modules.business.firstRateService.mapper.FirstRateServiceMapper;
+import cn.ruanyun.backInterface.modules.business.firstRateService.pojo.FirstRateService;
+import cn.ruanyun.backInterface.modules.business.firstRateService.service.IFirstRateServiceService;
 import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
+import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodListVO;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.good.serviceimpl.IGoodServiceImpl;
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
+import cn.ruanyun.backInterface.modules.business.goodCategory.serviceimpl.IGoodCategoryServiceImpl;
+import cn.ruanyun.backInterface.modules.business.grade.service.IGradeService;
 import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteService;
 import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
 import cn.ruanyun.backInterface.modules.business.myFootprint.service.IMyFootprintService;
@@ -40,6 +47,8 @@ import cn.ruanyun.backInterface.modules.business.staffManagement.pojo.StaffManag
 import cn.ruanyun.backInterface.modules.business.storeAudit.mapper.StoreAuditMapper;
 import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
 import cn.ruanyun.backInterface.modules.business.storeAudit.service.IStoreAuditService;
+import cn.ruanyun.backInterface.modules.business.storeFirstRateService.mapper.StoreFirstRateServiceMapper;
+import cn.ruanyun.backInterface.modules.business.storeFirstRateService.pojo.StoreFirstRateService;
 import cn.ruanyun.backInterface.modules.business.storeFirstRateService.service.IstoreFirstRateServiceService;
 import cn.ruanyun.backInterface.modules.business.userRelationship.pojo.UserRelationship;
 import cn.ruanyun.backInterface.modules.business.userRelationship.service.IUserRelationshipService;
@@ -76,6 +85,8 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     private UserService userService;
     @Autowired
     private IUserRoleService userRoleService;
+    @Resource
+    private UserMapper userMapper;
     @Autowired
     private SecurityUtil securityUtil;
     @Autowired
@@ -98,6 +109,8 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     private ISelectStoreService iSelectStoreService;
     @Autowired
     private IGoodCategoryService iGoodCategoryService;
+    @Autowired
+    private IGoodCategoryServiceImpl iGoodCategoryServiceImpl;
     @Autowired
     private IAreaService iAreaService;
     @Resource
@@ -122,6 +135,8 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     private IGoodService goodService;
     @Autowired
     private IstoreFirstRateServiceService storeFirstRateServiceService;
+    @Autowired
+    private IGradeService gradeService;
 
 
     @Override
@@ -944,29 +959,29 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
        return Optional.ofNullable(this.getById(userId)).map(user -> {
 
 
-            if (30 < user.getScore() + getUserCurrentScore(userId)) {
-
-                return 0;
-            }else if (30 <= user.getScore() + getUserCurrentScore(userId) && user.getScore() + getUserCurrentScore(userId) < 60) {
+            if (user.getScore() + getUserCurrentScore(userId) < 30) {
 
                 return 1;
-            }else if (60 <= user.getScore() + getUserCurrentScore(userId) && user.getScore() + getUserCurrentScore(userId) < 70) {
+            }else if (30 <= user.getScore() + getUserCurrentScore(userId) && user.getScore() + getUserCurrentScore(userId) < 60) {
 
                 return 2;
-            }else if (70 <= user.getScore() + getUserCurrentScore(userId) && user.getScore() + getUserCurrentScore(userId) < 85) {
+            }else if (60 <= user.getScore() + getUserCurrentScore(userId) && user.getScore() + getUserCurrentScore(userId) < 70) {
 
                 return 3;
-            }else if (85 <= user.getScore() + getUserCurrentScore(userId) && user.getScore() + getUserCurrentScore(userId) < 95) {
+            }else if (70 <= user.getScore() + getUserCurrentScore(userId) && user.getScore() + getUserCurrentScore(userId) < 85) {
 
                 return 4;
-            }else if (95 <= user.getScore() + getUserCurrentScore(userId) && user.getScore() + getUserCurrentScore(userId) < 100) {
+            }else if (85 <= user.getScore() + getUserCurrentScore(userId) && user.getScore() + getUserCurrentScore(userId) < 95) {
 
                 return 5;
+            }else if (95 <= user.getScore() + getUserCurrentScore(userId) && user.getScore() + getUserCurrentScore(userId) < 100) {
+
+                return 6;
             }
 
-            return null;
+            return 0;
 
-        }).orElse(null);
+        }).orElse(0);
     }
 
     @Override
@@ -980,11 +995,23 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
                         StoreListVo storeListVo = new StoreListVo();
 
+                        User user1 = userMapper.selectById(user.getId());
+
                         //等级
                         storeListVo.setStoreLevel(judgeStoreLevel(user.getId()))
 
-                                // TODO: 2020/5/30 0030 星级 
-                                // TODO: 2020/5/30 0030 优质等级
+                                //门店星级
+                                .setStoreStarLevel(Double.parseDouble(gradeService.getShopScore(user.getId())))
+
+                                //优质服务
+                                .setFirstRateService(
+                                        storeFirstRateServiceService.getStoreFirstRateServiceName(user.getId(),CheckEnum.CHECK_SUCCESS)
+                                )
+                                //信任标识
+                                .setTrustIdentity(user1.getTrustIdentity())
+
+                                //连锁认证
+                                .setAuthenticationTypeEnum(user1.getAuthenticationTypeEnum())
 
                                 //评价条数
                                 .setCommentNum(commentService.getCommentByStore(user.getId()))
@@ -993,27 +1020,88 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                                 .setLowPrice(goodService.getLowPriceByStoreId(user.getId()))
 
                                 //距离
-                                .setDistance(DistanceUtil.getDistance(user.getLatitude(), user.getLongitude(), storeListDto.getLatitude(), storeListDto.getLongitude()))
+                                .setDistance(LocationUtils.getDistance( storeListDto.getLongitude(),storeListDto.getLatitude(), user.getLongitude(),user.getLatitude()))
 
-                                //优质服务
-                                .setFirstRateService(storeFirstRateServiceService.getStoreFirstRateService(user.getId()));
+                                //商家类型 （1，酒店 2.主持人 3.默认）
+                                .setStoreType(iGoodCategoryServiceImpl.judgeStoreType(user))
+                        ;
+
 
                         ToolUtil.copyProperties(user, storeListVo);
 
+
+
                         return Stream.of(storeListVo);
-                    }).sorted(Comparator.comparing(StoreListVo::getDistance).thenComparing(Comparator.comparing(StoreListVo::getStoreLevel)
-                    .thenComparing(StoreListVo::getStoreStarLevel)))
+                    })/*.sorted(Comparator.comparing(StoreListVo::getDistance).thenComparing(Comparator.comparing(StoreListVo::getStoreLevel)
+                    .thenComparing(StoreListVo::getStoreStarLevel)))*/
+                        //门店等级 判断门店等级 1.没有等级 2.普通 3.铜牌 4.银牌 5.金牌 6.钻石
+                       .filter(storeListVo -> storeListVo.getStoreLevel().equals(ToolUtil.isNotEmpty(storeListDto.getStoreLevel())?storeListDto.getStoreLevel():storeListVo.getStoreLevel()))
                     .collect(Collectors.toList());
-                    
+
+                    /**
+                     * 销量升序 1，销量降序2
+                     * 价格升序3，价格降序4
+                     * 评论数升 序5，评论数降序6
+                     * 门店等级升序 7 门店等级降序8
+                     * 门店星级升序 9 门店星级降序10
+                     * 距离升序 11 距离降序12
+                     */
+                    if(ToolUtil.isNotEmpty(storeListDto.getFilterCondition())){
+
+                        //销量升序 1
+                        if(CommonConstant.SALES_VOLUME_ASC.equals(storeListDto.getFilterCondition())){
+                            storeListVos = storeListVos.parallelStream().sorted(Comparator.comparing(StoreListVo::getCommentNum)).collect(Collectors.toList());
+                            //销量降序2
+                        }else if(CommonConstant.SALES_VOLUME_DESC.equals(storeListDto.getFilterCondition())){
+                            storeListVos = storeListVos.parallelStream().sorted(Comparator.comparing(StoreListVo::getCommentNum).reversed()).collect(Collectors.toList());
+                            //价格升序3
+                        }else if(CommonConstant.PRICE_ASC.equals(storeListDto.getFilterCondition())){
+                            storeListVos = storeListVos.parallelStream().sorted(Comparator.comparing(StoreListVo::getLowPrice)).collect(Collectors.toList());
+                            //价格价格4
+                        }else if(CommonConstant.PRICE_DESC.equals(storeListDto.getFilterCondition())){
+                            storeListVos = storeListVos.parallelStream().sorted(Comparator.comparing(StoreListVo::getLowPrice).reversed()).collect(Collectors.toList());
+                            //评论数升序5
+                        }else if(CommonConstant.COMMENTS_NUM_ASC.equals(storeListDto.getFilterCondition())){
+                            storeListVos = storeListVos.parallelStream().sorted(Comparator.comparing(StoreListVo::getCommentNum)).collect(Collectors.toList());
+                            //评论数降序6
+                        }else if(CommonConstant.COMMENTS_NUM_DESC.equals(storeListDto.getFilterCondition())){
+                            storeListVos = storeListVos.parallelStream().sorted(Comparator.comparing(StoreListVo::getCommentNum).reversed()).collect(Collectors.toList());
+                            //门店等级升序7
+                        }else if(CommonConstant.STORE_LEVEL_ASC.equals(storeListDto.getFilterCondition())){
+                            storeListVos = storeListVos.parallelStream().sorted(Comparator.comparing(StoreListVo::getStoreLevel)).collect(Collectors.toList());
+                            // 门店等级降序8
+                        }else if(CommonConstant.STORE_LEVEL_DESC.equals(storeListDto.getFilterCondition())){
+                            storeListVos = storeListVos.parallelStream().sorted(Comparator.comparing(StoreListVo::getStoreLevel).reversed()).collect(Collectors.toList());
+                            //门店星级升序9
+                        }else if(CommonConstant.STORE_STAT_LEVEL_ASC.equals(storeListDto.getFilterCondition())){
+                            storeListVos = storeListVos.parallelStream().sorted(Comparator.comparing(StoreListVo::getStoreStarLevel)).collect(Collectors.toList());
+                            //门店星级降序10
+                        }else if(CommonConstant.STORE_STAT_LEVEL_DESC.equals(storeListDto.getFilterCondition())){
+                            storeListVos = storeListVos.parallelStream().sorted(Comparator.comparing(StoreListVo::getStoreStarLevel).reversed()).collect(Collectors.toList());
+                            //距离升序 11
+                        }else if(CommonConstant.DISTANCE_ASC.equals(storeListDto.getFilterCondition())){
+                            storeListVos = storeListVos.parallelStream().sorted(Comparator.comparing(StoreListVo::getDistance)).collect(Collectors.toList());
+                            //距离降序12
+                        }else if(CommonConstant.DISTANCE_DESC.equals(storeListDto.getFilterCondition())){
+                            storeListVos = storeListVos.parallelStream().sorted(Comparator.comparing(StoreListVo::getDistance).reversed()).collect(Collectors.toList());
+                        }
+
+                    }
+
                     DataVo<StoreListVo> result = new DataVo<>();
+
 
                     PageVo pageVo = new PageVo();
                     ToolUtil.copyProperties(storeListDto, result);
                     result.setTotalNumber(storeListVos.size())
                             .setDataResult(PageUtil.listToPage(pageVo, storeListVos));
-                    
-                    return new ResultUtil<DataVo<StoreListVo>>().setData(result, "获取门店列表数据成功！");
-                    
+
+                   if(ToolUtil.isNotEmpty(storeListVos)){
+                       return new ResultUtil<DataVo<StoreListVo>>().setData(result, "获取门店列表数据成功！");
+                   } else {
+                       return new ResultUtil<DataVo<StoreListVo>>().setErrorMsg(201, "暂无数据！");
+                   }
+
                 })
                 .orElse(new ResultUtil<DataVo<StoreListVo>>().setErrorMsg(201, "暂无数据！"));
     }
