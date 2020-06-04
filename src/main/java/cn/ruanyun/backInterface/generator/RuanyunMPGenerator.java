@@ -25,13 +25,13 @@ public class RuanyunMPGenerator {
      * 实体类名
      * 建议仅需修改
      */
-    private static final String className = "ShopWorks";
+    private static final String className = "CompereNoCalendars";
 
     /**
      * 类说明描述
      * 建议仅需修改
      */
-    private static final String description = "商家作品";
+    private static final String description = "设置主持人没有档期的时间";
 
     /**
      * 作者名
@@ -54,31 +54,31 @@ public class RuanyunMPGenerator {
      * 实体类对应包
      * (文件自动生成至该包下)
      */
-    private static final String entityPackage = "cn.ruanyun.backInterface.modules.business.shopWorks.pojo";
+    private static final String entityPackage = "cn.ruanyun.backInterface.modules.auctionCalendar.compereNoCalendars.pojo";
 
     /**
      * dao对应包
      * (文件自动生成至该包下)
      */
-    private static final String daoPackage = "cn.ruanyun.backInterface.modules.business.shopWorks.mapper";
+    private static final String daoPackage = "cn.ruanyun.backInterface.modules.auctionCalendar.compereNoCalendars.mapper";
 
     /**
      * service对应包
      * (文件自动生成至该包下)
      */
-    private static final String servicePackage = "cn.ruanyun.backInterface.modules.business.shopWorks.service";
+    private static final String servicePackage = "cn.ruanyun.backInterface.modules.auctionCalendar.compereNoCalendars.service";
 
     /**
      * serviceImpl对应包
      * (文件自动生成至该包下)
      */
-    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.business.shopWorks.serviceimpl";
+    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.auctionCalendar.compereNoCalendars.serviceimpl";
 
     /**
      * controller对应包
      * (文件自动生成至该包下)
      */
-    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.business.shopWorks.controller";
+    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.auctionCalendar.compereNoCalendars.controller";
 
     /**
      * 运行该主函数即可生成代码

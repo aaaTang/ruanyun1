@@ -181,7 +181,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
             return new ResultUtil<>().setErrorMsg(201, "该手机号已注册过==！");
         }
 
-        //2.判断验证码是否失效(默认时间5分钟)
+        /*//2.判断验证码是否失效(默认时间5分钟)
         if (ToolUtil.isEmpty(RedisUtil.getStr(CommonConstant.PRE_SMS + user.getMobile()))) {
 
             return new ResultUtil<>().setErrorMsg(202, "验证码已失效,请重新发送短信验证！");
@@ -191,7 +191,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
         if (!RedisUtil.getStr(CommonConstant.PRE_SMS + user.getMobile()).equals(user.getCode())) {
 
             return new ResultUtil<>().setErrorMsg(203, "验证码不一致！");
-        }
+        }*/
 
         CompletableFuture.supplyAsync(() -> {
 
@@ -475,9 +475,9 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                         backUserVO.setAreaName(iAreaService.getAddressName(user.getAreaId()));//区域名称
                         StoreAudit storeAudit = storeAuditMapper.selectOne(Wrappers.<StoreAudit>lambdaQuery()
                                 .eq(StoreAudit::getCreateBy,userId));
-                        backUserVO.setIdCardFront(storeAudit.getIdCardFront());//身份证正面
-                        backUserVO.setIdCardBack(storeAudit.getIdCardBack());//身份证反面
-                        backUserVO.setBusinessCard(storeAudit.getBusinessCard());//营业执照
+                        backUserVO.setIdCardFront(Optional.ofNullable(storeAudit).map(StoreAudit::getIdCardFront).orElse("暂无！"));//身份证正面
+                        backUserVO.setIdCardBack(Optional.ofNullable(storeAudit).map(StoreAudit::getIdCardBack).orElse("暂无！"));//身份证反面
+                        backUserVO.setBusinessCard(Optional.ofNullable(storeAudit).map(StoreAudit::getBusinessCard).orElse("暂无！"));//营业执照
                     }
                 });
 

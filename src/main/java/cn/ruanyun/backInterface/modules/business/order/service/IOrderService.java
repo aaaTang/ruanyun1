@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.order.service;
 
+import cn.ruanyun.backInterface.common.enums.DayTimeTypeEnum;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
@@ -32,6 +33,20 @@ public interface IOrderService extends IService<Order> {
      */
     Result<Object> insertOrder(OrderDto orderDTO);
 
+    /**
+     * 档期下单
+     * @return
+     */
+    Result<Object> inserAuctionCalendartOrder(AuctionCalendartOrderDTO auctionCalendartOrderDTO);
+
+    /**
+     * 获取主持人的档期价格
+     * @param goodIs 商品id
+     * @param scheduleAppointment 档期时间
+     * @param dayTimeTypeEnum  档期类型
+     * @return
+     */
+    BigDecimal inserGoodOrder(String goodIs, String scheduleAppointment, DayTimeTypeEnum dayTimeTypeEnum);
 
     /**
      * 新增线下订单

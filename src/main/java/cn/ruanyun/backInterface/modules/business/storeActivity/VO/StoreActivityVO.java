@@ -19,7 +19,10 @@ public class StoreActivityVO {
      * 活动名称
      */
     private String title;
-
+    /**
+     * 活动背景图
+     */
+    private String pic;
     /**
      * 内容
      */

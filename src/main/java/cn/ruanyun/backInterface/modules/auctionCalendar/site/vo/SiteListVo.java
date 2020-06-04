@@ -29,4 +29,8 @@ public class SiteListVo {
 
     @ApiModelProperty(value = "场地介绍图片")
     private String sitePic;
+
+    @ApiModelProperty(value = "场地价格")
+    private String sitePrice;
+
 }

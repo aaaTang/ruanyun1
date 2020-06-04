@@ -6,6 +6,7 @@ import cn.ruanyun.backInterface.common.utils.SnowFlakeUtil;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.swagger.annotations.ApiModelProperty;
@@ -59,6 +60,7 @@ public abstract class RuanyunBaseEntity implements Serializable{
     @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
+    @TableLogic
     @ApiModelProperty(value = "删除标志 默认0", hidden = true)
     private Integer delFlag = CommonConstant.STATUS_NORMAL;
 

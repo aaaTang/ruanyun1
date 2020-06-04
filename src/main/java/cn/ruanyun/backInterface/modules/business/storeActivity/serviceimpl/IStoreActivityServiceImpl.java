@@ -1,7 +1,10 @@
 package cn.ruanyun.backInterface.modules.business.storeActivity.serviceimpl;
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
+import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
@@ -146,6 +149,16 @@ public class IStoreActivityServiceImpl extends ServiceImpl<StoreActivityMapper, 
         }).collect(Collectors.toList()))
                 .orElse(null);
 
+    }
+
+    @Override
+    public Result<Object> getActivity(String id) {
+        return Optional.ofNullable(this.getById(id))
+                .map(order -> {
+
+                    return new ResultUtil<>().setData(order,"查询成功！");
+
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "改活动不存在！"));
     }
 
 

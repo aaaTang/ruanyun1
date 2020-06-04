@@ -11,6 +11,12 @@ import cn.ruanyun.backInterface.common.pay.service.IPayService;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.VO.CompereAuctionCalendarVO;
+import cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.service.ICompereAuctionCalendarService;
+import cn.ruanyun.backInterface.modules.auctionCalendar.site.mapper.SiteMapper;
+import cn.ruanyun.backInterface.modules.auctionCalendar.site.pojo.Site;
+import cn.ruanyun.backInterface.modules.auctionCalendar.site.service.ISiteService;
+import cn.ruanyun.backInterface.modules.auctionCalendar.site.vo.SiteDetailTimeVO;
 import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
@@ -150,10 +156,19 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     @Resource
     private GoodMapper goodMapper;
 
+    @Resource
+    private SiteMapper siteMapper;
+
+    @Autowired
+    private ISiteService iSiteService;
+
+    @Autowired
+    private ICompereAuctionCalendarService iCompereAuctionCalendarService;
+
+
 
     @Override
     public Result<Object> insertOrder(OrderDto orderDTO) {
-
 
         String currentUserId = securityUtil.getCurrUser().getId();
 
@@ -274,30 +289,177 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
             return new ResultUtil<>().setData(result, "订单生成成功！");
 
-        }).orElseGet(() -> {
-
-
-           Order order = new Order();
-
-           Map<String, Object> result = Maps.newHashMap();
-
-           ToolUtil.copyProperties(orderDTO, order);
-
-           if (this.save(order)) {
-
-               result.put("ids", order.getId());
-
-               //当前用户余额
-               result.put("balance", userService.getById(currentUserId).getBalance());
-
-               return new ResultUtil<>().setData(result, "生成档期订单成功！");
-
-           }
-
-           return new ResultUtil<>().setErrorMsg(208, "创建档期订单失败！");
-       });
+        }).orElse( new ResultUtil<>().setErrorMsg(208, "订单生成失败！"));
 
     }
+
+
+    /**
+     * 档期下单
+     * @return
+     */
+    @Override
+    public Result<Object> inserAuctionCalendartOrder(AuctionCalendartOrderDTO auctionCalendartOrderDTO) {
+
+        //1. 生成订单
+        Order order = new Order();
+
+        String currentUserId = securityUtil.getCurrUser().getId();
+
+        order.setCreateBy(currentUserId);
+
+        //存储orderId
+        List<String> orderIds = Lists.newArrayList();
+
+
+        //1.2 总价格,支付定金价格
+        //1.3 判断购买类型
+            //1.3.1  订单类型是婚宴档期预约订单  并且 购物车商品类型是档期
+        if (auctionCalendartOrderDTO.getTypeEnum().equals(OrderTypeEnum.SCHEDULE_ORDER)&&auctionCalendartOrderDTO.getShopCartType().equals(ShopCartTypeEnum.AUCTION_CALENDAR)){
+
+            //2.获取档期价格
+            List<SiteDetailTimeVO> siteDetailTimeVOS =  iSiteService.getSiteDetailTime(auctionCalendartOrderDTO.getSiteId(),auctionCalendartOrderDTO.getScheduleAppointment());
+
+            for (SiteDetailTimeVO siteDetailTimeVO : siteDetailTimeVOS) {
+
+                if(siteDetailTimeVO.getDayTimeType().equals(auctionCalendartOrderDTO.getDayTimeType())){
+                    //2.1婚宴酒店的价格
+                    order.setTotalPrice(siteDetailTimeVO.getSitePrice());
+                }
+
+            }
+
+            //1.1 商家id
+            order.setUserId(Optional.ofNullable(siteMapper.selectById(auctionCalendartOrderDTO.getSiteId()))
+                    .map(Site::getCreateBy).orElse(null));
+
+            order.setTypeEnum(OrderTypeEnum.SCHEDULE_ORDER);
+
+            //场地id
+            order.setSiteId(auctionCalendartOrderDTO.getSiteId());
+
+
+
+
+
+            //1.3.2 订单类型是主持人预约订单 并且 购物车商品类型是商品
+        }else if(auctionCalendartOrderDTO.getTypeEnum().equals(OrderTypeEnum.COMPERE_ORDER)&&auctionCalendartOrderDTO.getShopCartType().equals(ShopCartTypeEnum.GOOD)){
+
+            //2.2获取主持人商品价格
+            order.setTotalPrice(this.inserGoodOrder(auctionCalendartOrderDTO.getGoodId(),auctionCalendartOrderDTO.getScheduleAppointment(),auctionCalendartOrderDTO.getDayTimeType()));
+
+            // 商家id
+            order.setUserId(Optional.ofNullable(goodMapper.selectById(auctionCalendartOrderDTO.getGoodId()))
+                    .map(Good::getCreateBy).orElse(null));
+
+                //主持人档期预约订单
+            order.setTypeEnum(OrderTypeEnum.COMPERE_ORDER);
+
+
+
+
+            //1.3.2 订单类型是主持人预约订单 并且 购物车商品类型是套餐
+        }else if(auctionCalendartOrderDTO.getTypeEnum().equals(OrderTypeEnum.COMPERE_ORDER)&&auctionCalendartOrderDTO.getShopCartType().equals(ShopCartTypeEnum.GOOD_PACKAGE)){
+
+            //2.3获取主持人套餐价格
+            order.setTotalPrice(this.inserGoodOrder(auctionCalendartOrderDTO.getGoodId(),auctionCalendartOrderDTO.getScheduleAppointment(),auctionCalendartOrderDTO.getDayTimeType()));
+
+            // 商家id
+            order.setUserId(Optional.ofNullable(goodMapper.selectById(auctionCalendartOrderDTO.getGoodId()))
+                    .map(Good::getCreateBy).orElse(null));
+
+            //主持人档期预约订单
+            order.setTypeEnum(OrderTypeEnum.COMPERE_ORDER);
+        }
+
+        //上午&下午
+        order.setScheduleAppointment(auctionCalendartOrderDTO.getScheduleAppointment());
+        //预约档期
+        order.setDayTimeType(auctionCalendartOrderDTO.getDayTimeType());
+
+
+        //3 优惠券满减
+        if (ToolUtil.isNotEmpty(auctionCalendartOrderDTO.getDiscountId())) {
+
+            Optional.ofNullable(discountCouponService.getDiscountCouponDetail(auctionCalendartOrderDTO.getDiscountId()))
+                    .ifPresent(discountCoupon -> {
+
+                        order.setTotalPrice(order.getTotalPrice().subtract(discountCoupon.getSubtractMoney()));
+
+                        //设置优惠券已使用
+                        discountMyService.changeMyDisCouponStatus(discountCoupon.getId(), currentUserId);
+                    });
+
+        }
+
+        //除去id信息
+        order.setId(null);
+
+        if (this.save(order)) {
+
+            //2  生成订单详情
+            OrderDetail orderDetail = new OrderDetail();
+
+            //2.3 优惠券信息
+            Optional.ofNullable(discountCouponService.getDiscountCouponDetail(auctionCalendartOrderDTO.getDiscountId()))
+                    .ifPresent(discountCoupon -> {
+
+                        orderDetail.setDiscountId(discountCoupon.getId());
+                        orderDetail.setSubtractMoney(discountCoupon.getSubtractMoney());
+                    });
+
+            orderDetail.setOrderId(order.getId());
+
+            orderDetail.setPrice(order.getTotalPrice());
+
+            orderDetail.setCreateBy(currentUserId);
+
+            orderDetailService.save(orderDetail);
+
+            orderIds.add(order.getId());
+
+
+
+            Map<String, Object> result = Maps.newHashMap();
+
+            result.put("ids", ToolUtil.joinerList(orderIds));
+
+            //当前用户余额
+            result.put("balance", userService.getById(currentUserId).getBalance());
+
+            return new ResultUtil<>().setData(result, "订单生成成功！");
+        }else {
+
+            return new ResultUtil<>().setErrorMsg(201, "订单生成失败！");
+        }
+
+
+    }
+
+    /**
+     * 获取主持人的档期价格
+     * @param goodIs 商品id
+     * @param scheduleAppointment 档期时间
+     * @param dayTimeTypeEnum  档期类型
+     * @return
+     */
+    @Override
+    public BigDecimal inserGoodOrder(String goodIs,String scheduleAppointment,DayTimeTypeEnum dayTimeTypeEnum){
+
+        //3获取档期是价格
+        List<CompereAuctionCalendarVO> compereAuctionCalendarVOS = iCompereAuctionCalendarService.AppGetCompereAuctionCalendar(goodIs,scheduleAppointment);
+
+        for (CompereAuctionCalendarVO compereAuctionCalendarVO : compereAuctionCalendarVOS) {
+
+            if(compereAuctionCalendarVO.getDayTimeType().equals(dayTimeTypeEnum)){
+                //3.1注册人商品价格
+              return compereAuctionCalendarVO.getSitePrice();
+            }
+        }
+
+        return null;
+    }
+
 
 
 
