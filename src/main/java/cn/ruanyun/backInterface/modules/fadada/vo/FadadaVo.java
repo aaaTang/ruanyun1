@@ -1,13 +1,19 @@
 package cn.ruanyun.backInterface.modules.fadada.vo;
 
 import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 @Data
 @Accessors(chain = true)
 public class FadadaVo {
+
+    private String id;
 
     @ApiModelProperty("乙方合同标题")
     private String partTwoDocTitle;
@@ -26,5 +32,10 @@ public class FadadaVo {
 
     @ApiModelProperty(value = "乙方签署人")
     private String partTwoExtSignName;
+
+    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @ApiModelProperty(value = "创建时间", hidden = true)
+    private Date createTime;
 
 }

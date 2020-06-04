@@ -2,10 +2,12 @@ package cn.ruanyun.backInterface.modules.business.goodCategory.service;
 
 
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.goodCategory.VO.CategoryVo;
 import cn.ruanyun.backInterface.modules.business.goodCategory.VO.FourDevarajasCategoryVo;
 import cn.ruanyun.backInterface.modules.business.goodCategory.VO.GoodCategoryListVO;
 import cn.ruanyun.backInterface.modules.business.goodCategory.VO.GoodCategoryVO;
 import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
+import com.alipay.api.domain.CategoryVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 
 import java.util.List;
@@ -82,5 +84,12 @@ public interface IGoodCategoryService extends IService<GoodCategory> {
      * @return FourDevarajasCategoryVo
      */
     Result<List<FourDevarajasCategoryVo>> getFourDearestsCategory();
+
+
+    /**
+     * 获取后台管理系统的分类列表
+     * @return CategoryVO
+     */
+    Result<List<CategoryVo>> getBackStoreCategoryList();
 
 }

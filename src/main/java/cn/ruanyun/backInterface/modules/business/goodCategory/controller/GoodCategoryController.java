@@ -6,6 +6,7 @@ import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.goodCategory.VO.CategoryVo;
 import cn.ruanyun.backInterface.modules.business.goodCategory.VO.FourDevarajasCategoryVo;
 import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
@@ -134,6 +135,14 @@ public class GoodCategoryController {
 
         return iGoodCategoryService.getFourDearestsCategory();
     }
+
+    @PostMapping("/getBackStoreCategoryList")
+    @ApiOperation("获取后台管理系统的分类列表")
+    public Result<List<CategoryVo>> getBackStoreCategoryList() {
+
+        return iGoodCategoryService.getBackStoreCategoryList();
+    }
+
 
 
 }

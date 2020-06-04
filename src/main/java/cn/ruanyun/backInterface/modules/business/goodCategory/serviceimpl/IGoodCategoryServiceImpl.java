@@ -2,21 +2,20 @@ package cn.ruanyun.backInterface.modules.business.goodCategory.serviceimpl;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
-import cn.ruanyun.backInterface.common.utils.RedisUtil;
-import cn.ruanyun.backInterface.common.utils.ResultUtil;
-import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
-import cn.ruanyun.backInterface.common.utils.ToolUtil;
+import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IRoleService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
 import cn.ruanyun.backInterface.modules.business.goodCategory.VO.*;
 import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
 import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
 import cn.ruanyun.backInterface.modules.business.grade.service.IGradeService;
+import com.alipay.api.domain.CategoryVO;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -52,6 +51,12 @@ public class IGoodCategoryServiceImpl extends ServiceImpl<GoodCategoryMapper, Go
 
     @Autowired
     private IGoodCategoryService iGoodCategoryService;
+
+    @Autowired
+    private IUserService userService;
+
+    @Autowired
+    private SecurityUtil securityUtil;
 
     /**
      * 插入分类
@@ -337,6 +342,38 @@ public class IGoodCategoryServiceImpl extends ServiceImpl<GoodCategoryMapper, Go
 
                 ).orElse(new ResultUtil<List<FourDevarajasCategoryVo>>().setErrorMsg(201, "暂无数据！"))
         ).orElse(new ResultUtil<List<FourDevarajasCategoryVo>>().setErrorMsg(201, "暂无数据！"));
+    }
+
+    /**
+     * 获取后台管理系统的分类列表
+     *
+     * @return CategoryVO
+     */
+    @Override
+    public Result<List<CategoryVo>> getBackStoreCategoryList() {
+
+
+        User user = userService.getById(securityUtil.getCurrUser().getId());
+
+        return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<GoodCategory>lambdaQuery()
+        .eq(GoodCategory::getParentId, user.getClassId())
+        .orderByDesc(GoodCategory::getCreateTime))))
+        .map(goodCategories -> {
+
+            List<CategoryVo> result = goodCategories.parallelStream().flatMap(goodCategory -> {
+
+                CategoryVo categoryVO = new CategoryVo();
+
+                ToolUtil.copyProperties(goodCategory, categoryVO);
+
+                categoryVO.setHavaNext(Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<GoodCategory>lambdaQuery()
+                        .eq(GoodCategory::getParentId, goodCategory.getId())))).isPresent());
+
+                return Stream.of(categoryVO);
+            }).collect(Collectors.toList());
+
+            return new ResultUtil<List<CategoryVo>>().setData(result, "获取分类数据成功！");
+        }).orElse(new ResultUtil<List<CategoryVo>>().setErrorMsg(201, "暂无数据！"));
     }
 
 
