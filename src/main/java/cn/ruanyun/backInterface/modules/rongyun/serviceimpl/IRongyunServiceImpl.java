@@ -507,7 +507,7 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
             for (User user : userList) {
                 groupUserVOList.add(new GroupUserVO(user.getId(), user.getAvatar(), user.getNickName()));
             }
-            back.put("user", groupUserVOList.get(0));
+            back.put("user", Optional.ofNullable(ToolUtil.setListToNul(userList)).map(users -> users.get(0)).orElse(null));
 
             User store_servicer = iUserService.getOne(Wrappers.<User>lambdaQuery()
                     .eq(User::getId, group.getStoreServicerId()));

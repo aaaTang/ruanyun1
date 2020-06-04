@@ -90,6 +90,11 @@ public class User extends RuanyunBaseEntity {
     @ApiModelProperty("微信openId")
     private String openId;
 
+    @ApiModelProperty("客户id")
+    private String customerId;
+
+    @ApiModelProperty("交易号")
+    private String transactionNo;
 
     /*--------------------用户类型--------------*/
 
@@ -139,6 +144,9 @@ public class User extends RuanyunBaseEntity {
     @ApiModelProperty(value = "订单礼")
     @Column(length = 1000)
     private String orderGift;
+
+    @ApiModelProperty(value = "合同编号")
+    private String contractId;
 
     /*--------------------商家标签--------------*/
 

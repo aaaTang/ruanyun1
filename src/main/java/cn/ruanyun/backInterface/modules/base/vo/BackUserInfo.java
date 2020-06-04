@@ -104,4 +104,9 @@ public class BackUserInfo {
      */
     private String serviceCategoryName;
 
+    /**
+     * 客户id
+     */
+    private String customerId;
+
 }

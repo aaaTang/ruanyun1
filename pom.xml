@@ -305,6 +305,12 @@
             <optional>true</optional>
         </dependency>
 
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.3.2</version>
+        </dependency>
+
         <!-- 极光推送 -->
         <dependency>
             <groupId>cn.jpush.api</groupId>
@@ -330,6 +336,13 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <!-- 极光推送 -->
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.10</version>
+        </dependency>
+
 
         <!--reactor响应式编程-->
         <dependency>
@@ -386,14 +399,8 @@
             <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
-            <version>${kotlin.version}</version>
-        </dependency>
 
-
-        <!--&lt;!&ndash;法大大&ndash;&gt;
+        <!--法大大-->
         <dependency> 
             <groupId>apache-mime4j-0.6</groupId>             
             <artifactId>mime4j</artifactId>         
@@ -456,7 +463,7 @@
             <scope>system</scope>  
             <systemPath>${project.basedir}/src/main/resources/lib/httpmime-4.0.jar
             </systemPath>
-        </dependency>-->
+        </dependency>
     </dependencies>
 
     <build>

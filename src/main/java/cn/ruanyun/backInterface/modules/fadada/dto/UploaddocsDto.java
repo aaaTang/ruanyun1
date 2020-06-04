@@ -1,8 +1,9 @@
 package cn.ruanyun.backInterface.modules.fadada.dto;
 
-import cn.ruanyun.backInterface.common.utils.CommonUtil;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 
@@ -15,30 +16,21 @@ import java.io.File;
 public class UploaddocsDto {
 
 
-    private String id;
+    @ApiModelProperty("合同标题")
+    private String docTitle;
 
-    /**
-     * 合同编号
-     */
-    private String contract_id = CommonUtil.getRandomNum();
+    @ApiModelProperty(value = "合同编号", hidden = true)
+    private String contractId;
 
-    /**
-     * 合同标题
-     */
-    private String doc_title;
+    @ApiModelProperty("合同公网下载地址")
+    private String docUrl;
 
-    /**
-     * 文档地址
-     */
-    private String doc_url;
+    @ApiModelProperty(value = "PDF 文档", dataType = "file")
+    private MultipartFile pdfFile;
 
-    /**
-     * PDF 文档
-     */
-    private File file;
+    @ApiModelProperty(value = "文档类型", hidden = true)
+    private String docType = ".pdf";
 
-    /**
-     * 文档类型
-     */
-    private String doc_type = ".pdf";
+    @ApiModelProperty(value = "上传数量")
+    private Integer uploadCount;
 }

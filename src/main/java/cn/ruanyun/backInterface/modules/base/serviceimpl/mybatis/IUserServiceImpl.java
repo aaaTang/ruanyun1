@@ -52,6 +52,7 @@ import cn.ruanyun.backInterface.modules.business.storeFirstRateService.pojo.Stor
 import cn.ruanyun.backInterface.modules.business.storeFirstRateService.service.IstoreFirstRateServiceService;
 import cn.ruanyun.backInterface.modules.business.userRelationship.pojo.UserRelationship;
 import cn.ruanyun.backInterface.modules.business.userRelationship.service.IUserRelationshipService;
+import cn.ruanyun.backInterface.modules.fadada.service.IfadadaService;
 import cn.ruanyun.backInterface.modules.rongyun.service.IRongyunService;
 import com.alibaba.druid.util.StringUtils;
 import com.alibaba.fastjson.JSONObject;
@@ -138,6 +139,8 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     @Autowired
     private IGradeService gradeService;
 
+    @Autowired
+    private IfadadaService fadadaService;
 
     @Override
     public String getUserIdByName(String userName) {
@@ -236,8 +239,15 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                         }
                     }
 
-                })
+                }),
 
+                CompletableFuture.runAsync(() -> {
+
+                    //法大大的客户id
+                    user1.setCustomerId(fadadaService.accountRegister(user1.getId(), "1"));
+                    this.updateById(user1);
+
+                })
 
                 // TODO: 2020/3/13 处理分销
         ));
