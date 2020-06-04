@@ -4,6 +4,7 @@ import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.bookingOrder.DTO.BookingDTO;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.pojo.BookingOrder;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.service.IBookingOrderService;
 import com.google.common.collect.Maps;
@@ -39,6 +40,18 @@ public class BookingOrderController {
 
 
             return  ibookingOrderService.insertOrderUpdatebookingOrder(bookingOrder);
+
+    }
+
+    /**
+     * 后端商家处理预约
+     * @param bookingDTO
+     * @return
+    */
+    @PostMapping(value = "/checkBookingOrder")
+    public Result<Object> checkBookingOrder(BookingDTO bookingDTO){
+
+            return  ibookingOrderService.checkBookingOrder(bookingDTO);
 
     }
 
@@ -79,6 +92,26 @@ public class BookingOrderController {
                     return new ResultUtil<>().setData(result,"获取预约订单列表成功！");
                 }).orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据"));
     }
+
+
+    /**
+     * 后端获取商家预约订单列表
+     * @param pageVo
+     * @return
+     */
+    @PostMapping(value = "/BackBookingOrderList")
+    public Result<Object> BackBookingOrderList(PageVo pageVo, BookingDTO bookingDTO){
+
+        return Optional.ofNullable(ibookingOrderService.BackBookingOrderList(bookingDTO))
+                .map(bookingOrderList->{
+                    Map<String,Object> result = Maps.newHashMap();
+                    result.put("size",bookingOrderList.size());
+                    result.put("data", PageUtil.listToPage(pageVo,bookingOrderList));
+
+                    return new ResultUtil<>().setData(result,"后端获取商家预约订单列表成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据"));
+    }
+
 
 
 }

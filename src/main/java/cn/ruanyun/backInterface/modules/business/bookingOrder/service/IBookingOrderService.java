@@ -1,6 +1,8 @@
 package cn.ruanyun.backInterface.modules.business.bookingOrder.service;
 
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.bookingOrder.DTO.BookingDTO;
+import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.BackBookingOrderListVO;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.BookingOrderVO;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.WhetherBookingOrderVO;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.pojo.BookingOrder;
@@ -30,6 +32,12 @@ public interface IBookingOrderService extends IService<BookingOrder> {
      void removebookingOrder(String ids);
 
     /**
+     * 后端商家处理预约
+     * @return
+     */
+    Result<Object> checkBookingOrder(BookingDTO bookingDTO);
+
+    /**
      * 获取预约订单列表
      */
      List<BookingOrderVO> bookingOrderList(String classId);
@@ -41,4 +49,11 @@ public interface IBookingOrderService extends IService<BookingOrder> {
      * @return
      */
      WhetherBookingOrderVO  getWhetherBookingOrder(String storeId , String userid);
+
+
+    /**
+     * 后端获取商家预约订单列表
+     * @return
+     */
+    List<BackBookingOrderListVO> BackBookingOrderList(BookingDTO bookingDTO);
 }

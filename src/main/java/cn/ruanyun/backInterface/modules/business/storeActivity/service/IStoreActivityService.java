@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.storeActivity.service;
 
 import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
+import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.storeActivity.DTO.StoreActivityDTO;
 import cn.ruanyun.backInterface.modules.business.storeActivity.VO.StoreActivityVO;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -44,4 +45,10 @@ public interface IStoreActivityService extends IService<StoreActivity> {
      */
     List<StoreActivityVO> getStoreActivityList(StoreActivityDTO storeActivityDTO);
 
+    /**
+     * 获取活动详情
+     * @param id
+     * @return
+     */
+    Result<Object> getActivity(String id);
 }

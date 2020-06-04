@@ -20,7 +20,15 @@ public enum ShopCartTypeEnum {
     /**
      * 商品套餐
      */
-    GOOD_PACKAGE(2,"商品套餐");
+    GOOD_PACKAGE(2,"商品套餐"),
+
+    /**
+     * 档期
+     */
+    AUCTION_CALENDAR(3,"档期");
+
+
+
 
     ShopCartTypeEnum(int code, String value) {
         this.code = code;

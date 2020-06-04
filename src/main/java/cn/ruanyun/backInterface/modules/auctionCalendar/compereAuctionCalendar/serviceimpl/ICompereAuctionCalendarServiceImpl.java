@@ -1,35 +1,46 @@
 package cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.serviceimpl;
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
-import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.enums.DayTimeTypeEnum;
+import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
+import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.DTO.CompereAuctionCalendarDTO;
 import cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.VO.CompereAuctionCalendarVO;
+import cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.VO.PcGetCompereAuctionCalendarVO;
 import cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.mapper.CompereAuctionCalendarMapper;
 import cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.pojo.CompereAuctionCalendar;
 import cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.service.ICompereAuctionCalendarService;
+import cn.ruanyun.backInterface.modules.auctionCalendar.compereNoCalendars.mapper.CompereNoCalendarsMapper;
+import cn.ruanyun.backInterface.modules.auctionCalendar.compereNoCalendars.pojo.CompereNoCalendars;
+import cn.ruanyun.backInterface.modules.auctionCalendar.site.pojo.Site;
+import cn.ruanyun.backInterface.modules.auctionCalendar.site.vo.SiteDetailTimeVO;
 import cn.ruanyun.backInterface.modules.auctionCalendar.siteAuctionCalendar.pojo.SiteAuctionCalendar;
 import cn.ruanyun.backInterface.modules.auctionCalendar.siteAuctionCalendar.vo.SiteAuctionCalendarVo;
+import cn.ruanyun.backInterface.modules.auctionCalendar.sitePrice.pojo.SitePrice;
+import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
+import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
+import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
+import cn.ruanyun.backInterface.modules.business.goodService.pojo.GoodService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import cn.ruanyun.backInterface.common.utils.ToolUtil;
-import cn.ruanyun.backInterface.common.utils.SecurityUtil;
-import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
+
+import javax.annotation.Resource;
 
 
 /**
@@ -45,63 +56,180 @@ public class ICompereAuctionCalendarServiceImpl extends ServiceImpl<CompereAucti
        @Autowired
        private SecurityUtil securityUtil;
 
+       @Resource
+       private GoodMapper goodMapper;
+
+        @Resource
+        private CompereNoCalendarsMapper  compereNoCalendarsMapper;
+
+        @Autowired
+        private IGoodService iGoodService;
+
        @Override
        public Result<Object> insertOrderUpdateCompereAuctionCalendar(CompereAuctionCalendar compereAuctionCalendar) {
 
+           compereAuctionCalendar.setId(null);
 
-           CompereAuctionCalendar compereAuctionCalendar1 = this.getOne(Wrappers.<CompereAuctionCalendar>lambdaQuery().eq(CompereAuctionCalendar::getNoScheduleTime,compereAuctionCalendar.getNoScheduleTime())
-                   .eq(CompereAuctionCalendar::getDayTimeType,compereAuctionCalendar.getDayTimeType())
-                   .eq(CompereAuctionCalendar::getCreateBy,securityUtil.getCurrUser().getId())
-                   .eq(CompereAuctionCalendar::getDelFlag,CommonConstant.STATUS_NORMAL)
-           );
+           List<CompereAuctionCalendar> compereAuctionCalendars = this.list(Wrappers.<CompereAuctionCalendar>lambdaQuery()
+                   .eq(CompereAuctionCalendar::getScheduleTime,compereAuctionCalendar.getScheduleTime())
+                   .eq(CompereAuctionCalendar::getGoodsId,compereAuctionCalendar.getGoodsId())
+                   .eq(CompereAuctionCalendar::getGoodTypeEnum,compereAuctionCalendar.getGoodTypeEnum())
+                   .eq(CompereAuctionCalendar::getDelFlag,CommonConstant.STATUS_NORMAL));
 
-           if(ToolUtil.isNotEmpty(compereAuctionCalendar1)){
-               return new ResultUtil<>().setErrorMsg(201,"您已添加此档期时间！");
+           if(ToolUtil.isNotEmpty(compereAuctionCalendars)){
+
+               for (CompereAuctionCalendar o : compereAuctionCalendars) {
+                   ToolUtil.copyProperties(compereAuctionCalendar,o);
+                   compereAuctionCalendar.setUpdateBy(securityUtil.getCurrUser().getId());
+                   this.updateById(o);
+               }
+               return new ResultUtil<>().setData(200,"修改成功！");
+
            }else {
                compereAuctionCalendar.setCreateBy(securityUtil.getCurrUser().getId());
+               compereAuctionCalendar.setDayTimeType(DayTimeTypeEnum.A_M);
+               this.save(compereAuctionCalendar);
+
+               compereAuctionCalendar.setId(String.valueOf(SnowFlakeUtil.getFlowIdInstance().nextId()));
+               compereAuctionCalendar.setCreateBy(securityUtil.getCurrUser().getId());
+               compereAuctionCalendar.setDayTimeType(DayTimeTypeEnum.P_M);
                this.save(compereAuctionCalendar);
                return new ResultUtil<>().setData(200,"新增成功！");
            }
 
+
        }
 
       @Override
-      public void removeCompereAuctionCalendar(String ids) {
+      public void removeCompereAuctionCalendar(String goodsId,String scheduleTime) {
 
-          CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
+          List<CompereAuctionCalendar> compereAuctionCalendars = this.list(Wrappers.<CompereAuctionCalendar>lambdaQuery()
+                  .eq(CompereAuctionCalendar::getScheduleTime,scheduleTime)
+                  .eq(CompereAuctionCalendar::getGoodsId,goodsId)
+                  .eq(CompereAuctionCalendar::getDelFlag,CommonConstant.STATUS_NORMAL));
+
+          for (CompereAuctionCalendar o : compereAuctionCalendars) {
+              o.setUpdateBy(securityUtil.getCurrUser().getId());
+              o.setDelFlag(CommonConstant.DEL_FLAG);
+              this.updateById(o);
+          }
       }
 
 
+    /**
+     * APP查询某天是否有档期
+     * @param goodsId 商品id
+     * @param scheduleTime  档期时间
+     * @return
+     */
       @Override
-      public Result<List<CompereAuctionCalendarVO>> AppGetCompereNoAuctionCalendar(String id){
+      public List<CompereAuctionCalendarVO> AppGetCompereAuctionCalendar(String goodsId,String scheduleTime){
 
-          SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-           return Optional.ofNullable(ToolUtil.setListToNul(
-                   this.list(new QueryWrapper<CompereAuctionCalendar>().lambda()
+          List<CompereAuctionCalendarVO> compereAuctionCalendarVOS = new ArrayList<>();
 
-                           .eq(CompereAuctionCalendar::getCreateBy,id)
+          //1.先设置俩个时间段，上午和下午，以及默认价格
+          CompereAuctionCalendarVO compereAuctionCalendarVO = new CompereAuctionCalendarVO();
+          compereAuctionCalendarVO.setDayTimeType(DayTimeTypeEnum.A_M).setStatus(1).setSitePrice(Optional.ofNullable(goodMapper.selectOne(Wrappers.<Good>lambdaQuery()
+                  .eq(Good::getId,goodsId).eq(Good::getDelFlag,CommonConstant.STATUS_NORMAL)
+          )).map(Good::getGoodNewPrice).orElse(null));
+          compereAuctionCalendarVOS.add(compereAuctionCalendarVO);
 
-                           .eq(CompereAuctionCalendar::getDelFlag, CommonConstant.STATUS_NORMAL)
 
-                           .ge(CompereAuctionCalendar::getNoScheduleTime,simpleDateFormat.format(new Date()))
+          CompereAuctionCalendarVO compereAuctionCalendarVO1 = new CompereAuctionCalendarVO();
+          compereAuctionCalendarVO.setDayTimeType(DayTimeTypeEnum.P_M).setStatus(1).setSitePrice(Optional.ofNullable(goodMapper.selectOne(Wrappers.<Good>lambdaQuery()
+                  .eq(Good::getId,goodsId).eq(Good::getDelFlag,CommonConstant.STATUS_NORMAL)
+          )).map(Good::getGoodNewPrice).orElse(null));
+          compereAuctionCalendarVOS.add(compereAuctionCalendarVO1);
 
-                           .orderByAsc(CompereAuctionCalendar::getNoScheduleTime)
 
-                   ))).map(compereAuctionCalendars ->
 
-                   new ResultUtil<List<CompereAuctionCalendarVO>>()
-                           .setData(compereAuctionCalendars.parallelStream().flatMap(compereAuctionCalendar -> {
+          //2.查看特殊节日的价格
+          List<CompereAuctionCalendar> compereAuctionCalendars =  this.list(new QueryWrapper<CompereAuctionCalendar>().lambda()
+                  .eq(CompereAuctionCalendar::getGoodsId,goodsId)
+                  .eq(CompereAuctionCalendar::getScheduleTime,scheduleTime)
+                  .eq(CompereAuctionCalendar::getDelFlag,CommonConstant.STATUS_NORMAL)
+          );
 
-                       CompereAuctionCalendarVO compereAuctionCalendarVO = new CompereAuctionCalendarVO();
+          //3.查看是否有档期
+          List<CompereNoCalendars>  compereNoCalendars = compereNoCalendarsMapper.selectList(new QueryWrapper<CompereNoCalendars>().lambda()
+                  .eq(CompereNoCalendars::getNoScheduleTime,scheduleTime)
+                  .eq(CompereNoCalendars::getGoodsId,goodsId)
+                  .eq(CompereNoCalendars::getDelFlag,CommonConstant.STATUS_NORMAL)
+          );
 
-                       ToolUtil.copyProperties(compereAuctionCalendar,compereAuctionCalendarVO);
 
-                       return Stream.of(compereAuctionCalendarVO);
+          for (CompereAuctionCalendarVO calendarVO : compereAuctionCalendarVOS) {
 
-                   }).collect(Collectors.toList()),"获取没有档期时间列表成功"))
-                   .orElse(new ResultUtil<List<CompereAuctionCalendarVO>>().setErrorMsg(201, "暂无数据！"));
+              //2.1 如果有特殊的价格就重新赋值价格
+              for (CompereAuctionCalendar compereAuctionCalendar : compereAuctionCalendars) {
+
+                  if(calendarVO.getDayTimeType().equals(compereAuctionCalendar.getDayTimeType())){
+
+                      calendarVO.setSitePrice(compereAuctionCalendar.getGoodsPrice());
+                  }
+
+              }
+
+              //3.1 如果没有档期时间就赋值状态0 == 无
+              for (CompereNoCalendars noCalendars : compereNoCalendars) {
+
+                  if(calendarVO.getDayTimeType().equals(noCalendars.getDayTimeType())){
+
+                      calendarVO.setStatus(0);
+                  }
+
+              }
+
+          }
+
+          return compereAuctionCalendarVOS;
+
+
       }
+
+
+    /**
+     * 后台获取特殊档期价格列表
+     * @return
+     */
+      @Override
+     public  List<PcGetCompereAuctionCalendarVO> PcGetCompereAuctionCalendar(CompereAuctionCalendarDTO compereAuctionCalendarDTO){
+
+         String userRole  = iGoodService.getRoleUserList(securityUtil.getCurrUser().getId());
+
+
+
+          return Optional.ofNullable(ToolUtil.setListToNul(this.list(new QueryWrapper<CompereAuctionCalendar>().lambda()
+
+            .eq(ToolUtil.isNotEmpty(compereAuctionCalendarDTO.getId()),CompereAuctionCalendar::getId,compereAuctionCalendarDTO.getId())
+
+            .eq(ToolUtil.isNotEmpty(compereAuctionCalendarDTO.getGoodsId()),CompereAuctionCalendar::getGoodsId,compereAuctionCalendarDTO.getGoodsId())
+
+            .eq(userRole.equals(UserTypeEnum.STORE.getValue())||userRole.equals(UserTypeEnum.PER_STORE.getValue()),CompereAuctionCalendar::getCreateBy,securityUtil.getCurrUser().getId())
+
+            .eq(ToolUtil.isNotEmpty(compereAuctionCalendarDTO.getScheduleTime()),CompereAuctionCalendar::getScheduleTime,compereAuctionCalendarDTO.getScheduleTime())
+
+            .eq(ToolUtil.isNotEmpty(compereAuctionCalendarDTO.getGoodTypeEnum()),CompereAuctionCalendar::getGoodTypeEnum,compereAuctionCalendarDTO.getGoodTypeEnum())
+
+            .eq(CompereAuctionCalendar::getDelFlag,CommonConstant.STATUS_NORMAL)
+
+                  .orderByDesc(CompereAuctionCalendar::getCreateTime)
+
+          ))).map(compereAuctionCalendars -> compereAuctionCalendars.parallelStream().flatMap(compereAuctionCalendar -> {
+
+              PcGetCompereAuctionCalendarVO pcGetCompereAuctionCalendarVO = new PcGetCompereAuctionCalendarVO();
+
+              ToolUtil.copyProperties(compereAuctionCalendar,pcGetCompereAuctionCalendarVO);
+
+              return Stream.of(pcGetCompereAuctionCalendarVO);
+          }).collect(Collectors.toList())).orElse(null);
+
+
+      }
+
+
+
 
 
 

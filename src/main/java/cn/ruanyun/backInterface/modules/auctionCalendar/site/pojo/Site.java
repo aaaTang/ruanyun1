@@ -7,6 +7,7 @@ import lombok.Data;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.math.BigDecimal;
 
 /**
  * 场地
@@ -26,7 +27,15 @@ public class Site extends RuanyunBaseEntity {
     @ApiModelProperty("场地规格参数")
     private String siteItemValue;
 
+    @ApiModelProperty("分类id")
+    private String categoryId;
+
     @ApiModelProperty(value = "场地介绍图片")
     private String sitePics;
+
+    @ApiModelProperty(value = "场地价格")
+    private BigDecimal sitePrice;
+
+
 
 }

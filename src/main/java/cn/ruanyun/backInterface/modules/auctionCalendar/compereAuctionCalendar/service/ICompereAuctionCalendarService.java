@@ -1,7 +1,9 @@
 package cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.service;
 
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.DTO.CompereAuctionCalendarDTO;
 import cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.VO.CompereAuctionCalendarVO;
+import cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.VO.PcGetCompereAuctionCalendarVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.pojo.CompereAuctionCalendar;
 
@@ -24,12 +26,23 @@ public interface ICompereAuctionCalendarService extends IService<CompereAuctionC
 
       /**
        * 移除compereAuctionCalendar
-       * @param ids
        */
-     void removeCompereAuctionCalendar(String ids);
+     void removeCompereAuctionCalendar(String goodsId,String scheduleTime);
 
 
+    /**
+     * APP查询某天是否有档期
+     * @param goodsId 商品id
+     * @param scheduleTime  档期时间
+     * @return
+     */
+    List<CompereAuctionCalendarVO> AppGetCompereAuctionCalendar(String goodsId,String scheduleTime);
 
 
-    Result<List<CompereAuctionCalendarVO>> AppGetCompereNoAuctionCalendar(String id);
+    /**
+     * 后台获取特殊档期价格列表
+     * @return
+     */
+    List<PcGetCompereAuctionCalendarVO> PcGetCompereAuctionCalendar(CompereAuctionCalendarDTO compereAuctionCalendarDTO);
+
 }

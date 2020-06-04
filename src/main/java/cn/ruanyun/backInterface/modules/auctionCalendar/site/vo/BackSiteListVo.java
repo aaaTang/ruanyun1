@@ -40,4 +40,7 @@ public class BackSiteListVo {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间", hidden = true)
     private Date createTime;
+
+    @ApiModelProperty(value = "场地价格")
+    private String sitePrice;
 }

@@ -26,9 +26,14 @@ public enum OrderTypeEnum {
     OFFLINE_ORDER(3, "线下订单"),
 
     /**
-     * 档期预约订单
+     * 婚宴档期预约订单
      */
-    SCHEDULE_ORDER(4, "档期预约订单");
+    SCHEDULE_ORDER(4, "婚宴档期预约订单"),
+
+    /**
+     * 主持人档期预约订单
+     */
+    COMPERE_ORDER(5, "主持人档期预约订单");
 
 
 

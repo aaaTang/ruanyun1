@@ -15,8 +15,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author fei
@@ -42,23 +44,16 @@ public class IUserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> 
     @Override
     public List<User> getUserIdsByRoleId(String roleId) {
 
-       List<UserRole> list = super.list(Wrappers.<UserRole>lambdaQuery()
+        return Optional.ofNullable(ToolUtil.setListToNul(super.list(Wrappers.<UserRole>lambdaQuery()
                 .eq(UserRole::getRoleId, roleId)
-                .orderByDesc(UserRole::getCreateTime));
+                .orderByDesc(UserRole::getCreateTime))))
+                .map(userRoles -> userRoles.parallelStream().flatMap(userRole -> {
+                    User user = userService.getById(userRole.getUserId());
 
-        List<User> userList = new ArrayList<>();
+                    return Stream.of(user);
 
-        for (UserRole userRole : list) {
+                }).filter(Objects::nonNull).collect(Collectors.toList())).orElse(null);
 
-            User user =  userService.getById(userRole.getUserId());
-
-            if(ToolUtil.isNotEmpty(user)){
-                userList.add(user);
-            }
-
-        }
-
-        return userList;
 
     }
 

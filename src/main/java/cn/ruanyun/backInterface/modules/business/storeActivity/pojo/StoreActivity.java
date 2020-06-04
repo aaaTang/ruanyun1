@@ -27,6 +27,11 @@ public class StoreActivity extends RuanyunBaseEntity {
     private String title;
 
     /**
+     * 活动背景图
+     */
+    private String pic;
+
+    /**
      * 内容
      */
     private String content;

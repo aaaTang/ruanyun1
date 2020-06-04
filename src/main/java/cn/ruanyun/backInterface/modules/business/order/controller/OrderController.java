@@ -54,6 +54,15 @@ public class OrderController {
         return iOrderService.insertOrder(orderDTO);
     }
 
+
+    @PostMapping("/inserAuctionCalendartOrder")
+    @ApiOperation(value = "档期下单")
+    public Result<Object> inserAuctionCalendartOrder(AuctionCalendartOrderDTO auctionCalendartOrderDTO) {
+
+        return iOrderService.inserAuctionCalendartOrder(auctionCalendartOrderDTO);
+    }
+
+
     @PostMapping("/insertOffLineOrder")
     @ApiOperation(value = "新增线下订单")
     public Result<Object> insertOffLineOrder(OffLineOrderDto offLineOrderDto) {

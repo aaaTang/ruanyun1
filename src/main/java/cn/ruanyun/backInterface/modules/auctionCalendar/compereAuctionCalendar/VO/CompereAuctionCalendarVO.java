@@ -3,19 +3,30 @@ package cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.
 import cn.ruanyun.backInterface.common.enums.DayTimeTypeEnum;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.experimental.Accessors;
+
+import java.math.BigDecimal;
 
 /**
  * @author Administrator
  */
 @Data
+@Accessors(chain = true)
 public class CompereAuctionCalendarVO {
 
 
-    private String id;
 
     @ApiModelProperty("上午&下午")
     private DayTimeTypeEnum dayTimeType;
 
-    @ApiModelProperty("没有档期时间")
-    private String noScheduleTime;
+    @ApiModelProperty("档期时间")
+    private String scheduleTime;
+
+    @ApiModelProperty(value = "档期的价格")
+    private BigDecimal sitePrice;
+
+    @ApiModelProperty(value = "是否有档期 0无 1 有")
+    private Integer status;
+
+
 }

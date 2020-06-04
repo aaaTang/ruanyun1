@@ -71,6 +71,13 @@ public class StoreActivityController {
         }
     }
 
+    @PostMapping("/getActivity")
+    @ApiOperation(value = "获取活动详情")
+    public Result<Object> getActivity(String id) {
+        return iStoreActivityService.getActivity(id);
+    }
+
+
     @PostMapping("/APPgetStoreActivity")
     @ApiOperation(value = "App获取商家活动列表")
     public Result<Object> getStoreActivity(PageVo pageVo, String createBy) {

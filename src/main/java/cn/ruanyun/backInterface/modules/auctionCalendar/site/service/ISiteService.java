@@ -3,6 +3,7 @@ package cn.ruanyun.backInterface.modules.auctionCalendar.site.service;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.auctionCalendar.site.vo.BackSiteListVo;
+import cn.ruanyun.backInterface.modules.auctionCalendar.site.vo.SiteDetailTimeVO;
 import cn.ruanyun.backInterface.modules.auctionCalendar.site.vo.SiteDetailVo;
 import cn.ruanyun.backInterface.modules.auctionCalendar.site.vo.SiteListVo;
 import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
@@ -54,4 +55,19 @@ public interface ISiteService extends IService<Site> {
      */
     Result<DataVo<BackSiteListVo>> getBackSiteListVo(PageVo pageVo);
 
+    /**
+     * App按分类获取场地列表
+     * @param categoryId 分类id
+     * @return
+     */
+    Result<List<SiteListVo>> AppGetCategorySiteList(String categoryId);
+
+
+    /**
+     * 查询场地某个时间段是否有档期时间
+     * @param siteId  场地id
+     * @param scheduleTime  时间
+     * @return
+     */
+    List<SiteDetailTimeVO> getSiteDetailTime(String siteId, String scheduleTime);
 }
