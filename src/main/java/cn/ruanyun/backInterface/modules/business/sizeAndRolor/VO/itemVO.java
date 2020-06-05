@@ -5,6 +5,10 @@ import lombok.Data;
 @Data
 public class itemVO {
 
+
+    //商品规格的id
+    private String id;
+
     //规格id
     private String keyId;
 
