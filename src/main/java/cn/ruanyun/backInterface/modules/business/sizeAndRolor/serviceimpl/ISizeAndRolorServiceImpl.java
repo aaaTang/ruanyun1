@@ -224,7 +224,7 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
            itemAttrKeyVOS.clear();
            itemAttrKeyVOS.addAll(h);
 
-           map.put("itemAttrKeyVOS",itemAttrKeyVOS);
+           map.put("itemAttrKeyVO",itemAttrKeyVOS);
 
            Good good = Optional.ofNullable(goodMapper.selectOne(new QueryWrapper<Good>().lambda().eq(Good::getId,goodsId)))
                    .orElse(null);

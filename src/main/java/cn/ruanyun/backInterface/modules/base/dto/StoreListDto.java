@@ -21,11 +21,11 @@ public class StoreListDto {
     @ApiModelProperty("纬度")
     private String latitude;
 
-    @ApiModelProperty(value = "数据总大小")
+    /*@ApiModelProperty(value = "数据总大小")
     private Long totalSize;
 
     @ApiModelProperty(value = "当前页")
-    private Long currentPageNum;
+    private Long currentPageNum;*/
 
     @ApiModelProperty("门店等级 判断门店等级 1.没有等级 2.普通 3.铜牌 4.银牌 5.金牌 6.钻石")
     private Integer storeLevel;

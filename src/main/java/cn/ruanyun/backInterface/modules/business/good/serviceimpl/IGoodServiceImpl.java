@@ -139,7 +139,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
         }else {
             good.setDelFlag(0);
         }
-        CompletableFuture.runAsync(() -> this.updateById(good));
+        this.updateById(good);
     }
 
     /**

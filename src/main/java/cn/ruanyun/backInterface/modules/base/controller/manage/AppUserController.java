@@ -244,8 +244,8 @@ public class AppUserController {
 
     @PostMapping("/storeListDto")
     @ApiOperation("获取商家列表")
-    public Result<DataVo<StoreListVo>> getStoreList(StoreListDto storeListDto) {
+    public Result<DataVo<StoreListVo>> getStoreList(PageVo pageVo,StoreListDto storeListDto) {
 
-        return userService.getStoreList(storeListDto);
+        return userService.getStoreList(pageVo,storeListDto);
     }
 }

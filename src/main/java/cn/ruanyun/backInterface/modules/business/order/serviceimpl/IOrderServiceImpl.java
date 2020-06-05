@@ -304,6 +304,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         //1. 生成订单
         Order order = new Order();
 
+        //2  生成订单详情
+        OrderDetail orderDetail = new OrderDetail();
+
         String currentUserId = securityUtil.getCurrUser().getId();
 
         order.setCreateBy(currentUserId);
@@ -329,16 +332,18 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
             }
 
-            //1.1 商家id
-            order.setUserId(Optional.ofNullable(siteMapper.selectById(auctionCalendartOrderDTO.getSiteId()))
-                    .map(Site::getCreateBy).orElse(null));
+            Optional.ofNullable(siteMapper.selectById(auctionCalendartOrderDTO.getSiteId()))
+                   .ifPresent(site -> {
+                       // 商家id
+                       order.setUserId(site.getCreateBy());
+                        //订单明细的商品名称
+                       orderDetail.setName(site.getSiteName());
+                   });
 
             order.setTypeEnum(OrderTypeEnum.SCHEDULE_ORDER);
 
             //场地id
             order.setSiteId(auctionCalendartOrderDTO.getSiteId());
-
-
 
 
 
@@ -348,9 +353,16 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             //2.2获取主持人商品价格
             order.setTotalPrice(this.inserGoodOrder(auctionCalendartOrderDTO.getGoodId(),auctionCalendartOrderDTO.getScheduleAppointment(),auctionCalendartOrderDTO.getDayTimeType()));
 
-            // 商家id
-            order.setUserId(Optional.ofNullable(goodMapper.selectById(auctionCalendartOrderDTO.getGoodId()))
-                    .map(Good::getCreateBy).orElse(null));
+
+            Optional.ofNullable(goodMapper.selectById(auctionCalendartOrderDTO.getGoodId()))
+                    .ifPresent(good -> {
+                        // 商家id
+                        order.setUserId(good.getCreateBy());
+                        //订单明细的商品id
+                        orderDetail.setGoodId(good.getId());
+                        //订单明细的商品名称
+                        orderDetail.setName(good.getGoodName());
+                    });
 
                 //主持人档期预约订单
             order.setTypeEnum(OrderTypeEnum.COMPERE_ORDER);
@@ -364,9 +376,15 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             //2.3获取主持人套餐价格
             order.setTotalPrice(this.inserGoodOrder(auctionCalendartOrderDTO.getGoodId(),auctionCalendartOrderDTO.getScheduleAppointment(),auctionCalendartOrderDTO.getDayTimeType()));
 
-            // 商家id
-            order.setUserId(Optional.ofNullable(goodMapper.selectById(auctionCalendartOrderDTO.getGoodId()))
-                    .map(Good::getCreateBy).orElse(null));
+            Optional.ofNullable(goodMapper.selectById(auctionCalendartOrderDTO.getGoodId()))
+                    .ifPresent(good -> {
+                        // 商家id
+                        order.setUserId(good.getCreateBy());
+                        //订单明细的商品id
+                        orderDetail.setGoodId(good.getId());
+                        //订单明细的商品名称
+                        orderDetail.setName(good.getGoodName());
+                    });
 
             //主持人档期预约订单
             order.setTypeEnum(OrderTypeEnum.COMPERE_ORDER);
@@ -376,6 +394,8 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         order.setScheduleAppointment(auctionCalendartOrderDTO.getScheduleAppointment());
         //预约档期
         order.setDayTimeType(auctionCalendartOrderDTO.getDayTimeType());
+        
+        order.setBuyType(BuyTypeEnum.FULL_PURCHASE);
 
 
         //3 优惠券满减
@@ -397,8 +417,6 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
         if (this.save(order)) {
 
-            //2  生成订单详情
-            OrderDetail orderDetail = new OrderDetail();
 
             //2.3 优惠券信息
             Optional.ofNullable(discountCouponService.getDiscountCouponDetail(auctionCalendartOrderDTO.getDiscountId()))
@@ -408,11 +426,19 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                         orderDetail.setSubtractMoney(discountCoupon.getSubtractMoney());
                     });
 
+            order.setBuyType(BuyTypeEnum.FULL_PURCHASE);
+
+            orderDetail.setShopCartType(auctionCalendartOrderDTO.getShopCartType());
+
             orderDetail.setOrderId(order.getId());
 
             orderDetail.setPrice(order.getTotalPrice());
 
             orderDetail.setCreateBy(currentUserId);
+
+            orderDetail.setBuyCount(1);
+
+            orderDetail.setShopCartType(auctionCalendartOrderDTO.getShopCartType());
 
             orderDetailService.save(orderDetail);
 
@@ -883,6 +909,14 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 List<Order> orders = this.listByIds(ToolUtil.splitterStr(outTradeNo));
                 String result = judge(orders);
                 if (ToolUtil.isNotEmpty(result)) {
+
+
+                    orders.parallelStream().flatMap(order -> {
+                        order.setOrderStatus(OrderStatusEnum.PRE_SEND);
+                        order.setPayTypeEnum(PayTypeEnum.ALI_PAY);
+
+                        return Stream.of(order);
+                    }).collect(Collectors.toList());
 
                     return result;
                 }

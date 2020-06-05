@@ -15,12 +15,12 @@ public enum ShopCartTypeEnum {
     /**
      * 商品
      */
-    GOOD(1,"商品"),
+    GOOD(2,"商品"),
 
     /**
      * 商品套餐
      */
-    GOOD_PACKAGE(2,"商品套餐"),
+    GOOD_PACKAGE(1,"商品套餐"),
 
     /**
      * 档期

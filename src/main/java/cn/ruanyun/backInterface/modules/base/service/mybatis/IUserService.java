@@ -2,6 +2,7 @@ package cn.ruanyun.backInterface.modules.base.service.mybatis;
 
 
 import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.dto.StoreListDto;
 import cn.ruanyun.backInterface.modules.base.dto.UserDTO;
@@ -263,6 +264,6 @@ public interface IUserService extends IService<User> {
      * @param storeListDto storeListDto
      * @return DataVo<StoreListVo>
      */
-    Result<DataVo<StoreListVo>> getStoreList(StoreListDto storeListDto);
+    Result<DataVo<StoreListVo>> getStoreList(PageVo pageVo, StoreListDto storeListDto);
 
 }

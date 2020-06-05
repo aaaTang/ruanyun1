@@ -33,6 +33,8 @@ import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollow
 import cn.ruanyun.backInterface.modules.business.good.VO.AppGoodListVO;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.good.serviceimpl.IGoodServiceImpl;
+import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
+import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
 import cn.ruanyun.backInterface.modules.business.goodCategory.serviceimpl.IGoodCategoryServiceImpl;
 import cn.ruanyun.backInterface.modules.business.grade.service.IGradeService;
@@ -128,6 +130,8 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     private StaffManagementMapper staffManagementMapper;
     @Autowired
     private IGoodCategoryService goodCategoryService;
+    @Autowired
+    private GoodCategoryMapper goodCategoryMapper;
     @Autowired
     private IStoreAuditService storeAuditService;
     @Autowired
@@ -583,8 +587,24 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                             .setPermissions(rolePermissionService.getPermissionByRoles(userRoleService.getRoleIdsByUserId(user.getId())));
 
                     backUserInfo.setType(iGoodService.getRoleUserList(user.getId()));
-                    backUserInfo.setServiceCategoryName(goodCategoryService.getGoodCategoryName(user.getClassId()));
 
+
+                    //查询一级分类
+                   Optional.ofNullable(goodCategoryMapper.selectById(user.getClassId())).ifPresent(goodCategory -> {
+
+                       GoodCategory goodCategory1 = new GoodCategory();
+
+                       if(!goodCategory.getIsParent().equals(0)){
+                            goodCategory1 = goodCategoryMapper.selectById(goodCategory.getParentId());
+                       }
+
+                       if(ToolUtil.isNotEmpty(goodCategory1)){
+                           backUserInfo.setServiceCategoryName(goodCategory1.getTitle());
+                       }else {
+                           backUserInfo.setServiceCategoryName(goodCategory.getTitle());
+                       }
+
+                   });
 
                     return backUserInfo;
 
@@ -995,7 +1015,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     }
 
     @Override
-    public Result<DataVo<StoreListVo>> getStoreList(StoreListDto storeListDto) {
+    public Result<DataVo<StoreListVo>> getStoreList(PageVo pageVo,StoreListDto storeListDto) {
 
         return Optional.ofNullable(storeAuditService.getStoreIdByCheckPass(storeListDto))
                 .map(users -> {
@@ -1101,7 +1121,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                     DataVo<StoreListVo> result = new DataVo<>();
 
 
-                    PageVo pageVo = new PageVo();
+
                     ToolUtil.copyProperties(storeListDto, result);
                     result.setTotalNumber(storeListVos.size())
                             .setDataResult(PageUtil.listToPage(pageVo, storeListVos));
