@@ -100,11 +100,11 @@ public class IUserRelationshipServiceImpl extends ServiceImpl<UserRelationshipMa
     public List<AppRelationUserVO> getUserRelationshipListByUser() {
 
         return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<UserRelationship>lambdaQuery()
-                .eq(UserRelationship::getCreateBy, securityUtil.getCurrUser().getId()))))
+                .eq(UserRelationship::getParentUserid, securityUtil.getCurrUser().getId()))))
                 .map(userRelationships -> userRelationships.parallelStream().flatMap(userRelationship -> {
                     AppRelationUserVO appRelationUserVO = new AppRelationUserVO();
 
-                    Optional.ofNullable(userMapper.selectById(userRelationship.getParentUserid())).ifPresent(user -> {
+                    Optional.ofNullable(userMapper.selectById(userRelationship.getCreateBy())).ifPresent(user -> {
 
                         ToolUtil.copyProperties(user,appRelationUserVO);
 
