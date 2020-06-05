@@ -35,7 +35,7 @@ public class WeChatConfig {
 	/**
 	 * 微信支付 - 回调地址 : 接收微信支付异步通知回调地址，通知url必须为直接可访问的url，不能携带参数。（需要配置）
 	 */
-	public static final String NOTIFY_URL = "http://276057w4w5.qicp.vip:80/xboot/pay/wxPayNotify";
+	public static final String NOTIFY_URL = "http://121.196.28.116:8083/ruanyun/order/wxPayNotify";
 
 	/**
 	 * 	支付方式   JSAPI，NATIVE，APP

@@ -907,23 +907,17 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
                 // TODO 请在这里加上商户的业务逻辑程序代码 异步通知可能出现订单重复通知 需要做去重处理
                 List<Order> orders = this.listByIds(ToolUtil.splitterStr(outTradeNo));
+
+                //支付宝支付
+                orders.parallelStream().forEach(order -> order.setPayTypeEnum(PayTypeEnum.ALI_PAY));
+
                 String result = judge(orders);
                 if (ToolUtil.isNotEmpty(result)) {
-
-
-                    orders.parallelStream().flatMap(order -> {
-                        order.setOrderStatus(OrderStatusEnum.PRE_SEND);
-                        order.setPayTypeEnum(PayTypeEnum.ALI_PAY);
-
-                        return Stream.of(order);
-                    }).collect(Collectors.toList());
-
                     return result;
                 }
 
                 // 处理回调逻辑
                 resolveOrderOneProfit(orders);
-
 
                 object.put("return_code", "200");
                 object.put("return_msg", "支付宝notify_url 验证成功 succcess");

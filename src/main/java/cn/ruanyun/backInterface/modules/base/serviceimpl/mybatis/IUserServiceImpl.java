@@ -594,9 +594,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
                        GoodCategory goodCategory1 = new GoodCategory();
 
-                       if(!goodCategory.getIsParent().equals(0)){
-                            goodCategory1 = goodCategoryMapper.selectById(goodCategory.getParentId());
-                       }
+                       goodCategory1 = goodCategoryMapper.selectById(goodCategory.getParentId());
 
                        if(ToolUtil.isNotEmpty(goodCategory1)){
                            backUserInfo.setServiceCategoryName(goodCategory1.getTitle());

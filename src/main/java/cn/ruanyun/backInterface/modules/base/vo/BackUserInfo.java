@@ -2,6 +2,7 @@ package cn.ruanyun.backInterface.modules.base.vo;
 
 import cn.ruanyun.backInterface.modules.base.pojo.Permission;
 import cn.ruanyun.backInterface.modules.base.pojo.Role;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -108,5 +109,8 @@ public class BackUserInfo {
      * 客户id
      */
     private String customerId;
+
+    @ApiModelProperty("分类服务类型")
+    private String classId;
 
 }
