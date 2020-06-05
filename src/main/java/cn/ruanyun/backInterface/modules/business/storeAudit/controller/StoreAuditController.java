@@ -5,10 +5,11 @@ import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
-import cn.ruanyun.backInterface.modules.business.storeAudit.DTO.StoreAuditDTO;
-import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditVO;
+import cn.ruanyun.backInterface.modules.business.storeAudit.dto.StoreAuditDTO;
+import cn.ruanyun.backInterface.modules.business.storeAudit.vo.StoreAuditVo;
 import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
 import cn.ruanyun.backInterface.modules.business.storeAudit.service.IStoreAuditService;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -66,8 +67,8 @@ public class StoreAuditController {
      */
     @PostMapping("/getList")
     public Result<Object> getList(StoreAuditDTO storeAuditDTO, PageVo pageVo){
-        List<StoreAuditVO> list = iStoreAuditService.getStoreAuditList(storeAuditDTO);
-        DataVo<StoreAuditVO> result = new DataVo<>();
+        List<StoreAuditVo> list = iStoreAuditService.getStoreAuditList(storeAuditDTO);
+        DataVo<StoreAuditVo> result = new DataVo<>();
         result.setTotalNumber(list.size())
                 .setDataResult(PageUtil.listToPage(pageVo,list));
         return new ResultUtil<>().setData(result);
@@ -78,5 +79,30 @@ public class StoreAuditController {
      */
     @PostMapping("/checkStoreAudit")
     public Result<Object> checkStoreAudit(StoreAuditDTO storeAuditDTO){return iStoreAuditService.checkStoreAudit(storeAuditDTO);}
+
+
+
+    /*----------------------更改流程部分----------------------------*/
+
+    @PostMapping("/getMyStoreAudit")
+    @ApiOperation("获取我的审核记录")
+    public Result<StoreAuditVo> getMyStoreAudit() {
+
+        return iStoreAuditService.getMyStoreAudit();
+    }
+
+    @PostMapping("/cancelStoreAudit")
+    @ApiOperation("撤销我的申请")
+    public Result<Object> cancelStoreAudit() {
+
+        return iStoreAuditService.cancelStoreAudit();
+    }
+
+    @PostMapping("/updateStoreAudit")
+    @ApiOperation("更新我的申请")
+    public Result<Object> updateStoreAudit(StoreAuditVo storeAuditVo) {
+
+        return iStoreAuditService.updateStoreAudit(storeAuditVo);
+    }
 
 }

@@ -27,9 +27,9 @@ import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
-import cn.ruanyun.backInterface.modules.business.storeAudit.DTO.StoreAuditDTO;
-import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditListVO;
-import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditVO;
+import cn.ruanyun.backInterface.modules.business.storeAudit.dto.StoreAuditDTO;
+import cn.ruanyun.backInterface.modules.business.storeAudit.vo.StoreAuditListVo;
+import cn.ruanyun.backInterface.modules.business.storeAudit.vo.StoreAuditVo;
 import cn.ruanyun.backInterface.modules.business.storeAudit.mapper.StoreAuditMapper;
 import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
 import cn.ruanyun.backInterface.modules.business.storeAudit.service.IStoreAuditService;
@@ -50,6 +50,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -113,8 +114,8 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
      * @return
      */
     @Override
-    public StoreAuditListVO getStoreAudisByid(String id) {
-        StoreAuditListVO storeAuditListVO = new StoreAuditListVO();
+    public StoreAuditListVo getStoreAudisByid(String id) {
+        StoreAuditListVo storeAuditListVO = new StoreAuditListVo();
         //获取商家信息
         User byId = userService.getById(id);
         ToolUtil.copyProperties(byId,storeAuditListVO);
@@ -141,6 +142,58 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
                 .collect(Collectors.toList()))
         .orElse(null);
     }
+
+    @Override
+    public Result<StoreAuditVo> getMyStoreAudit() {
+
+        return Optional.ofNullable(this.getOne(Wrappers.<StoreAudit>lambdaQuery()
+        .eq(StoreAudit::getCreateBy, securityUtil.getCurrUser().getId())
+        .last("limit 1")))
+        .map(storeAudit -> {
+
+            StoreAuditVo storeAuditVo = new StoreAuditVo();
+
+            //服务类型
+            storeAuditVo.setClassificationName(goodCategoryService.getGoodCategoryName(storeAudit.getId()));
+
+            //所在城市名称
+            storeAuditVo.setAreaName(iAreaService.getAddressName(storeAudit.getAreaId()));
+
+            ToolUtil.copyProperties(storeAudit, storeAuditVo);
+
+            return new ResultUtil<StoreAuditVo>().setData(storeAuditVo, "获取我的店铺申请详情成功！");
+        }).orElse(new ResultUtil<StoreAuditVo>().setErrorMsg(201, "暂无我的店铺申请数据！"));
+    }
+
+    @Override
+    public Result<Object> cancelStoreAudit() {
+
+      return Optional.ofNullable(this.getOne(Wrappers.<StoreAudit>lambdaQuery()
+        .eq(StoreAudit::getCreateBy, securityUtil.getCurrUser().getId())
+        .last("limit 1")))
+        .map(storeAudit -> {
+
+            this.removeById(storeAudit.getId());
+
+            return new ResultUtil<>().setSuccessMsg("撤销申请成功！");
+        }).orElse(new ResultUtil<>().setErrorMsg(203, "当前不存在申请记录！"));
+    }
+
+    @Override
+    public Result<Object> updateStoreAudit(StoreAuditVo storeAuditVo) {
+
+        return Optional.ofNullable(this.getById(storeAuditVo.getId()))
+                .map(storeAudit -> {
+
+                    ToolUtil.copyProperties(storeAuditVo, storeAudit);
+                    storeAudit.setCheckEnum(CheckEnum.PRE_CHECK);
+
+                    this.updateById(storeAudit);
+
+                    return new ResultUtil<>().setSuccessMsg("修改申请成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(203, "暂无申请记录"));
+    }
+
 
     @Override
     public Result<Object> checkStoreAudit(StoreAuditDTO storeAuditDTO) {
@@ -191,8 +244,9 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
 
 
     @Override
-    public List<StoreAuditVO> getStoreAuditList(StoreAuditDTO storeAuditDTO) {
+    public List<StoreAuditVo> getStoreAuditList(StoreAuditDTO storeAuditDTO) {
         return CompletableFuture.supplyAsync(() -> {
+
             //组合条件搜索
             LambdaQueryWrapper<StoreAudit> wrapper = new LambdaQueryWrapper<>();
             if (ToolUtil.isNotEmpty(storeAuditDTO.getMobile())) {
@@ -209,17 +263,21 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
             }
             wrapper.orderByAsc(StoreAudit::getCheckEnum).orderByDesc(StoreAudit::getCreateTime);
             return super.list(wrapper);
+
         }).thenApplyAsync(storeAudit -> {
             //封装查寻数据
             return storeAudit.parallelStream().map(sa -> Optional.ofNullable(sa).map(s -> {
-                StoreAuditVO storeAuditVO = new StoreAuditVO();
+
+                StoreAuditVo storeAuditVO = new StoreAuditVo();
+
                 ToolUtil.copyProperties(s, storeAuditVO);
+
                 //查询服务类型
                 storeAuditVO.setClassificationName(Optional.ofNullable(goodCategoryService.getGoodCategoryName(s.getClassificationId())).orElse("未知"));
+
                 //查询区域
                 storeAuditVO.setAreaName(Optional.ofNullable(iAreaService.getAddress(s.getAreaId())).orElse("未知"));
-                //商家店铺轮播图
-                storeAuditVO.setPics(Optional.ofNullable(userMapper.selectById(s.getCreateBy())).map(User::getPic).orElse("暂无"));
+
                 return storeAuditVO;
 
             }).orElse(null)).collect(Collectors.toList()).stream().filter(Objects::nonNull).collect(Collectors.toList());

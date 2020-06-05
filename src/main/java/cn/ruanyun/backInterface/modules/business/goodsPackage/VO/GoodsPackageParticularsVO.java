@@ -2,8 +2,7 @@ package cn.ruanyun.backInterface.modules.business.goodsPackage.VO;
 
 import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.WhetherBookingOrderVO;
 import cn.ruanyun.backInterface.modules.business.goodsIntroduce.VO.GoodsIntroduceVO;
-import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditListVO;
-import cn.ruanyun.backInterface.modules.business.storeAudit.VO.StoreAuditVO;
+import cn.ruanyun.backInterface.modules.business.storeAudit.vo.StoreAuditListVo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -65,7 +64,7 @@ public class GoodsPackageParticularsVO {
     private Integer myFavorite;
 
     //商铺信息
-    private StoreAuditListVO storeAuditVO;
+    private StoreAuditListVo storeAuditVO;
 
     @ApiModelProperty(value = "购买状态 1购买 2租赁 3购买和租赁")
     private Integer buyState;

@@ -25,7 +25,7 @@ public class AlipayConfig {
 	public static final String ALIPAY_APPLICATION_OF_PUBLIC_KEY= "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnQLvvYQPbo3t/mVymZPijz0YbkThBksmKpAw/l16fuxG0zjU7hld/K0PRzjBdb2Sm5EZU95DSXg2RAIVKDawv2ccr/Ixugq2dnZGSVJO0WJV8De79cy6GAxQS5gOShnmQbkJnxT3FToJmt/CRHbY6de6Qkg7lMzquuKg856uYOk8OZpPIkYC7VyzDUFaLJARD8l3nI9l3wVSRY3RKYaYVpo/EKr6A10MrP4GRuhb5dDk4F8eqTpB+eCJ0L7Mqc/66nEYVABZt8CSnXHbUbcXLrEGGCATzaoCE6PtsRAalWKxeSxg356wVrjINFjsKB5tdvESetfu+Qclsjxtt7jNKwIDAQAB";
 
 	// 服务器  异步通知
-	public static final String NOTIFY_URL= "http://116.62.143.182:8085/ruanyun/order/aliPayNotify";
+	public static final String NOTIFY_URL= "http://121.196.28.116:8083/ruanyun/order/aliPayNotify";
 
 	// 签名方式
 	public static final String SIGN_TYPE= "RSA2";

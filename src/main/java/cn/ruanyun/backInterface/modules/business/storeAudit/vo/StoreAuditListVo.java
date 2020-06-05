@@ -1,16 +1,14 @@
-package cn.ruanyun.backInterface.modules.business.storeAudit.VO;
+package cn.ruanyun.backInterface.modules.business.storeAudit.vo;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-
 
 /**
  * 数据审核输出层
  */
 @Data
 @Accessors(chain = true)
-public class StoreAuditListVO {
+public class StoreAuditListVo {
 
     private String id;
 
