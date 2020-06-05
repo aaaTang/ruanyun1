@@ -63,8 +63,7 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
        private GoodMapper goodMapper;
        @Resource
        private GoodCategoryMapper goodCategoryMapper;
-       @Resource
-       private SizeAndRolorMapper sizeAndRolorMapper;
+
 
        @Override
        public void insertOrderUpdateSizeAndRolor(SizeAndRolor sizeAndRolor) {
@@ -92,68 +91,7 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
 
 
 
-    /**
-     * 获取商品规格和大小
-     * @param goodsId  商品id
-     * @param buyState 购买状态 1购买 2租赁
-     * @return
-     */
-   /* @Override
-    public Map<String,Object> SizeAndRolorList(String goodsId,Integer buyState) {
 
-        Map<String,Object> map = new HashMap<>();
-        //1.首先查商品的分类
-        Good good = Optional.ofNullable(goodMapper.selectOne(new QueryWrapper<Good>().lambda().eq(Good::getId,goodsId).eq(Good::getTypeEnum, GoodTypeEnum.GOOD)))
-                .orElse(null);
-
-        //商品分类不为空
-        if(ToolUtil.isNotEmpty(good.getGoodCategoryId())){
-
-            //2.按分类获取规格
-            List<ItemAttrKey> itemKey = itemAttrKeyMapper.selectList(
-                    new QueryWrapper<ItemAttrKey>().lambda().eq(ItemAttrKey::getClassId,good.getGoodCategoryId()));
-
-            //循环规格
-            List<ItemAttrKeyVO> itemAttrKeyVO = new ArrayList<>();
-            for (ItemAttrKey itemAttrKey : itemKey) {
-                ItemAttrKeyVO attrKey = new ItemAttrKeyVO();
-                //3.按规格获取规格属性
-                List<ItemAttrVal> itemAttrVal =  Optional.ofNullable(itemAttrValMapper.selectList(
-                        new QueryWrapper<ItemAttrVal>().lambda().eq(ItemAttrVal::getAttrId,itemAttrKey.getId())))
-                        .orElse(null);
-
-                List<ItemAttrValVo> itemAttrValVO = new ArrayList<>();
-                //循环规格属性
-                for (ItemAttrVal itemVal : itemAttrVal) {
-                    ItemAttrValVo attrVal= new ItemAttrValVo();
-                    attrVal.setId(itemVal.getId()).setAttrValue(itemVal.getAttrValue());
-                    itemAttrValVO.add(attrVal);
-                }
-                attrKey.setId(itemAttrKey.getId()).setAttrName(itemAttrKey.getAttrName()).setVal(itemAttrValVO);
-                itemAttrKeyVO.add(attrKey);
-            }
-            map.put("itemAttrKeyVO",itemAttrKeyVO);
-
-            List<SizeAndRolor> list = sizeAndRolorMapper.selectList(
-                    new QueryWrapper<SizeAndRolor>().lambda().eq(SizeAndRolor::getGoodsId,goodsId));
-            Integer inventory = 0;
-            for (SizeAndRolor s : list) {
-                inventory+=s.getInventory();
-            }
-            map.put("goodsPrice",good.getGoodNewPrice());//商品价格
-            map.put("pic",(list.size() >= 1 ? list.get(0).getPic() : ""));//商品图片
-            map.put("inventory",inventory);//商品库存
-
-            if(ToolUtil.isNotEmpty(list)){
-                //商品现有的规格组合 给app做规格组合匹配
-                map.put("itemList",this.getItemList(list));
-            }
-
-            return  map;
-        }else {
-            return  null;
-        }
-    }*/
 
 
     /**
@@ -265,11 +203,11 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
 
             for (String s : id) {
                 itemVO item = new itemVO();
-
-                item.setValId(s);
-                item.setValName(Optional.ofNullable(itemAttrValMapper.selectById(s)).map(ItemAttrVal::getAttrValue).orElse("规格属性未找到！"));
+                item.setId(sizeAndRolor.getId());
                 item.setKeyId(Optional.ofNullable(itemAttrKeyMapper.selectById(itemAttrValMapper.selectById(s).getAttrId())).map(ItemAttrKey::getId).orElse("规格未找到！"));
                 item.setKeyName(Optional.ofNullable(itemAttrKeyMapper.selectById(itemAttrValMapper.selectById(s).getAttrId())).map(ItemAttrKey::getAttrName).orElse("规格未找到！"));
+                item.setValId(s);
+                item.setValName(Optional.ofNullable(itemAttrValMapper.selectById(s)).map(ItemAttrVal::getAttrValue).orElse("规格属性未找到！"));
                 itemVO.add(item);
             }
 
