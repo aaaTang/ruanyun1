@@ -252,6 +252,8 @@ ignored:
     - /ruanyun/appUser/bindMobile #绑定手机号
     - /kotlin/demo #测试kotlin
     - /ruanyun/upload/file #上传图片
+    - /ruanyun/order/aliPayNotify #支付宝支付
+    - /ruanyun/order/wxPayNotify #微信支付
 # Actuator
 management:
   health:

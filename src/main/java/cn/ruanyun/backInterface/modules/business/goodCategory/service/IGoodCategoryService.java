@@ -106,7 +106,4 @@ public interface IGoodCategoryService extends IService<GoodCategory> {
      * @return Object
      */
     Result<Object> getCategoryState(String goodCategoryId);
-
-
-
 }
