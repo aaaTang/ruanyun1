@@ -131,7 +131,9 @@ public class ITrustIdentityServiceImpl extends ServiceImpl<TrustIdentityMapper, 
 
                 .eq(userRole.equals(CommonConstant.PER_STORE)||userRole.equals(CommonConstant.STORE),TrustIdentity::getCreateBy,securityUtil.getCurrUser().getId())
 
-                .eq(ToolUtil.isNotEmpty(trustIdentityDTO.getStatus()),TrustIdentity::getStatus,trustIdentityDTO.getStatus()))))
+                .eq(ToolUtil.isNotEmpty(trustIdentityDTO.getStatus()),TrustIdentity::getStatus,trustIdentityDTO.getStatus())
+
+                .orderByDesc(TrustIdentity::getCreateTime))))
 
                 .map(trustIdentities -> trustIdentities.parallelStream().flatMap(trustIdentity -> {
 

@@ -33,8 +33,10 @@ import java.util.concurrent.TimeUnit;
 @Transactional
 public class BackUserController {
 
+    @Autowired
     private SecurityUtil securityUtil;
 
+    @Autowired
     private IUserService iUserService;
 
     @Autowired

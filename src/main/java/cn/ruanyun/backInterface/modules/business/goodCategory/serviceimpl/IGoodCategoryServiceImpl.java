@@ -376,6 +376,38 @@ public class IGoodCategoryServiceImpl extends ServiceImpl<GoodCategoryMapper, Go
         }).orElse(new ResultUtil<List<CategoryVo>>().setErrorMsg(201, "暂无数据！"));
     }
 
+    @Override
+    public Result<List<CategoryVo>> getGoodServiceGoodCategory() {
+
+        return Optional.ofNullable(this.list(Wrappers.<GoodCategory>lambdaQuery()
+        .eq(GoodCategory::getParentId, CommonConstant.PARENT_ID)
+        .ne(GoodCategory::getTitle, "四大金刚")))
+        .map(goodCategories -> {
+
+            goodCategories.addAll(this.list(Wrappers.<GoodCategory>lambdaQuery()
+            .eq(GoodCategory::getParentId, getFourCategoryId())));
+
+            List<CategoryVo> categoryVos = goodCategories.parallelStream().flatMap(goodCategory -> {
+
+
+                CategoryVo categoryVo = new CategoryVo();
+                ToolUtil.copyProperties(goodCategory, categoryVo);
+
+                return Stream.of(categoryVo);
+            }).collect(Collectors.toList());
+
+            return new ResultUtil<List<CategoryVo>>().setData(categoryVos, "获取优质服务分类成功！");
+        }).orElse(new ResultUtil<List<CategoryVo>>().setErrorMsg(201, "暂无数据！"));
+    }
+
+    @Override
+    public Result<Object> getCategoryState(String goodCategoryId) {
+
+        return Optional.ofNullable(this.getById(goodCategoryId)).map(goodCategory -> new ResultUtil<>()
+        .setData(goodCategory.getBuyState(), "获取购买状态成功！"))
+                .orElse(new ResultUtil<>().setErrorMsg(201, "暂无分类数据"));
+    }
+
 
     /**
      * 获取四大金刚的id

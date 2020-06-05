@@ -15,19 +15,18 @@ import java.util.List;
 public interface ITrustIdentityService extends IService<TrustIdentity> {
 
 
-      /**
-        * 插入或者更新trustIdentity
-        * @param trustIdentity
-       */
-     void insertOrderUpdateTrustIdentity(TrustIdentity trustIdentity);
+    /**
+     * 插入或者更新trustIdentity
+     * @param trustIdentity
+     */
+    void insertOrderUpdateTrustIdentity(TrustIdentity trustIdentity);
 
 
-
-      /**
-       * 移除trustIdentity
-       * @param ids
-       */
-     void removeTrustIdentity(String ids);
+    /**
+     * 移除trustIdentity
+     * @param ids
+     */
+    void removeTrustIdentity(String ids);
 
 
     /**

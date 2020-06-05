@@ -144,5 +144,19 @@ public class GoodCategoryController {
     }
 
 
+    @PostMapping("/getGoodServiceGoodCategory")
+    @ApiOperation("获取优质服务分类数据成功")
+    public Result<List<CategoryVo>> getGoodServiceGoodCategory() {
+
+        return iGoodCategoryService.getGoodServiceGoodCategory();
+    }
+
+
+    @PostMapping("/getCategoryState")
+    @ApiOperation("获取分类的购买状态")
+    public Result<Object> getCategoryState(String goodCategoryId) {
+
+        return iGoodCategoryService.getCategoryState(goodCategoryId);
+    }
 
 }

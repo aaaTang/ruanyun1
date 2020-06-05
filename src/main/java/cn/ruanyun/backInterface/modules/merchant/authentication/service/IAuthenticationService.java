@@ -16,19 +16,17 @@ import java.util.List;
 public interface IAuthenticationService extends IService<Authentication> {
 
 
-      /**
-        * 插入或者更新authentication
-        * @param authentication
-       */
-     void insertOrderUpdateAuthentication(Authentication authentication);
+    /**
+     * 插入或者更新authentication
+     * @param authentication
+     */
+    void insertOrderUpdateAuthentication(Authentication authentication);
 
-
-
-      /**
-       * 移除authentication
-       * @param ids
-       */
-     void removeAuthentication(String ids);
+    /**
+     * 移除authentication
+     * @param ids
+     */
+    void removeAuthentication(String ids);
 
     /**
      * 审核申请

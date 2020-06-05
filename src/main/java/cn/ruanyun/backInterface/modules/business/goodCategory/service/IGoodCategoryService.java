@@ -92,4 +92,21 @@ public interface IGoodCategoryService extends IService<GoodCategory> {
      */
     Result<List<CategoryVo>> getBackStoreCategoryList();
 
+
+    /**
+     * 获取优质服务的分类数据
+     * @return List<CategoryVo>
+     */
+    Result<List<CategoryVo>> getGoodServiceGoodCategory();
+
+
+    /**
+     * 获取分类的购买状态
+     * @param goodCategoryId goodCategoryId
+     * @return Object
+     */
+    Result<Object> getCategoryState(String goodCategoryId);
+
+
+
 }
