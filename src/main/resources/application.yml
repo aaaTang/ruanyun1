@@ -4,7 +4,8 @@ jasypt:
     password: xboot
 
 server:
-  port: 9093
+  #port: 8085
+  port: 8083
   servlet:
     context-path: /
   tomcat:
@@ -15,8 +16,10 @@ server:
 spring:
   #融云
   rong-cloud:
-    app-key: x18ywvqfx5zsc
-    app-secret: qqFcHUkS5q
+    #app-key: x18ywvqfx5zsc
+    #app-secret: qqFcHUkS5q
+    app-key: x4vkb1qpxg9mk
+    app-secret: KW9iLOtq2309
   #kafka配置
   #输出彩色
   output:
@@ -24,10 +27,13 @@ spring:
       enabled: always
   # 数据源
   datasource:
-    url: jdbc:mysql://116.62.143.182:3306/fanshafu?useUnicode=true&characterEncoding=utf-8&useSSL=false
-    username: root
+    url: jdbc:mysql://rm-bp155p9k6mm1ni265go.mysql.rds.aliyuncs.com/fanshafu?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    #url: jdbc:mysql://localhost:3306/fanshafu?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    #username: root
+    username: fsfroot
     # Jasypt加密 可到common-utils中找到JasyptUtil加解密工具类生成加密结果 格式为ENC(加密结果)
-    password: mysql
+    password: RuanYun0202
+    #password: mysql
     type: com.alibaba.druid.pool.DruidDataSource
     driverClassName: com.mysql.jdbc.Driver
     #logSlowSql: true
@@ -52,7 +58,7 @@ spring:
     #driver-class-name: com.p6spy.engine.spy.P6SpyDriver
   jpa:
     # 显示sql
-    show-sql: true
+    show-sql: false
     # 自动生成表结构
     generate-ddl: true
     hibernate:
@@ -99,8 +105,8 @@ spring:
   # 文件大小上传配置
   servlet:
     multipart:
-      max-file-size: 5MB
-      max-request-size: 5MB
+      max-file-size: 100MB
+      max-request-size: 100MB
   jackson:
     time-zone: GMT+8
     serialization:
@@ -231,7 +237,7 @@ ignored:
     - /ruanyun/appUser/loginByPhoneAndPassword #通过手机号和密码登录
     - /ruanyun/appUser/registerByPhoneAndPassword #通过手机验证码注册用户
     - /ruanyun/appUser/appGetinvitationCode  #邀请码获取推荐人
-    - /ruanyun/common/captcha/sendRegistSmsCode #发送注册短信验证码
+    - /ruanyun/common/captcha/** #发送信验证码
     - /ruanyun/appUser/forgetPassword #忘记密码
     - /ruanyun/weChat/**   #微信登录
     - /ruanyun/advertising/**
@@ -250,8 +256,9 @@ ignored:
     - /ruanyun/versions/getVersions #查询当前手机系统版本
     - /ruanyun/appUser/wechatLogin #微信授权登录
     - /ruanyun/appUser/bindMobile #绑定手机号
-    - /kotlin/demo #测试kotlin
-    - /ruanyun/upload/file #上传图片
+    - /ruanyun/appUser/getUserProfitList #获取龙虎排行榜
+    - /ruanyun/order/aliPayNotify  #支付宝回调
+    - /ruanyun/order/wxPayNotify  #微信回调
 # Actuator
 management:
   health:
@@ -292,8 +299,8 @@ mybatis-plus:
     db-config:
       logic-delete-value: 1 # 逻辑已删除值(默认为 1)
       logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
-  #configuration:
-   # log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+#  configuration:
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 
 # 日志

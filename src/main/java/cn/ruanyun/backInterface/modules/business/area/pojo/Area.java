@@ -4,7 +4,6 @@ import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.AreaIndexEnum;
 import com.baomidou.mybatisplus.annotation.TableName;
-import kotlin.jvm.JvmField;
 import lombok.Builder;
 import lombok.Data;
 
@@ -29,7 +28,7 @@ public class Area extends RuanyunBaseEntity{
     /**
      * 城市名称
      */
-    @JvmField private String title;
+    private String title;
 
 
     /**
