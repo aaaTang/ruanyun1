@@ -3,9 +3,11 @@ package cn.ruanyun.backInterface.modules.business.userRelationship.VO;
 
 import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
 
 import java.math.BigDecimal;
 
+@Data
 public class UserOrderListVO {
 
     private String id;

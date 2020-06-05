@@ -21,6 +21,7 @@ import cn.ruanyun.backInterface.modules.business.shoppingCart.VO.ShoppingCartVO;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.entity.ShoppingCart;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.mapper.ShoppingCartMapper;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
+import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
 import com.alibaba.druid.util.StringUtils;
@@ -63,6 +64,9 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
     @Resource
     private GoodMapper goodMapper;
 
+    @Resource
+    private SizeAndRolorMapper sizeAndRolorMapper;
+
 
     /**
      * 加入购物车
@@ -75,7 +79,8 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
         ShoppingCart shoppingCartInsert = this.getOne(Wrappers.<ShoppingCart>lambdaQuery()
                 .eq(ShoppingCart::getGoodId, shoppingCart.getGoodId())
                 .eq(ShoppingCart::getBuyType, shoppingCart.getBuyType())
-                .eq(ShoppingCart::getAttrSymbolPath, shoppingCart.getAttrSymbolPath())
+                //这里的getAttrSymbolPath 传进来的是规格属性的id
+                .eq(ShoppingCart::getAttrSymbolPath,Optional.ofNullable(sizeAndRolorMapper.selectById(shoppingCart.getAttrSymbolPath())).map(SizeAndRolor::getAttrSymbolPath).orElse(null))
                 .eq(ShoppingCart::getShopCartType, shoppingCart.getShopCartType())
                 .eq(ShoppingCart::getCreateBy, securityUtil.getCurrUser().getId()));
 

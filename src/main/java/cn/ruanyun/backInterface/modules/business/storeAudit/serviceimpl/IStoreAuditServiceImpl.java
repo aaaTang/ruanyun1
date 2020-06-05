@@ -75,8 +75,6 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
     @Autowired
     private IRoleService roleService;
     @Autowired
-    private IGoodsPackageService goodsPackageService;
-    @Autowired
     private ICommentService commentService;
     @Autowired
     private IFollowAttentionService followAttentionService;
@@ -91,12 +89,25 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
     @Override
     public Result<Object> insertOrderUpdateStoreAudit(StoreAudit storeAudit) {
 
-        StoreAudit s = this.getOne(new QueryWrapper<StoreAudit>().lambda().eq(StoreAudit::getCreateBy,securityUtil.getCurrUser().getId()));
+        List<StoreAudit> storeAuditList = this.list(new QueryWrapper<StoreAudit>().lambda().eq(StoreAudit::getCreateBy,securityUtil.getCurrUser().getId()));
 
-        if(ToolUtil.isNotEmpty(s)){
-            return new ResultUtil<>().setErrorMsg(201,"您已申请，无需再次申请！");
+        if(ToolUtil.isNotEmpty(storeAuditList)){
+
+            for (StoreAudit audit : storeAuditList) {
+                if(audit.getCheckEnum().equals(CheckEnum.CHECK_SUCCESS)||audit.getCheckEnum().equals(CheckEnum.PRE_CHECK)){
+                    return new ResultUtil<>().setErrorMsg(201,"您已申请，无需再次申请！");
+                }
+            }
+
+            storeAudit.setCreateBy(securityUtil.getCurrUser().getId());
+
+            return new ResultUtil<>().setData( Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(storeAudit)))
+                    .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
+                    .toFuture().join(),"申请成功！");
+
         }else {
             storeAudit.setCreateBy(securityUtil.getCurrUser().getId());
+
             return new ResultUtil<>().setData( Mono.fromCompletionStage(CompletableFuture.runAsync(() -> this.saveOrUpdate(storeAudit)))
                     .publishOn(Schedulers.fromExecutor(ThreadPoolUtil.getPool()))
                     .toFuture().join(),"申请成功！");

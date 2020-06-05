@@ -271,7 +271,9 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
 
             //获取规格属性id
             String[] attrVal = sizeAndRolor1.getAttrSymbolPath().split(",");
+
             List<ItemAttrVal> itemAttrVal = new ArrayList<>();
+
             for (String s : attrVal) {ItemAttrVal AttrVal  = itemAttrValMapper.selectById(s);itemAttrVal.add(AttrVal);}
 
             String attrName = "";//规格名称拼接

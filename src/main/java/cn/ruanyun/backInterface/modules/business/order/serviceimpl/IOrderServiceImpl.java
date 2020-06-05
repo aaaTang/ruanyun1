@@ -50,6 +50,8 @@ import cn.ruanyun.backInterface.modules.business.profitDetail.service.IProfitDet
 import cn.ruanyun.backInterface.modules.business.profitPercent.service.IProfitPercentService;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.entity.ShoppingCart;
 import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
+import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
+import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
 import cn.ruanyun.backInterface.modules.business.staffManagement.pojo.StaffManagement;
 import cn.ruanyun.backInterface.modules.business.staffManagement.service.IStaffManagementService;
@@ -165,6 +167,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     @Autowired
     private ICompereAuctionCalendarService iCompereAuctionCalendarService;
 
+    @Resource
+    private SizeAndRolorMapper sizeAndRolorMapper;
+
 
 
     @Override
@@ -178,7 +183,11 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         //1. 解析商品信息字符串
         List<AppOrderGoodInfoDto> appOrderGoodInfo = JSONObject.parseArray(orderDTO.getGoodStr(), AppOrderGoodInfoDto.class);
 
+
+
        return Optional.ofNullable(ToolUtil.setListToNul(appOrderGoodInfo)).map(appOrderGoodInfoDtos -> {
+
+           BigDecimal totalPrice = new BigDecimal(0);
 
             appOrderGoodInfoDtos.parallelStream().forEach(appOrderGoodInfoDto -> {
 
@@ -260,6 +269,10 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                                 orderDetail.setSubtractMoney(discountCoupon.getSubtractMoney());
                             });
 
+
+
+                    orderDetail.setAttrSymbolPath(Optional.ofNullable(sizeAndRolorMapper.selectById(appOrderGoodInfoDto.getAttrSymbolPath())).map(SizeAndRolor::getAttrSymbolPath).orElse(null));
+
                     orderDetail.setOrderId(order.getId());
 
                     orderDetail.setCreateBy(currentUserId);
@@ -274,15 +287,21 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 Optional.ofNullable(shoppingCartService.getOne(Wrappers.<ShoppingCart>lambdaQuery()
                         .eq(ShoppingCart::getGoodId, appOrderGoodInfoDto.getGoodId())
                         .eq(ShoppingCart::getBuyType, appOrderGoodInfoDto.getBuyType())
-                        .eq(ShoppingCart::getAttrSymbolPath, appOrderGoodInfoDto.getAttrSymbolPath())
+                        .eq(ShoppingCart::getAttrSymbolPath, Optional.ofNullable(sizeAndRolorMapper.selectById(appOrderGoodInfoDto.getAttrSymbolPath())).map(SizeAndRolor::getAttrSymbolPath).orElse(null))
                         .eq(ShoppingCart::getShopCartType, appOrderGoodInfoDto.getShopCartType())
                         .eq(ShoppingCart::getCreateBy, currentUserId)))
                         .ifPresent(shoppingCart -> shoppingCartService.removeById(shoppingCart.getId()));
+
+                totalPrice.add(order.getTotalPrice());
+
             });
+
 
             Map<String, Object> result = Maps.newHashMap();
 
             result.put("ids", ToolUtil.joinerList(orderIds));
+
+            result.put("totalPrice", totalPrice);
 
             //当前用户余额
             result.put("balance", userService.getById(currentUserId).getBalance());
