@@ -1,6 +1,8 @@
 package cn.ruanyun.backInterface.modules.business.order.vo;
 
+import cn.ruanyun.backInterface.common.enums.DayTimeTypeEnum;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
+import cn.ruanyun.backInterface.common.enums.OrderTypeEnum;
 import cn.ruanyun.backInterface.common.utils.CommonUtil;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
 import cn.ruanyun.backInterface.modules.business.orderDetail.vo.OrderDetailVo;
@@ -38,4 +40,17 @@ public class AppMyOrderListVo {
     @ApiModelProperty(value = "商品或者套餐信息")
     private OrderDetailVo orderDetailVo;
 
+    /**************************档期*****************************/
+
+    @ApiModelProperty(value = "订单类型")
+    private OrderTypeEnum typeEnum;
+
+    @ApiModelProperty(value = "场地id")
+    private String siteId;
+
+    @ApiModelProperty("上午&下午")
+    private DayTimeTypeEnum dayTimeType;
+
+    @ApiModelProperty("预约档期")
+    private String scheduleAppointment;
 }

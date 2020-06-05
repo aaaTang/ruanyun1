@@ -221,7 +221,8 @@ public class ISizeAndRolorServiceImpl extends ServiceImpl<SizeAndRolorMapper, Si
     public Map<String,Object> getInventory(String ids,String goodsId) {
 
         Map<String,Object> map = new HashMap<>();
-        SizeAndRolor s =  this.getOne(Wrappers.<SizeAndRolor>lambdaQuery().eq(SizeAndRolor::getAttrSymbolPath,ids).eq(SizeAndRolor::getGoodsId,goodsId));
+
+        SizeAndRolor s =  this.getOne(Wrappers.<SizeAndRolor>lambdaQuery().eq(SizeAndRolor::getId,ids).eq(SizeAndRolor::getGoodsId,goodsId));
            if(ToolUtil.isNotEmpty(s)){
                map.put("inventory",s.getInventory());
                map.put("goodsPrice",s.getGoodPrice());
