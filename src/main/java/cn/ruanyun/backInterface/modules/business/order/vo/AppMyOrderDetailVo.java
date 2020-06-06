@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.order.vo;
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
 import cn.ruanyun.backInterface.modules.business.orderDetail.vo.OrderDetailVo;
 import com.baomidou.mybatisplus.annotation.FieldFill;
@@ -54,6 +55,9 @@ public class AppMyOrderDetailVo {
 
     @ApiModelProperty(value = "订单编号")
     private String orderNum;
+
+    @ApiModelProperty(value = "订单状态")
+    private OrderStatusEnum orderStatus;
 
     @ApiModelProperty(value = "总价格")
     private BigDecimal totalPrice;

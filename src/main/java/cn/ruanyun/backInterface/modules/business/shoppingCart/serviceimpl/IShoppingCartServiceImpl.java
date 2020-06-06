@@ -87,6 +87,7 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
         if (ToolUtil.isEmpty(shoppingCartInsert)) {
 
             shoppingCart.setCreateBy(securityUtil.getCurrUser().getId());
+            shoppingCart.setAttrSymbolPath(Optional.ofNullable(sizeAndRolorMapper.selectById(shoppingCart.getAttrSymbolPath())).map(SizeAndRolor::getAttrSymbolPath).orElse(null));
             this.save(shoppingCart);
         }else {
 

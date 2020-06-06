@@ -195,6 +195,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
                 order.setCreateBy(currentUserId);
 
+                //购买类型
+                order.setBuyType(appOrderGoodInfoDto.getBuyType());
+
                 //1.1 商家id
                 if (appOrderGoodInfoDto.getShopCartType().equals(ShopCartTypeEnum.GOOD)) {
 
