@@ -165,7 +165,7 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
             StoreAuditVo storeAuditVo = new StoreAuditVo();
 
             //服务类型
-            storeAuditVo.setClassificationName(goodCategoryService.getGoodCategoryName(storeAudit.getId()));
+            storeAuditVo.setClassificationName(goodCategoryService.getGoodCategoryName(storeAudit.getClassificationId()));
 
             //所在城市名称
             storeAuditVo.setAreaName(iAreaService.getAddressName(storeAudit.getAreaId()));
