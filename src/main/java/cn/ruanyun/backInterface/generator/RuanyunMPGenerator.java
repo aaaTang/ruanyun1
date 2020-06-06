@@ -25,13 +25,13 @@ public class RuanyunMPGenerator {
      * 实体类名
      * 建议仅需修改
      */
-    private static final String className = "CompereNoCalendars";
+    private static final String className = "KotlinDemo";
 
     /**
      * 类说明描述
      * 建议仅需修改
      */
-    private static final String description = "设置主持人没有档期的时间";
+    private static final String description = "kotlin栗子";
 
     /**
      * 作者名
@@ -54,31 +54,31 @@ public class RuanyunMPGenerator {
      * 实体类对应包
      * (文件自动生成至该包下)
      */
-    private static final String entityPackage = "cn.ruanyun.backInterface.modules.auctionCalendar.compereNoCalendars.pojo";
+    private static final String entityPackage = "cn.ruanyun.backInterface.modules.business.kotlinDemo.pojo";
 
     /**
      * dao对应包
      * (文件自动生成至该包下)
      */
-    private static final String daoPackage = "cn.ruanyun.backInterface.modules.auctionCalendar.compereNoCalendars.mapper";
+    private static final String daoPackage = "cn.ruanyun.backInterface.modules.business.kotlinDemo.mapper";
 
     /**
      * service对应包
      * (文件自动生成至该包下)
      */
-    private static final String servicePackage = "cn.ruanyun.backInterface.modules.auctionCalendar.compereNoCalendars.service";
+    private static final String servicePackage = "cn.ruanyun.backInterface.modules.business.kotlinDemo.service";
 
     /**
      * serviceImpl对应包
      * (文件自动生成至该包下)
      */
-    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.auctionCalendar.compereNoCalendars.serviceimpl";
+    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.business.kotlinDemo.serviceimpl";
 
     /**
      * controller对应包
      * (文件自动生成至该包下)
      */
-    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.auctionCalendar.compereNoCalendars.controller";
+    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.business.kotlinDemo.controller";
 
     /**
      * 运行该主函数即可生成代码

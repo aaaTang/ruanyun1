@@ -187,8 +187,6 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
        return Optional.ofNullable(ToolUtil.setListToNul(appOrderGoodInfo)).map(appOrderGoodInfoDtos -> {
 
-           BigDecimal totalPrice = new BigDecimal(0);
-
             appOrderGoodInfoDtos.parallelStream().forEach(appOrderGoodInfoDto -> {
 
                 //1. 生成订单
@@ -291,17 +289,26 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                         .eq(ShoppingCart::getShopCartType, appOrderGoodInfoDto.getShopCartType())
                         .eq(ShoppingCart::getCreateBy, currentUserId)))
                         .ifPresent(shoppingCart -> shoppingCartService.removeById(shoppingCart.getId()));
-
-                totalPrice.add(order.getTotalPrice());
-
             });
+
+
+            //计算总价格
+           BigDecimal buyTotalPrice = appOrderGoodInfoDtos.parallelStream().filter(appOrderGoodInfoDto ->
+                   cn.hutool.core.util.ObjectUtil.equal(appOrderGoodInfoDto.getBuyType(), BuyTypeEnum.FULL_PURCHASE))
+                   .map(AppOrderGoodInfoDto::getPrice)
+                   .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+           BigDecimal rentTotalPrice = appOrderGoodInfoDtos.parallelStream().filter(appOrderGoodInfoDto ->
+                   cn.hutool.core.util.ObjectUtil.equal(appOrderGoodInfoDto.getBuyType(), BuyTypeEnum.RENT))
+                   .map(AppOrderGoodInfoDto::getGoodDeposit)
+                   .reduce(BigDecimal.ZERO, BigDecimal::add);
 
 
             Map<String, Object> result = Maps.newHashMap();
 
             result.put("ids", ToolUtil.joinerList(orderIds));
 
-            result.put("totalPrice", totalPrice);
+            result.put("totalPrice", buyTotalPrice.add(rentTotalPrice));
 
             //当前用户余额
             result.put("balance", userService.getById(currentUserId).getBalance());

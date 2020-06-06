@@ -9,6 +9,7 @@ import cn.ruanyun.backInterface.modules.business.storeAudit.dto.StoreAuditDTO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.vo.StoreAuditVo;
 import cn.ruanyun.backInterface.modules.business.storeAudit.pojo.StoreAudit;
 import cn.ruanyun.backInterface.modules.business.storeAudit.service.IStoreAuditService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/ruanyun/storeAudit")
 @Transactional
+@Api(tags = "商家入驻审核管理接口")
 public class StoreAuditController {
 
     @Autowired

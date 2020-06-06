@@ -14,25 +14,24 @@ import java.util.List;
 public interface IUserRelationshipService extends IService<UserRelationship> {
 
 
-      /**
-        * 插入或者更新userRelationship
-        * @param userRelationship
-       */
-     void insertOrderUpdateUserRelationship(UserRelationship userRelationship);
+    /**
+     * 插入或者更新userRelationship
+     * @param userRelationship userRelationship
+     */
+    void insertOrderUpdateUserRelationship(UserRelationship userRelationship);
 
 
-
-      /**
-       * 移除userRelationship
-       * @param ids
-       */
-     void removeUserRelationship(String ids);
+    /**
+     * 移除userRelationship
+     * @param ids ids
+     */
+    void removeUserRelationship(String ids);
 
 
     /**
      * 获取推荐人id
-     * @param userId
-     * @return
+     * @param userId userId
+     * @return String
      */
     String getRelationUser(String userId);
 
@@ -47,13 +46,14 @@ public interface IUserRelationshipService extends IService<UserRelationship> {
 
     /**
      * 获取我的邀请人列表数据
-     * @return
+     * @return AppRelationUserVO
      */
     List<AppRelationUserVO> getUserRelationshipListByUser();
 
     /**
      * 获取邀请人的订单数据列表
-     * @return
+     * @return UserOrderListVO
      */
     List<UserOrderListVO> getUserOrderList(String userId);
+
 }
