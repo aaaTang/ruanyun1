@@ -25,6 +25,7 @@ import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService
 import cn.ruanyun.backInterface.modules.business.comment.DTO.CommentDTO;
 import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
 import cn.ruanyun.backInterface.modules.business.commonParam.service.IcommonParamService;
+import cn.ruanyun.backInterface.modules.business.discountCoupon.pojo.DiscountCoupon;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
 import cn.ruanyun.backInterface.modules.business.discountMy.service.IDiscountMyService;
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
@@ -295,12 +296,34 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             //计算总价格
            BigDecimal buyTotalPrice = appOrderGoodInfoDtos.parallelStream().filter(appOrderGoodInfoDto ->
                    cn.hutool.core.util.ObjectUtil.equal(appOrderGoodInfoDto.getBuyType(), BuyTypeEnum.FULL_PURCHASE))
-                   .map(AppOrderGoodInfoDto::getPrice)
+                   .map(appOrderGoodInfoDto -> {
+
+                       BigDecimal totalPrice = appOrderGoodInfoDto.getPrice().multiply(new BigDecimal(appOrderGoodInfoDto.getBuyCount()));
+
+                       if (ToolUtil.isNotEmpty(appOrderGoodInfoDto.getDiscountId())) {
+
+                           totalPrice.subtract(Optional.ofNullable(discountCouponService.getDiscountCouponDetail(appOrderGoodInfoDto.getDiscountId()))
+                           .map(DiscountCoupon::getSubtractMoney).orElse(new BigDecimal(0)));
+                       }
+
+                       return totalPrice;
+                   })
                    .reduce(BigDecimal.ZERO, BigDecimal::add);
 
            BigDecimal rentTotalPrice = appOrderGoodInfoDtos.parallelStream().filter(appOrderGoodInfoDto ->
                    cn.hutool.core.util.ObjectUtil.equal(appOrderGoodInfoDto.getBuyType(), BuyTypeEnum.RENT))
-                   .map(AppOrderGoodInfoDto::getGoodDeposit)
+                   .map(appOrderGoodInfoDto -> {
+
+                       BigDecimal totalPrice = appOrderGoodInfoDto.getGoodDeposit().multiply(new BigDecimal(appOrderGoodInfoDto.getBuyCount()));
+
+                       if (ToolUtil.isNotEmpty(appOrderGoodInfoDto.getDiscountId())) {
+
+                           totalPrice.subtract(Optional.ofNullable(discountCouponService.getDiscountCouponDetail(appOrderGoodInfoDto.getDiscountId()))
+                                   .map(DiscountCoupon::getSubtractMoney).orElse(new BigDecimal(0)));
+                       }
+
+                       return totalPrice;
+                   })
                    .reduce(BigDecimal.ZERO, BigDecimal::add);
 
 
