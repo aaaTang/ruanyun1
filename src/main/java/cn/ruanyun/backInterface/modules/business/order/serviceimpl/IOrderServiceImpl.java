@@ -469,6 +469,8 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
             result.put("ids", ToolUtil.joinerList(orderIds));
 
+            result.put("totalPrice", order.getTotalPrice());
+
             //当前用户余额
             result.put("balance", userService.getById(currentUserId).getBalance());
 

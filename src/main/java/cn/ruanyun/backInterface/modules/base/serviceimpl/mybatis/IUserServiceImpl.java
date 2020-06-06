@@ -130,7 +130,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
     private StaffManagementMapper staffManagementMapper;
     @Autowired
     private IGoodCategoryService goodCategoryService;
-    @Autowired
+    @Resource
     private GoodCategoryMapper goodCategoryMapper;
     @Autowired
     private IStoreAuditService storeAuditService;
@@ -488,7 +488,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                         backUserVO.setClassName(iGoodCategoryService.getGoodCategoryName(user.getClassId()));//分类名称
                         backUserVO.setAreaName(iAreaService.getAddressName(user.getAreaId()));//区域名称
                         StoreAudit storeAudit = storeAuditMapper.selectOne(Wrappers.<StoreAudit>lambdaQuery()
-                                .eq(StoreAudit::getCreateBy,userId));
+                                .eq(StoreAudit::getCreateBy,userId).eq(StoreAudit::getCheckEnum,CheckEnum.CHECK_SUCCESS));
                         backUserVO.setIdCardFront(Optional.ofNullable(storeAudit).map(StoreAudit::getIdCardFront).orElse("暂无！"));//身份证正面
                         backUserVO.setIdCardBack(Optional.ofNullable(storeAudit).map(StoreAudit::getIdCardBack).orElse("暂无！"));//身份证反面
                         backUserVO.setBusinessCard(Optional.ofNullable(storeAudit).map(StoreAudit::getBusinessCard).orElse("暂无！"));//营业执照
