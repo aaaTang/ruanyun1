@@ -4,6 +4,7 @@ import cn.ruanyun.backInterface.base.RuanyunBaseEntity
 import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum
 import com.baomidou.mybatisplus.annotation.TableName
 import io.swagger.annotations.ApiModelProperty
+import lombok.Data
 import javax.persistence.Entity
 import javax.persistence.Table
 
@@ -18,6 +19,4 @@ class KotlinDemo : RuanyunBaseEntity() {
     @ApiModelProperty("内容")
     var content : String? = null
 
-    @ApiModelProperty("当前状态")
-    var demoStatus : BooleanTypeEnum? = BooleanTypeEnum.NO
 }
