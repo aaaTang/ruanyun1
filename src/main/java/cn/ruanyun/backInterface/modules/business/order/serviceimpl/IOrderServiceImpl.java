@@ -61,6 +61,7 @@ import cn.ruanyun.backInterface.modules.business.storeIncome.service.IStoreIncom
 import cn.ruanyun.backInterface.modules.business.userRelationship.service.IUserRelationshipService;
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -155,6 +156,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
     @Resource
     private OrderDetailMapper orderDetailMapper;
+
+    @Resource
+    private OrderMapper orderMapper;
 
     @Resource
     private GoodMapper goodMapper;
@@ -372,6 +376,17 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             //1.3.1  订单类型是婚宴档期预约订单  并且 购物车商品类型是档期
         if (auctionCalendartOrderDTO.getTypeEnum().equals(OrderTypeEnum.SCHEDULE_ORDER)&&auctionCalendartOrderDTO.getShopCartType().equals(ShopCartTypeEnum.AUCTION_CALENDAR)){
 
+            Order order1 =  orderMapper.selectOne(new QueryWrapper<Order>().lambda()
+                    .eq(Order::getSiteId,auctionCalendartOrderDTO.getSiteId())
+                    .eq(Order::getScheduleAppointment,auctionCalendartOrderDTO.getScheduleAppointment())
+                    .eq(Order::getDayTimeType,auctionCalendartOrderDTO.getDayTimeType())
+                    .ge(Order::getOrderStatus,OrderStatusEnum.PRE_SEND)
+                    .last("limit 1")
+            );
+            if(ToolUtil.isNotEmpty(order1)){
+              return new ResultUtil<>().setErrorMsg(201,"此场地已经被预约");
+            }
+
             //2.获取档期价格
             List<SiteDetailTimeVO> siteDetailTimeVOS =  iSiteService.getSiteDetailTime(auctionCalendartOrderDTO.getSiteId(),auctionCalendartOrderDTO.getScheduleAppointment());
 
@@ -388,6 +403,10 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                    .ifPresent(site -> {
                        // 商家id
                        order.setUserId(site.getCreateBy());
+                        //场地图片
+                       if(ToolUtil.isNotEmpty(site.getSitePics())){
+                           orderDetail.setPic(site.getSitePics().split(",")[0]);
+                       }
                         //订单明细的商品名称
                        orderDetail.setName(site.getSiteName());
                    });
@@ -402,9 +421,49 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             //1.3.2 订单类型是主持人预约订单 并且 购物车商品类型是商品
         }else if(auctionCalendartOrderDTO.getTypeEnum().equals(OrderTypeEnum.COMPERE_ORDER)&&auctionCalendartOrderDTO.getShopCartType().equals(ShopCartTypeEnum.GOOD)){
 
+           List<Order> orderList= Optional.ofNullable(ToolUtil.setListToNul(
+                   orderMapper.selectList(new QueryWrapper<Order>().lambda()
+                           .eq(Order::getTypeEnum,OrderTypeEnum.COMPERE_ORDER)
+                           .eq(Order::getScheduleAppointment,auctionCalendartOrderDTO.getScheduleAppointment())
+                           .eq(Order::getDayTimeType,auctionCalendartOrderDTO.getDayTimeType())
+                           .ge(Order::getOrderStatus,OrderStatusEnum.PRE_SEND)
+                   )
+           )).map(orders -> orders.parallelStream().filter(order1 -> cn.hutool.core.util.ObjectUtil.equal(
+
+                   orderDetailMapper.selectOne(Wrappers.<OrderDetail>lambdaQuery()
+                           .eq(OrderDetail::getOrderId,order1.getId())
+                           .eq(OrderDetail::getGoodId,auctionCalendartOrderDTO.getGoodId())
+                           .eq(OrderDetail::getShopCartType,ShopCartTypeEnum.GOOD)).getGoodId()
+                   ,auctionCalendartOrderDTO.getGoodId()
+           )).collect(Collectors.toList())).orElse(null);
+
+           if(ToolUtil.isNotEmpty(orderList)){
+               return new ResultUtil<>().setErrorMsg(201,"此商品已经被购买！");
+           }
+
             //2.2获取主持人商品价格
             order.setTotalPrice(this.inserGoodOrder(auctionCalendartOrderDTO.getGoodId(),auctionCalendartOrderDTO.getScheduleAppointment(),auctionCalendartOrderDTO.getDayTimeType()));
 
+
+            List<Order> orderList2= Optional.ofNullable(ToolUtil.setListToNul(
+                    orderMapper.selectList(new QueryWrapper<Order>().lambda()
+                            .eq(Order::getTypeEnum,OrderTypeEnum.COMPERE_ORDER)
+                            .eq(Order::getScheduleAppointment,auctionCalendartOrderDTO.getScheduleAppointment())
+                            .eq(Order::getDayTimeType,auctionCalendartOrderDTO.getDayTimeType())
+                            .ge(Order::getOrderStatus,OrderStatusEnum.PRE_SEND)
+                    )
+            )).map(orders -> orders.parallelStream().filter(order1 -> cn.hutool.core.util.ObjectUtil.equal(
+
+                    orderDetailMapper.selectOne(Wrappers.<OrderDetail>lambdaQuery()
+                            .eq(OrderDetail::getOrderId,order1.getId())
+                            .eq(OrderDetail::getGoodId,auctionCalendartOrderDTO.getGoodId())
+                            .eq(OrderDetail::getShopCartType,ShopCartTypeEnum.GOOD_PACKAGE)).getGoodId()
+                    ,auctionCalendartOrderDTO.getGoodId()
+            )).collect(Collectors.toList())).orElse(null);
+
+            if(ToolUtil.isNotEmpty(orderList2)){
+                return new ResultUtil<>().setErrorMsg(201,"此套餐已经被购买！");
+            }
 
             Optional.ofNullable(goodMapper.selectById(auctionCalendartOrderDTO.getGoodId()))
                     .ifPresent(good -> {
@@ -412,6 +471,10 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                         order.setUserId(good.getCreateBy());
                         //订单明细的商品id
                         orderDetail.setGoodId(good.getId());
+                        //商品图片
+                        if(ToolUtil.isNotEmpty(good.getGoodPics())){
+                            orderDetail.setPic(good.getGoodPics().split(",")[0]);
+                        }
                         //订单明细的商品名称
                         orderDetail.setName(good.getGoodName());
                     });
@@ -432,6 +495,10 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                     .ifPresent(good -> {
                         // 商家id
                         order.setUserId(good.getCreateBy());
+                        //定案商品图片
+                        if(ToolUtil.isNotEmpty(good.getGoodPics())){
+                            orderDetail.setPic(good.getGoodPics().split(",")[0]);
+                        }
                         //订单明细的商品id
                         orderDetail.setGoodId(good.getId());
                         //订单明细的商品名称
