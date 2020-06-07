@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.auctionCalendar.compereNoCalendars.service;
 
 import cn.ruanyun.backInterface.modules.auctionCalendar.compereNoCalendars.DTO.CompereNoCalendarsDTO;
+import cn.ruanyun.backInterface.modules.auctionCalendar.compereNoCalendars.VO.AppGetCompereNoCalendarsVO;
 import cn.ruanyun.backInterface.modules.auctionCalendar.compereNoCalendars.VO.CompereNoCalendarsVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.auctionCalendar.compereNoCalendars.pojo.CompereNoCalendars;
@@ -34,4 +35,10 @@ public interface ICompereNoCalendarsService extends IService<CompereNoCalendars>
      * @return
      */
     List<CompereNoCalendarsVO> PcGetCompereNoCalendars(CompereNoCalendarsDTO compereNoCalendarsDTO);
+
+    /**
+     * 获取主持人商品或者套餐已经被购买的档期列表
+     * @return
+     */
+    List<AppGetCompereNoCalendarsVO> AppGetCompereNoCalendars(CompereNoCalendarsDTO compereNoCalendarsDTO);
 }

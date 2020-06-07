@@ -330,7 +330,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
             // TODO: 店铺id
             .setShopId(Optional.ofNullable(good.getCreateBy())
                             .orElse(null))
-            // TODO: 店铺名称
+            //TODO: 店铺名称
             .setShopName(userService.getUserIdByUserName(good.getCreateBy()))
             //TODO: 商品数量
             .setGoodsNum(this.list(Wrappers.<Good>lambdaQuery()
@@ -341,6 +341,9 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
             //TODO: 评论数量
 //            .setCommonNum(0)
             ;
+
+            GoodCategory goodCategory = goodCategoryMapper.selectById(good.getGoodCategoryId());
+
             //TODO: 店铺数据
             goodDetailVO.setShopList(shopList)
                     //TODO: 是否收藏0否 1收藏
@@ -350,9 +353,9 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                     //TODO: 商品服务类型
                     .setGoodsService(iGoodServiceService.getGoodsServiceList(id))
                     //购买状态 1购买 2租赁
-                    .setBuyState(Optional.ofNullable(goodCategoryMapper.selectById(good.getGoodCategoryId())).map(GoodCategory::getBuyState).orElse(null))
+                    .setBuyState(Optional.ofNullable(goodCategory).map(GoodCategory::getBuyState).orElse(null))
                     //租赁状态 1尾款线上支付  2尾款线下支付
-                    .setLeaseState(Optional.ofNullable(goodCategoryMapper.selectById(good.getGoodCategoryId())).map(GoodCategory::getLeaseState).orElse(null))
+                    .setLeaseState(Optional.ofNullable(goodCategory).map(GoodCategory::getLeaseState).orElse(null))
                     ;
 
             //规格状态  0空   1有
@@ -364,6 +367,17 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
             }else {
                 goodDetailVO.setSpecificationState(0);
             }
+
+
+
+            //是否是四大金刚  0否   1是
+            Optional.ofNullable(goodCategory).ifPresent(goodCategory1 -> {
+               if(goodCategory1.getTitle().equals("四大金刚")){
+                   goodDetailVO.setDevarajas(1);
+               }else {
+                   goodDetailVO.setDevarajas(0);
+               }
+            });
 
 
             //用户浏览商品足迹

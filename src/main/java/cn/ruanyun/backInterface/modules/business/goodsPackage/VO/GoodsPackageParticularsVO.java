@@ -71,4 +71,9 @@ public class GoodsPackageParticularsVO {
 
     @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")
     private Integer leaseState;
+
+    /**
+     * 是否是四大金刚  0否   1是
+     */
+    private Integer devarajas;
 }

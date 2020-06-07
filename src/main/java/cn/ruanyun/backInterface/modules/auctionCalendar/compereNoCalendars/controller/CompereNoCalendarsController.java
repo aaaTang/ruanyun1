@@ -91,4 +91,25 @@ public class CompereNoCalendarsController {
     }
 
 
+    /**
+     * 获取主持人商品或者套餐已经被购买的档期列表
+     * @return
+     */
+    @PostMapping(value = "/AppGetCompereNoCalendars")
+    public Result<Object> AppGetCompereNoCalendars(CompereNoCalendarsDTO compereNoCalendarsDTO){
+
+        return Optional.ofNullable(iCompereNoCalendarsService.AppGetCompereNoCalendars(compereNoCalendarsDTO))
+                .map(compereAuctionCalendarVOList->{
+
+                    Map<String,Object> result = Maps.newHashMap();
+                    result.put("size",compereAuctionCalendarVOList.size());
+                    result.put("data", compereAuctionCalendarVOList);
+                    return new ResultUtil<>().setData(compereAuctionCalendarVOList,"获取主持人商品或者套餐已经被购买的档期列表成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据"));
+    }
+
+
+
+
+
 }

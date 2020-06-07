@@ -44,7 +44,7 @@ import javax.annotation.Resource;
 
 
 /**
- * 主持人没有档期的时间接口实现
+ * 主持人特殊档期价格管理接口
  * @author z
  */
 @Slf4j
@@ -130,18 +130,17 @@ public class ICompereAuctionCalendarServiceImpl extends ServiceImpl<CompereAucti
 
           //1.先设置俩个时间段，上午和下午，以及默认价格
           CompereAuctionCalendarVO compereAuctionCalendarVO = new CompereAuctionCalendarVO();
-          compereAuctionCalendarVO.setDayTimeType(DayTimeTypeEnum.A_M).setStatus(1).setSitePrice(Optional.ofNullable(goodMapper.selectOne(Wrappers.<Good>lambdaQuery()
+          compereAuctionCalendarVO.setDayTimeType(DayTimeTypeEnum.A_M).setStatus(1).setScheduleTime(scheduleTime).setSitePrice(Optional.ofNullable(goodMapper.selectOne(Wrappers.<Good>lambdaQuery()
                   .eq(Good::getId,goodsId).eq(Good::getDelFlag,CommonConstant.STATUS_NORMAL)
           )).map(Good::getGoodNewPrice).orElse(null));
           compereAuctionCalendarVOS.add(compereAuctionCalendarVO);
 
 
           CompereAuctionCalendarVO compereAuctionCalendarVO1 = new CompereAuctionCalendarVO();
-          compereAuctionCalendarVO.setDayTimeType(DayTimeTypeEnum.P_M).setStatus(1).setSitePrice(Optional.ofNullable(goodMapper.selectOne(Wrappers.<Good>lambdaQuery()
+          compereAuctionCalendarVO1.setDayTimeType(DayTimeTypeEnum.P_M).setStatus(1).setScheduleTime(scheduleTime).setSitePrice(Optional.ofNullable(goodMapper.selectOne(Wrappers.<Good>lambdaQuery()
                   .eq(Good::getId,goodsId).eq(Good::getDelFlag,CommonConstant.STATUS_NORMAL)
           )).map(Good::getGoodNewPrice).orElse(null));
           compereAuctionCalendarVOS.add(compereAuctionCalendarVO1);
-
 
 
           //2.查看特殊节日的价格
@@ -227,6 +226,7 @@ public class ICompereAuctionCalendarServiceImpl extends ServiceImpl<CompereAucti
 
 
       }
+
 
 
 

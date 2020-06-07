@@ -105,6 +105,7 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
            if(ToolUtil.isNotEmpty(goodsPackage)){
                ToolUtil.copyProperties(goodsPackage,goodsPackageParticularsVO);
 
+               GoodCategory goodCategory = goodCategoryMapper.selectById(goodsPackage.getGoodCategoryId());
                //套餐图片
                goodsPackageParticularsVO.setPics(goodsPackage.getGoodPics())
                //是否收藏套餐
@@ -117,9 +118,18 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
                .setStoreAuditVO(storeAuditService.getStoreAudisByid(goodsPackage.getCreateBy()))
                .setWhetherBookingOrder(iBookingOrderService.getWhetherBookingOrder(goodsPackage.getCreateBy(), securityUtil.getCurrUser().getId()))
                //购买状态 1购买 2租赁
-               .setBuyState(Optional.ofNullable(goodCategoryMapper.selectById(goodsPackage.getGoodCategoryId())).map(GoodCategory::getBuyState).orElse(null))
+               .setBuyState(Optional.ofNullable(goodCategory).map(GoodCategory::getBuyState).orElse(null))
                //租赁状态 1尾款线上支付  2尾款线下支付
-               .setLeaseState(Optional.ofNullable(goodCategoryMapper.selectById(goodsPackage.getGoodCategoryId())).map(GoodCategory::getLeaseState).orElse(null));
+               .setLeaseState(Optional.ofNullable(goodCategory).map(GoodCategory::getLeaseState).orElse(null));
+
+               //是否是四大金刚  0否   1是
+               Optional.ofNullable(goodCategory).ifPresent(goodCategory1 -> {
+                   if(goodCategory1.getTitle().equals("四大金刚")){
+                       goodsPackageParticularsVO.setDevarajas(1);
+                   }else {
+                       goodsPackageParticularsVO.setDevarajas(0);
+                   }
+               });
            }
 
         if(ToolUtil.isNotEmpty(goodsPackageParticularsVO.getId())){

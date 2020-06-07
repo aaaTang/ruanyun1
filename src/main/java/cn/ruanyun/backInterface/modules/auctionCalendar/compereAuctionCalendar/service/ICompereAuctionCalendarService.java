@@ -10,7 +10,7 @@ import cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.p
 import java.util.List;
 
 /**
- * 主持人没有档期的时间接口
+ * 主持人档期的时间接口
  * @author z
  */
 public interface ICompereAuctionCalendarService extends IService<CompereAuctionCalendar> {

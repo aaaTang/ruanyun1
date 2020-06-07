@@ -35,6 +35,9 @@ public class ShoppingCartVO {
     @ApiModelProperty(value = "属性信息")
     private List<ItemAttrValVo> itemAttrKeys;
 
+    @ApiModelProperty(value = "属性id")
+    private String attrSymbolPathId;
+
     @ApiModelProperty(value = "购买数量")
     private Integer buyCount;
 

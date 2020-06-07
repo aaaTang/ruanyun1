@@ -12,7 +12,7 @@ import javax.persistence.Table;
 import java.math.BigDecimal;
 
 /**
- * 主持人没有档期的时间
+ * 主持人特殊档期价格管理接口
  * @author z
  */
 @Data

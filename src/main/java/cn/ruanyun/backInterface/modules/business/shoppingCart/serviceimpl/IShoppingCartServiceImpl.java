@@ -131,6 +131,11 @@ public class IShoppingCartServiceImpl extends ServiceImpl<ShoppingCartMapper, Sh
 
             ShoppingCartVO shoppingCartVO = new ShoppingCartVO();
             shoppingCartVO.setItemAttrKeys(iItemAttrValService.getItemAttrValVo(shoppingCart.getAttrSymbolPath()));
+
+            shoppingCartVO.setAttrSymbolPathId(Optional.ofNullable(sizeAndRolorMapper.selectOne(new QueryWrapper<SizeAndRolor>().lambda()
+                    .eq(SizeAndRolor::getGoodsId,shoppingCart.getGoodId())
+                    .eq(SizeAndRolor::getAttrSymbolPath,shoppingCart.getAttrSymbolPath())
+            )).map(SizeAndRolor::getId).orElse(null));
             //尾款方式
             shoppingCartVO.setLeaseState(
                    Optional.ofNullable(goodCategoryMapper.selectById(

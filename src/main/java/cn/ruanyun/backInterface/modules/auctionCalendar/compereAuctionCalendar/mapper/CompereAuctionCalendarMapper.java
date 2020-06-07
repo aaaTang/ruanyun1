@@ -6,7 +6,7 @@ import cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.p
 import java.util.List;
 
 /**
- * 主持人没有档期的时间数据处理层
+ * 主持人特殊档期价格管理接口
  * @author z
  */
 public interface CompereAuctionCalendarMapper extends BaseMapper<CompereAuctionCalendar> {

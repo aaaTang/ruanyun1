@@ -97,4 +97,10 @@ public class  AppGoodDetailVO {
      * 规格状态  0空   1有
      */
     private Integer SpecificationState;
+
+    /**
+     * 是否是四大金刚  0否   1是
+     */
+    private Integer devarajas;
+
 }
