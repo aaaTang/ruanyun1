@@ -34,7 +34,7 @@ public interface IOrderService extends IService<Order> {
 
     /**
      * 档期下单
-     * @return
+     * @return Object
      */
     Result<Object> inserAuctionCalendartOrder(AuctionCalendartOrderDTO auctionCalendartOrderDTO);
 
@@ -43,7 +43,7 @@ public interface IOrderService extends IService<Order> {
      * @param goodIs 商品id
      * @param scheduleAppointment 档期时间
      * @param dayTimeTypeEnum  档期类型
-     * @return
+     * @return BigDecimal
      */
     BigDecimal inserGoodOrder(String goodIs, String scheduleAppointment, DayTimeTypeEnum dayTimeTypeEnum);
 
@@ -55,6 +55,14 @@ public interface IOrderService extends IService<Order> {
     Result<Object> insertOffLineOrder(OffLineOrderDto offLineOrderDto);
 
 
+    /**
+     * 新增线下尾款支付订单
+     * @param offLineOrderDto offLineOrderDto
+     * @return Object
+     */
+    Result<Object> insertOffLinePayTheBalanceOrder(OffLineOrderDto offLineOrderDto);
+
+
 
     /*-----------------------------支付----------------------*/
 
@@ -64,6 +72,14 @@ public interface IOrderService extends IService<Order> {
      * @return Object
      */
     Result<Object> payOrder(AppPayOrderDto appPayOrder);
+
+
+    /**
+     * 根据订单类型计算实际支付价格
+     * @param order order
+     * @return BigDecimal
+     */
+    BigDecimal getTotalPriceByOrderType(Order order);
 
 
     /**
@@ -108,6 +124,12 @@ public interface IOrderService extends IService<Order> {
      */
     Result<Object> payTheBalance(OrderOperateDto orderOperateDto);
 
+
+    /**
+     * 支付尾款逻辑
+     * @param orderOperateDto 实体
+     */
+    void payTheBalanceCallBack(OrderOperateDto orderOperateDto);
 
     /**
      * 确认尾款

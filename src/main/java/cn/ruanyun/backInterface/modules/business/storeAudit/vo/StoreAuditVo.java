@@ -54,6 +54,9 @@ public class StoreAuditVo {
     @ApiModelProperty("身份证反面")
     private String idCardBack;
 
+    @ApiModelProperty("其他证件照")
+    private String otherIdPhotos;
+
     @ApiModelProperty("支付宝账号")
     private String alipayAccount;
 

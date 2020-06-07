@@ -24,6 +24,9 @@ public class OrderDetailVo {
     @ApiModelProperty(value = "订单详情id")
     private String id;
 
+    @ApiModelProperty(value = "商品id")
+    private String goodId;
+
     @ApiModelProperty(value = "商品名称")
     private String name;
 

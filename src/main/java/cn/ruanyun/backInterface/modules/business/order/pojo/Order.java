@@ -58,6 +58,9 @@ public class Order extends RuanyunBaseEntity {
     @ApiModelProperty(value = "总价格")
     private BigDecimal totalPrice;
 
+    @ApiModelProperty(value = "定金")
+    private BigDecimal goodDeposit;
+
     @ApiModelProperty(value = "支付尾款金额")
     private BigDecimal payGoodBalancePayment = new BigDecimal(0);
 
@@ -72,6 +75,13 @@ public class Order extends RuanyunBaseEntity {
 
     @ApiModelProperty("预约档期")
     private String scheduleAppointment;
+
+
+    /*----------线下订单------------*/
+
+    @ApiModelProperty(value = "商品描述")
+    private String goodDesc;
+
 
     /*---------收货人信息------------*/
 

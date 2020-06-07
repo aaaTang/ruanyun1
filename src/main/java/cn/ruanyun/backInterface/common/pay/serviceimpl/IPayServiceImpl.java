@@ -47,12 +47,7 @@ import java.util.Map;
 @Transactional
 public class IPayServiceImpl implements IPayService {
 
-	/**
-	 * 支付宝支付
-	 *
-	 * @param payModel
-	 * @return
-	 */
+
 	@Override
 	public Result<Object> aliPayMethod(PayModel payModel) {
 		AlipayTradeAppPayModel model = new AlipayTradeAppPayModel();
@@ -191,103 +186,4 @@ public class IPayServiceImpl implements IPayService {
 		return new ResultUtil<>().setData(map, "successful" + returnMsg);
 
 	}
-
-	/**
-	 * 余额支付
-	 *
-	 * @param payModel
-	 * @return
-	 */
-	@Override
-	public Result<Object> accountMoney(PayModel payModel) {
-		/*BigDecimal totalPrice = payModel.getTotalPrice();
-		User byId = userService.getById(securityUtil.getCurrUser().getId());
-		int i = byId.getBalance().compareTo(totalPrice);
-		if(i < 0){
-			return new ResultUtil<>().setErrorMsg("余额不足!");
-		}
-		orders.forEach(order -> {
-			order.setOrderStatus(OrderStatusEnum.PRE_SEND);
-			order.setPayTypeEnum(PayTypeEnum.BALANCE);
-			orderService.updateById(order);
-			// 生成账单流水
-			Balance balance1 = new Balance();
-			balance1.setTotalPrice(new BigDecimal(order.getTotalPrice()))
-					.setType(1)
-					.setStatus(2)
-					.setTableOid(order.getId())
-					.setTotalPrice(new BigDecimal(order.getTotalPrice()))
-					.setPayMoney(byId.getBalance())
-					.setSurplusMoney(byId.getBalance().subtract(new BigDecimal(order.getTotalPrice())));//支付后的余额
-			iBalanceService.insertOrderUpdateBalance(balance1);//添加余额使用明细
-		});*/
-		return null;
-	}
-
-	/**
-	 * 微信退款
-	 *
-	 * @param request
-	 * @return
-	 */
-	@Override
-	public Result<Object> wxRefundNotify(HttpServletRequest request) {
-		String xmlMsg = HttpKit.readData(request);
-		log.info("退款通知=" + xmlMsg);
-		Map<String, String> params = WxPayKit.xmlToMap(xmlMsg);
-
-		String returnCode = params.get("return_code");
-		// 注意重复通知的情况，同一订单号可能收到多次通知，请注意一定先判断订单状态
-		if (WxPayKit.codeIsOk(returnCode)) {
-			String reqInfo = params.get("req_info");
-			String decryptData = WxPayKit.decryptData(reqInfo, WxPayApiConfigKit.getWxPayApiConfig().getPartnerKey());
-			log.info("退款通知解密后的数据=" + decryptData);
-			// 更新订单信息
-			// 发送通知等
-			Map<String, String> xml = new HashMap<String, String>(2);
-			xml.put("return_code", "SUCCESS");
-			xml.put("return_msg", "OK");
-			return new ResultUtil<Object>().setData(WxPayKit.toXml(xml));
-		}
-		return null;
-	}
-
-	/**
-	 * 支付宝退款
-	 *
-	 * @param order
-	 * @return
-	 */
-	@Override
-	public Result<Object> aliRefundNotify(Order order) {
-		BigDecimal discountPrice = order.getTotalPrice();
-		String totalAmount = discountPrice.toString();
-		AlipayFundTransToaccountTransferModel model = new AlipayFundTransToaccountTransferModel();
-		model.setOutBizNo(order.getOrderNum());
-		model.setPayeeType("ALIPAY_LOGONID");
-		model.setPayeeAccount("gxthqd7606@sandbox.com");
-		model.setAmount(totalAmount);
-		model.setPayerShowName("测试退款");
-		model.setPayerRealName("沙箱环境");
-		model.setRemark("javen测试单笔转账到支付宝");
-		AlipayClient alipayClient = new DefaultAlipayClient(AlipayConfig.GATEWAY_URL, AlipayConfig.APP_ID, AlipayConfig.MERCHANT_PRIVATE_KEY, AlipayConfig.FORMAT, AlipayConfig.CHARSET, AlipayConfig.ALIPAY_PUBLIC_KEY, AlipayConfig.SIGN_TYPE);
-		;
-		AlipayTradeRefundRequest aliRequest = new AlipayTradeRefundRequest();
-		aliRequest.setBizModel(model);
-
-		AlipayTradeRefundResponse response = null;
-		try {
-			response = alipayClient.execute(aliRequest);
-		} catch (AlipayApiException e) {
-			e.printStackTrace();
-		}
-		if (response.isSuccess()) {
-			System.out.println("调用成功");
-		} else {
-			System.out.println("调用失败");
-		}
-		return null;
-	}
-
-
 }

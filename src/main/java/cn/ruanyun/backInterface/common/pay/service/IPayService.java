@@ -17,47 +17,22 @@ public interface IPayService {
 
 	/**
 	 * 支付宝支付
-	 * @param payModel
-	 * @return
+	 * @param payModel payModel
+	 * @return Object
 	 */
 	Result<Object> aliPayMethod(PayModel payModel);
 
-
 	/**
 	 * 支付宝转账
+	 * @param transferDto transferDto
 	 * @return String
 	 */
 	String aliPayTransfer(TransferDto transferDto) throws AlipayApiException;
 
 	/**
 	 * 微信支付
-	 * @param payModel
-	 * @return
+	 * @param payModel payModel
+	 * @return Object
 	 */
 	Result<Object> wxPayMethod(PayModel payModel) ;
-
-
-	/**
-	 * 余额支付
-	 * @param payModel
-	 * @return
-	 */
-	Result<Object> accountMoney(PayModel payModel);
-
-
-	/**
-	 * 微信退款
-	 * @param request
-	 * @return
-	 */
-	Result<Object> wxRefundNotify(HttpServletRequest request);
-
-
-	/**
-	 * 支付宝退款
-	 * @param order
-	 * @return
-	 */
-	Result<Object> aliRefundNotify(Order order);
-
 }

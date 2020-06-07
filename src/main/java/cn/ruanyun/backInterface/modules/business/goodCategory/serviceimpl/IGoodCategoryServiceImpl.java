@@ -2,6 +2,7 @@ package cn.ruanyun.backInterface.modules.business.goodCategory.serviceimpl;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.enums.RentTypeEnum;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
@@ -312,6 +313,7 @@ public class IGoodCategoryServiceImpl extends ServiceImpl<GoodCategoryMapper, Go
      * @param user user
      * @return Integer
      */
+    @Override
     public Integer judgeStoreType(User user) {
 
         if (ObjectUtil.equal(iGoodCategoryService.getGoodCategoryName(user.getClassId()), "婚宴酒店")) {
@@ -406,6 +408,23 @@ public class IGoodCategoryServiceImpl extends ServiceImpl<GoodCategoryMapper, Go
         return Optional.ofNullable(this.getById(goodCategoryId)).map(goodCategory -> new ResultUtil<>()
         .setData(goodCategory.getBuyState(), "获取购买状态成功！"))
                 .orElse(new ResultUtil<>().setErrorMsg(201, "暂无分类数据"));
+    }
+
+    @Override
+    public RentTypeEnum getLeaseState(String goodCategoryId) {
+
+        return Optional.ofNullable(this.getById(goodCategoryId))
+                .map(goodCategory -> {
+
+                    if (goodCategory.getLeaseState() == 1) {
+
+                        return RentTypeEnum.ONLINE_PAY;
+                    }else {
+
+                        return RentTypeEnum.OFFLINE_PAY;
+                    }
+                })
+                .orElse(null);
     }
 
 

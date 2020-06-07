@@ -1,7 +1,9 @@
 package cn.ruanyun.backInterface.modules.business.goodCategory.service;
 
 
+import cn.ruanyun.backInterface.common.enums.RentTypeEnum;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.business.goodCategory.VO.CategoryVo;
 import cn.ruanyun.backInterface.modules.business.goodCategory.VO.FourDevarajasCategoryVo;
 import cn.ruanyun.backInterface.modules.business.goodCategory.VO.GoodCategoryListVO;
@@ -106,4 +108,19 @@ public interface IGoodCategoryService extends IService<GoodCategory> {
      * @return Object
      */
     Result<Object> getCategoryState(String goodCategoryId);
+
+
+    /**
+     * 根据分类id获取尾款支付类型
+     * @param goodCategoryId  分类id
+     * @return Integer
+     */
+    RentTypeEnum getLeaseState(String goodCategoryId);
+
+    /**
+     * 判断商家类型
+     * @param user user
+     * @return user
+     */
+    Integer judgeStoreType(User user);
 }

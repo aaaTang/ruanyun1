@@ -1,10 +1,12 @@
 package cn.ruanyun.backInterface.modules.business.selectStore.serviceimpl;
 
 import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
-import cn.ruanyun.backInterface.modules.business.selectStore.VO.SelectStoreListVO;
+import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
+import cn.ruanyun.backInterface.modules.business.selectStore.vo.SelectStoreListVO;
 import cn.ruanyun.backInterface.modules.business.selectStore.mapper.SelectStoreMapper;
 import cn.ruanyun.backInterface.modules.business.selectStore.pojo.SelectStore;
 import cn.ruanyun.backInterface.modules.business.selectStore.service.ISelectStoreService;
@@ -41,14 +43,17 @@ import javax.annotation.Resource;
 @Transactional
 public class ISelectStoreServiceImpl extends ServiceImpl<SelectStoreMapper, SelectStore> implements ISelectStoreService {
 
-
     @Autowired
     private SecurityUtil securityUtil;
 
     @Autowired
     private IUserService userService;
+
     @Resource
     private GoodMapper goodMapper;
+
+    @Autowired
+    private IGoodCategoryService goodCategoryService;
 
     @Override
     public void insertOrderUpdateSelectStore(SelectStore selectStore) {
@@ -76,6 +81,10 @@ public class ISelectStoreServiceImpl extends ServiceImpl<SelectStoreMapper, Sele
 
                     SelectStoreListVO selectStoreListVO = new SelectStoreListVO();
                     selectStoreListVO.setCreateTime(selectStore.getCreateTime());
+
+                    //判断商家类型
+                    User store = userService.getById(selectStore.getUserId());
+                    selectStoreListVO.setStoreType(goodCategoryService.judgeStoreType(store));
 
                     Optional.ofNullable(userService.getById(selectStore.getUserId()))
                             .ifPresent(user ->

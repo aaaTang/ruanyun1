@@ -1,4 +1,4 @@
-package cn.ruanyun.backInterface.modules.business.selectStore.VO;
+package cn.ruanyun.backInterface.modules.business.selectStore.vo;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -24,19 +24,16 @@ public class SelectStoreListVO {
 
     private String id;
 
-    /**
-     * 店铺名称
-     */
+    @ApiModelProperty("店铺名称")
     private String username;
 
-    /**
-     * 店铺图片
-     */
+    @ApiModelProperty("店铺图片")
     private String avatar;
 
-    /**
-     * 最低价格
-     */
+    @ApiModelProperty(value = "商家类型 （1，酒店 2.主持人 3.默认）")
+    private Integer storeType;
+
+    @ApiModelProperty("最低价格")
     private BigDecimal lowPrice;
 
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
@@ -44,5 +41,4 @@ public class SelectStoreListVO {
     @ApiModelProperty(value = "创建时间")
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
-
 }

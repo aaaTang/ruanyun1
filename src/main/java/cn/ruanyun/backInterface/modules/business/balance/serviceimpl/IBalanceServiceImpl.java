@@ -165,7 +165,7 @@ public class IBalanceServiceImpl extends ServiceImpl<BalanceMapper, Balance> imp
                                                 .setPrice(actualRefundMoney)
                                                 .setTitle("退款金额")
                                                 .setCreateBy(user.getId());
-                                        this.save(balance);
+                                        this.save(balanceNew);
                                     });
 
                                 });

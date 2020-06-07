@@ -1,6 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.selectStore.service;
 
-import cn.ruanyun.backInterface.modules.business.selectStore.VO.SelectStoreListVO;
+import cn.ruanyun.backInterface.modules.business.selectStore.vo.SelectStoreListVO;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.selectStore.pojo.SelectStore;
 
@@ -12,25 +12,22 @@ import java.util.List;
  */
 public interface ISelectStoreService extends IService<SelectStore> {
 
+    /**
+     * 插入或者更新selectStore
+     * @param selectStore selectStore
+     */
+    void insertOrderUpdateSelectStore(SelectStore selectStore);
 
-      /**
-        * 插入或者更新selectStore
-        * @param selectStore
-       */
-     void insertOrderUpdateSelectStore(SelectStore selectStore);
-
-
-
-      /**
-       * 移除selectStore
-       * @param ids
-       */
-     void removeSelectStore(String ids);
+    /**
+     * 移除selectStore
+     * @param ids ids
+     */
+    void removeSelectStore(String ids);
 
 
     /**
      * 获取严选商家分类列表
-     * @return
+     * @return SelectStoreListVO
      */
     List<SelectStoreListVO> getSelectStoreList();
 
@@ -39,4 +36,5 @@ public interface ISelectStoreService extends IService<SelectStore> {
      * 查询商家是否是严选商家
      */
     Integer getSelectStore(String userId);
+
 }
