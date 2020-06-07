@@ -238,10 +238,11 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     }
 
     @Override
-    public List AppGoodsRecommendPackageList(String ids) {
+    public List AppGoodsRecommendPackageList(String ids,String goodName) {
 
         List<Good>  goodsPackage = goodMapper.selectList(new QueryWrapper<Good>().lambda()
                 .eq(ToolUtil.isNotEmpty(ids),Good::getCreateBy,ids)
+                .eq(ToolUtil.isNotEmpty(ids),Good::getGoodName,goodName)
                 .eq(Good::getTypeEnum,GoodTypeEnum.GOODSPACKAGE)
         );
 
