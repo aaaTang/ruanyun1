@@ -10,7 +10,10 @@ public class AppGetShopWorksListVO {
      * 视频标题
      */
     private String title;
-
+    /**
+     * 作品图片
+     */
+    private String pic;
 
     /**
      * 视频

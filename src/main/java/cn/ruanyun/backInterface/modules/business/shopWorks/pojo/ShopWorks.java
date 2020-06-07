@@ -25,7 +25,10 @@ public class ShopWorks extends RuanyunBaseEntity {
      */
     private String title;
 
-
+    /**
+     * 作品图片
+     */
+    private String pic;
     /**
      * 视频
      */

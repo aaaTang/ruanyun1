@@ -20,6 +20,11 @@ public class PcShopWorksListVO {
     private String title;
 
     /**
+     * 作品图片
+     */
+    private String pic;
+
+    /**
      * 视频
      */
     private String video;

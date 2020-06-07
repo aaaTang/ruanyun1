@@ -87,8 +87,8 @@ public class GoodsPackageController {
      * ids  店铺id
      */
     @PostMapping(value = "/AppGoodsRecommendPackageList")
-    public Result<Object> AppGoodsRecommendPackageList(PageVo pageVo, String ids){
-        return Optional.ofNullable(iGoodsPackageService.AppGoodsRecommendPackageList(ids))
+    public Result<Object> AppGoodsRecommendPackageList(PageVo pageVo, String ids,String goodName){
+        return Optional.ofNullable(iGoodsPackageService.AppGoodsRecommendPackageList(ids,goodName))
                 .map(appGoodsRecommendPackageList-> {
                     Map<String, Object> result = Maps.newHashMap();
                     result.put("size",  appGoodsRecommendPackageList.size());

@@ -40,7 +40,7 @@ public interface IGoodsPackageService extends IService<GoodsPackage> {
     /**
      * 查询商家推荐套餐
      */
-    List AppGoodsRecommendPackageList(String ids);
+    List AppGoodsRecommendPackageList(String ids,String goodName);
     /**
      * 修改店铺详情
      */
