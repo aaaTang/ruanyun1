@@ -10,6 +10,9 @@ import cn.ruanyun.backInterface.modules.business.good.DTO.GoodDTO;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import com.google.common.collect.Maps;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModelProperty;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,10 +29,36 @@ import java.util.Optional;
 @Slf4j
 @RestController
 @RequestMapping("/ruanyun/good")
+@Api(tags = "H5接口")
 public class GoodController {
 
     @Autowired
     private IGoodService iGoodService;
+
+
+
+    @ApiOperation(value = "获取普通商品列表")
+    @PostMapping("/getAppGoodList")
+    public Result<Object> getAppGoodList(GoodDTO goodDTO, PageVo pageVo) {
+        goodDTO.setGoodTypeEnum(GoodTypeEnum.GOOD);
+        return Optional.ofNullable(iGoodService.getAppGoodList(goodDTO))
+                .map(igoodList -> {
+                    Map<String,Object> result = Maps.newHashMap();
+                    result.put("size",igoodList.size());
+                    result.put("data", PageUtil.listToPage(pageVo,igoodList));
+                    return new ResultUtil<>().setData(result,"获取商品列表成功！");
+                })
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
+
+
+    @ApiOperation("获取商品详情")
+    @PostMapping("/getGoodDetailVO")
+    public Result<Object> getGoodDetailVO(String id) {
+        return Optional.ofNullable(iGoodService.getById(id))
+                .map(good -> new ResultUtil<>().setData(iGoodService.getAppGoodDetail(id),"获取商品详情成功！"))
+                .orElse(new ResultUtil<>().setErrorMsg(201,"不存在该商品！"));
+    }
 
 
    /**
@@ -65,26 +94,6 @@ public class GoodController {
 
 
     /**
-     * 获取普通商品列表
-     * @param goodDTO
-     * @param pageVo
-     * @return
-     */
-    @PostMapping("/getAppGoodList")
-    public Result<Object> getAppGoodList(GoodDTO goodDTO, PageVo pageVo) {
-        goodDTO.setGoodTypeEnum(GoodTypeEnum.GOOD);
-        return Optional.ofNullable(iGoodService.getAppGoodList(goodDTO))
-                .map(igoodList -> {
-                    Map<String,Object> result = Maps.newHashMap();
-                    result.put("size",igoodList.size());
-                    result.put("data", PageUtil.listToPage(pageVo,igoodList));
-                    return new ResultUtil<>().setData(result,"获取商品列表成功！");
-                })
-                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
-    }
-
-
-    /**
      * 获取首页一级分类下的所有商品
      * @param pageVo
      * @return
@@ -104,11 +113,11 @@ public class GoodController {
 
     /**
      * App模糊查询商品接口
-     * @param pageVo
-     * @return
+     * @param pageVo pageVo
+     * @return Object
      */
     @PostMapping("/AppGoodList")
-    public Result<Object> AppGoodList(String name, PageVo pageVo, SearchTypesEnum searchTypesEnum) {
+    public Result<Object> appGoodList(String name, PageVo pageVo, SearchTypesEnum searchTypesEnum) {
         return Optional.ofNullable(iGoodService.AppGoodList(name,searchTypesEnum))
                 .map(appGoodList -> {
                     Map<String,Object> result = Maps.newHashMap();
@@ -117,19 +126,6 @@ public class GoodController {
                     return new ResultUtil<>().setData(result,"App模糊查询商品接口列表成功！");
                 })
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
-    }
-
-
-    /**
-     * 获取商品详情
-     * @param id
-     * @return
-     */
-    @PostMapping("/getGoodDetailVO")
-    public Result<Object> getGoodDetailVO(String id) {
-        return Optional.ofNullable(iGoodService.getById(id))
-                .map(good -> new ResultUtil<>().setData(iGoodService.getAppGoodDetail(id),"获取商品详情成功！"))
-                .orElse(new ResultUtil<>().setErrorMsg(201,"不存在该商品！"));
     }
 
 

@@ -51,6 +51,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.weaver.ast.Var;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -327,6 +328,8 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     @Override
     public AppGoodDetailVO getAppGoodDetail(String id) {
 
+        String principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+
         return Optional.ofNullable(this.getById(id)).map(good -> {
 
             AppGoodDetailVO goodDetailVO = new AppGoodDetailVO();
@@ -358,8 +361,6 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
             //TODO: 店铺数据
             goodDetailVO.setShopList(shopList)
-                    //TODO: 是否收藏0否 1收藏
-                    .setFavorite(iMyFavoriteService.getMyFavorite(id,GoodTypeEnum.GOOD))
                     //TODO: 商品优惠券
                     .setDiscountCouponListVOS(iDiscountCouponService.getDiscountCouponListByGoodsPackageId(id))
                     //TODO: 商品服务类型
@@ -367,8 +368,19 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                     //购买状态 1购买 2租赁
                     .setBuyState(Optional.ofNullable(goodCategory).map(GoodCategory::getBuyState).orElse(null))
                     //租赁状态 1尾款线上支付  2尾款线下支付
-                    .setLeaseState(Optional.ofNullable(goodCategory).map(GoodCategory::getLeaseState).orElse(null))
-                    ;
+                    .setLeaseState(Optional.ofNullable(goodCategory).map(GoodCategory::getLeaseState).orElse(null));
+
+
+            if(!"anonymousUser".equals(principal)) {
+
+                //是否收藏
+                goodDetailVO.setFavorite(iMyFavoriteService.getMyFavorite(id,GoodTypeEnum.GOOD));
+
+                //用户浏览商品足迹
+                MyFootprint myFootprint = new MyFootprint();
+                myFootprint.setGoodsId(good.getId());
+                iMyFootprintService.insertOrderUpdateMyFootprint(myFootprint);
+            }
 
             //规格状态  0空   1有
            List<SizeAndRolor>  sizeAndRolors = Optional.ofNullable(ToolUtil.setListToNul(sizeAndRolorMapper.selectList(new QueryWrapper<SizeAndRolor>().lambda()
@@ -383,18 +395,12 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
             //是否是四大金刚  0否   1是
             Optional.ofNullable(Optional.ofNullable(goodCategoryMapper.selectById(goodCategory.getParentId())).orElse(null)).ifPresent(goodCategory1 -> {
-               if(goodCategory1.getTitle().equals("四大金刚")){
+               if("四大金刚".equals(goodCategory1.getTitle())){
                    goodDetailVO.setDevarajas(1);
                }else {
                    goodDetailVO.setDevarajas(0);
                }
             });
-
-
-            //用户浏览商品足迹
-            MyFootprint myFootprint = new MyFootprint();
-            myFootprint.setGoodsId(good.getId());
-            iMyFootprintService.insertOrderUpdateMyFootprint(myFootprint);
 
             return goodDetailVO;
         }).orElse(null);

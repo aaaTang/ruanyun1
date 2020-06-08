@@ -34,6 +34,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -99,7 +100,10 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
      */
     @Override
     public Result<Object> GetGoodsPackage(String ids) {
+
         Good goodsPackage = goodMapper.selectById(ids);
+
+        String principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
 
         GoodsPackageParticularsVO goodsPackageParticularsVO = new GoodsPackageParticularsVO();
            if(ToolUtil.isNotEmpty(goodsPackage)){
@@ -108,15 +112,12 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
                GoodCategory goodCategory = goodCategoryMapper.selectById(goodsPackage.getGoodCategoryId());
                //套餐图片
                goodsPackageParticularsVO.setPics(goodsPackage.getGoodPics())
-               //是否收藏套餐
-               .setMyFavorite(iMyFavoriteService.getMyFavorite(goodsPackage.getId(),GoodTypeEnum.GOODSPACKAGE))
                //商品介绍
                .setProductsIntroduction(iGoodsIntroduceService.goodsIntroduceList(null,goodsPackage.getId(),1))
                //购买须知
                .setPurchaseNotes(iGoodsIntroduceService.goodsIntroduceList(null,goodsPackage.getId(),2))
                 //商铺信息
                .setStoreAuditVO(storeAuditService.getStoreAudisByid(goodsPackage.getCreateBy()))
-               .setWhetherBookingOrder(iBookingOrderService.getWhetherBookingOrder(goodsPackage.getCreateBy(), securityUtil.getCurrUser().getId()))
                //购买状态 1购买 2租赁
                .setBuyState(Optional.ofNullable(goodCategory).map(GoodCategory::getBuyState).orElse(null))
                //租赁状态 1尾款线上支付  2尾款线下支付
@@ -131,6 +132,14 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
                    }
                });
            }
+
+        if(!"anonymousUser".equals(principal)) {
+
+            //是否收藏套餐
+            goodsPackageParticularsVO.setMyFavorite(iMyFavoriteService.getMyFavorite(goodsPackage.getId(),GoodTypeEnum.GOODSPACKAGE));
+
+            goodsPackageParticularsVO.setWhetherBookingOrder(iBookingOrderService.getWhetherBookingOrder(goodsPackage.getCreateBy(), securityUtil.getCurrUser().getId()));
+        }
 
         if(ToolUtil.isNotEmpty(goodsPackageParticularsVO.getId())){
             return new ResultUtil<>().setData(goodsPackageParticularsVO);
@@ -174,18 +183,23 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     @Override
     public ShopParticularsVO getShopParticulars(String ids, String longitude, String latitude){
 
+
+        String principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+
         //获取店铺详情
         User user = iUserService.getById(ids);
+
         ShopParticularsVO shopParticularsVO = new ShopParticularsVO();
+
         if (ToolUtil.isNotEmpty(user)) {
 
             ToolUtil.copyProperties(user, shopParticularsVO);
 
             //获取店铺通用优惠券
-            List<DiscountCouponListVO>  discountCouponListVOS = iDiscountCouponService.getDiscountCouponListByCreateBy(ids);
+            List<DiscountCouponListVO> couponListByCreateBy = iDiscountCouponService.getDiscountCouponListByCreateBy(ids);
 
             //优惠券
-            shopParticularsVO.setDiscountList(discountCouponListVOS);
+            shopParticularsVO.setDiscountList(couponListByCreateBy);
 
             //优质服务
             shopParticularsVO.setFirstRateService(
@@ -194,14 +208,24 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
             //门店活动
             shopParticularsVO.setActivity(iStoreActivityService.getStoreActivity(ids,null));
 
-            //TODO::2020/4/13 店铺评分 未处理
+
+            //店铺评分
             shopParticularsVO.setScore(gradeService.getShopScore(ids));
-            //TODO::2020/4/13 是否关注店铺
-            shopParticularsVO.setFavroite(followAttentionService.getMyFollowAttentionShop(ids, FollowTypeEnum.Follow_SHOP));
-            //TODO::2020/4/13 是否预约店铺
-            shopParticularsVO.setWhetherBookingOrder(iBookingOrderService.getWhetherBookingOrder(ids, securityUtil.getCurrUser().getId()));
-            // TODO: 2020/4/20 距离
+
+
+            if(!"anonymousUser".equals(principal)){
+
+                //是否预约店铺
+                shopParticularsVO.setWhetherBookingOrder(iBookingOrderService.getWhetherBookingOrder(ids, securityUtil.getCurrUser().getId()));
+
+                //是否关注店铺
+                shopParticularsVO.setFavroite(followAttentionService.getMyFollowAttentionShop(ids, FollowTypeEnum.Follow_SHOP));
+
+            }
+
+            //距离
             shopParticularsVO.setDistance(LocationUtils.getDistance(longitude, latitude, user.getLongitude(), user.getLatitude()) + "");
+
             return shopParticularsVO;
         } else {
             return null;
@@ -308,8 +332,6 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
                     String[] pic = user.getPic().split(",");
                     shopParticularsParameterVO.setPic(pic[0]);
                 }
-
-
             return shopParticularsParameterVO;
         }else {
             return null;

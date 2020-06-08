@@ -8,6 +8,10 @@ import cn.ruanyun.backInterface.modules.business.goodsPackage.DTO.ShopParticular
 import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
 import com.google.common.collect.Maps;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,18 +29,21 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/ruanyun/goodsPackage")
 @Transactional
+@Api(tags = "H5接口")
 public class GoodsPackageController {
 
     @Autowired
     private IGoodsPackageService iGoodsPackageService;
 
 
-    /**
-     * app查询套餐商品详情
-     * @return
-     */
+
+    @ApiOperation("app查询套餐商品详情")
     @PostMapping(value = "/GetGoodsPackage")
-    public Result<Object> GetGoodsPackage(String ids){
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "ids", value = "套餐id", dataType = "string", paramType = "query")
+
+    })
+    public Result<Object> getGoodsPackage(String ids){
 
         return Optional.ofNullable(iGoodsPackageService.GetGoodsPackage(ids))
                 .map(iAppGetGoodsPackage-> {
@@ -47,6 +54,28 @@ public class GoodsPackageController {
                 }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
     }
 
+
+    @ApiOperation("获取App店铺详情")
+    @PostMapping(value = "/getShopParticulars")
+    @ApiImplicitParams({
+
+            @ApiImplicitParam(name = "storeId", value = "商家id", dataType = "string", paramType = "query"),
+            @ApiImplicitParam(name = "longitude", value = "精度", dataType = "string", paramType = "query"),
+            @ApiImplicitParam(name = "latitude", value = "维度", dataType = "string", paramType = "query")
+    })
+    public Result<Object> getShopParticulars(String storeId, String longitude, String latitude){
+
+        return Optional.ofNullable(iGoodsPackageService.getShopParticulars(storeId,longitude,latitude))
+                .map(iShopParticulars-> {
+
+                    Map<String, Object> result = Maps.newHashMap();
+                    result.put("data",  iShopParticulars);
+
+                    return new ResultUtil<>().setData(result, "获取App店铺详情数据成功！");
+
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
+
+    }
 
 
 
@@ -66,11 +95,9 @@ public class GoodsPackageController {
     }
 
 
-    /**
-     * 查询商家精选套餐
-     */
     @PostMapping(value = "/AppGoodsPackageList")
-    public Result<Object> AppGoodsPackageList(PageVo pageVo, String ids){
+    @ApiOperation(value = "查询商家精选套餐")
+    public Result<Object> appGoodsPackageList(PageVo pageVo, String ids){
         return Optional.ofNullable(iGoodsPackageService.AppGoodsPackageList(ids,null))
                 .map(iAppGoodsPackageList-> {
                     Map<String, Object> result = Maps.newHashMap();
@@ -102,26 +129,8 @@ public class GoodsPackageController {
 
     /*****************************************************分割线****商家店铺******************************************************/
 
-    /**
-     * 获取App店铺详情
-     * @param ids
-     * @param longitude 经度
-     * @param latitude  纬度
-     * @return
-     */
-    @PostMapping(value = "/getShopParticulars")
-    public Result<Object> getShopParticulars(String ids,String longitude,String latitude){
 
-        return Optional.ofNullable(iGoodsPackageService.getShopParticulars(ids,longitude,latitude))
-                .map(iShopParticulars-> {
-                    Map<String, Object> result = Maps.newHashMap();
-                    result.put("data",  iShopParticulars);
 
-                    return new ResultUtil<>().setData(result, "获取App店铺详情数据成功！");
-
-                }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
-
-    }
 
     /**
      * 获取App店铺详情参数

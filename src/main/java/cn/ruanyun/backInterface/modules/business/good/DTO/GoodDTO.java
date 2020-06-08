@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.good.DTO;
 
 import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -28,9 +29,8 @@ public class GoodDTO {
 
     private GoodTypeEnum goodTypeEnum;
 
-    /**
-     * 商家id
-     */
+
+    @ApiModelProperty("商家id")
     private String storeId;
 
     /**

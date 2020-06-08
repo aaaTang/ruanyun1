@@ -32,6 +32,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.asm.Advice;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -115,6 +116,8 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
     @Override
     public List<DiscountCouponListVO> getDiscountCouponListByGoodsPackageId(String goodsPackageId) {
 
+        String principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+
         DiscountCoupon discountCoupon = new DiscountCoupon();
         discountCoupon.setGoodsPackageId(goodsPackageId);
         discountCoupon.setDisCouponType(DisCouponTypeEnum.ONE_PRODUCT);
@@ -126,8 +129,13 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
         discountCouponList.forEach(discountCoupon1 -> {
             DiscountCouponListVO discountCouponListVO = new DiscountCouponListVO();
             ToolUtil.copyProperties(discountCoupon1, discountCouponListVO);
-            //是否被领取
-            discountCouponListVO.setIsReceive(this.getDetailById(discountCoupon1));
+
+            if(!"anonymousUser".equals(principal)) {
+
+                //是否被领取
+                discountCouponListVO.setIsReceive(this.getDetailById(discountCoupon1));
+            }
+
             discountCouponListVO.setValidityPeriod(discountCouponListVO.getValidityPeriod().substring(0, discountCouponListVO.getValidityPeriod().indexOf(" ")));
             discountVOS.add(discountCouponListVO);
         });
@@ -169,11 +177,6 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
     }
 
 
-    /**
-     * 按商家获取优惠券
-     *
-     * @return
-     */
     @Override
     public List<DiscountCouponListVO> getDiscountCouponListByCreateBy(String createBy) {
 
@@ -184,7 +187,7 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
         //获取该商家下所有的优惠券
         List<DiscountCoupon> discountCouponList = this.getDiscountCouponList(discountCoupon);
 
-        List<DiscountCouponListVO> discountVOS = new ArrayList<>();
+        List<DiscountCouponListVO> couponListVos = new ArrayList<>();
 
         discountCouponList.forEach(discountCoupon1 -> {
             DiscountCouponListVO discountCouponListVO = new DiscountCouponListVO();
@@ -195,10 +198,15 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
             discountCouponListVO.setValidityPeriod(simpleDateFormat.format(discountCoupon1.getValidityPeriod()));
 
             //登录的用户是否领取
-            discountCouponListVO.setIsReceive(this.getDetailById(discountCoupon1));
-            discountVOS.add(discountCouponListVO);
+            String principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+            if(!"anonymousUser".equals(principal)){
+
+                discountCouponListVO.setIsReceive(this.getDetailById(discountCoupon1));
+            }
+
+            couponListVos.add(discountCouponListVO);
         });
-        return discountVOS;
+        return couponListVos;
     }
 
 

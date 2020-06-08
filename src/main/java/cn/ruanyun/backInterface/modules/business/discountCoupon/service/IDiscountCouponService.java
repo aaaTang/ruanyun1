@@ -57,8 +57,8 @@ public interface IDiscountCouponService extends IService<DiscountCoupon> {
 
     /**
      * 按商家获取优惠券
-     * @param createBy
-     * @return
+     * @param createBy createBy
+     * @return DiscountCouponListVO
      */
     List<DiscountCouponListVO>  getDiscountCouponListByCreateBy(String createBy);
 

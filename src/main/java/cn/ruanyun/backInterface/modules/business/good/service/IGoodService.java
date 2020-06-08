@@ -17,17 +17,18 @@ import java.util.List;
  */
 public interface IGoodService extends IService<Good> {
 
-      /**
-        * 插入或者更新good
-        * @param good
-       */
-     void insertOrderUpdateGood(Good good);
+
+    /**
+     * 插入或者更新good
+     * @param good
+     */
+    void insertOrderUpdateGood(Good good);
 
 
-      /**
-       * 移除good
-       */
-     void removeGood(String  id);
+    /**
+     * 移除good
+     */
+    void removeGood(String  id);
 
 
     /**
@@ -43,7 +44,7 @@ public interface IGoodService extends IService<Good> {
      * @param goodDTO
      * @return
      */
-     List<AppGoodListVO> getAppGoodList(GoodDTO goodDTO);
+    List<AppGoodListVO> getAppGoodList(GoodDTO goodDTO);
 
 
     /**

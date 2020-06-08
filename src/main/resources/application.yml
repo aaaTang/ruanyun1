@@ -259,6 +259,11 @@ ignored:
     - /ruanyun/storeActivity/getActivity  #获取活动详情
     - /ruanyun/good/activityGood   #分享商品页
     - /ruanyun/good/activityGoodPackage  #分享套餐页
+    - /ruanyun/goodsPackage/getShopParticulars
+    - /ruanyun/goodsPackage/GetGoodsPackage
+    - /ruanyun/goodsPackage/AppGoodsPackageList
+    - /ruanyun/good/getGoodDetailVO
+    - /ruanyun/good/getAppGoodList
 
 
 # Actuator

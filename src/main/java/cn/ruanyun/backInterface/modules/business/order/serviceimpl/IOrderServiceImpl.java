@@ -444,10 +444,10 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                    )
            )).map(orders -> orders.parallelStream().filter(order1 -> cn.hutool.core.util.ObjectUtil.equal(
 
-                   orderDetailMapper.selectOne(Wrappers.<OrderDetail>lambdaQuery()
-                           .eq(OrderDetail::getOrderId,order1.getId())
-                           .eq(OrderDetail::getGoodId,auctionCalendartOrderDTO.getGoodId())
-                           .eq(OrderDetail::getShopCartType,ShopCartTypeEnum.GOOD)).getGoodId()
+                  Optional.ofNullable( orderDetailMapper.selectOne(Wrappers.<OrderDetail>lambdaQuery()
+                          .eq(OrderDetail::getOrderId,order1.getId())
+                          .eq(OrderDetail::getGoodId,auctionCalendartOrderDTO.getGoodId())
+                          .eq(OrderDetail::getShopCartType,ShopCartTypeEnum.GOOD))).map(OrderDetail::getGoodId).orElse("")
                    ,auctionCalendartOrderDTO.getGoodId()
            )).collect(Collectors.toList())).orElse(null);
 
