@@ -64,6 +64,10 @@ public class IItemAttrKeyServiceImpl extends ServiceImpl<ItemAttrKeyMapper, Item
           CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
       }
 
+    /**
+     * 获取规格列表
+     * @return
+     */
     @Override
     public Result<Object> getItemAttrKeyList(String classId) {
 
@@ -75,7 +79,7 @@ public class IItemAttrKeyServiceImpl extends ServiceImpl<ItemAttrKeyMapper, Item
 
         for (ItemAttrKey attrKey : itemAttrKey) {
             WebItemAttrKeyVO keyVO = new WebItemAttrKeyVO();
-            keyVO.setId(attrKey.getId()).setTitle(attrKey.getAttrName());
+            keyVO.setId(attrKey.getId()).setClassId(attrKey.getClassId()).setTitle(attrKey.getAttrName());
 
             //查询规格的属性列表
             List<ItemAttrVal> itemAttrVal =

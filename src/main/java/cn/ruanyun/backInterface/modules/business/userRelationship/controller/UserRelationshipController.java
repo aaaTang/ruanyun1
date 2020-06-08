@@ -84,7 +84,7 @@ public class UserRelationshipController {
                     result.put("size",userVOList.size());
                     result.put("data", PageUtil.listToPage(pageVo,userVOList));
                     return new ResultUtil<>().setData(result,"获取我的邀请人列表数据成功！");
-                }).orElse(new ResultUtil<>().setErrorMsg("暂无数据"));
+                }).orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据"));
     }
 
 
@@ -102,7 +102,7 @@ public class UserRelationshipController {
                     result.put("size",userVOList.size());
                     result.put("data", PageUtil.listToPage(pageVo,userVOList));
                     return new ResultUtil<>().setData(result,"获取邀请人的订单数据列表成功！");
-                }).orElse(new ResultUtil<>().setErrorMsg("暂无数据"));
+                }).orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据"));
     }
 
 

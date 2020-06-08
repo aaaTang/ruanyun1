@@ -22,6 +22,10 @@ public class WebItemAttrKeyVO {
      */
     private Boolean isParent = true;
     /**
+     * 分类id
+     */
+    private String classId;
+    /**
      * 规格属性
      */
     private List<WebItemAttrValVo> children;

@@ -1,6 +1,8 @@
 package cn.ruanyun.backInterface.modules.business.orderDetail.vo;
 
 import cn.ruanyun.backInterface.common.enums.BuyTypeEnum;
+import cn.ruanyun.backInterface.common.enums.DayTimeTypeEnum;
+import cn.ruanyun.backInterface.common.enums.OrderTypeEnum;
 import cn.ruanyun.backInterface.common.enums.ShopCartTypeEnum;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.vo.ItemAttrValVo;
@@ -56,5 +58,19 @@ public class OrderDetailVo {
 
     @ApiModelProperty(value = "满减金额")
     private BigDecimal subtractMoney = new BigDecimal(0);
+
+    /**************************档期*****************************/
+
+    @ApiModelProperty(value = "订单类型")
+    private OrderTypeEnum typeEnum;
+
+    @ApiModelProperty(value = "场地id")
+    private String siteId;
+
+    @ApiModelProperty("上午&下午")
+    private DayTimeTypeEnum dayTimeType;
+
+    @ApiModelProperty("预约档期")
+    private String scheduleAppointment;
 
 }

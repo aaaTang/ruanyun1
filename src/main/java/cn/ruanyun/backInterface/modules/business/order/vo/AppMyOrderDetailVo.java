@@ -60,6 +60,9 @@ public class AppMyOrderDetailVo {
     @ApiModelProperty(value = "订单状态")
     private OrderStatusEnum orderStatus;
 
+    @ApiModelProperty(value = "订单状态code")
+    private Integer orderStatusCode;
+
     @ApiModelProperty(value = "总价格")
     private BigDecimal totalPrice;
 
@@ -75,9 +78,6 @@ public class AppMyOrderDetailVo {
     @ApiModelProperty(value = "尾款支付类型")
     private PayTypeEnum rentPayType;
 
-    @ApiModelProperty(value = "订单状态code")
-    private Integer orderStatusCode;
-
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "下单时间")
@@ -85,5 +85,6 @@ public class AppMyOrderDetailVo {
 
     @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")
     private Integer leaseState;
+
 
 }
