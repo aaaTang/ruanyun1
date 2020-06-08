@@ -813,13 +813,27 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         return Optional.ofNullable(this.getById(orderId)).map(order -> {
 
             //1. 更改订单状态
-            if (order.getBuyType().equals(BuyTypeEnum.FULL_PURCHASE)) {
+           if (order.getTypeEnum().equals(OrderTypeEnum.OFFLINE_ORDER)) {
 
-                order.setOrderStatus(OrderStatusEnum.PRE_COMMENT);
-            }else {
+               if (order.getBuyType().equals(BuyTypeEnum.FULL_PURCHASE)) {
 
-                order.setOrderStatus(OrderStatusEnum.SETTLE_ACCOUNTS);
-            }
+                   order.setOrderStatus(OrderStatusEnum.IS_COMPLETE);
+               }else {
+
+                   order.setOrderStatus(OrderStatusEnum.SETTLE_ACCOUNTS);
+               }
+
+           }else {
+
+               if (order.getBuyType().equals(BuyTypeEnum.FULL_PURCHASE)) {
+
+                   order.setOrderStatus(OrderStatusEnum.PRE_COMMENT);
+               }else {
+
+                   order.setOrderStatus(OrderStatusEnum.SETTLE_ACCOUNTS);
+               }
+
+           }
 
             this.updateById(order);
 
@@ -1077,7 +1091,14 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         return Optional.ofNullable(this.getById(orderOperateDto.getOrderId()))
                 .map(order -> {
 
-                    order.setOrderStatus(OrderStatusEnum.PRE_COMMENT);
+                    if (order.getTypeEnum().equals(OrderTypeEnum.OFFLINE_ORDER)) {
+
+                        order.setOrderStatus(OrderStatusEnum.PRE_COMMENT);
+                    }else {
+
+                        order.setOrderStatus(OrderStatusEnum.PRE_COMMENT);
+                    }
+
 
                     this.updateById(order);
 
