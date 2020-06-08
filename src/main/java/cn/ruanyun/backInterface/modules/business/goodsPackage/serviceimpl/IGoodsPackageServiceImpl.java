@@ -123,7 +123,7 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
                .setLeaseState(Optional.ofNullable(goodCategory).map(GoodCategory::getLeaseState).orElse(null));
 
                //是否是四大金刚  0否   1是
-               Optional.ofNullable(goodCategory).ifPresent(goodCategory1 -> {
+               Optional.ofNullable(Optional.ofNullable(goodCategoryMapper.selectById(goodCategory.getParentId())).orElse(null)).ifPresent(goodCategory1 -> {
                    if(goodCategory1.getTitle().equals("四大金刚")){
                        goodsPackageParticularsVO.setDevarajas(1);
                    }else {
