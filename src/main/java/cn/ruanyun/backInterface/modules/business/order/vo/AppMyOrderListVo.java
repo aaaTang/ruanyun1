@@ -1,9 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.order.vo;
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
-import cn.ruanyun.backInterface.common.enums.DayTimeTypeEnum;
-import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
-import cn.ruanyun.backInterface.common.enums.OrderTypeEnum;
+import cn.ruanyun.backInterface.common.enums.*;
 import cn.ruanyun.backInterface.common.utils.CommonUtil;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
 import cn.ruanyun.backInterface.modules.business.orderDetail.vo.OrderDetailVo;
@@ -40,6 +38,22 @@ public class AppMyOrderListVo {
 
     @ApiModelProperty(value = "商品或者套餐信息")
     private OrderDetailVo orderDetailVo;
+
+    @ApiModelProperty(value = "定金")
+    private BigDecimal goodDeposit;
+
+    @ApiModelProperty(value = "支付尾款金额")
+    private BigDecimal payGoodBalancePayment = new BigDecimal(0);
+
+    @ApiModelProperty(value = "商品描述")
+    private String goodDesc;
+
+    @ApiModelProperty(value = "支付尾款类型")
+    private RentTypeEnum rentType = RentTypeEnum.NO_PAY;
+
+    @ApiModelProperty(value = "尾款支付类型")
+    private PayTypeEnum rentPayType;
+
 
     /**************************档期*****************************/
 

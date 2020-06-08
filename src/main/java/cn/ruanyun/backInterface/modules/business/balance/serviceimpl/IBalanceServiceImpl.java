@@ -1,27 +1,26 @@
 package cn.ruanyun.backInterface.modules.business.balance.serviceimpl;
 
-import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.hutool.core.util.ObjectUtil;
 import cn.ruanyun.backInterface.common.enums.AddOrSubtractTypeEnum;
-import cn.ruanyun.backInterface.common.utils.PageUtil;
+import cn.ruanyun.backInterface.common.enums.BalanceTypeEnum;
+import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
+import cn.ruanyun.backInterface.common.enums.BuyTypeEnum;
 import cn.ruanyun.backInterface.common.vo.PageVo;
-import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
-import cn.ruanyun.backInterface.modules.base.pojo.User;
-import cn.ruanyun.backInterface.modules.base.service.RoleService;
-import cn.ruanyun.backInterface.modules.base.service.UserService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IRoleService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.business.balance.VO.AppBalanceVO;
-import cn.ruanyun.backInterface.modules.business.balance.VO.BalanceVO;
 import cn.ruanyun.backInterface.modules.business.balance.mapper.BalanceMapper;
 import cn.ruanyun.backInterface.modules.business.balance.pojo.Balance;
 import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
 import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import cn.ruanyun.backInterface.modules.business.orderAfterSale.service.IOrderAfterSaleService;
+import cn.ruanyun.backInterface.modules.business.storeIncome.service.IStoreIncomeService;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.bouncycastle.jcajce.provider.symmetric.AES;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,8 +37,6 @@ import reactor.core.scheduler.Schedulers;
 import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
 import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
-
-import javax.annotation.Resource;
 
 
 /**
@@ -53,18 +51,18 @@ public class IBalanceServiceImpl extends ServiceImpl<BalanceMapper, Balance> imp
 
     @Autowired
     private SecurityUtil securityUtil;
+
     @Autowired
     private IOrderService orderService;
 
     @Autowired
-    private IUserRoleService userRoleService;
-
-
-    @Autowired
-    private IRoleService roleService;
+    private IStoreIncomeService storeIncomeService;
 
     @Autowired
     private IUserService userService;
+
+    @Autowired
+    private IOrderAfterSaleService orderAfterSaleService;
 
     @Override
     public void insertOrderUpdateBalance(Balance balance) {
@@ -123,6 +121,7 @@ public class IBalanceServiceImpl extends ServiceImpl<BalanceMapper, Balance> imp
 
         return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<Balance>lambdaQuery()
         .eq(Balance::getCreateBy, userId)
+        .eq(Balance::getBooleanReturnMoney, BooleanTypeEnum.NO)
         .eq(Balance::getAddOrSubtractTypeEnum, AddOrSubtractTypeEnum.ADD)
         .orderByDesc(Balance::getCreateTime))))
         .map(balances -> balances.parallelStream().filter(balance -> orderService.judgeOrderFreeze(balance.getOrderId()))
@@ -131,61 +130,110 @@ public class IBalanceServiceImpl extends ServiceImpl<BalanceMapper, Balance> imp
     }
 
     @Override
-    public void resolveReturnTotalMoneyByBalance(String orderId) {
+    public void resolveReturnBalance(String orderId, BigDecimal actualRefundMoney) {
 
-        //1. 根据余额明细表全额退回
-        Optional.ofNullable(orderService.getById(orderId)).flatMap(order ->
-                Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<Balance>lambdaQuery()
-                        .eq(Balance::getOrderId, order.getId())
-                        .eq(Balance::getAddOrSubtractTypeEnum, AddOrSubtractTypeEnum.ADD)))))
-                .ifPresent(balances ->
+        // 1.从商家收入表里面 计算商家应该退款的金额,记录余额明细 2.从消费者的余额里面增加退款的金额 3.移除其余人分佣的明细
 
-                        //1. 退款操作
-                        balances.parallelStream().forEach(balance -> {
+        //1. 先确认用户余额逻辑
+        Optional.ofNullable(orderService.getById(orderId)).ifPresent(order -> {
 
-                            //1.1 更改账户余额信息
-                            Optional.ofNullable(userService.getById(balance.getId()))
-                                    .ifPresent(user -> {
 
-                                        user.setBalance(user.getBalance().add(balance.getPrice()));
-                                        userService.updateById(user);
-                                    });
+            //1.1 处理分佣
+            Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<Balance>lambdaQuery()
+                    .eq(Balance::getAddOrSubtractTypeEnum, AddOrSubtractTypeEnum.ADD)
+                    .eq(Balance::getBooleanReturnMoney, BooleanTypeEnum.NO)
+                    .eq(Balance::getOrderId, orderId))))
+                    .ifPresent(balances -> balances.parallelStream().forEach(balance -> {
 
-                            //2.2 更改明细信息
-                            balance.setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.SUB);
-                            balance.setTitle("订单" + orderService.getById(orderId).getOrderNum() + "退款" );
+                        balance.setBooleanReturnMoney(BooleanTypeEnum.YES);
+
+                        //处理退款(排除店铺收入(因为不属于分佣))
+                        if (! ObjectUtil.equal(order.getUserId(), balance.getCreateBy()) && ObjectUtil.equal(BalanceTypeEnum.IN_COME,
+                                balance.getBalanceType())) {
+
+                            Optional.ofNullable(userService.getById(balance.getCreateBy())).ifPresent(user -> {
+
+                                user.setBalance(user.getBalance().subtract(balance.getPrice()));
+                                userService.updateById(user);
+
+
+                                Balance balanceShareUser = new Balance();
+                                balanceShareUser.setTitle("订单" + order.getOrderNum() + "退款(佣金退回)")
+                                        .setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.SUB)
+                                        .setPrice(balance.getPrice())
+                                        .setCreateBy(user.getId());
+
+                                this.save(balanceShareUser);
+
+                            });
+
                             this.updateById(balance);
 
-                        }));
+                        }
+                    }));
 
-                        //2. 进款操作
-                         Optional.ofNullable(this.getOne(Wrappers.<Balance>lambdaQuery()
-                         .eq(Balance::getOrderId, orderId)
-                         .eq(Balance::getCreateBy, orderService.getById(orderId).getCreateBy())
-                         .eq(Balance::getAddOrSubtractTypeEnum, AddOrSubtractTypeEnum.SUB)))
-                         .ifPresent(balance -> {
 
-                             //1. 更改明细
-                             balance.setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.ADD)
-                                     .setTitle("商家退款");
+            //1.2 处理商家
+            Optional.ofNullable(userService.getById(order.getUserId())).ifPresent(store -> {
 
-                             //2. 增加余额
-                             Optional.ofNullable(userService.getById(balance.getCreateBy()))
-                                     .ifPresent(user -> {
+                Balance balanceStore = new Balance();
 
-                                         user.setBalance(user.getBalance().add(balance.getPrice()));
-                                         userService.updateById(user);
-                                     });
-                         });
+                balanceStore.setTitle("订单" + order.getOrderNum() + "退款")
+                        .setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.SUB);
+                if (ToolUtil.isEmpty(actualRefundMoney)) {
+
+                    //门店当前收入
+                    BigDecimal storeIncome = storeIncomeService.getStoreIncomeByOrderId(order
+                            .getUserId(), order.getId());
+
+                    store.setBalance(store.getBalance().subtract(storeIncome));
+
+                    balanceStore.setPrice(storeIncome);
+                }else {
+
+                    store.setBalance(store.getBalance().subtract(actualRefundMoney));
+                    balanceStore.setPrice(actualRefundMoney);
+                }
+
+                log.info("处理商家退款成功！");
+                userService.updateById(store);
+
+                log.info("记录商家退款明细成功！");
+                balanceStore.setCreateBy(order.getUserId());
+                this.save(balanceStore);
+            });
+
+
+
+            //1.3 处理消费者
+            Optional.ofNullable(userService.getById(order.getCreateBy())).ifPresent(user -> {
+
+                Balance balanceUser = new Balance();
+
+                balanceUser.setTitle("订单" + order.getOrderNum() + "退款")
+                        .setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.ADD);
+
+                if (ToolUtil.isEmpty(actualRefundMoney)) {
+
+                    //申请退款金额
+                    BigDecimal returnMoney = orderAfterSaleService.getOrderAfterSaleReturnMoney(orderId);
+                    user.setBalance(user.getBalance().add(returnMoney));
+
+                    balanceUser.setPrice(returnMoney);
+
+                }else {
+
+                    user.setBalance(user.getBalance().add(actualRefundMoney));
+                    balanceUser.setPrice(actualRefundMoney);
+                }
+
+                userService.updateById(user);
+                log.info("处理消费者退款成功！");
+
+                balanceUser.setCreateBy(order.getCreateBy());
+                this.save(balanceUser);
+                log.info("记录消费者明细成功！");
+            });
+        });
     }
-
-    @Override
-    public void resolveReturnPartMoneyByBalance(String orderId, BigDecimal actualRefundMoney) {
-
-
-
-
-    }
-
-
 }

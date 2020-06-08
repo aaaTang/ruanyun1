@@ -78,6 +78,12 @@ public class AppMyOrderDetailVo {
     @ApiModelProperty(value = "尾款支付类型")
     private PayTypeEnum rentPayType;
 
+    @ApiModelProperty(value = "商品描述")
+    private String goodDesc;
+
+    @ApiModelProperty(value = "支付尾款类型")
+    private RentTypeEnum rentType = RentTypeEnum.NO_PAY;
+
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "下单时间")
@@ -85,6 +91,4 @@ public class AppMyOrderDetailVo {
 
     @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")
     private Integer leaseState;
-
-
 }

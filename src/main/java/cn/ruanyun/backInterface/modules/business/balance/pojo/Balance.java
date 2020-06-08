@@ -2,6 +2,8 @@ package cn.ruanyun.backInterface.modules.business.balance.pojo;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.enums.AddOrSubtractTypeEnum;
+import cn.ruanyun.backInterface.common.enums.BalanceTypeEnum;
+import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -38,9 +40,18 @@ public class Balance extends RuanyunBaseEntity {
      */
     private AddOrSubtractTypeEnum addOrSubtractTypeEnum;
 
-
     /**
      * 金额
      */
     private BigDecimal price;
+
+    /**
+     * 是否退款
+     */
+    private BooleanTypeEnum booleanReturnMoney = BooleanTypeEnum.NO;
+
+    /**
+     * 余额明细类型
+     */
+    private BalanceTypeEnum balanceType = BalanceTypeEnum.SHARE_MONEY;
 }
