@@ -1130,9 +1130,19 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         result.setDataResult(orderPage.getRecords().parallelStream().flatMap(order -> {
 
             AppMyOrderListVo appMyOrderListVo = new AppMyOrderListVo();
-            appMyOrderListVo.setOrderDetailVo(orderDetailService.getOrderDetailByOrderId(order.getId()))
+
+            OrderDetailVo orderDetailVo = orderDetailService.getOrderDetailByOrderId(order.getId());
+            appMyOrderListVo.setOrderDetailVo(orderDetailVo)
                     .setOrderStatusCode(order.getOrderStatus().getCode());
             ToolUtil.copyProperties(order, appMyOrderListVo);
+
+            //租赁尾款类型
+            appMyOrderListVo.setLeaseState(
+                    Optional.ofNullable(goodCategoryMapper.selectById(
+                            Optional.ofNullable(goodMapper.selectById(orderDetailVo.getGoodId())).map(Good::getGoodCategoryId).orElse(null)
+                    )).map(GoodCategory::getLeaseState).orElse(0)
+                    
+            );
 
             return Stream.of(appMyOrderListVo);
         }).collect(Collectors.toList())).setTotalPage(orderPage.getPages())
@@ -1157,6 +1167,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             AppMyOrderDetailVo appMyOrderDetail = new AppMyOrderDetailVo();
             appMyOrderDetail.setOrderDetailVo(orderDetailService.getOrderDetailByOrderId(order.getId()));
             ToolUtil.copyProperties(order, appMyOrderDetail);
+            appMyOrderDetail.setOrderStatusCode(order.getOrderStatus().getCode());
             //尾款方式
             appMyOrderDetail.setOrderStatusCode(order.getOrderStatus().getCode())
                     .setLeaseState(getLeaseState(order));

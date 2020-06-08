@@ -27,6 +27,9 @@ public interface IItemAttrKeyService extends IService<ItemAttrKey> {
        */
      void removeItemAttrKey(String ids);
 
-
+    /**
+     * 获取规格列表
+     * @return
+     */
     Result<Object> getItemAttrKeyList(String classId);
 }

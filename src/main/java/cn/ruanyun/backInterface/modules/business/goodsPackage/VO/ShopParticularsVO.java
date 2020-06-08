@@ -74,7 +74,7 @@ public class ShopParticularsVO {
     private List<DiscountCouponListVO> discountList;
 
     /**
-     *  用户评论
+     * 用户评论
      */
     private List userComment;
 

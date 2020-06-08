@@ -1,5 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.order.vo;
 
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.DayTimeTypeEnum;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.enums.OrderTypeEnum;
@@ -53,4 +54,7 @@ public class AppMyOrderListVo {
 
     @ApiModelProperty("预约档期")
     private String scheduleAppointment;
+
+    @ApiModelProperty(value = "租赁尾款类型 1尾款线上支付  2尾款线下支付 ")
+    private Integer leaseState;
 }

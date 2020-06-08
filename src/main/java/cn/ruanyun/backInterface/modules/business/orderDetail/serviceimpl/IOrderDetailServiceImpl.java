@@ -6,6 +6,8 @@ import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.modules.business.discountMy.pojo.DiscountMy;
 import cn.ruanyun.backInterface.modules.business.discountMy.service.IDiscountMyService;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrValService;
+import cn.ruanyun.backInterface.modules.business.order.mapper.OrderMapper;
+import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
 import cn.ruanyun.backInterface.modules.business.orderDetail.vo.OrderDetailVo;
 import cn.ruanyun.backInterface.modules.business.orderDetail.mapper.OrderDetailMapper;
 import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import javax.annotation.Resource;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -35,6 +38,9 @@ public class IOrderDetailServiceImpl extends ServiceImpl<OrderDetailMapper, Orde
 
     @Autowired
     private IItemAttrValService itemAttrValService;
+
+    @Resource
+    private OrderMapper orderMapper;
 
 
     /**
@@ -66,6 +72,14 @@ public class IOrderDetailServiceImpl extends ServiceImpl<OrderDetailMapper, Orde
 
                     //规格
                     orderDetailVo.setAttrSymbolPath(itemAttrValService.getItemAttrValVo(orderDetail.getAttrSymbolPath()));
+
+                    //档期
+                    Optional.ofNullable(orderMapper.selectById(orderDetail.getOrderId())).ifPresent(order -> {
+                        orderDetailVo.setTypeEnum(order.getTypeEnum());
+                        orderDetailVo.setSiteId(order.getSiteId());
+                        orderDetailVo.setDayTimeType(order.getDayTimeType());
+                        orderDetailVo.setScheduleAppointment(order.getScheduleAppointment());
+                    });
 
                     return orderDetailVo;
 
