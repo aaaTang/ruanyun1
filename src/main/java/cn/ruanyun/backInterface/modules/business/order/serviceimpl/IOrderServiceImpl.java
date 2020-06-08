@@ -14,7 +14,6 @@ import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.VO.CompereAuctionCalendarVO;
 import cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.service.ICompereAuctionCalendarService;
 import cn.ruanyun.backInterface.modules.auctionCalendar.site.mapper.SiteMapper;
-import cn.ruanyun.backInterface.modules.auctionCalendar.site.pojo.Site;
 import cn.ruanyun.backInterface.modules.auctionCalendar.site.service.ISiteService;
 import cn.ruanyun.backInterface.modules.auctionCalendar.site.vo.SiteDetailTimeVO;
 import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
@@ -31,22 +30,21 @@ import cn.ruanyun.backInterface.modules.business.discountMy.service.IDiscountMyS
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
-import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
 import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
 import cn.ruanyun.backInterface.modules.business.harvestAddress.service.IHarvestAddressService;
-import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrValService;
 import cn.ruanyun.backInterface.modules.business.order.dto.*;
-import cn.ruanyun.backInterface.modules.business.order.vo.*;
 import cn.ruanyun.backInterface.modules.business.order.mapper.OrderMapper;
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
 import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
+import cn.ruanyun.backInterface.modules.business.order.vo.AppMyOrderDetailVo;
+import cn.ruanyun.backInterface.modules.business.order.vo.AppMyOrderListVo;
+import cn.ruanyun.backInterface.modules.business.order.vo.BackOrderListVO;
 import cn.ruanyun.backInterface.modules.business.orderDetail.mapper.OrderDetailMapper;
 import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
 import cn.ruanyun.backInterface.modules.business.orderDetail.service.IOrderDetailService;
-import cn.ruanyun.backInterface.modules.business.orderDetail.vo.OrderDetailVo;
 import cn.ruanyun.backInterface.modules.business.profitDetail.pojo.ProfitDetail;
 import cn.ruanyun.backInterface.modules.business.profitDetail.service.IProfitDetailService;
 import cn.ruanyun.backInterface.modules.business.profitPercent.service.IProfitPercentService;
@@ -54,14 +52,12 @@ import cn.ruanyun.backInterface.modules.business.shoppingCart.entity.ShoppingCar
 import cn.ruanyun.backInterface.modules.business.shoppingCart.service.IShoppingCartService;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
-import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
 import cn.ruanyun.backInterface.modules.business.staffManagement.pojo.StaffManagement;
 import cn.ruanyun.backInterface.modules.business.staffManagement.service.IStaffManagementService;
 import cn.ruanyun.backInterface.modules.business.storeIncome.pojo.StoreIncome;
 import cn.ruanyun.backInterface.modules.business.storeIncome.service.IStoreIncomeService;
 import cn.ruanyun.backInterface.modules.business.userRelationship.service.IUserRelationshipService;
 import com.alibaba.fastjson.JSONObject;
-import com.alipay.api.AlipayApiException;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -82,7 +78,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1202,12 +1201,34 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         //更新订单状态
         List<Order> orders = this.listByIds(ToolUtil.splitterStr(orderNo));
 
+        orders.parallelStream().forEach(order -> {
+
+            if (ToolUtil.isEmpty(order.getPayTypeEnum())) {
+
+                order.setPayTypeEnum(PayTypeEnum.WE_CHAT);
+            }else {
+
+                order.setRentPayType(PayTypeEnum.WE_CHAT);
+            }
+        });
+
         // 注意此处签名方式需与统一下单的签名类型一致
         if (WxPayKit.verifyNotify(params, WeChatConfig.KEY, SignType.HMACSHA256)) {
             if (WxPayKit.codeIsOk(returnCode)) {
 
-                // 处理回调逻辑
-                resolveOrderOneProfit(orders);
+                // 处理正常支付回调逻辑
+                if (ToolUtil.isEmpty(orders.parallelStream().filter(order -> ToolUtil.isNotEmpty(order.getRentPayType()))
+                        .collect(Collectors.toList()))) {
+
+                    resolveOrderOneProfit(orders);
+                }else {
+
+                    //处理支付尾款支付逻辑
+                    OrderOperateDto orderOperateDto = new OrderOperateDto();
+                    orderOperateDto.setOrderId(orders.parallelStream().map(Order::getId).collect(Collectors.joining()))
+                            .setPayType(PayTypeEnum.WE_CHAT);
+                    payTheBalanceCallBack(orderOperateDto);
+                }
 
                 // 发送通知等
                 Map<String, String> xml = new HashMap<>(2);

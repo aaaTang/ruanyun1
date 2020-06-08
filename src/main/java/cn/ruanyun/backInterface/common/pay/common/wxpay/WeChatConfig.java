@@ -35,7 +35,7 @@ public class WeChatConfig {
 	/**
 	 * 微信支付 - 回调地址 : 接收微信支付异步通知回调地址，通知url必须为直接可访问的url，不能携带参数。（需要配置）
 	 */
-	public static final String NOTIFY_URL = "http://121.196.28.116:8083/ruanyun/order/wxPayNotify";
+	public static final String NOTIFY_URL = "http://47.99.50.236:8085/ruanyun/order/wxPayNotify";
 
 	/**
 	 * 	支付方式   JSAPI，NATIVE，APP
@@ -48,7 +48,7 @@ public class WeChatConfig {
 	public static final String PLACEANORDER_URL = "https://api.mch.weixin.qq.com/pay/unifiedorder";
 
 
-	public WxPayApiConfig getWxPayApiConfig(){
+	public  static WxPayApiConfig getWxPayApiConfig(){
 		WxPayApiConfig apiConfig ;
 		try {
 			apiConfig = WxPayApiConfigKit.getApiConfig(WeChatConfig.APP_ID);

@@ -8,6 +8,7 @@ import cn.ruanyun.backInterface.common.pay.dto.TransferDto;
 import cn.ruanyun.backInterface.common.pay.model.PayModel;
 import cn.ruanyun.backInterface.common.pay.service.IPayService;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
 import com.alipay.api.AlipayApiException;
@@ -132,7 +133,11 @@ public class IPayServiceImpl implements IPayService {
 	public Result<Object> wxPayMethod(PayModel payModel) {
 
 
-		WxPayApiConfig wxPayApiConfig = WxPayApiConfigKit.getWxPayApiConfig();
+		WxPayApiConfig wxPayApiConfig = WeChatConfig.getWxPayApiConfig();
+
+		payModel.setTotalPrice(new BigDecimal("0.01"));
+
+		log.info("当前的支付钱数是:" + ToolUtil.getMoney(payModel.getTotalPrice().toString()));
 
 		Map<String, String> params = UnifiedOrderModel
 				.builder()
@@ -153,7 +158,7 @@ public class IPayServiceImpl implements IPayService {
 				.out_trade_no(payModel.getOrderNums())
 
 				//“价格”
-				.total_fee(String.valueOf(payModel.getTotalPrice().multiply(new BigDecimal(100)).intValue()))
+				.total_fee(ToolUtil.getMoney(payModel.getTotalPrice().toString()))
 				.notify_url(WeChatConfig.NOTIFY_URL)
 
 				//"APP = 交易方式"
@@ -164,6 +169,8 @@ public class IPayServiceImpl implements IPayService {
 				.createSign(WeChatConfig.KEY, SignType.HMACSHA256);
 
 		String xmlResult = WxPayApi.pushOrder(false, params);
+
+		log.info("当前xml回调是" + xmlResult);
 		Map<String, String> result = WxPayKit.xmlToMap(xmlResult);
 
 		String returnCode = result.get("return_code");
@@ -182,7 +189,7 @@ public class IPayServiceImpl implements IPayService {
 		Map<String, String> packageParams = WxPayKit.appPrepayIdCreateSign(wxPayApiConfig.getAppId(), wxPayApiConfig.getMchId(), prepayId,
 				wxPayApiConfig.getPartnerKey(), SignType.HMACSHA256);
 		Map<String, Object> map = new HashMap<>();
-		map.put("paySign", packageParams);
+		map.put("wxPaySign", packageParams);
 		return new ResultUtil<>().setData(map, "successful" + returnMsg);
 
 	}

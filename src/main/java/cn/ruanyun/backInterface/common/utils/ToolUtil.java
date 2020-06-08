@@ -486,5 +486,34 @@ public  class ToolUtil extends ValidateUtil {
     public static String currentTime() {
         return DateUtil.formatDateTime(new Date());
     }
+
+
+    /**
+     * 元转换成分
+     * @param amount amount
+     * @return String
+     */
+    public static String getMoney(String amount) {
+        if(amount==null){
+            return "";
+        }
+        // 金额转化为分为单位
+        // 处理包含, ￥ 或者$的金额
+        String currency =  amount.replaceAll("\\$|￥|\\,", "");
+        int index = currency.indexOf(".");
+        int length = currency.length();
+        long amLong = 0L;
+        if(index == -1){
+            amLong = Long.parseLong(currency + "00");
+        }else if(length - index >= 3){
+            amLong = Long.parseLong((currency.substring(0, index + 3)).replace(".", ""));
+        }else if(length - index == 2){
+            amLong = Long.parseLong((currency.substring(0, index + 2)).replace(".", "") + 0);
+        }else{
+            amLong = Long.parseLong((currency.substring(0, index + 1)).replace(".", "") + "00");
+        }
+        return Long.toString(amLong);
+    }
+
 }
 
