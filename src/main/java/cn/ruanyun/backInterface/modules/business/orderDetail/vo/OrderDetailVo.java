@@ -1,9 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.orderDetail.vo;
 
-import cn.ruanyun.backInterface.common.enums.BuyTypeEnum;
-import cn.ruanyun.backInterface.common.enums.DayTimeTypeEnum;
-import cn.ruanyun.backInterface.common.enums.OrderTypeEnum;
-import cn.ruanyun.backInterface.common.enums.ShopCartTypeEnum;
+import cn.ruanyun.backInterface.common.enums.*;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.vo.ItemAttrValVo;
 import io.swagger.annotations.ApiModelProperty;
@@ -25,6 +22,9 @@ public class OrderDetailVo {
 
     @ApiModelProperty(value = "订单详情id")
     private String id;
+
+    @ApiModelProperty(value = "商家id")
+    private String userId;
 
     @ApiModelProperty(value = "商品id")
     private String goodId;
@@ -72,5 +72,11 @@ public class OrderDetailVo {
 
     @ApiModelProperty("预约档期")
     private String scheduleAppointment;
+
+    @ApiModelProperty(value = "支付尾款类型")
+    private RentTypeEnum rentType;
+
+    @ApiModelProperty(value = "商品描述")
+    private String goodDesc;
 
 }

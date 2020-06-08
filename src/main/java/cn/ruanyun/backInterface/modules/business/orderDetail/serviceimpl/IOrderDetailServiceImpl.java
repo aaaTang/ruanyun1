@@ -75,6 +75,9 @@ public class IOrderDetailServiceImpl extends ServiceImpl<OrderDetailMapper, Orde
 
                     //档期
                     Optional.ofNullable(orderMapper.selectById(orderDetail.getOrderId())).ifPresent(order -> {
+                        orderDetailVo.setUserId(order.getUserId());
+                        orderDetailVo.setRentType(order.getRentType());
+                        orderDetailVo.setGoodDesc(order.getGoodDesc());
                         orderDetailVo.setTypeEnum(order.getTypeEnum());
                         orderDetailVo.setSiteId(order.getSiteId());
                         orderDetailVo.setDayTimeType(order.getDayTimeType());

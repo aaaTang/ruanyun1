@@ -32,6 +32,9 @@ public class AppMyOrderDetailVo {
     @ApiModelProperty(value = "订单id")
     private String id;
 
+    @ApiModelProperty(value = "商家id")
+    private String userId;
+
     /*-----------收货地址----------*/
 
     @ApiModelProperty(value = "收货人")

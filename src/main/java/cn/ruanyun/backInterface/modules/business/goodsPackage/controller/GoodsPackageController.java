@@ -59,13 +59,13 @@ public class GoodsPackageController {
     @PostMapping(value = "/getShopParticulars")
     @ApiImplicitParams({
 
-            @ApiImplicitParam(name = "storeId", value = "商家id", dataType = "string", paramType = "query"),
+            @ApiImplicitParam(name = "ids", value = "商家id", dataType = "string", paramType = "query"),
             @ApiImplicitParam(name = "longitude", value = "精度", dataType = "string", paramType = "query"),
             @ApiImplicitParam(name = "latitude", value = "维度", dataType = "string", paramType = "query")
     })
-    public Result<Object> getShopParticulars(String storeId, String longitude, String latitude){
+    public Result<Object> getShopParticulars(String ids, String longitude, String latitude){
 
-        return Optional.ofNullable(iGoodsPackageService.getShopParticulars(storeId,longitude,latitude))
+        return Optional.ofNullable(iGoodsPackageService.getShopParticulars(ids,longitude,latitude))
                 .map(iShopParticulars-> {
 
                     Map<String, Object> result = Maps.newHashMap();

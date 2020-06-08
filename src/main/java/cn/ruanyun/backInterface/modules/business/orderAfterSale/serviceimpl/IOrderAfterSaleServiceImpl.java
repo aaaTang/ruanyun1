@@ -80,6 +80,7 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
                         orderAfterSale.setOrderStatus(order.getOrderStatus())
                                 .setRefundMoney(getOrderReturnMoney(order))
                                 .setOrderId(order.getId())
+                                .setType(orderAfterCommitDto.getType())
                                 .setReturnReasonId(orderAfterCommitDto.getReturnReasonId())
                                 .setReturnReason(orderReturnReasonService.getReturnReason(orderAfterCommitDto.getReturnReasonId()))
                                 .setExpand(orderAfterCommitDto.getExpand());

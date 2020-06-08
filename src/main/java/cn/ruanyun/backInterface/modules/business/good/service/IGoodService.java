@@ -161,19 +161,5 @@ public interface IGoodService extends IService<Good> {
      */
     BigDecimal getLowPriceByStoreId(String storeId);
 
-    /**
-     * 分享商品页
-     * @param id
-     * @return
-     */
-    ActivityGoodVO activityGood(String id);
 
-    /**
-     * 分享套餐页
-     * @param id
-     * @return
-     */
-    ActivityPackageVO activityGoodPackage(String id);
-
-    ActivityShopVO activityShop(String id);
 }

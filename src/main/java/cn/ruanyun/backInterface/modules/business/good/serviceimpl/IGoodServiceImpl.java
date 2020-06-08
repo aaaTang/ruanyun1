@@ -754,58 +754,6 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
     }
 
-    /**
-     * 分享商品页
-     * @param id
-     * @return
-     */
-    @Override
-    public ActivityGoodVO activityGood(String id) {
-
-        return Optional.ofNullable(this.getById(id)).map(good -> {
-            ActivityGoodVO activityGoodVO = new ActivityGoodVO();
-
-            ToolUtil.copyProperties(good,activityGoodVO);
-            activityGoodVO.setGoodsService(iGoodServiceService.getGoodsServiceList(id));
-            return activityGoodVO;
-        }).orElse(null);
-    }
-
-    @Override
-    public ActivityPackageVO activityGoodPackage(String id) {
-
-        return Optional.ofNullable(this.getById(id)).map(good -> {
-            ActivityPackageVO activityGoodPackageVO = new ActivityPackageVO();
-
-            ToolUtil.copyProperties(good,activityGoodPackageVO);
-            //商品介绍
-            activityGoodPackageVO.setProductsIntroduction(iGoodsIntroduceService.goodsIntroduceList(null,good.getId(),1));
-            //购买须知
-            activityGoodPackageVO.setPurchaseNotes(iGoodsIntroduceService.goodsIntroduceList(null,good.getId(),2));
-
-            return activityGoodPackageVO;
-
-        }).orElse(null);
-    }
-
-    @Override
-    public ActivityShopVO activityShop(String id) {
-
-        return Optional.ofNullable(iUserService.getById(id)).map(user -> {
-            ActivityShopVO activityShopVO = new ActivityShopVO();
-
-            ToolUtil.copyProperties(user, activityShopVO);
-
-            //优质服务
-            activityShopVO.setFirstRateService(
-                    storeFirstRateServiceService.getStoreFirstRateServiceName(user.getId(), CheckEnum.CHECK_SUCCESS));
-            //门店活动
-            activityShopVO.setActivity(iStoreActivityService.getStoreActivity(id,null));
-
-            return activityShopVO;
-
-        }).orElse(null);
-    }
 
     /**
      * PC获取商家的套餐列表
