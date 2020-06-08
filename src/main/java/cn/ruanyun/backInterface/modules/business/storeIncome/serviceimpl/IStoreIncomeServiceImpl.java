@@ -130,4 +130,15 @@ public class IStoreIncomeServiceImpl extends ServiceImpl<StoreIncomeMapper, Stor
 
                    }).orElse(new StoreIncomeCountVo());
     }
+
+    @Override
+    public BigDecimal getStoreIncomeByOrderId(String storeId, String orderId) {
+
+           return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<StoreIncome>lambdaQuery()
+           .eq(StoreIncome::getOrderId, orderId)
+           .eq(StoreIncome::getCreateBy, storeId))))
+           .map(storeIncomes -> storeIncomes.parallelStream().map(StoreIncome::getIncomeMoney)
+           .reduce(BigDecimal.ZERO, BigDecimal::add))
+           .orElse(new BigDecimal(0));
+    }
 }

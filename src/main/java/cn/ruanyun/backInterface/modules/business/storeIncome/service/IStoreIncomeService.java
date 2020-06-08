@@ -5,6 +5,7 @@ import cn.ruanyun.backInterface.modules.business.storeIncome.vo.StoreIncomeVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.storeIncome.pojo.StoreIncome;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -38,4 +39,12 @@ public interface IStoreIncomeService extends IService<StoreIncome> {
      * @return StoreIncomeCountVo
      */
     StoreIncomeCountVo getStoreIncomeCount(String storeId);
+
+    /**
+     * 根据订单和商家id得到收入
+     * @param storeId 店铺id
+     * @param orderId 订单id
+     * @return BigDecimal
+     */
+    BigDecimal getStoreIncomeByOrderId(String storeId ,String orderId);
 }

@@ -1,5 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.orderAfterSale.serviceimpl;
 
+import cn.hutool.core.util.ObjectUtil;
+import cn.ruanyun.backInterface.common.enums.BuyTypeEnum;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
@@ -21,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
@@ -75,7 +78,7 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
                             return new ResultUtil<>().setErrorMsg(208, "已经提交过售后，不可重复提交！");
                         }
                         orderAfterSale.setOrderStatus(order.getOrderStatus())
-                                .setRefundMoney(order.getTotalPrice())
+                                .setRefundMoney(getOrderReturnMoney(order))
                                 .setOrderId(order.getId())
                                 .setReturnReasonId(orderAfterCommitDto.getReturnReasonId())
                                 .setReturnReason(orderReturnReasonService.getReturnReason(orderAfterCommitDto.getReturnReasonId()))
@@ -95,6 +98,31 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
 
                     return new ResultUtil<>().setErrorMsg(203, "提交失败");
                 }).orElse(new ResultUtil<>().setErrorMsg(204, "订单不存在"));
+    }
+
+
+    /**
+     * 判断当前应该退款金额
+     * @param order order
+     * @return BigDecimal
+     */
+    public BigDecimal getOrderReturnMoney(Order order) {
+
+
+        if (ObjectUtil.equal(order.getBuyType(), BuyTypeEnum.FULL_PURCHASE)) {
+
+            return order.getTotalPrice();
+        }else{
+
+            if (ToolUtil.isEmpty(order.getRentPayType())) {
+
+                return order.getGoodDeposit();
+            }else {
+
+                return order.getTotalPrice();
+            }
+
+        }
     }
 
     @Override
@@ -125,19 +153,8 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
                                     orderService.updateById(order);
                                 }).join();
 
-
                                 //3. 消费以及分佣返回 记录明细
-
-                                //3.1 全额退款
-                                if (ToolUtil.isEmpty(orderAfterSaleDto.getActualRefundMoney())) {
-
-                                    balanceService.resolveReturnTotalMoneyByBalance(order.getId());
-
-                                }else {
-
-                                    //3.2 部分退款
-                                    balanceService.resolveReturnPartMoneyByBalance(order.getId(), orderAfterSaleDto.getActualRefundMoney());
-                                }
+                                balanceService.resolveReturnBalance(order.getId(), orderAfterSaleDto.getActualRefundMoney());
                             });
                 });
     }
@@ -184,6 +201,15 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
             return new ResultUtil<>().setSuccessMsg("撤销成功！");
 
         }).orElse(new ResultUtil<>().setErrorMsg(205, "订单不存在！"));
+    }
+
+    @Override
+    public BigDecimal getOrderAfterSaleReturnMoney(String orderId) {
+
+        return Optional.ofNullable(this.getOne(Wrappers.<OrderAfterSale>lambdaQuery()
+        .eq(OrderAfterSale::getOrderId, orderId)))
+        .map(OrderAfterSale::getRefundMoney)
+        .orElse(new BigDecimal(0));
     }
 
 

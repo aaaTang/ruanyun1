@@ -30,6 +30,7 @@ import cn.ruanyun.backInterface.modules.business.discountMy.service.IDiscountMyS
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
+import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
 import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
@@ -45,6 +46,7 @@ import cn.ruanyun.backInterface.modules.business.order.vo.BackOrderListVO;
 import cn.ruanyun.backInterface.modules.business.orderDetail.mapper.OrderDetailMapper;
 import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
 import cn.ruanyun.backInterface.modules.business.orderDetail.service.IOrderDetailService;
+import cn.ruanyun.backInterface.modules.business.orderDetail.vo.OrderDetailVo;
 import cn.ruanyun.backInterface.modules.business.profitDetail.pojo.ProfitDetail;
 import cn.ruanyun.backInterface.modules.business.profitDetail.service.IProfitDetailService;
 import cn.ruanyun.backInterface.modules.business.profitPercent.service.IProfitPercentService;
@@ -650,11 +652,21 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                             totalPrice.add(v.parallelStream().map(Order::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add));
                         }else {
 
+                            Optional.ofNullable(v.get(0)).ifPresent(order -> {
+
+                                if (order.getTypeEnum().equals(OrderTypeEnum.OFFLINE_ORDER)) {
+
+                                    payModel.setTotalPrice(order.getGoodDeposit());
+                                }
+
+                            });
+
                             totalPrice.add(v.parallelStream().map(Order::getGoodDeposit).reduce(BigDecimal.ZERO, BigDecimal::add));
                         }
                     });
 
                     payModel.setTotalPrice(totalPrice);
+
 
                     //2. 处理支付
                     //微信
@@ -908,6 +920,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                     .setPrice(order.getPayGoodBalancePayment())
                     .setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.SUB)
                     .setOrderId(order.getId())
+                    .setBalanceType(BalanceTypeEnum.IN_COME)
                     .setCreateBy(order.getCreateBy());
             balanceService.save(balance);
 
@@ -1136,12 +1149,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             ToolUtil.copyProperties(order, appMyOrderListVo);
 
             //租赁尾款类型
-            appMyOrderListVo.setLeaseState(
-                    Optional.ofNullable(goodCategoryMapper.selectById(
-                            Optional.ofNullable(goodMapper.selectById(orderDetailVo.getGoodId())).map(Good::getGoodCategoryId).orElse(null)
-                    )).map(GoodCategory::getLeaseState).orElse(0)
-                    
-            );
+            appMyOrderListVo.setLeaseState(getLeaseState(order));
 
             return Stream.of(appMyOrderListVo);
         }).collect(Collectors.toList())).setTotalPage(orderPage.getPages())
@@ -1463,6 +1471,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                                     .setTitle("订单" + order.getOrderNum() + "收入")
                                     .setPrice(transferDto.getAmount())
                                     .setOrderId(order.getId())
+                                    .setBalanceType(BalanceTypeEnum.IN_COME)
                                     .setCreateBy(order.getUserId());
                             balanceService.save(balance);
 
@@ -1617,7 +1626,17 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 .setGoodDeposit(offLineOrderDto.getGoodDeposit())
                 .setRentType(offLineOrderDto.getRentTypeEnum())
                 .setPayGoodBalancePayment(offLineOrderDto.getTotalPrice().subtract(offLineOrderDto.getGoodDeposit()))
+                .setPayTypeEnum(offLineOrderDto.getPayTypeEnum())
+                .setOrderStatus(OrderStatusEnum.PRE_PAY)
                 .setCreateBy(securityUtil.getCurrUser().getId());
+
+        if (ToolUtil.isEmpty(offLineOrderDto.getGoodDeposit())) {
+
+            order.setBuyType(BuyTypeEnum.FULL_PURCHASE);
+        }else {
+
+            order.setBuyType(BuyTypeEnum.RENT);
+        }
 
         ToolUtil.copyProperties(offLineOrderDto, order);
 
@@ -1625,7 +1644,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
         Map<String, Object> map = new ArrayMap<>();
         map.put("id", order.getId());
-        map.put("totalPrice", order.getTotalPrice());
+        map.put("totalPrice", order.getGoodDeposit());
         return new ResultUtil<>().setData(map, "插入或者更新成功!");
 
     }

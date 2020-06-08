@@ -7,6 +7,8 @@ import cn.ruanyun.backInterface.modules.business.orderAfterSale.dto.OrderAfterSa
 import cn.ruanyun.backInterface.modules.business.orderAfterSale.pojo.OrderAfterSale;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.math.BigDecimal;
+
 /**
  * 售后申请接口
  * @author wj
@@ -48,4 +50,11 @@ public interface IOrderAfterSaleService extends IService<OrderAfterSale> {
      * @param orderId 订单id
      */
     Result<Object> revocationAfterOrder(String orderId);
+
+    /**
+     * 获取当前售后订单的申请退款金额
+     * @param orderId 订单id
+     * @return BigDecimal
+     */
+    BigDecimal getOrderAfterSaleReturnMoney(String orderId);
 }
