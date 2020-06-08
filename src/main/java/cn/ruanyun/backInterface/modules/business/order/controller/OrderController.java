@@ -71,11 +71,11 @@ public class OrderController {
         return iOrderService.insertOffLineOrder(offLineOrderDto);
     }
 
-    @PostMapping("/insertOffLinePayTheBalanceOrder")
+    @GetMapping("/insertOffLinePayTheBalanceOrder/{staffId}/{orderNum}")
     @ApiOperation("新增线下尾款支付订单")
-    public Result<Object> insertOffLinePayTheBalanceOrder(OffLineOrderDto offLineOrderDto) {
+    public Result<Object> insertOffLinePayTheBalanceOrder(@PathVariable String staffId, @PathVariable String orderNum ) {
 
-        return iOrderService.insertOffLinePayTheBalanceOrder(offLineOrderDto);
+        return iOrderService.insertOffLinePayTheBalanceOrder(staffId, orderNum);
     }
 
 

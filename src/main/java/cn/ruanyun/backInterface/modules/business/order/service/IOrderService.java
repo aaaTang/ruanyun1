@@ -57,10 +57,11 @@ public interface IOrderService extends IService<Order> {
 
     /**
      * 新增线下尾款支付订单
-     * @param offLineOrderDto offLineOrderDto
+     * @param staffId 员工id
+     * @param orderNum 订单编号
      * @return Object
      */
-    Result<Object> insertOffLinePayTheBalanceOrder(OffLineOrderDto offLineOrderDto);
+    Result<Object> insertOffLinePayTheBalanceOrder(String staffId, String orderNum);
 
 
 

@@ -57,6 +57,11 @@ public class StoreIncomeVo {
     private PayTypeEnum incomeType;
 
     /**
+     * 店铺收入描述
+     */
+    private String storeIncomeDesc;
+
+    /**
      * 到账时间
      */
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")

@@ -30,6 +30,12 @@ public class StoreIncome extends RuanyunBaseEntity {
 
 
     /**
+     * 店铺收入描述
+     */
+    private String storeIncomeDesc;
+
+
+    /**
      * 收入金额
      */
     private BigDecimal incomeMoney;

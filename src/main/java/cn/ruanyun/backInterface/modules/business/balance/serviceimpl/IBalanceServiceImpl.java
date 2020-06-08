@@ -139,6 +139,8 @@ public class IBalanceServiceImpl extends ServiceImpl<BalanceMapper, Balance> imp
                         .eq(Balance::getOrderId, order.getId())
                         .eq(Balance::getAddOrSubtractTypeEnum, AddOrSubtractTypeEnum.ADD)))))
                 .ifPresent(balances ->
+
+                        //1. 退款操作
                         balances.parallelStream().forEach(balance -> {
 
                             //1.1 更改账户余额信息
@@ -155,6 +157,26 @@ public class IBalanceServiceImpl extends ServiceImpl<BalanceMapper, Balance> imp
                             this.updateById(balance);
 
                         }));
+
+                        //2. 进款操作
+                         Optional.ofNullable(this.getOne(Wrappers.<Balance>lambdaQuery()
+                         .eq(Balance::getOrderId, orderId)
+                         .eq(Balance::getCreateBy, orderService.getById(orderId).getCreateBy())
+                         .eq(Balance::getAddOrSubtractTypeEnum, AddOrSubtractTypeEnum.SUB)))
+                         .ifPresent(balance -> {
+
+                             //1. 更改明细
+                             balance.setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.ADD)
+                                     .setTitle("商家退款");
+
+                             //2. 增加余额
+                             Optional.ofNullable(userService.getById(balance.getCreateBy()))
+                                     .ifPresent(user -> {
+
+                                         user.setBalance(user.getBalance().add(balance.getPrice()));
+                                         userService.updateById(user);
+                                     });
+                         });
     }
 
     @Override

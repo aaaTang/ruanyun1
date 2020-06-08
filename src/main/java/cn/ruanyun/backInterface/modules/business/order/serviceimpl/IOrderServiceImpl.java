@@ -721,15 +721,53 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                                 transfer.setAmount(profitPercentService.getProfitPercentLimitOne(ProfitTypeEnum.FIRST)
                                         .getStoreProfit().multiply(getTotalPriceByOrderType(order)));
 
-                                //3.4 转账操作
-                                try {
-                                    String result = payService.aliPayTransfer(transfer);
+                                //3. 转账操作
+                                //3.1 结算金额转到商家余额
 
-                                    log.info("处理支付宝转账回调信息" + result);
+                                Optional.ofNullable(userService.getById(order.getUserId()))
+                                        .ifPresent(store -> {
 
-                                } catch (AlipayApiException e) {
-                                    e.printStackTrace();
+                                            //增加余额
+                                            ThreadPoolUtil.getPool().execute(() -> {
+
+                                                user.setBalance(store.getBalance().add(transfer.getAmount()));
+                                                userService.updateById(store);
+                                                log.info("转账成功, 当前转账金额为" + transfer.getAmount());
+                                            });
+
+                                            //记录明细
+                                            ThreadPoolUtil.getPool().execute(() -> {
+
+                                                Balance balance = new Balance();
+                                                balance.setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.ADD)
+                                                        .setTitle("订单" + order.getOrderNum() + "收入")
+                                                        .setPrice(transfer.getAmount())
+                                                        .setOrderId(order.getId())
+                                                        .setCreateBy(order.getUserId());
+                                                balanceService.save(balance);
+
+                                                log.info("记录商家到账金额明细成功！");
+                                            });
+                                        });
+
+                                //3.2 记录商家收入管理明细
+                                // TODO: 2020/5/14 0014  转账成功后才进入到保存收入明细环节,目前暂未做处理
+                                StoreIncome storeIncome = new StoreIncome();
+                                storeIncome.setIncomeMoney(profitPercentService.getProfitPercentLimitOne(ProfitTypeEnum.FIRST)
+                                        .getStoreProfit().multiply(getTotalPriceByOrderType(order)))
+                                        .setIncomeType(PayTypeEnum.BALANCE)
+                                        .setOrderId(order.getId())
+                                        .setCreateBy(order.getUserId());
+                                if (ToolUtil.isEmpty(order.getGoodDeposit())) {
+
+                                    storeIncome.setStoreIncomeDesc("全款支付");
+                                }else {
+
+                                    storeIncome.setStoreIncomeDesc("支付定金");
                                 }
+
+                                storeIncomeService.save(storeIncome);
+
                             });
                             return new ResultUtil<>().setData(200, "支付成功!");
                         }else {
@@ -912,6 +950,8 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                                     .setOrderId(order.getId())
                                     .setCreateBy(user.getId());
 
+                            storeIncome.setStoreIncomeDesc("支付尾款");
+
                             storeIncomeService.save(storeIncome);
                             log.info("记录商家收入成功！");
                         });
@@ -1090,7 +1130,8 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         result.setDataResult(orderPage.getRecords().parallelStream().flatMap(order -> {
 
             AppMyOrderListVo appMyOrderListVo = new AppMyOrderListVo();
-            appMyOrderListVo.setOrderDetailVo(orderDetailService.getOrderDetailByOrderId(order.getId()));
+            appMyOrderListVo.setOrderDetailVo(orderDetailService.getOrderDetailByOrderId(order.getId()))
+                    .setOrderStatusCode(order.getOrderStatus().getCode());
             ToolUtil.copyProperties(order, appMyOrderListVo);
 
             return Stream.of(appMyOrderListVo);
@@ -1118,12 +1159,26 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             ToolUtil.copyProperties(order, appMyOrderDetail);
             //尾款方式
             appMyOrderDetail.setOrderStatusCode(order.getOrderStatus().getCode())
-                    .setLeaseState(goodCategoryService.getLeaseState(Optional.ofNullable(orderDetailService.getOrderDetailByOrderId(order.getId()))
-                    .flatMap(orderDetailVo -> Optional.ofNullable(goodService.getById(orderDetailVo.getGoodId())))
-                    .map(Good::getGoodCategoryId).orElse(null)).getCode());
+                    .setLeaseState(getLeaseState(order));
 
             return new ResultUtil<AppMyOrderDetailVo>().setData(appMyOrderDetail, "获取我的订单详情成功！");
         }).orElse(new ResultUtil<AppMyOrderDetailVo>().setErrorMsg(201, "当前订单不存在！"));
+    }
+
+
+    public Integer getLeaseState(Order order) {
+
+       RentTypeEnum rentTypeEnum = goodCategoryService.getLeaseState(Optional.ofNullable(orderDetailService.getOrderDetailByOrderId(order.getId()))
+                .flatMap(orderDetailVo -> Optional.ofNullable(goodService.getById(orderDetailVo.getGoodId())))
+                .map(Good::getGoodCategoryId).orElse(null));
+
+       if (ToolUtil.isEmpty(rentTypeEnum)) {
+
+           return null;
+       }else {
+
+           return rentTypeEnum.getCode();
+       }
     }
 
 
@@ -1392,6 +1447,14 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                     .setOrderId(order.getId())
                     .setCreateBy(order.getUserId());
 
+            if (ToolUtil.isEmpty(order.getGoodDeposit())) {
+
+                storeIncome.setStoreIncomeDesc("全款支付");
+            }else {
+
+                storeIncome.setStoreIncomeDesc("支付定金");
+            }
+
             storeIncomeService.save(storeIncome);
 
         });
@@ -1536,21 +1599,16 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     }
 
     @Override
-    public Result<Object> insertOffLinePayTheBalanceOrder(OffLineOrderDto offLineOrderDto) {
+    public Result<Object> insertOffLinePayTheBalanceOrder(String staffId, String orderNum) {
 
         //1. 判断当前订单是否在本店操作
-       return Optional.ofNullable(this.getOne(Wrappers.<Order>lambdaQuery().eq(Order::getOrderNum, offLineOrderDto.getOrderNum())))
+       return Optional.ofNullable(this.getOne(Wrappers.<Order>lambdaQuery().eq(Order::getOrderNum, orderNum)))
                 .map(order -> {
 
-                    if (order.getUserId().equals(offLineOrderDto.getStaffId()) || order.getUserId().equals(userService
-                    .getById(offLineOrderDto.getStaffId()).getCreateBy())) {
+                    if (order.getUserId().equals(staffId) || order.getUserId().equals(userService
+                    .getById(staffId).getCreateBy())) {
 
-                        OrderOperateDto orderOperateDto = new OrderOperateDto();
-                        orderOperateDto.setOrderId(order.getId())
-                                .setPayType(offLineOrderDto.getPayTypeEnum())
-                                .setPayPassword(offLineOrderDto.getPayPassword());
-
-                        return payTheBalance(orderOperateDto);
+                        return new ResultUtil<>().setData(order.getId(), "获取订单id成功！");
                     }else {
 
                         return new ResultUtil<>().setErrorMsg(205, "只有当前门店才能操作！");

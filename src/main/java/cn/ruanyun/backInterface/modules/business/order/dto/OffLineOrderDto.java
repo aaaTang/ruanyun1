@@ -38,8 +38,4 @@ public class OffLineOrderDto {
     @ApiModelProperty("订单编号")
     private String orderNum;
 
-    @ApiModelProperty(value = "支付密码")
-    private String payPassword;
-
-
 }
