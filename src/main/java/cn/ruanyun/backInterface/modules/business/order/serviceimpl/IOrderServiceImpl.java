@@ -323,7 +323,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
                        if (ToolUtil.isNotEmpty(appOrderGoodInfoDto.getDiscountId())) {
 
-                           totalPrice.subtract(Optional.ofNullable(discountCouponService.getDiscountCouponDetail(appOrderGoodInfoDto.getDiscountId()))
+                          totalPrice = totalPrice.subtract(Optional.ofNullable(discountCouponService.getDiscountCouponDetail(appOrderGoodInfoDto.getDiscountId()))
                            .map(DiscountCoupon::getSubtractMoney).orElse(new BigDecimal(0)));
                        }
 
@@ -339,7 +339,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
                        if (ToolUtil.isNotEmpty(appOrderGoodInfoDto.getDiscountId())) {
 
-                           totalPrice.subtract(Optional.ofNullable(discountCouponService.getDiscountCouponDetail(appOrderGoodInfoDto.getDiscountId()))
+                           totalPrice = totalPrice.subtract(Optional.ofNullable(discountCouponService.getDiscountCouponDetail(appOrderGoodInfoDto.getDiscountId()))
                                    .map(DiscountCoupon::getSubtractMoney).orElse(new BigDecimal(0)));
                        }
 
@@ -640,32 +640,28 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                     payModel.setOrderNums(appPayOrder.getIds());
 
                     //1.1 计算总价格
+                    //1.1.1 计算全款支付订单金额
+                    BigDecimal fullPayOrderMoney = orders.parallelStream().filter(order -> order.getBuyType().equals(BuyTypeEnum.FULL_PURCHASE)
+                            && !order.getTypeEnum().equals(OrderTypeEnum.OFFLINE_ORDER))
+                            .map(Order::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                    Map<BuyTypeEnum, List<Order>> groupByType = orders.parallelStream().collect(Collectors.groupingBy(Order::getBuyType));
+                    //1.1.2 计算支付定金订单金额
+                    BigDecimal payGoodDeposit = orders.parallelStream().filter(order -> order.getBuyType().equals(BuyTypeEnum.RENT)
+                            && !order.getTypeEnum().equals(OrderTypeEnum.OFFLINE_ORDER))
+                            .map(Order::getGoodDeposit).reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                    BigDecimal totalPrice = new BigDecimal(0);
+                    //1.2.3 计算线下全款订单金额
+                    BigDecimal payOffLineFullOrderMoney = orders.parallelStream().filter(order -> order.getTypeEnum().equals(OrderTypeEnum.OFFLINE_ORDER)
+                            && order.getBuyType().equals(BuyTypeEnum.FULL_PURCHASE))
+                            .map(Order::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                    groupByType.forEach((k, v) -> {
+                    //1.2.4 计算线下订单定金支付订单
+                    BigDecimal payOffLineDepositOrderMoney = orders.parallelStream().filter(order -> order.getTypeEnum().equals(OrderTypeEnum.OFFLINE_ORDER)
+                            && order.getBuyType().equals(BuyTypeEnum.RENT))
+                            .map(Order::getGoodDeposit).reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                        if (cn.hutool.core.util.ObjectUtil.equal(BuyTypeEnum.FULL_PURCHASE, k)) {
 
-                            totalPrice.add(v.parallelStream().map(Order::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add));
-                        }else {
-
-                            Optional.ofNullable(v.get(0)).ifPresent(order -> {
-
-                                if (order.getTypeEnum().equals(OrderTypeEnum.OFFLINE_ORDER)) {
-
-                                    payModel.setTotalPrice(order.getGoodDeposit());
-                                }
-
-                            });
-
-                            totalPrice.add(v.parallelStream().map(Order::getGoodDeposit).reduce(BigDecimal.ZERO, BigDecimal::add));
-                        }
-                    });
-
-                    payModel.setTotalPrice(totalPrice);
+                    payModel.setTotalPrice(fullPayOrderMoney.add(payGoodDeposit).add(payOffLineDepositOrderMoney).add(payOffLineFullOrderMoney));
 
 
                     //2. 处理支付

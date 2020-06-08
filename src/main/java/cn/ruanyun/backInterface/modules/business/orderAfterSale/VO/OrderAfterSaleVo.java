@@ -51,6 +51,9 @@ public class OrderAfterSaleVo {
     @ApiModelProperty("退款说明")
     private String expand;
 
+    @ApiModelProperty(value = "商品描述")
+    private String goodDesc;
+
     @ApiModelProperty("购买的商品信息")
     private OrderDetailVo orderDetails;
 

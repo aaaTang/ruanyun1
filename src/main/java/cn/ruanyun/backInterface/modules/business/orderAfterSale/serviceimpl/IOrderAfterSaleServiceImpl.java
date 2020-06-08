@@ -177,6 +177,11 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
             OrderAfterSaleVo orderAfterSaleVO = new OrderAfterSaleVo();
             ToolUtil.copyProperties(orderAfterSale,orderAfterSaleVO);
             orderAfterSaleVO.setOrderDetails(orderDetailService.getOrderDetailByOrderId(orderId));
+
+            Optional.ofNullable(orderService.getById(orderId)).ifPresent(order -> {
+
+                orderAfterSaleVO.setGoodDesc(order.getGoodDesc());
+            });
             return orderAfterSaleVO;
 
         }).orElse(null);

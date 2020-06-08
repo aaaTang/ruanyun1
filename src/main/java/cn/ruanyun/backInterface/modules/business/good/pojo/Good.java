@@ -42,16 +42,19 @@ public class Good extends RuanyunBaseEntity {
     /**
      * 商品图片
      */
+    @Column(length = 1000)
     private String goodPics;
 
     /**
      * 商品视频
      */
+    @Column(length = 1000)
     private String goodVideo;
 
     /**
      * 商品视频展示图
      */
+    @Column(length = 1000)
     private String goodVideoPic;
 
     /**

@@ -48,7 +48,7 @@ public class IPayServiceImpl implements IPayService {
 		model.setSubject(AlipayConfig.SUBJECT);
 		model.setOutTradeNo(payModel.getOrderNums());
 		model.setTimeoutExpress("15m");
-		model.setTotalAmount("0.01");
+		model.setTotalAmount(payModel.getTotalPrice().toString());
 
 		try {
 
@@ -126,7 +126,7 @@ public class IPayServiceImpl implements IPayService {
 
 		WxPayApiConfig wxPayApiConfig = WeChatConfig.getWxPayApiConfig();
 
-		payModel.setTotalPrice(new BigDecimal("0.01"));
+		/*payModel.setTotalPrice(new BigDecimal("0.01"));*/
 
 		log.info("当前的支付钱数是:" + ToolUtil.getMoney(payModel.getTotalPrice().toString()));
 
