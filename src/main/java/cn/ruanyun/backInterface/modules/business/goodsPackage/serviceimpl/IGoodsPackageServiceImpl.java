@@ -244,6 +244,8 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
                 .eq(ToolUtil.isNotEmpty(ids),Good::getCreateBy,ids)
                 .eq(ToolUtil.isNotEmpty(ids),Good::getGoodName,goodName)
                 .eq(Good::getTypeEnum,GoodTypeEnum.GOODSPACKAGE)
+                .eq(Good::getDelFlag,CommonConstant.STATUS_NORMAL)
+                .orderByDesc(Good::getCreateTime)
         );
 
         List<AppGoodsPackageListVO> appGoodsPackageList = new ArrayList<>();

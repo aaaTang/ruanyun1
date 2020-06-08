@@ -27,6 +27,10 @@ public class StoreActivityVO {
      * 内容
      */
     private String content;
+    /**
+     * 连接地址
+     */
+    private String url;
 
     /**
      * 商家名称

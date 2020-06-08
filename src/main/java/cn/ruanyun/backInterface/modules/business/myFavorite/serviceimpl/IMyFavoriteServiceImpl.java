@@ -173,14 +173,16 @@ public class IMyFavoriteServiceImpl extends ServiceImpl<MyFavoriteMapper, MyFavo
     @Override
     public Integer getMyFavorite(String id,GoodTypeEnum goodTypeEnum) {
 
-        MyFavorite  myFavorite = new MyFavorite();
-        if(ToolUtil.isNotEmpty(securityUtil.getCurrUser().getId())){
+        MyFavorite  myFavorite = null;
+        if(ToolUtil.isNotEmpty(securityUtil.getCurrUser())){
             myFavorite = this.getOne(new QueryWrapper<MyFavorite>().lambda().eq(MyFavorite::getGoodId,id)
                     .eq(MyFavorite::getGoodTypeEnum,goodTypeEnum)
                     .eq(MyFavorite::getCreateBy,securityUtil.getCurrUser().getId())
             );
         }
+
         return (myFavorite != null ? 1 : 0);
+
     }
 
 

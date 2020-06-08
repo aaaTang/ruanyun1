@@ -158,7 +158,7 @@ public class IStoreActivityServiceImpl extends ServiceImpl<StoreActivityMapper, 
 
                     return new ResultUtil<>().setData(order,"查询成功！");
 
-                }).orElse(new ResultUtil<>().setErrorMsg(201, "改活动不存在！"));
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "该活动不存在！"));
     }
 
 

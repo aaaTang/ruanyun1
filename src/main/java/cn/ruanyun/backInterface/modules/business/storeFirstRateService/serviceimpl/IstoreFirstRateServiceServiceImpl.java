@@ -137,7 +137,7 @@ public class IstoreFirstRateServiceServiceImpl extends ServiceImpl<StoreFirstRat
 
             .eq(ToolUtil.isNotEmpty(storeFirstRateServiceDTO.getCheckStatus()),StoreFirstRateService::getCheckStatus,storeFirstRateServiceDTO.getCheckStatus())
 
-            .orderByDesc(StoreFirstRateService::getCreateTime)
+            .orderByAsc(StoreFirstRateService::getCreateTime)
 
         )).map(firstRateServiceList -> firstRateServiceList.parallelStream().flatMap(storeFirstRateService1 ->{
 

@@ -98,7 +98,6 @@ public class CaptchaController {
         // 发送验证码
         try {
 
-            //   SendSmsResponse response = smsUtil.sendCode(mobile, code, "SMS_176930019");
             SendSmsResponse response = smsUtil.sendCode(mobile, code, templateCode);
             if(response.getCode() != null && ("OK").equals(response.getMessage())) {
                 // 请求成功 标记限流

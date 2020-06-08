@@ -1,12 +1,11 @@
 package cn.ruanyun.backInterface.modules.business.good.serviceimpl;
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.common.enums.CheckEnum;
+import cn.ruanyun.backInterface.common.enums.FollowTypeEnum;
 import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import cn.ruanyun.backInterface.common.enums.SearchTypesEnum;
-import cn.ruanyun.backInterface.common.utils.EmptyUtil;
-import cn.ruanyun.backInterface.common.utils.SecurityUtil;
-import cn.ruanyun.backInterface.common.utils.ThreadPoolUtil;
-import cn.ruanyun.backInterface.common.utils.ToolUtil;
+import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.RoleMapper;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserRoleMapper;
@@ -15,6 +14,7 @@ import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
+import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
 import cn.ruanyun.backInterface.modules.business.followAttention.pojo.FollowAttention;
 import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
@@ -41,6 +41,8 @@ import cn.ruanyun.backInterface.modules.business.searchHistory.service.ISearchHi
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
+import cn.ruanyun.backInterface.modules.business.storeActivity.service.IStoreActivityService;
+import cn.ruanyun.backInterface.modules.business.storeFirstRateService.service.IstoreFirstRateServiceService;
 import com.alibaba.druid.util.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -77,6 +79,8 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     private IUserService userService;
     @Resource
     private UserMapper userMapper;
+    @Autowired
+    private IUserService iUserService;
     @Autowired
     private IMyFootprintServiceImpl iMyFootprintService;
     @Resource
@@ -115,6 +119,10 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     private GoodMapper goodMapper;
     @Resource
     private IGoodsIntroduceService iGoodsIntroduceService;
+    @Autowired
+    private IstoreFirstRateServiceService storeFirstRateServiceService;
+    @Autowired
+    private IStoreActivityService iStoreActivityService;
 
     @Override
     public void insertOrderUpdateGood(Good good) {
@@ -256,7 +264,8 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
             LambdaQueryWrapper<Good> wrappers =  Wrappers.<Good>lambdaQuery()
                     .eq(!StringUtils.isEmpty(goodDTO.getGoodCategoryId()),Good::getGoodCategoryId,goodDTO.getGoodCategoryId())
                     .eq(!EmptyUtil.isEmpty(goodDTO.getGoodTypeEnum()),Good::getTypeEnum, goodDTO.getGoodTypeEnum())
-                    .eq(!StringUtils.isEmpty(goodDTO.getStoreId()),Good::getCreateBy, goodDTO.getStoreId());
+                    .eq(!StringUtils.isEmpty(goodDTO.getStoreId()),Good::getCreateBy, goodDTO.getStoreId())
+                    .eq(Good::getDelFlag,CommonConstant.STATUS_NORMAL);
 
             //2.筛选条件
             if (ToolUtil.isNotEmpty(goodDTO
@@ -373,7 +382,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
 
             //是否是四大金刚  0否   1是
-            Optional.ofNullable(goodCategory).ifPresent(goodCategory1 -> {
+            Optional.ofNullable(Optional.ofNullable(goodCategoryMapper.selectById(goodCategory.getParentId())).orElse(null)).ifPresent(goodCategory1 -> {
                if(goodCategory1.getTitle().equals("四大金刚")){
                    goodDetailVO.setDevarajas(1);
                }else {
@@ -703,9 +712,6 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
        }
     }
 
-
-
-
     /**
      * 后端获取商品详情
      * @param id
@@ -740,6 +746,59 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
         .orElse(new BigDecimal(0));
 
 
+    }
+
+    /**
+     * 分享商品页
+     * @param id
+     * @return
+     */
+    @Override
+    public ActivityGoodVO activityGood(String id) {
+
+        return Optional.ofNullable(this.getById(id)).map(good -> {
+            ActivityGoodVO activityGoodVO = new ActivityGoodVO();
+
+            ToolUtil.copyProperties(good,activityGoodVO);
+            activityGoodVO.setGoodsService(iGoodServiceService.getGoodsServiceList(id));
+            return activityGoodVO;
+        }).orElse(null);
+    }
+
+    @Override
+    public ActivityPackageVO activityGoodPackage(String id) {
+
+        return Optional.ofNullable(this.getById(id)).map(good -> {
+            ActivityPackageVO activityGoodPackageVO = new ActivityPackageVO();
+
+            ToolUtil.copyProperties(good,activityGoodPackageVO);
+            //商品介绍
+            activityGoodPackageVO.setProductsIntroduction(iGoodsIntroduceService.goodsIntroduceList(null,good.getId(),1));
+            //购买须知
+            activityGoodPackageVO.setPurchaseNotes(iGoodsIntroduceService.goodsIntroduceList(null,good.getId(),2));
+
+            return activityGoodPackageVO;
+
+        }).orElse(null);
+    }
+
+    @Override
+    public ActivityShopVO activityShop(String id) {
+
+        return Optional.ofNullable(iUserService.getById(id)).map(user -> {
+            ActivityShopVO activityShopVO = new ActivityShopVO();
+
+            ToolUtil.copyProperties(user, activityShopVO);
+
+            //优质服务
+            activityShopVO.setFirstRateService(
+                    storeFirstRateServiceService.getStoreFirstRateServiceName(user.getId(), CheckEnum.CHECK_SUCCESS));
+            //门店活动
+            activityShopVO.setActivity(iStoreActivityService.getStoreActivity(id,null));
+
+            return activityShopVO;
+
+        }).orElse(null);
     }
 
     /**
