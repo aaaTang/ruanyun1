@@ -8,6 +8,7 @@ import cn.ruanyun.backInterface.modules.business.discountMy.pojo.DiscountMy;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -21,6 +22,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "t_order_detail")
 @TableName("t_order_detail")
+@Accessors(chain = true)
 public class OrderDetail extends RuanyunBaseEntity {
 
     private static final long serialVersionUID = 1L;

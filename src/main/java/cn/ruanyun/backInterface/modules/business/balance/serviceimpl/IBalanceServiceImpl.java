@@ -166,6 +166,8 @@ public class IBalanceServiceImpl extends ServiceImpl<BalanceMapper, Balance> imp
                                                 .setTitle("退款金额")
                                                 .setCreateBy(user.getId());
                                         this.save(balanceNew);
+
+                                        this.removeById(balance.getId());
                                     });
 
                                 });
@@ -191,7 +193,9 @@ public class IBalanceServiceImpl extends ServiceImpl<BalanceMapper, Balance> imp
                                                 .setPrice(balance.getPrice())
                                                 .setTitle("退款金额")
                                                 .setCreateBy(user.getId());
-                                        this.save(balance);
+                                        this.save(balanceNew);
+
+                                        this.removeById(balance.getId());
                                     });
 
                                 });

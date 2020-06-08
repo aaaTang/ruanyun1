@@ -201,6 +201,12 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 //1. 生成订单
                 Order order = new Order();
 
+                //2  生成订单详情
+                OrderDetail orderDetail = new OrderDetail();
+
+                //2.2 参数信息
+                ToolUtil.copyProperties(appOrderGoodInfoDto, orderDetail);
+
                 order.setCreateBy(currentUserId);
 
                 //购买类型
@@ -227,12 +233,18 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
                 }else if (appOrderGoodInfoDto.getBuyType().equals(BuyTypeEnum.RENT)) {
 
+                    appOrderGoodInfoDto.setPrice(appOrderGoodInfoDto.getGoodDeposit().add(appOrderGoodInfoDto.getGoodBalancePayment()));
                     order.setTotalPrice(appOrderGoodInfoDto.getPrice().multiply(new BigDecimal(appOrderGoodInfoDto.getBuyCount())))
                             .setGoodDeposit(appOrderGoodInfoDto.getGoodDeposit().multiply(new BigDecimal(appOrderGoodInfoDto.getBuyCount())))
                             .setPayGoodBalancePayment((appOrderGoodInfoDto.getPrice().subtract(appOrderGoodInfoDto.getGoodDeposit())).multiply(new BigDecimal(appOrderGoodInfoDto.getBuyCount())))
                             .setRentType(goodCategoryService.getLeaseState(Optional.ofNullable(goodService.getById(appOrderGoodInfoDto.getGoodId()))
                             .map(Good::getGoodCategoryId).orElse(null)))
                             .setBuyType(BuyTypeEnum.RENT);
+
+                    orderDetail.setPrice(appOrderGoodInfoDto.getPrice().multiply(new BigDecimal(appOrderGoodInfoDto.getBuyCount())))
+                            .setGoodDeposit(appOrderGoodInfoDto.getGoodDeposit().multiply(new BigDecimal(appOrderGoodInfoDto.getBuyCount())))
+                            .setGoodBalancePayment((appOrderGoodInfoDto.getPrice().subtract(appOrderGoodInfoDto.getGoodDeposit())).multiply(new BigDecimal(appOrderGoodInfoDto.getBuyCount())));
+
                 }
 
                 //1.4 优惠券满减
@@ -269,12 +281,6 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
                 if (this.save(order)) {
 
-                    //2  生成订单详情
-                    OrderDetail orderDetail = new OrderDetail();
-
-                    //2.2 参数信息
-                    ToolUtil.copyProperties(appOrderGoodInfoDto, orderDetail);
-
                     //2.3 优惠券信息
                     Optional.ofNullable(discountCouponService.getDiscountCouponDetail(appOrderGoodInfoDto.getDiscountId()))
                             .ifPresent(discountCoupon -> {
@@ -282,8 +288,6 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                                 orderDetail.setDiscountId(discountCoupon.getId());
                                 orderDetail.setSubtractMoney(discountCoupon.getSubtractMoney());
                             });
-
-
 
                     orderDetail.setAttrSymbolPath(Optional.ofNullable(sizeAndRolorMapper.selectById(appOrderGoodInfoDto.getAttrSymbolPath())).map(SizeAndRolor::getAttrSymbolPath).orElse(null));
 
@@ -894,7 +898,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                                     .setPrice(payStore)
                                     .setOrderId(order.getId())
                                     .setCreateBy(user.getId());
-                            balanceService.save(balance);
+                            balanceService.save(payStoreBanlance);
                             log.info("记录商家到账金额明细成功！");
                         });
 
@@ -942,7 +946,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                             .setPrice(personProfitMoney)
                             .setOrderId(order.getId())
                             .setCreateBy(order.getCreateBy());
-                    balanceService.save(balance);
+                    balanceService.save(customBalance);
 
                     log.info("记录消费者分佣明细成功！");
                 });

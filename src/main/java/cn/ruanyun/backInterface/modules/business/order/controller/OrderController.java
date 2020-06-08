@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.common.recycler.Recycler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
@@ -68,6 +69,13 @@ public class OrderController {
     public Result<Object> insertOffLineOrder(OffLineOrderDto offLineOrderDto) {
 
         return iOrderService.insertOffLineOrder(offLineOrderDto);
+    }
+
+    @PostMapping("/insertOffLinePayTheBalanceOrder")
+    @ApiOperation("新增线下尾款支付订单")
+    public Result<Object> insertOffLinePayTheBalanceOrder(OffLineOrderDto offLineOrderDto) {
+
+        return iOrderService.insertOffLinePayTheBalanceOrder(offLineOrderDto);
     }
 
 
