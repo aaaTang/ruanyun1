@@ -38,6 +38,7 @@ import cn.ruanyun.backInterface.modules.business.myFootprint.serviceimpl.IMyFoot
 import cn.ruanyun.backInterface.modules.business.orderDetail.service.IOrderDetailService;
 import cn.ruanyun.backInterface.modules.business.searchHistory.pojo.SearchHistory;
 import cn.ruanyun.backInterface.modules.business.searchHistory.service.ISearchHistoryService;
+import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.pojo.SizeAndRolor;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.service.ISizeAndRolorService;
 import com.alibaba.druid.util.StringUtils;
@@ -102,6 +103,8 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     private ICommentService commentService;
     @Autowired
     private ISizeAndRolorService sizeAndRolorService;
+    @Resource
+    private SizeAndRolorMapper sizeAndRolorMapper;
     @Resource
     private UserRoleMapper userRoleMapper;
     @Resource
@@ -359,15 +362,14 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                     ;
 
             //规格状态  0空   1有
-           List<ItemAttrKey>  itemAttrKeyList = Optional.ofNullable(ToolUtil.setListToNul(itemAttrKeyMapper.selectList(new QueryWrapper<ItemAttrKey>().lambda()
-                    .eq(ItemAttrKey::getClassId,good.getGoodCategoryId())))).orElse(null);
+           List<SizeAndRolor>  sizeAndRolors = Optional.ofNullable(ToolUtil.setListToNul(sizeAndRolorMapper.selectList(new QueryWrapper<SizeAndRolor>().lambda()
+                    .eq(SizeAndRolor::getGoodsId,good.getId())))).orElse(null);
 
-            if(ToolUtil.isNotEmpty(itemAttrKeyList)){
+            if(ToolUtil.isNotEmpty(sizeAndRolors)){
                 goodDetailVO.setSpecificationState(1);
             }else {
                 goodDetailVO.setSpecificationState(0);
             }
-
 
 
             //是否是四大金刚  0否   1是
