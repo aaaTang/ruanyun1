@@ -3,6 +3,7 @@ package cn.ruanyun.backInterface.modules.business.order.vo;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.enums.PayTypeEnum;
+import cn.ruanyun.backInterface.common.enums.RentTypeEnum;
 import cn.ruanyun.backInterface.modules.business.orderDetail.vo.OrderDetailVo;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -62,11 +63,20 @@ public class AppMyOrderDetailVo {
     @ApiModelProperty(value = "总价格")
     private BigDecimal totalPrice;
 
+    @ApiModelProperty(value = "定金")
+    private BigDecimal goodDeposit;
+
+    @ApiModelProperty(value = "支付尾款金额")
+    private BigDecimal payGoodBalancePayment;
+
     @ApiModelProperty(value = "支付类型")
     private PayTypeEnum payTypeEnum;
 
     @ApiModelProperty(value = "尾款支付类型")
     private PayTypeEnum rentPayType;
+
+    @ApiModelProperty(value = "订单状态code")
+    private Integer orderStatusCode;
 
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -74,6 +84,6 @@ public class AppMyOrderDetailVo {
     private Date createTime;
 
     @ApiModelProperty(value = "租赁状态 1尾款线上支付  2尾款线下支付 ")
-    private Integer leaseState = CommonConstant.STATUS_NORMAL;
+    private Integer leaseState;
 
 }

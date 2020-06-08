@@ -127,8 +127,17 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
 
 
                                 //3. 消费以及分佣返回 记录明细
-                                balanceService.resolveReturnMoneyByBalance(order.getId(), order.getCreateBy(), orderAfterSaleDto.getActualRefundMoney());
 
+                                //3.1 全额退款
+                                if (ToolUtil.isEmpty(orderAfterSaleDto.getActualRefundMoney())) {
+
+                                    balanceService.resolveReturnTotalMoneyByBalance(order.getId());
+
+                                }else {
+
+                                    //3.2 部分退款
+                                    balanceService.resolveReturnPartMoneyByBalance(order.getId(), orderAfterSaleDto.getActualRefundMoney());
+                                }
                             });
                 });
     }

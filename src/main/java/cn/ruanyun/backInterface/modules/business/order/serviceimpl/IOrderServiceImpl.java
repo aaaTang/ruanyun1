@@ -241,9 +241,9 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                             .map(Good::getGoodCategoryId).orElse(null)))
                             .setBuyType(BuyTypeEnum.RENT);
 
-                    orderDetail.setPrice(appOrderGoodInfoDto.getPrice().multiply(new BigDecimal(appOrderGoodInfoDto.getBuyCount())))
-                            .setGoodDeposit(appOrderGoodInfoDto.getGoodDeposit().multiply(new BigDecimal(appOrderGoodInfoDto.getBuyCount())))
-                            .setGoodBalancePayment((appOrderGoodInfoDto.getPrice().subtract(appOrderGoodInfoDto.getGoodDeposit())).multiply(new BigDecimal(appOrderGoodInfoDto.getBuyCount())));
+                    orderDetail.setPrice(appOrderGoodInfoDto.getPrice())
+                            .setGoodDeposit(appOrderGoodInfoDto.getGoodDeposit())
+                            .setGoodBalancePayment((appOrderGoodInfoDto.getPrice().subtract(appOrderGoodInfoDto.getGoodDeposit())));
 
                 }
 
@@ -253,7 +253,8 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                     Optional.ofNullable(discountCouponService.getDiscountCouponDetail(appOrderGoodInfoDto.getDiscountId()))
                             .ifPresent(discountCoupon -> {
 
-                                order.setTotalPrice(order.getTotalPrice().subtract(discountCoupon.getSubtractMoney()));
+                                order.setTotalPrice(order.getTotalPrice().subtract(discountCoupon.getSubtractMoney()))
+                                        .setGoodDeposit(order.getGoodDeposit().subtract(discountCoupon.getSubtractMoney()));
 
                                 //设置优惠券已使用
                                 discountMyService.changeMyDisCouponStatus(discountCoupon.getId(), currentUserId);
@@ -1091,7 +1092,6 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             AppMyOrderListVo appMyOrderListVo = new AppMyOrderListVo();
             appMyOrderListVo.setOrderDetailVo(orderDetailService.getOrderDetailByOrderId(order.getId()));
             ToolUtil.copyProperties(order, appMyOrderListVo);
-            appMyOrderListVo.setOrderStatusCode(order.getOrderStatus().getCode());
 
             return Stream.of(appMyOrderListVo);
         }).collect(Collectors.toList())).setTotalPage(orderPage.getPages())
@@ -1117,17 +1117,10 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             appMyOrderDetail.setOrderDetailVo(orderDetailService.getOrderDetailByOrderId(order.getId()));
             ToolUtil.copyProperties(order, appMyOrderDetail);
             //尾款方式
-            appMyOrderDetail.setLeaseState(
-                    //3.查尾款状态
-                    Optional.ofNullable(goodCategoryMapper.selectById(
-                            //2.查分类id
-                            Optional.ofNullable(goodMapper.selectById(
-                                    //1.查商品id
-                                    Optional.ofNullable(orderDetailMapper.selectById(order.getId())).map(OrderDetail::getGoodId).orElse(null)
-                            )).map(Good::getGoodCategoryId).orElse(null)
-                    )).map(GoodCategory::getLeaseState).orElse(null)
-
-            );
+            appMyOrderDetail.setOrderStatusCode(order.getOrderStatus().getCode())
+                    .setLeaseState(goodCategoryService.getLeaseState(Optional.ofNullable(orderDetailService.getOrderDetailByOrderId(order.getId()))
+                    .flatMap(orderDetailVo -> Optional.ofNullable(goodService.getById(orderDetailVo.getGoodId())))
+                    .map(Good::getGoodCategoryId).orElse(null)).getCode());
 
             return new ResultUtil<AppMyOrderDetailVo>().setData(appMyOrderDetail, "获取我的订单详情成功！");
         }).orElse(new ResultUtil<AppMyOrderDetailVo>().setErrorMsg(201, "当前订单不存在！"));

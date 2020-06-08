@@ -85,7 +85,8 @@ public class IStoreIncomeServiceImpl extends ServiceImpl<StoreIncomeMapper, Stor
 
                    ToolUtil.copyProperties(order, storeIncomeVo);
 
-                   storeIncomeVo.setBuyTime(order.getCreateTime());
+                   storeIncomeVo.setBuyTime(order.getCreateTime())
+                           .setPayType(order.getPayTypeEnum());
 
                    Optional.ofNullable(userService.getById(order.getCreateBy())).ifPresent(user -> {
 

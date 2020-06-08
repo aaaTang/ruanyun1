@@ -13,20 +13,17 @@ import java.util.List;
  */
 public interface IStoreIncomeService extends IService<StoreIncome> {
 
+    /**
+     * 插入或者更新storeIncome
+     * @param storeIncome storeIncome
+     */
+    void insertOrderUpdateStoreIncome(StoreIncome storeIncome);
 
-      /**
-        * 插入或者更新storeIncome
-        * @param storeIncome
-       */
-     void insertOrderUpdateStoreIncome(StoreIncome storeIncome);
-
-
-
-      /**
-       * 移除storeIncome
-       * @param ids
-       */
-     void removeStoreIncome(String ids);
+    /**
+     * 移除storeIncome
+     * @param ids ids
+     */
+    void removeStoreIncome(String ids);
 
 
     /**

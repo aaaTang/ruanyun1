@@ -52,10 +52,17 @@ public interface IBalanceService extends IService<Balance> {
 
 
     /**
-     * 处理退款操作
+     * 处理退款操作(全额退款)
      * @param orderId 订单id
      */
-    void resolveReturnMoneyByBalance(String orderId, String userId, BigDecimal actualRefundMoney);
+    void resolveReturnTotalMoneyByBalance(String orderId);
+
+
+    /**
+     * 处理部分退款
+     * @param orderId 订单id
+     */
+    void resolveReturnPartMoneyByBalance(String orderId, BigDecimal actualRefundMoney);
 
 
 }

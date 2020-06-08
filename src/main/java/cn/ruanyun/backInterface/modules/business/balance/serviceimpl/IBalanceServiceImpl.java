@@ -16,6 +16,7 @@ import cn.ruanyun.backInterface.modules.business.balance.VO.BalanceVO;
 import cn.ruanyun.backInterface.modules.business.balance.mapper.BalanceMapper;
 import cn.ruanyun.backInterface.modules.business.balance.pojo.Balance;
 import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
+import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
 import cn.ruanyun.backInterface.modules.business.order.service.IOrderService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -130,77 +131,35 @@ public class IBalanceServiceImpl extends ServiceImpl<BalanceMapper, Balance> imp
     }
 
     @Override
-    public void resolveReturnMoneyByBalance(String orderId, String userId, BigDecimal actualRefundMoney) {
+    public void resolveReturnTotalMoneyByBalance(String orderId) {
 
-        //1. 找到此条订单的全部明细记录
-        Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<Balance>lambdaQuery()
-        .eq(Balance::getAddOrSubtractTypeEnum, AddOrSubtractTypeEnum.ADD)
-        .eq(Balance::getOrderId, orderId)
-        .ne(Balance::getCreateBy, userId))))
-        .ifPresent(balances -> balances.parallelStream().filter(balance ->
-                ToolUtil.isNotEmpty(roleService.getRoleNameByUserId(balance.getCreateBy())))
-                .forEach(balance -> {
+        //1. 根据余额明细表全额退回
+        Optional.ofNullable(orderService.getById(orderId)).flatMap(order ->
+                Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<Balance>lambdaQuery()
+                        .eq(Balance::getOrderId, order.getId())
+                        .eq(Balance::getAddOrSubtractTypeEnum, AddOrSubtractTypeEnum.ADD)))))
+                .ifPresent(balances ->
+                        balances.parallelStream().forEach(balance -> {
 
-                    //2. 遍历找出每个人的入账记录,然后退还金额
-                    if (roleService.getRoleNameByUserId(balance.getCreateBy()).contains(CommonConstant
-                    .PER_STORE) || roleService.getRoleNameByUserId(balance.getCreateBy()).contains(CommonConstant
-                    .STORE)) {
+                            //1.1 更改账户余额信息
+                            Optional.ofNullable(userService.getById(balance.getId()))
+                                    .ifPresent(user -> {
 
-                        Optional.ofNullable(userService.getById(balance.getCreateBy()))
-                                .ifPresent(user -> {
-
-                                    //修改个人余额
-                                    ThreadPoolUtil.getPool().execute(() -> {
-
-                                        user.setBalance(user.getBalance().subtract(actualRefundMoney));
+                                        user.setBalance(user.getBalance().add(balance.getPrice()));
                                         userService.updateById(user);
                                     });
 
-                                    //记录明细
-                                    ThreadPoolUtil.getPool().execute(() -> {
+                            //2.2 更改明细信息
+                            balance.setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.SUB);
+                            balance.setTitle("订单" + orderService.getById(orderId).getOrderNum() + "退款" );
+                            this.updateById(balance);
 
-                                        Balance balanceNew = new Balance();
-                                        balanceNew.setOrderId(orderId)
-                                                .setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.SUB)
-                                                .setPrice(actualRefundMoney)
-                                                .setTitle("退款金额")
-                                                .setCreateBy(user.getId());
-                                        this.save(balanceNew);
+                        }));
+    }
 
-                                        this.removeById(balance.getId());
-                                    });
+    @Override
+    public void resolveReturnPartMoneyByBalance(String orderId, BigDecimal actualRefundMoney) {
 
-                                });
-
-                    }else {
-
-                        Optional.ofNullable(userService.getById(balance.getCreateBy()))
-                                .ifPresent(user -> {
-
-                                    //修改个人余额
-                                    ThreadPoolUtil.getPool().execute(() -> {
-
-                                        user.setBalance(user.getBalance().subtract(balance.getPrice()));
-                                        userService.updateById(user);
-                                    });
-
-                                    //记录明细
-                                    ThreadPoolUtil.getPool().execute(() -> {
-
-                                        Balance balanceNew = new Balance();
-                                        balanceNew.setOrderId(orderId)
-                                                .setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.SUB)
-                                                .setPrice(balance.getPrice())
-                                                .setTitle("退款金额")
-                                                .setCreateBy(user.getId());
-                                        this.save(balanceNew);
-
-                                        this.removeById(balance.getId());
-                                    });
-
-                                });
-                    }
-        }));
 
 
 
