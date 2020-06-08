@@ -36,7 +36,10 @@ public class StoreActivity extends RuanyunBaseEntity {
      */
     private String content;
 
-
+    /**
+     * 连接地址
+     */
+    private String url;
     /**
      * 发布人角色
      */

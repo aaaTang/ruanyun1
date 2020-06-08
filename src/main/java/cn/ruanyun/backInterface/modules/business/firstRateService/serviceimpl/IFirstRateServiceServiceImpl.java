@@ -1,9 +1,12 @@
 package cn.ruanyun.backInterface.modules.business.firstRateService.serviceimpl;
 
 import cn.ruanyun.backInterface.modules.business.firstRateService.DTO.FirstRateServiceDTO;
+import cn.ruanyun.backInterface.modules.business.firstRateService.VO.FirstRateServiceVO;
 import cn.ruanyun.backInterface.modules.business.firstRateService.mapper.FirstRateServiceMapper;
 import cn.ruanyun.backInterface.modules.business.firstRateService.pojo.FirstRateService;
 import cn.ruanyun.backInterface.modules.business.firstRateService.service.IFirstRateServiceService;
+import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
+import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -38,6 +42,9 @@ public class IFirstRateServiceServiceImpl extends ServiceImpl<FirstRateServiceMa
 
        @Autowired
        private SecurityUtil securityUtil;
+
+       @Autowired
+       private GoodCategoryMapper goodCategoryMapper;
 
        @Override
        public void insertOrderUpdateFirstRateService(FirstRateService firstRateService) {
@@ -82,7 +89,7 @@ public class IFirstRateServiceServiceImpl extends ServiceImpl<FirstRateServiceMa
      * @return
      */
     @Override
-    public List<FirstRateService> getFirstRateService(FirstRateServiceDTO firstRateServiceDTO){
+    public List<FirstRateServiceVO> getFirstRateService(FirstRateServiceDTO firstRateServiceDTO){
 
            return Optional.ofNullable(this.list(new QueryWrapper<FirstRateService>().lambda()
 
@@ -90,11 +97,19 @@ public class IFirstRateServiceServiceImpl extends ServiceImpl<FirstRateServiceMa
 
                    .eq(ToolUtil.isNotEmpty(firstRateServiceDTO.getGoodCategoryId()),FirstRateService::getGoodCategoryId,firstRateServiceDTO.getGoodCategoryId())
 
-                   .eq(ToolUtil.isNotEmpty(firstRateServiceDTO.getItemName()),FirstRateService::getItemName,firstRateServiceDTO.getItemName())
+                   .like(ToolUtil.isNotEmpty(firstRateServiceDTO.getItemName()),FirstRateService::getItemName,firstRateServiceDTO.getItemName())
 
                    .orderByDesc(FirstRateService::getCreateTime)
 
-           )).filter(Objects::nonNull).orElse(null);
+           )).filter(Objects::nonNull).map(firstRateServiceList -> firstRateServiceList.parallelStream().flatMap(firstRateService -> {
+
+               FirstRateServiceVO firstRateServiceVO = new FirstRateServiceVO();
+               ToolUtil.copyProperties(firstRateService,firstRateServiceVO);
+
+               firstRateServiceVO.setGoodCategoryName(Optional.ofNullable(goodCategoryMapper.selectById(firstRateService.getGoodCategoryId())).map(GoodCategory::getTitle).orElse(null));
+
+               return Stream.of(firstRateServiceVO);
+           }).collect(Collectors.toList())).orElse(null);
     }
 
 

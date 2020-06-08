@@ -215,4 +215,39 @@ public class GoodController {
         return new ResultUtil<>().setData(iGoodService.PCgoodParticulars(id),"获取商品详情成功！");
     }
 
+
+    /*********************************************分享商品管理接口********************************************************/
+    /**
+     * 分享商品页
+     * @param id
+     * @return
+     */
+    @PostMapping("/activityGood")
+    public Result<Object> activityGood(String id) {
+        return new ResultUtil<>().setData(iGoodService.activityGood(id),"分享商品页成功！");
+    }
+
+
+    /**
+     * 分享套餐页
+     * @param id
+     * @return
+     */
+    @PostMapping("/activityGoodPackage")
+    public Result<Object> activityGoodPackage(String id) {
+        return new ResultUtil<>().setData(iGoodService.activityGoodPackage(id),"分享套餐页成功！");
+    }
+
+    /**
+     * 分享店铺页
+     * @param id
+     * @return
+     */
+    @PostMapping("/activityShop")
+    public Result<Object> activityShop(String id) {
+        return new ResultUtil<>().setData(iGoodService.activityShop(id),"分享店铺页成功！");
+    }
+
+
+
 }
