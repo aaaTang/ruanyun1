@@ -57,11 +57,7 @@ public class IGoodServiceServiceImpl extends ServiceImpl<GoodServiceMapper, Good
       @Override
       public void removeGoodService(String ids) {
 
-          GoodService goodService = new GoodService();
-           goodService.setId(ids);
-           goodService.setDelFlag(1);
-
-          CompletableFuture.runAsync(() -> this.saveOrUpdate(goodService));
+          CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
       }
 
     /**

@@ -91,13 +91,13 @@ public class GoodServiceController {
      * @return
      */
     @PostMapping(value = "/getShopServiceList")
-    public Result<Object> getShopServiceList(){
+    public Result<Object> getShopServiceList(PageVo pageVo){
 
         return Optional.ofNullable(iGoodServiceService.getShopServiceList())
                 .map(goodServer -> {
-
                     Map<String,Object> result = Maps.newHashMap();
-                    result.put("data",goodServer);
+                    result.put("size",goodServer.size());
+                    result.put("data",PageUtil.listToPage(pageVo,goodServer));
                     return new ResultUtil<>().setData(result,"获取商家自己的公用服务数据成功！");
                 }).orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }

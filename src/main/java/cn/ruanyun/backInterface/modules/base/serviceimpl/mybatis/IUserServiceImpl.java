@@ -273,10 +273,18 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
             return new ResultUtil<>().setErrorMsg(203, "该手机号不存在或者没有注册!");
         }
 
-        //2.判断密码是否一致S
+        //2.判断密码是否一致
         if (!new BCryptPasswordEncoder().matches(user.getPassword(), userGet.getPassword())) {
 
             return new ResultUtil<>().setErrorMsg(202, "密码不一致！");
+        }
+        //3.判断是否被禁用状态
+        if (ToolUtil.isNotEmpty(userGet)) {
+
+            if(userGet.getStatus().equals(CommonConstant.STATUS_DISABLE)){
+
+                return new ResultUtil<>().setErrorMsg(203, "该用户已被禁用！");
+            }
         }
 
         Map<Object,String> map = new ArrayMap<>();
