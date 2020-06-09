@@ -100,7 +100,6 @@ public class ISitePriceServiceImpl extends ServiceImpl<SitePriceMapper, SitePric
 
                 .eq(SitePrice::getDelFlag, CommonConstant.STATUS_NORMAL))))
 
-
                 .map(sitePrices -> sitePrices.parallelStream().flatMap(sitePrice -> {
 
                     SitePriceVO sitePriceVO = new SitePriceVO();

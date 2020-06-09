@@ -9,6 +9,7 @@ import cn.ruanyun.backInterface.common.utils.EmptyUtil;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.DTO.DiscountCouponDTO;
+import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.AppDiscountCouponListVO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.PcGetDiscountCouponListVO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.PlatformDiscountCouponVO;
@@ -353,8 +354,24 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
     }
 
 
+    /**
+     * App获取平台优惠券
+     * @return
+     */
+    @Override
+    public List<AppDiscountCouponListVO> AppDiscountCouponList(DiscountCouponDTO discountCouponDTO) {
 
+        return Optional.ofNullable(ToolUtil.setListToNul(this.list(new QueryWrapper<DiscountCoupon>().lambda()
+                .eq(DiscountCoupon::getDisCouponType, DisCouponTypeEnum.ALL_SHOP)
+                .eq(DiscountCoupon::getDelFlag, CommonConstant.STATUS_NORMAL)
+                .ge(DiscountCoupon::getValidityPeriod, new Date())
+                .orderByDesc(DiscountCoupon::getCreateTime))))
+        .map(discountCoupons -> discountCoupons.parallelStream().flatMap(discountCoupon -> {
+            AppDiscountCouponListVO appDiscountCouponListVO = new AppDiscountCouponListVO();
 
+            return Stream.of(appDiscountCouponListVO);
+        }).collect(Collectors.toList())).orElse(null);
+    }
 
 
 }
