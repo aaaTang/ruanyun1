@@ -1,6 +1,11 @@
 package cn.ruanyun.backInterface.modules.business.advertising.service;
 
-import cn.ruanyun.backInterface.modules.business.advertising.VO.AppAdvertisingListVO;
+import cn.ruanyun.backInterface.common.enums.AdvertisingTypeEnum;
+import cn.ruanyun.backInterface.common.vo.PageVo;
+import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
+import cn.ruanyun.backInterface.modules.business.advertising.vo.AppAdvertisingListVo;
+import cn.ruanyun.backInterface.modules.business.advertising.vo.BackAdvertisingListVo;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cn.ruanyun.backInterface.modules.business.advertising.pojo.Advertising;
 
@@ -13,37 +18,35 @@ import java.util.List;
 public interface IAdvertisingService extends IService<Advertising> {
 
 
-      /**
-        * 插入或者更新advertising
-        * @param advertising
-       */
-     void insertOrderUpdateAdvertising(Advertising advertising);
+    /**
+     * 添加轮播图数据
+     * @param advertising 广告
+     * @return Object
+     */
+    Result<Object> insertOrderUpdateAdvertising(Advertising advertising);
 
-
-
-      /**
-       * 移除advertising
-       * @param ids
-       */
-     void removeAdvertising(String ids);
+    /**
+     * 移除advertising
+     * @param ids ids
+     */
+    void removeAdvertising(String ids);
 
 
     /**
      * App查询广告数据列表
-     * @param advertisingType 1.开屏,  2.轮播
-     * @param advertisingJumpType  1.编辑详情页  2.H5网页链接  3.活动页面  4.商家店铺首页
-     * @return
-     */
-     List<AppAdvertisingListVO> APPgetAdvertisingList(String advertisingType, String advertisingJumpType);
+     * @param advertisingTypeEnum 广告类型
+     * @return AppAdvertisingListVo
+      */
+    List<AppAdvertisingListVo> getAppAdvertisingList(AdvertisingTypeEnum advertisingTypeEnum);
+
 
     /**
      * 后端查询广告数据列表
-     * @param advertisingType 1.开屏,  2.轮播
-     * @param advertisingJumpType  1.编辑详情页  2.H5网页链接  3.活动页面  4.商家店铺首页
-     * @return
+     * @param pageVo 分页
+     * @param advertising 广告
+     * @return BackAdvertisingListVo
      */
-     List<Advertising> BackGetAdvertisingList(String advertisingType, String advertisingJumpType);
-
+    Result<DataVo<BackAdvertisingListVo>> getBackAdvertisingList(PageVo pageVo, Advertising advertising);
 
 
 }

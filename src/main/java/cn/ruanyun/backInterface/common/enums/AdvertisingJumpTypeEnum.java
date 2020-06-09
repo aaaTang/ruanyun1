@@ -11,10 +11,26 @@ import com.fasterxml.jackson.annotation.JsonValue;
  **/
 public enum AdvertisingJumpTypeEnum {
 
-    REDACT_DETAIL(1,"编辑详情页"),
-    H5_WEB(2,"H5网页链接"),
-    ACTIVITY_PAGE(3,"活动页面"),
-    STORE_HOME(4,"商家店铺首页");
+    /**
+     * 商品套餐详情页
+     */
+    GOOD_PACKAGE_PAGE(1,"套餐详情页"),
+
+    /**
+     * 商品详情页
+     */
+    GOOD_PAGE(2, "商品详情页"),
+
+    /**
+     * 商家店铺首页
+     */
+    STORE_HOME(4,"商家店铺首页"),
+
+    /**
+     * H5网页链接
+     */
+    H5_WEB(2,"H5网页链接");
+
 
     AdvertisingJumpTypeEnum(int code, String value) {
         this.code = code;

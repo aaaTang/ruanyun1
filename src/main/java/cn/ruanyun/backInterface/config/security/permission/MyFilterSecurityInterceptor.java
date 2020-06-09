@@ -1,5 +1,7 @@
 package cn.ruanyun.backInterface.config.security.permission;
 
+import cn.ruanyun.backInterface.common.utils.SensitiveWordUtil;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.SecurityMetadataSource;
@@ -10,7 +12,9 @@ import org.springframework.security.web.access.intercept.FilterInvocationSecurit
 import org.springframework.stereotype.Component;
 
 import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Enumeration;
 
 /**
  * 权限管理过滤器
@@ -34,6 +38,7 @@ public class MyFilterSecurityInterceptor extends AbstractSecurityInterceptor imp
 
     }
 
+    @SneakyThrows
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 

@@ -265,14 +265,23 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
         // 要添加的群组成员
         List<String> members = new ArrayList<>();
 
+
+
         // 平台客服
-        String platformServiceId;
-        List<PlatformServicer> platformServicers = iPlatformServicerService.list();
-        int chooseDindex = new Random().nextInt(platformServicers.size());
-        platformServiceId = platformServicers.get(chooseDindex).getServicerId();
-        Optional.ofNullable(userService.getById(platformServiceId))
-                .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(), user.getNickName(), "platformServicer")));
-        members.add(platformServiceId);
+        String platformServiceId = Optional.ofNullable(ToolUtil.setListToNul(iPlatformServicerService.list()))
+               .map(platformServicers -> {
+
+                   int chooseDindex = new Random().nextInt(platformServicers.size());
+                  String platformServiceIdReturn = platformServicers.get(chooseDindex).getServicerId();
+                   Optional.ofNullable(userService.getById(platformServiceIdReturn))
+                           .ifPresent(user -> groupUsers.add(new GroupUser(user.getId(), user.getAvatar(),
+                                   user.getNickName(), "platformServicer")));
+                   members.add(platformServiceIdReturn);
+
+                   return platformServiceIdReturn;
+               }).orElse(null);
+
+
 
         // 用户
         Optional.ofNullable(userService.getById(userId))

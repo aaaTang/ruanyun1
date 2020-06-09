@@ -1732,6 +1732,12 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
        return Optional.ofNullable(this.getOne(Wrappers.<Order>lambdaQuery().eq(Order::getOrderNum, orderNum)))
                 .map(order -> {
 
+
+                    if (!order.getOrderStatus().equals(OrderStatusEnum.SETTLE_ACCOUNTS)) {
+
+                        return new ResultUtil<>().setErrorMsg(209, "当前订单为" + order.getOrderStatus().getValue() + "订单！");
+                     }
+
                     if (order.getUserId().equals(staffId) || order.getUserId().equals(userService
                     .getById(staffId).getCreateBy())) {
 

@@ -11,8 +11,15 @@ import com.fasterxml.jackson.annotation.JsonValue;
  **/
 public enum AdvertisingTypeEnum {
 
+    /**
+     * 开屏
+     */
      OPEN_HOME(1,"开屏"),
-     BANNER(2,"轮播");
+
+    /**
+     * 轮播
+     */
+    BANNER(2,"轮播");
 
     AdvertisingTypeEnum(int code, String value) {
         this.code = code;
