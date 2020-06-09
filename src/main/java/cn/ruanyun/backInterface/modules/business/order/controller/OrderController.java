@@ -78,6 +78,13 @@ public class OrderController {
         return iOrderService.insertOffLinePayTheBalanceOrder(staffId, orderNum);
     }
 
+    @PostMapping("/insertDepositOrder")
+    @ApiOperation("新增保证金订单")
+    public Result<Object> insertDepositOrder() {
+
+        return iOrderService.insertDepositOrder();
+    }
+
 
     /*-----------------------------支付----------------------*/
 

@@ -33,7 +33,6 @@ public class CommonParamVo {
      */
     private Integer autoCommentOrderTime;
 
-
     /**
      * 保证金金额
      */
