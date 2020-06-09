@@ -30,6 +30,9 @@ public interface IDiscountShopService extends IService<DiscountShop> {
      void removeDiscountShop(String ids);
 
 
-
+    /**
+     * APP查询优惠券参与的商家列表
+     * @return
+     */
     List<DiscountShopListVO> getDiscountShopList(DiscountShopDTO discountShopDTO);
 }

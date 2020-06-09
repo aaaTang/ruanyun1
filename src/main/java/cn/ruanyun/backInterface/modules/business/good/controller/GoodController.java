@@ -84,12 +84,7 @@ public class GoodController {
     */
     @PostMapping(value = "/removeGood")
     public Result<Object> removeGood(String  id){
-        try {
-            iGoodService.removeGood(id);
-            return new ResultUtil<>().setSuccessMsg("冻结商品成功！");
-        }catch (Exception e) {
-            return new ResultUtil<>().setErrorMsg(201, e.getMessage());
-        }
+          return iGoodService.removeGood(id);
     }
 
 

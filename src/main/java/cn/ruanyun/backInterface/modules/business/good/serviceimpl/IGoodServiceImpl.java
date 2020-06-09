@@ -6,6 +6,7 @@ import cn.ruanyun.backInterface.common.enums.FollowTypeEnum;
 import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
 import cn.ruanyun.backInterface.common.enums.SearchTypesEnum;
 import cn.ruanyun.backInterface.common.utils.*;
+import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.RoleMapper;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserMapper;
 import cn.ruanyun.backInterface.modules.base.mapper.mapper.UserRoleMapper;
@@ -149,15 +150,23 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     }
 
     @Override
-    public void removeGood(String  id) {
-        Good good = this.getById(id);
-        good.setId(id);
-        if(good.getDelFlag().equals(0)){
-            good.setDelFlag(1);
-        }else {
-            good.setDelFlag(0);
-        }
-        this.updateById(good);
+    public Result<Object> removeGood(String  id) {
+
+        return Optional.ofNullable(super.getById(id))
+                .map(good1 -> {
+                    String result = "";
+                    if(good1.getDelFlag().equals(1)){
+                        good1.setDelFlag(0);
+                        result="解除下架！";
+                    }else if (good1.getDelFlag().equals(0)){
+                        good1.setDelFlag(CommonConstant.DEL_FLAG);
+                        result="下架成功！";
+                    }
+                    super.updateById(good1);
+
+                    return new ResultUtil<>().setSuccessMsg(result);
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "不商品不存在！"));
+
     }
 
     /**

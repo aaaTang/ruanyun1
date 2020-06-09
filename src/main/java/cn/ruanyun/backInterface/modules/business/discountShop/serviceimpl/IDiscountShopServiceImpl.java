@@ -67,6 +67,11 @@ public class IDiscountShopServiceImpl extends ServiceImpl<DiscountShopMapper, Di
           CompletableFuture.runAsync(() -> this.removeByIds(ToolUtil.splitterStr(ids)));
       }
 
+
+    /**
+     * APP查询优惠券参与的商家列表
+     * @return
+     */
     @Override
     public List<DiscountShopListVO> getDiscountShopList(DiscountShopDTO discountShopDTO) {
 

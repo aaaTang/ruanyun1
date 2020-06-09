@@ -38,10 +38,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -361,18 +358,40 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
     @Override
     public List<AppDiscountCouponListVO> AppDiscountCouponList(DiscountCouponDTO discountCouponDTO) {
 
-        return Optional.ofNullable(ToolUtil.setListToNul(this.list(new QueryWrapper<DiscountCoupon>().lambda()
+        String principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+
+        List<DiscountCoupon> discountCouponList = Optional.ofNullable(ToolUtil.setListToNul(this.list(new QueryWrapper<DiscountCoupon>().lambda()
                 .eq(DiscountCoupon::getDisCouponType, DisCouponTypeEnum.ALL_SHOP)
                 .eq(DiscountCoupon::getDelFlag, CommonConstant.STATUS_NORMAL)
                 .ge(DiscountCoupon::getValidityPeriod, new Date())
-                .orderByDesc(DiscountCoupon::getCreateTime))))
-        .map(discountCoupons -> discountCoupons.parallelStream().flatMap(discountCoupon -> {
+                .orderByDesc(DiscountCoupon::getCreateTime)))).orElse(null);
+
+        List<AppDiscountCouponListVO> appDiscountCouponListVOList = new ArrayList<>();
+
+        for (DiscountCoupon discountCoupon : discountCouponList) {
+
             AppDiscountCouponListVO appDiscountCouponListVO = new AppDiscountCouponListVO();
 
-            ToolUtil.copyProperties(discountCoupon,appDiscountCouponListVO);
-            return Stream.of(appDiscountCouponListVO);
-        }).collect(Collectors.toList())).orElse(null);
+            ToolUtil.copyProperties(discountCoupon, appDiscountCouponListVO);
+            if (!"anonymousUser".equals(principal)) {
+                    //去除已经被领取的优惠券
+                DiscountMy discountMy = discountMyService.getOne(new QueryWrapper<DiscountMy>().lambda().eq(DiscountMy::getDiscountCouponId, discountCoupon.getId()).eq(DiscountMy::getCreateBy, securityUtil.getCurrUser().getId()));
+
+                if(ToolUtil.isEmpty(discountMy)){
+
+                    appDiscountCouponListVOList.add(appDiscountCouponListVO);
+                }
+            }else {
+
+                appDiscountCouponListVOList.add(appDiscountCouponListVO);
+            }
+
+        }
+
+        return appDiscountCouponListVOList;
     }
+
+
 
 
 }

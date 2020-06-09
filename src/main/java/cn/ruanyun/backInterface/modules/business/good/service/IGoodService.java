@@ -2,6 +2,7 @@ package cn.ruanyun.backInterface.modules.business.good.service;
 
 import cn.ruanyun.backInterface.common.enums.SearchTypesEnum;
 import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
+import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.business.good.DTO.GoodDTO;
 import cn.ruanyun.backInterface.modules.business.good.VO.*;
 import cn.ruanyun.backInterface.modules.business.myFavorite.VO.GoodsFavoriteVO;
@@ -28,7 +29,7 @@ public interface IGoodService extends IService<Good> {
     /**
      * 移除good
      */
-    void removeGood(String  id);
+    Result<Object> removeGood(String  id);
 
 
     /**
