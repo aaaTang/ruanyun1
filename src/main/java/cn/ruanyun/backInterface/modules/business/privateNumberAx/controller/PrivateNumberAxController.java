@@ -6,6 +6,8 @@ import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.business.privateNumberAx.service.IPrivateNumberAxService;
 import cn.ruanyun.backInterface.modules.business.privateNumberAx.vo.PrivateNumberAxVo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/ruanyun/privateNumberAx")
 @Transactional
+@Api(tags = "虚拟号段")
 public class PrivateNumberAxController {
 
     @Autowired
@@ -35,6 +38,7 @@ public class PrivateNumberAxController {
      * @return Object
      */
     @PostMapping("/getPrivateNumByStoreIdAndUseId")
+    @ApiOperation("获取虚拟号码")
     public Result<Object> getPrivateNumByStoreIdAndUseId(String storeId) {
 
         return privateNumberAxService.getPrivateNumByStoreIdAndUseId(storeId);
@@ -47,6 +51,7 @@ public class PrivateNumberAxController {
      * @return Object
      */
     @PostMapping("/getPrivateNumberAxVoList")
+    @ApiOperation("获取虚拟号段绑定关系列表")
     public Result<Object> getPrivateNumberAxVoList(PageVo pageVo) {
 
         DataVo<PrivateNumberAxVo> result = privateNumberAxService.getPrivateNumberAxVoList(pageVo);

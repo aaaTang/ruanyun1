@@ -26,7 +26,7 @@ spring:
       enabled: always
   # 数据源
   datasource:
-    url: jdbc:mysql://rm-bp155p9k6mm1ni265go.mysql.rds.aliyuncs.com/fanshafutest?useUnicode=true&characterEncoding=utf-8&useSSL=false
+    url: jdbc:mysql://rm-bp155p9k6mm1ni265go.mysql.rds.aliyuncs.com/fanshafu?useUnicode=true&characterEncoding=utf-8&useSSL=false
     username: fsfroot
     # Jasypt加密 可到common-utils中找到JasyptUtil加解密工具类生成加密结果 格式为ENC(加密结果)
     password: RuanYun0202

@@ -11,6 +11,7 @@ import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.UserService;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserInfo;
 import cn.ruanyun.backInterface.modules.business.privateNumber.pojo.PrivateNumber;
 import cn.ruanyun.backInterface.modules.business.privateNumber.service.IPrivateNumberService;
@@ -53,14 +54,14 @@ public class IPrivateNumberAxServiceImpl extends ServiceImpl<PrivateNumberAxMapp
     private IPrivateNumberService privateNumberService;
 
     @Autowired
-    private UserService userService;
+    private IUserService userService;
 
     @Override
     public Result<Object> getPrivateNumByStoreIdAndUseId(String storeId) {
 
         BackUserInfo currentUser = securityUtil.getCurrUser();
 
-        Optional<User> storeOption  = Optional.ofNullable(userService.get(storeId));
+        Optional<User> storeOption  = Optional.ofNullable(userService.getById(storeId));
         log.info("当前登录id是：" + currentUser.getId());
 
         //1. 判断当前用户是否已经跟商家绑定了虚拟号段
@@ -145,12 +146,12 @@ public class IPrivateNumberAxServiceImpl extends ServiceImpl<PrivateNumberAxMapp
             PrivateNumberAxVo privateNumberAxVo = new PrivateNumberAxVo();
 
             //客户
-            Optional.ofNullable(userService.get(privateNumberAx.getCreateBy()))
+            Optional.ofNullable(userService.getById(privateNumberAx.getCreateBy()))
                     .ifPresent(user -> privateNumberAxVo.setCallerName(user.getNickName())
                             .setCallerPhone(user.getMobile()));
 
             //商家
-            Optional.ofNullable(userService.get(privateNumberAx.getStoreId()))
+            Optional.ofNullable(userService.getById(privateNumberAx.getStoreId()))
                     .ifPresent(user -> privateNumberAxVo.setCalleeName(user.getShopName())
                     .setCalleePhone(user.getMobile()));
 
