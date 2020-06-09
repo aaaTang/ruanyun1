@@ -182,6 +182,14 @@ public class IOrderAfterSaleServiceImpl extends ServiceImpl<OrderAfterSaleMapper
 
                 orderAfterSaleVO.setGoodDesc(order.getGoodDesc());
             });
+            Optional.ofNullable(orderService.getById(orderId)).ifPresent(order -> {
+                orderAfterSaleVO.setRentType(order.getRentType());
+                orderAfterSaleVO.setGoodDesc(order.getGoodDesc());
+
+
+            });
+
+
             return orderAfterSaleVO;
 
         }).orElse(null);

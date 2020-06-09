@@ -70,8 +70,8 @@ public class DiscountMyController {
      * @return
      */
     @PostMapping("/getCanUseCouponByOrder")
-    public Result<Object> getCanUseCouponByOrder(String goodId ,BigDecimal orderMoney){
-        return Optional.ofNullable(discountMyService.getDealCanUseCoupon(null,goodId,orderMoney)).map(myCoupon -> new ResultUtil<>().setData(myCoupon,"获取可以使用的优惠券成功！"))
+    public Result<Object> getCanUseCouponByOrder(String userId,String goodId ,BigDecimal orderMoney){
+        return Optional.ofNullable(discountMyService.getDealCanUseCoupon(userId,goodId,orderMoney)).map(myCoupon -> new ResultUtil<>().setData(myCoupon,"获取可以使用的优惠券成功！"))
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
 }

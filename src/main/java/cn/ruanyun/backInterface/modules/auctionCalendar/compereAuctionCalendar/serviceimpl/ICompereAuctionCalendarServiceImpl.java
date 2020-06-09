@@ -1,7 +1,9 @@
 package cn.ruanyun.backInterface.modules.auctionCalendar.compereAuctionCalendar.serviceimpl;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.DayTimeTypeEnum;
+import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.enums.UserTypeEnum;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.Result;
@@ -22,6 +24,11 @@ import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.goodService.pojo.GoodService;
+import cn.ruanyun.backInterface.modules.business.order.mapper.OrderMapper;
+import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
+import cn.ruanyun.backInterface.modules.business.orderDetail.mapper.OrderDetailMapper;
+import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
+import cn.ruanyun.backInterface.modules.business.orderDetail.service.IOrderDetailService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -64,6 +71,13 @@ public class ICompereAuctionCalendarServiceImpl extends ServiceImpl<CompereAucti
 
         @Autowired
         private IGoodService iGoodService;
+
+        @Resource
+        private OrderDetailMapper orderDetailMapper;
+
+        @Resource
+        private OrderMapper orderMapper;
+
 
        @Override
        public Result<Object> insertOrderUpdateCompereAuctionCalendar(CompereAuctionCalendar compereAuctionCalendar) {
@@ -176,9 +190,26 @@ public class ICompereAuctionCalendarServiceImpl extends ServiceImpl<CompereAucti
                   if(calendarVO.getDayTimeType().equals(noCalendars.getDayTimeType())){
 
                       calendarVO.setStatus(0);
+
                   }
 
               }
+
+              //4.判断订单被购买
+              Optional.ofNullable(orderDetailMapper.selectList(new QueryWrapper<OrderDetail>().lambda().eq(OrderDetail::getGoodId,goodsId)))
+                      .map(orderDetails -> orderDetails.parallelStream().flatMap(orderDetail -> {
+                          Optional.ofNullable(orderMapper.selectById(new QueryWrapper<Order>().lambda()
+                                  .eq(Order::getId,orderDetail.getOrderId())
+                                  .eq(Order::getDayTimeType,calendarVO.getDayTimeType())
+                                  .eq(Order::getScheduleAppointment,calendarVO.getScheduleTime())
+                                  .ge(Order::getOrderStatus, OrderStatusEnum.PRE_SEND)
+                          )).ifPresent(order -> { calendarVO.setStatus(0); });
+
+                          return null;
+                      })).orElse(null);
+
+
+
 
           }
 

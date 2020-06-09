@@ -104,15 +104,22 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
      */
     @Override
     public  List<DiscountVO> getDealCanUseCoupon(String userId, String goodId, BigDecimal multiply) {
-        String createBy = goodService.getById(goodId).getCreateBy();
+        String createBy = null;
+        if(ToolUtil.isNotEmpty(userId)){
+            createBy = userId;
+        }else {
+           createBy = goodService.getById(goodId).getCreateBy();
+        }
+
         userId = securityUtil.getCurrUser().getId();
+        String finalCreateBy = createBy;
         return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<DiscountMy>lambdaQuery().eq(DiscountMy::getCreateBy,userId).eq(DiscountMy::getStatus,CommonConstant.STATUS_NORMAL))))
                 .map(discountMIES -> {
                     List<DiscountVO> discountVOList = discountMIES.parallelStream().map(discountMy -> {
                         DiscountCoupon byId = discountService.getById(discountMy.getDiscountCouponId());
                         DiscountShop discountShop = discountShopMapper.selectOne(new QueryWrapper<DiscountShop>().lambda()
                                 .eq(DiscountShop::getDiscountId,discountMy.getDiscountCouponId())
-                                .eq(DiscountShop::getShopId,createBy)
+                                .eq(DiscountShop::getShopId, finalCreateBy)
                         );
                         DiscountVO discountVO = new DiscountVO();
                         if (EmptyUtil.isNotEmpty(byId)){
@@ -120,10 +127,9 @@ public class IDiscountMyServiceImpl extends ServiceImpl<DiscountMyMapper, Discou
                             //时间戳转换
                             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-
                             //全场 价格达到标准
                             int i = multiply.compareTo(byId.getFullMoney());
-                            if (byId.getDisCouponType().getCode() == DisCouponTypeEnum.ALL_USE.getCode() && i != -1 && byId.getCreateBy().equals(createBy)){
+                            if (byId.getDisCouponType().getCode() == DisCouponTypeEnum.ALL_USE.getCode() && i != -1 && byId.getCreateBy().equals(finalCreateBy)){
 
                                 ToolUtil.copyProperties(byId,discountVO);
                                 discountVO.setDisCouponType(byId.getDisCouponType());

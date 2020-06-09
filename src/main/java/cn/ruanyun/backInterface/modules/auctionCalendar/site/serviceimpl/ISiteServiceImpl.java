@@ -2,6 +2,7 @@ package cn.ruanyun.backInterface.modules.auctionCalendar.site.serviceimpl;
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.DayTimeTypeEnum;
+import cn.ruanyun.backInterface.common.enums.OrderStatusEnum;
 import cn.ruanyun.backInterface.common.utils.*;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
@@ -18,6 +19,9 @@ import cn.ruanyun.backInterface.modules.auctionCalendar.sitePrice.mapper.SitePri
 import cn.ruanyun.backInterface.modules.auctionCalendar.sitePrice.pojo.SitePrice;
 import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.business.itemAttrVal.service.IItemAttrValService;
+import cn.ruanyun.backInterface.modules.business.order.mapper.OrderMapper;
+import cn.ruanyun.backInterface.modules.business.order.pojo.Order;
+import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -61,6 +65,9 @@ public class ISiteServiceImpl extends ServiceImpl<SiteMapper, Site> implements I
 
     @Resource
     private SiteAuctionCalendarMapper siteAuctionCalendarMapper;
+
+    @Resource
+    private OrderMapper orderMapper;
 
     @Override
     public void insertOrderUpdateSite(Site site) {
@@ -242,6 +249,15 @@ public class ISiteServiceImpl extends ServiceImpl<SiteMapper, Site> implements I
                 }
 
             }
+
+            //4.判断订单被购买
+            Optional.ofNullable(orderMapper.selectById(new QueryWrapper<Order>().lambda()
+                    .eq(Order::getSiteId,siteId)
+                    .eq(Order::getDayTimeType,detailTimeVO.getDayTimeType())
+                    .eq(Order::getScheduleAppointment,scheduleTime)
+                    .ge(Order::getOrderStatus, OrderStatusEnum.PRE_SEND)
+            )).ifPresent(order -> { detailTimeVO.setStatus(0); });
+
 
         }
 

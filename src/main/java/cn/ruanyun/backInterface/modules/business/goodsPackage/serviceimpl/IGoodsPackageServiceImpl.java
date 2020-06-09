@@ -9,6 +9,7 @@ import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.serviceimpl.mybatis.IUserServiceImpl;
 import cn.ruanyun.backInterface.modules.base.vo.BackUserVO;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.service.IBookingOrderService;
+import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.pojo.DiscountCoupon;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
@@ -90,7 +91,8 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     private IstoreFirstRateServiceService storeFirstRateServiceService;
     @Autowired
     private IStoreActivityService iStoreActivityService;
-
+    @Autowired
+    private ICommentService commentService;
 
     /**
      * App查询商家套餐详情
@@ -323,11 +325,11 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
                     .setGoodsNum(iGoodService.getAppForSaleGoods(ids).size())
                     //获取店铺关注数量
                     .setFollowAttentionNum(followAttentionService.getMefansNum(ids))
-                    //TODO::评论数量 暂无
-                     .setEvaluateNum(null)
+                    //TODO::评论数量
+                     .setEvaluateNum(commentService.getCommentByStore(user.getId()))
                     //当前登录用户是否关注这个店铺
                     .setMyFollowAttention(followAttentionService.getMyFollowAttentionShop(ids,FollowTypeEnum.Follow_SHOP))
-            ;
+                    ;
                 if(ToolUtil.isNotEmpty(user.getPic())){
                     String[] pic = user.getPic().split(",");
                     shopParticularsParameterVO.setPic(pic[0]);

@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.orderAfterSale.VO;
 
 import cn.ruanyun.backInterface.common.enums.AfterSaleTypeEnum;
+import cn.ruanyun.backInterface.common.enums.RentTypeEnum;
 import cn.ruanyun.backInterface.modules.business.orderAfterSale.pojo.OrderAfterSale;
 import cn.ruanyun.backInterface.modules.business.orderDetail.pojo.OrderDetail;
 import cn.ruanyun.backInterface.modules.business.orderDetail.vo.OrderDetailVo;
@@ -61,5 +62,8 @@ public class OrderAfterSaleVo {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "下单时间")
     private Date createTime;
+
+    @ApiModelProperty(value = "支付尾款类型")
+    private RentTypeEnum rentType;
 
 }
