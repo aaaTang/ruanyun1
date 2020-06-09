@@ -1,6 +1,8 @@
 package cn.ruanyun.backInterface.modules.base.vo;
 
 
+import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -118,4 +120,8 @@ public class AppUserVO {
      * 是否有支付密码  0否 ，1有
      */
     private Integer pay;
+
+
+    @ApiModelProperty("是否缴纳保证金")
+    private BooleanTypeEnum deposit;
 }

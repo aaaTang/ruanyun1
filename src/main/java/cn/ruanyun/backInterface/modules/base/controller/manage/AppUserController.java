@@ -86,7 +86,7 @@ public class AppUserController {
 
     /**
      * 获取个人信息
-     * @return
+     * @return Object
      */
     @GetMapping("/getAppUserInfo")
     public Result<Object> getAppUserInfo() {
