@@ -25,6 +25,7 @@ import cn.ruanyun.backInterface.modules.business.followAttention.pojo.FollowAtte
 import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
+import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
 import cn.ruanyun.backInterface.modules.business.storeAudit.dto.StoreAuditDTO;
@@ -37,6 +38,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -45,9 +48,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -146,14 +147,32 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
 
         return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<StoreAudit>lambdaQuery()
         .eq(StoreAudit::getCheckEnum, CheckEnum.CHECK_SUCCESS)
-        .eq(StoreAudit::getClassificationId, storeListDto.getGoodCategoryId())
+        .in(StoreAudit::getClassificationId, getCategoryListByPid(storeListDto.getGoodCategoryId()))
         .orderByDesc(StoreAudit::getCreateTime))))
         .map(storeAudits -> storeAudits.parallelStream().map(storeAudit -> userService.getById(storeAudit.getCreateBy()))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList()))
         .orElse(null);
+    }
 
 
+    /**
+     * 获取包含一级的 一级和二级总分类
+     * @param categoryId 分类id
+     * @return String
+     */
+    public Set<String> getCategoryListByPid(String categoryId) {
+
+        Set<String> categoryIds = Sets.newHashSet();
+
+        categoryIds.add(categoryId);
+
+        Optional.ofNullable(ToolUtil.setListToNul(goodCategoryService.list(Wrappers.<GoodCategory>lambdaQuery()
+        .eq(GoodCategory::getParentId, categoryId))))
+        .ifPresent(goodCategories -> categoryIds.addAll(goodCategories.parallelStream().map(GoodCategory::getId)
+        .collect(Collectors.toSet())));
+
+        return categoryIds;
     }
 
     @Override

@@ -64,6 +64,13 @@ public interface IOrderService extends IService<Order> {
     Result<Object> insertOffLinePayTheBalanceOrder(String staffId, String orderNum);
 
 
+    /**
+     * 新增保证金订单
+     * @return Object
+     */
+    Result<Object> insertDepositOrder();
+
+
 
     /*-----------------------------支付----------------------*/
 
@@ -97,6 +104,13 @@ public interface IOrderService extends IService<Order> {
      * @return String
      */
     String aliPayNotify(HttpServletRequest request);
+
+
+    /**
+     * 处理保证金回调
+     * @param orderId 订单
+     */
+    void resolveDepositMoney(String orderId);
 
 
     /*-----------------------------订单操作----------------------*/

@@ -17,9 +17,11 @@ import cn.ruanyun.backInterface.modules.business.discountCoupon.serviceimpl.IDis
 import cn.ruanyun.backInterface.modules.business.followAttention.service.IFollowAttentionService;
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
+import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.good.serviceimpl.IGoodServiceImpl;
 import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
 import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
+import cn.ruanyun.backInterface.modules.business.goodService.pojo.GoodService;
 import cn.ruanyun.backInterface.modules.business.goodsIntroduce.service.IGoodsIntroduceService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.DTO.ShopParticularsDTO;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.VO.*;
@@ -93,6 +95,9 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
     private IStoreActivityService iStoreActivityService;
     @Autowired
     private ICommentService commentService;
+
+    @Autowired
+    private IGoodService goodService;
 
     /**
      * App查询商家套餐详情
@@ -202,6 +207,9 @@ public class IGoodsPackageServiceImpl extends ServiceImpl<GoodsPackageMapper, Go
 
             //优惠券
             shopParticularsVO.setDiscountList(couponListByCreateBy);
+
+            //最低价格
+            shopParticularsVO.setLowPrice(goodService.getLowPriceByStoreId(user.getId()));
 
             //优质服务
             shopParticularsVO.setFirstRateService(

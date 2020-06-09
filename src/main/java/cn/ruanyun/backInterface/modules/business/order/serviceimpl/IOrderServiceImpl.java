@@ -668,8 +668,13 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                             && order.getBuyType().equals(BuyTypeEnum.RENT))
                             .map(Order::getGoodDeposit).reduce(BigDecimal.ZERO, BigDecimal::add);
 
+                    //1.2.5 保证金价格订单
+                    BigDecimal depositOrderMoney = orders.parallelStream().filter(order -> order.getTypeEnum().equals(OrderTypeEnum.DEPOSIT_ORDER))
+                            .map(Order::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                    payModel.setTotalPrice(fullPayOrderMoney.add(payGoodDeposit).add(payOffLineDepositOrderMoney).add(payOffLineFullOrderMoney));
+
+                    payModel.setTotalPrice(fullPayOrderMoney.add(payGoodDeposit).add(payOffLineDepositOrderMoney).add(payOffLineFullOrderMoney)
+                    .add(depositOrderMoney));
 
 
                     //2. 处理支付
@@ -1320,6 +1325,13 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                     }
                 });
 
+
+                //处理保证金订单
+                if (orders.get(0).getTypeEnum().equals(OrderTypeEnum.DEPOSIT_ORDER)) {
+
+                    resolveDepositMoney(orders.get(0).getId());
+                }
+
                 // 处理正常支付回调逻辑
                 if (ToolUtil.isEmpty(orders.parallelStream().filter(order -> ToolUtil.isNotEmpty(order.getRentPayType()))
                 .collect(Collectors.toList()))) {
@@ -1352,6 +1364,24 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
             object.put("return_msg", "请重新下单");
             return object.toString();
         }
+    }
+
+    @Override
+    public void resolveDepositMoney(String orderId) {
+
+        Optional.ofNullable(this.getById(orderId)).ifPresent(order -> {
+
+            order.setOrderStatus(OrderStatusEnum.IS_COMPLETE);
+            this.updateById(order);
+
+            Optional.ofNullable(userService.getById(order.getCreateBy())).ifPresent(user -> {
+
+                user.setDeposit(BooleanTypeEnum.YES);
+                userService.updateById(user);
+
+            });
+
+        });
     }
 
     @Override
@@ -1690,6 +1720,29 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                         return new ResultUtil<>().setErrorMsg(205, "只有当前门店才能操作！");
                     }
                 }).orElse(new ResultUtil<>().setErrorMsg(206, "当前订单不存在！"));
+    }
+
+    @Override
+    public Result<Object> insertDepositOrder() {
+
+
+        Order order = new Order();
+
+        order.setTypeEnum(OrderTypeEnum.DEPOSIT_ORDER)
+                .setBuyType(BuyTypeEnum.FULL_PURCHASE)
+                .setTotalPrice(icommonParamService.getCommonParamVo().getDepositMoney())
+                .setGoodDesc("缴纳保证金")
+                .setCreateBy(securityUtil.getCurrUser().getId());
+
+        if (this.save(order)) {
+
+            Map<String, Object> map = new ArrayMap<>();
+            map.put("id", order.getId());
+            map.put("totalPrice", order.getGoodDeposit());
+            return new ResultUtil<>().setData(map, "创建保证金订单成功!");
+        }
+
+        return new ResultUtil<>().setErrorMsg(208, "创建订单失败！");
     }
 
 

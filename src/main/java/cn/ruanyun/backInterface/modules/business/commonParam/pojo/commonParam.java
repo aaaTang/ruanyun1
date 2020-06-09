@@ -6,6 +6,7 @@ import lombok.Data;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import java.math.BigDecimal;
 
 /**
  * 公众参数
@@ -33,4 +34,10 @@ public class commonParam extends RuanyunBaseEntity {
      * 自动评价时间
      */
     private Integer autoCommentOrderTime = 1;
+
+    /**
+     * 保证金金额
+     */
+    private BigDecimal depositMoney = new BigDecimal(0);
+
 }

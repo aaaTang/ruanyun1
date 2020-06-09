@@ -266,4 +266,8 @@ public interface IUserService extends IService<User> {
      */
     Result<DataVo<StoreListVo>> getStoreList(PageVo pageVo, StoreListDto storeListDto);
 
+
+
+
+
 }

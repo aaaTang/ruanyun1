@@ -4,6 +4,7 @@ package cn.ruanyun.backInterface.modules.base.pojo;
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.AuthenticationTypeEnum;
+import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
 import cn.ruanyun.backInterface.common.utils.CommonUtil;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
@@ -95,6 +96,9 @@ public class User extends RuanyunBaseEntity {
 
     @ApiModelProperty("交易号")
     private String transactionNo;
+
+    @ApiModelProperty("是否缴纳保证金")
+    private BooleanTypeEnum deposit = BooleanTypeEnum.NO;
 
     /*--------------------用户类型--------------*/
 

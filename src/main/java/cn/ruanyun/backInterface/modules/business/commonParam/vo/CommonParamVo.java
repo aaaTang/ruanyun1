@@ -3,6 +3,8 @@ package cn.ruanyun.backInterface.modules.business.commonParam.vo;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.math.BigDecimal;
+
 /**
  * @program: ruanyun
  * @description:
@@ -30,5 +32,11 @@ public class CommonParamVo {
      * 自动评价时间
      */
     private Integer autoCommentOrderTime;
+
+
+    /**
+     * 保证金金额
+     */
+    private BigDecimal depositMoney;
 
 }

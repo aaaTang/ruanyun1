@@ -33,8 +33,12 @@ public enum OrderTypeEnum {
     /**
      * 主持人档期预约订单
      */
-    COMPERE_ORDER(5, "主持人档期预约订单");
+    COMPERE_ORDER(5, "主持人档期预约订单"),
 
+    /**
+     * 保证金订单
+     */
+    DEPOSIT_ORDER(6, "保证金订单");
 
 
     OrderTypeEnum(int code, String value) {

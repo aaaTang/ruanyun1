@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.experimental.Accessors;
 
 import javax.persistence.Column;
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -87,6 +88,9 @@ public class ShopParticularsVO {
      * 是否预约
      */
     private WhetherBookingOrderVO whetherBookingOrder;
+
+    @ApiModelProperty("最低价格")
+    private BigDecimal lowPrice;
 
     @ApiModelProperty("店铺营业时间")
     private String openTime;
