@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.discountCoupon.pojo;
 
 import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
 import cn.ruanyun.backInterface.common.enums.DisCouponTypeEnum;
 import cn.ruanyun.backInterface.common.enums.UsableRangeTypeEnum;
@@ -49,7 +50,7 @@ public class DiscountCoupon extends RuanyunBaseEntity {
     /**
      *  使用范围id
      */
-    private String usableRangeId;
+    private String usableRangeId = "0";
     /**
      * 商品id
      */
