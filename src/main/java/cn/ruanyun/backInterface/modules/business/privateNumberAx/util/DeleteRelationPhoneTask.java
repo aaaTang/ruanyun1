@@ -30,7 +30,7 @@ public class DeleteRelationPhoneTask {
     @Autowired
     private IPrivateNumberService privateNumberService;
 
-    @Scheduled(cron = "0 0 0,13,18,21 * * ?")
+    @Scheduled(cron = "0 0 1 * * ?")
     private void removePhone() {
 
         Optional.ofNullable(ToolUtil.setListToNul(privateNumberAxService.list()))
