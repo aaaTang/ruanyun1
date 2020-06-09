@@ -309,6 +309,9 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
     @Override
     public List<PlatformDiscountCouponVO> getPlatformDiscountCoupon() {
 
+
+        String currentUser = securityUtil.getCurrUser().getId();
+
         //查询平台发布的优惠券
         return Optional.ofNullable(this.list(new QueryWrapper<DiscountCoupon>().lambda()
                 .eq(DiscountCoupon::getDisCouponType, DisCouponTypeEnum.ALL_SHOP)
@@ -326,7 +329,7 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
                 //查询商家是否参加这个优惠券活动
                 DiscountShop discountShop = discountShopMapper.selectOne(new QueryWrapper<DiscountShop>().lambda()
                         .eq(DiscountShop::getDiscountId, discountCoupon.getId())
-                        .eq(DiscountShop::getCreateBy, securityUtil.getCurrUser().getId())
+                        .eq(DiscountShop::getCreateBy, currentUser)
                         .last("limit 1"));
 
                 if (ToolUtil.isNotEmpty(discountShop)) {
@@ -340,10 +343,11 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
                 return Stream.of(p);
                 //筛选出分类和商家一样的
             }).filter(platformDiscountCouponVO -> platformDiscountCouponVO.getUsableRangeId()
-                    .equals(Optional.ofNullable(userMapper.selectById(securityUtil.getCurrUser().getId()))
+                    .equals(Optional.ofNullable(userMapper.selectById(currentUser))
                             .map(User::getClassId).orElse(null)))
 
                     .collect(Collectors.toList());
+
             return platformDiscountCouponVOS;
         }).orElse(null);
 
