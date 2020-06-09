@@ -668,14 +668,13 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                             && order.getBuyType().equals(BuyTypeEnum.RENT))
                             .map(Order::getGoodDeposit).reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                    //1.2.5 保证金价格订单
-                    BigDecimal depositOrderMoney = orders.parallelStream().filter(order -> order.getTypeEnum().equals(OrderTypeEnum.DEPOSIT_ORDER))
-                            .map(Order::getTotalPrice).reduce(BigDecimal.ZERO, BigDecimal::add);
+                    payModel.setTotalPrice(fullPayOrderMoney.add(payGoodDeposit).add(payOffLineDepositOrderMoney).add(payOffLineFullOrderMoney));
 
 
-                    payModel.setTotalPrice(fullPayOrderMoney.add(payGoodDeposit).add(payOffLineDepositOrderMoney).add(payOffLineFullOrderMoney)
-                    .add(depositOrderMoney));
+                    if (orders.get(0).getTypeEnum().equals(OrderTypeEnum.DEPOSIT_ORDER)) {
 
+                        payModel.setTotalPrice(orders.get(0).getTotalPrice());
+                    }
 
                     //2. 处理支付
                     //微信
@@ -1760,7 +1759,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
             Map<String, Object> map = new ArrayMap<>();
             map.put("id", order.getId());
-            map.put("totalPrice", order.getTotalPrice());
+            map.put("totalPrice", icommonParamService.getCommonParamVo().getDepositMoney());
             return new ResultUtil<>().setData(map, "创建保证金订单成功!");
         }
 
