@@ -255,14 +255,11 @@ ignored:
     - /ruanyun/order/aliPayNotify  #支付宝回调
     - /ruanyun/order/wxPayNotify  #微信回调
 
-    - /ruanyun/good/activityShop  #分享店铺页
-    - /ruanyun/storeActivity/getActivity  #获取活动详情
-    - /ruanyun/good/activityGood   #分享商品页
-    - /ruanyun/good/activityGoodPackage  #分享套餐页
-    - /ruanyun/goodsPackage/getShopParticulars
-    - /ruanyun/goodsPackage/GetGoodsPackage
-    - /ruanyun/goodsPackage/AppGoodsPackageList
-    - /ruanyun/good/getGoodDetailVO
+    - /ruanyun/comment/getAppCommonList  #APP 商家详情查看 评价列表接口
+    - /ruanyun/goodsPackage/getShopParticulars  #店铺详情
+    - /ruanyun/goodsPackage/GetGoodsPackage   #查询套餐详情
+    - /ruanyun/goodsPackage/AppGoodsPackageList # 查询商家精选套餐
+    - /ruanyun/good/getGoodDetailVO #获取商品详情
     - /ruanyun/good/getAppGoodList
 
 
