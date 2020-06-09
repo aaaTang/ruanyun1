@@ -251,11 +251,19 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                 //1.4 优惠券满减
                 if (ToolUtil.isNotEmpty(appOrderGoodInfoDto.getDiscountId())) {
 
+                    log.info("当前的 优惠券id是:" + appOrderGoodInfoDto.getDiscountId());
+
                     Optional.ofNullable(discountCouponService.getDiscountCouponDetail(appOrderGoodInfoDto.getDiscountId()))
                             .ifPresent(discountCoupon -> {
 
-                                order.setTotalPrice(order.getTotalPrice().subtract(discountCoupon.getSubtractMoney()))
-                                        .setGoodDeposit(order.getGoodDeposit().subtract(discountCoupon.getSubtractMoney()));
+                                log.info("当前的 优惠券是:" + discountCoupon);
+
+                                order.setTotalPrice(order.getTotalPrice().subtract(discountCoupon.getSubtractMoney()));
+
+                                if (ToolUtil.isNotEmpty(order.getGoodDeposit())) {
+
+                                    order.setGoodDeposit(order.getGoodDeposit().subtract(discountCoupon.getSubtractMoney()));
+                                }
 
                                 //设置优惠券已使用
                                 discountMyService.changeMyDisCouponStatus(discountCoupon.getId(), currentUserId);

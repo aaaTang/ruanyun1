@@ -25,6 +25,7 @@ import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
 import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
 import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
+import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
 import cn.ruanyun.backInterface.modules.business.goodService.service.IGoodServiceService;
 import cn.ruanyun.backInterface.modules.business.goodsIntroduce.service.IGoodsIntroduceService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.service.IGoodsPackageService;
@@ -48,6 +49,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.weaver.ast.Var;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,6 +127,9 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     private IstoreFirstRateServiceService storeFirstRateServiceService;
     @Autowired
     private IStoreActivityService iStoreActivityService;
+
+    @Autowired
+    private IGoodCategoryService goodCategoryService;
 
     @Override
     public void insertOrderUpdateGood(Good good) {
@@ -263,7 +269,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
         if(ToolUtil.isEmpty(goodDTO.getAreaId())){
             // 1.默认条件构造器
             LambdaQueryWrapper<Good> wrappers =  Wrappers.<Good>lambdaQuery()
-                    .eq(!StringUtils.isEmpty(goodDTO.getGoodCategoryId()),Good::getGoodCategoryId,goodDTO.getGoodCategoryId())
+                    .in(ToolUtil.isNotEmpty(getGoodCategoryIdByParentId(goodDTO.getGoodCategoryId())),Good::getGoodCategoryId, getGoodCategoryIdByParentId(goodDTO.getGoodCategoryId()))
                     .eq(!EmptyUtil.isEmpty(goodDTO.getGoodTypeEnum()),Good::getTypeEnum, goodDTO.getGoodTypeEnum())
                     .eq(!StringUtils.isEmpty(goodDTO.getStoreId()),Good::getCreateBy, goodDTO.getStoreId())
                     .eq(Good::getDelFlag,CommonConstant.STATUS_NORMAL);
@@ -301,7 +307,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
             List<Good> goods = new ArrayList<>();
             for (User user : userList) {
                 List<Good> g = goodMapper.selectList(new QueryWrapper<Good>().lambda()
-                        .eq(!StringUtils.isEmpty(goodDTO.getGoodCategoryId()),Good::getGoodCategoryId,goodDTO.getGoodCategoryId())
+                        .in(ToolUtil.isNotEmpty(getGoodCategoryIdByParentId(goodDTO.getGoodCategoryId())),Good::getGoodCategoryId, getGoodCategoryIdByParentId(goodDTO.getGoodCategoryId()))
                         .eq(!EmptyUtil.isEmpty(goodDTO.getGoodTypeEnum()),Good::getTypeEnum, goodDTO.getGoodTypeEnum())
                         .eq(Good::getCreateBy, user.getId())
                         .eq(Good::getDelFlag, CommonConstant.STATUS_NORMAL)
@@ -316,6 +322,31 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
         return null;
 
+    }
+
+
+    /**
+     * 查询当前id下面的所有子集分类
+     * @param goodCategoryId 父类id
+     * @return 分类集合
+     */
+    public Set<String> getGoodCategoryIdByParentId(String goodCategoryId) {
+
+        Set<String> categoryIds = Sets.newHashSet();
+
+        categoryIds.add(goodCategoryId);
+
+        Optional.ofNullable(ToolUtil.setListToNul(goodCategoryService.list(Wrappers.<GoodCategory>lambdaQuery()
+                .eq(GoodCategory::getParentId, goodCategoryId))))
+                .ifPresent(goodCategories -> {
+
+                    categoryIds.addAll(goodCategories.parallelStream().map(GoodCategory::getId)
+                            .collect(Collectors.toSet()));
+
+                    goodCategories.parallelStream().forEach(goodCategory -> categoryIds.addAll(getGoodCategoryIdByParentId(goodCategory.getId())));
+
+                });
+        return categoryIds;
     }
 
 

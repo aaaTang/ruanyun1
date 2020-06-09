@@ -45,9 +45,7 @@ public class GoodDTO {
     private BigDecimal priceLow = new BigDecimal(0);
 
 
-    /**
-     * 商品分类id
-     */
+    @ApiModelProperty("商品分类id")
     private String goodCategoryId;
 
 
