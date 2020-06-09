@@ -55,14 +55,14 @@ public class IfadadaServiceImpl extends ServiceImpl<FadadaMapper, Fadada> implem
     private IUserService userService;
 
 
-    public static final String APP_ID = "403272";
+    public static final String APP_ID = "500355";
 
 
-    public static final String APP_SECRET = "mVsjGqtP4HR4hFisqN68zP8o";
+    public static final String APP_SECRET = "KQ2AKUzQWYeYD17hLxFAp6jp";
 
 
 
-    public static final String HOST = "http://test.api.fabigbig.com:8888/api/";
+    public static final String HOST = "https://textapi.fadada.com/api2/";
 
 
     public static final String VERSION= "2.0";
