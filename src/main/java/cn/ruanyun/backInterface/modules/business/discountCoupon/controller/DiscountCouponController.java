@@ -141,4 +141,26 @@ public class DiscountCouponController {
                 })
                 .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
     }
+
+
+
+    /**
+     * App获取平台优惠券
+     * @return
+     */
+    @PostMapping("/AppDiscountCouponList")
+    public Result<Object> AppDiscountCouponList(PageVo pageVo, DiscountCouponDTO discountCouponDTO) {
+        return Optional.ofNullable(iDiscountCouponService.AppDiscountCouponList(discountCouponDTO))
+                .map(appList -> {
+                    Map<String,Object> result = Maps.newHashMap();
+                    result.put("size",appList.size());
+                    result.put("data", PageUtil.listToPage(pageVo,appList));
+                    return new ResultUtil<>().setData(result,"App获取平台优惠券成功！");
+                })
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
+
+
+
+
 }

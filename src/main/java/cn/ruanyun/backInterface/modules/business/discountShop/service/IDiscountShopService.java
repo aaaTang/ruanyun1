@@ -1,7 +1,12 @@
 package cn.ruanyun.backInterface.modules.business.discountShop.service;
 
+import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.discountShop.DTO.DiscountShopDTO;
+import cn.ruanyun.backInterface.modules.business.discountShop.VO.DiscountShopListVO;
 import cn.ruanyun.backInterface.modules.business.discountShop.pojo.DiscountShop;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
 
 /**
  * 优惠券参加的商家接口
@@ -23,4 +28,8 @@ public interface IDiscountShopService extends IService<DiscountShop> {
        * @param ids
        */
      void removeDiscountShop(String ids);
+
+
+
+    List<DiscountShopListVO> getDiscountShopList(DiscountShopDTO discountShopDTO);
 }

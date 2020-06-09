@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.discountCoupon.service;
 
 import cn.ruanyun.backInterface.modules.business.discountCoupon.DTO.DiscountCouponDTO;
+import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.AppDiscountCouponListVO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.PlatformDiscountCouponVO;
 import cn.ruanyun.backInterface.modules.business.discountMy.VO.DiscountVO;
@@ -73,4 +74,10 @@ public interface IDiscountCouponService extends IService<DiscountCoupon> {
      * @return
      */
     List<PlatformDiscountCouponVO> getPlatformDiscountCoupon();
+
+    /**
+     * App获取平台优惠券
+     * @return
+     */
+    List<AppDiscountCouponListVO> AppDiscountCouponList(DiscountCouponDTO discountCouponDTO);
 }

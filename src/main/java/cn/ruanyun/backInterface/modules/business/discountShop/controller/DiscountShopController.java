@@ -1,15 +1,23 @@
 package cn.ruanyun.backInterface.modules.business.discountShop.controller;
 
+import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
+import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
+import cn.ruanyun.backInterface.modules.business.discountShop.DTO.DiscountShopDTO;
+import cn.ruanyun.backInterface.modules.business.discountShop.VO.DiscountShopListVO;
 import cn.ruanyun.backInterface.modules.business.discountShop.pojo.DiscountShop;
 import cn.ruanyun.backInterface.modules.business.discountShop.service.IDiscountShopService;
+import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author z
@@ -62,8 +70,23 @@ public class DiscountShopController {
         }
     }
 
-
-
+    /**
+     * APP查询优惠券参与的商家列表
+     * @param pageVo
+     * @param discountShopDTO
+     * @return
+     */
+    @PostMapping(value = "/getDiscountShopList")
+    public Result<Object> getDiscountShopList(PageVo pageVo, DiscountShopDTO discountShopDTO){
+        return Optional.ofNullable(iDiscountShopService.getDiscountShopList(discountShopDTO))
+                .map(discountShopListVOList -> {
+                    Map<String,Object> result = Maps.newHashMap();
+                    result.put("size",discountShopListVOList.size());
+                    result.put("data", PageUtil.listToPage(pageVo,discountShopListVOList));
+                    return new ResultUtil<>().setData(result,"APP查询优惠券参与的商家列表成功！");
+                })
+                .orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据！"));
+    }
 
 
 }
