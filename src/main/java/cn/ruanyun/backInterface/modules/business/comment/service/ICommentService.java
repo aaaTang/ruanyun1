@@ -70,5 +70,4 @@ public interface ICommentService extends IService<Comment> {
      * @return 评论条数
      */
     Integer getCommentByStore(String storeId);
-
 }

@@ -264,6 +264,7 @@ ignored:
     - /ruanyun/goodsPackage/AppGoodsPackageList
     - /ruanyun/good/getGoodDetailVO
     - /ruanyun/good/getAppGoodList
+    - /ruanyun/comment/getSecretContent #隐私协议
 
 
 # Actuator
