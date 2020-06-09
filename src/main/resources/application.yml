@@ -262,6 +262,7 @@ ignored:
     - /ruanyun/good/getGoodDetailVO #获取商品详情
     - /ruanyun/good/getAppGoodList
     - /ruanyun/comment/getSecretContent #隐私协议
+    - /ruanyun/shopWorks/AppGetShopWorksList  #App获取商家作品列表
 
 
 # Actuator

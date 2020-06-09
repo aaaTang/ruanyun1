@@ -146,16 +146,13 @@ public class IBalanceServiceImpl extends ServiceImpl<BalanceMapper, Balance> imp
                     .ifPresent(balances -> balances.parallelStream().forEach(balance -> {
 
                         balance.setBooleanReturnMoney(BooleanTypeEnum.YES);
-
                         //处理退款(排除店铺收入(因为不属于分佣))
-                        if (! ObjectUtil.equal(order.getUserId(), balance.getCreateBy()) && ObjectUtil.equal(BalanceTypeEnum.IN_COME,
-                                balance.getBalanceType())) {
+                        if (balance.getBalanceType().equals(BalanceTypeEnum.SHARE_MONEY)) {
 
                             Optional.ofNullable(userService.getById(balance.getCreateBy())).ifPresent(user -> {
 
                                 user.setBalance(user.getBalance().subtract(balance.getPrice()));
                                 userService.updateById(user);
-
 
                                 Balance balanceShareUser = new Balance();
                                 balanceShareUser.setTitle("订单" + order.getOrderNum() + "退款(佣金退回)")
@@ -166,10 +163,9 @@ public class IBalanceServiceImpl extends ServiceImpl<BalanceMapper, Balance> imp
                                 this.save(balanceShareUser);
 
                             });
-
-                            this.updateById(balance);
-
                         }
+
+                        this.updateById(balance);
                     }));
 
 

@@ -762,6 +762,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                                                 balance.setAddOrSubtractTypeEnum(AddOrSubtractTypeEnum.ADD)
                                                         .setTitle("订单" + order.getOrderNum() + "收入")
                                                         .setPrice(transfer.getAmount())
+                                                        .setBalanceType(BalanceTypeEnum.IN_COME)
                                                         .setOrderId(order.getId())
                                                         .setCreateBy(order.getUserId());
                                                 balanceService.save(balance);
@@ -1565,8 +1566,12 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
         Optional.ofNullable(this.getById(orderId)).ifPresent(order -> {
 
+            //计算当前应该处理的价格
+
+            BigDecimal currentPrice = getCurrentRecievePrice(order);
+
             //1. 计算当前订单平台预留的资金
-            BigDecimal currentProfitAmount = order.getTotalPrice().multiply(profitPercentService
+            BigDecimal currentProfitAmount = currentPrice.multiply(profitPercentService
             .getProfitPercentLimitOne(ProfitTypeEnum.FIRST).getPlatformProfit());
 
             //2. 然后根据比例进行分佣
@@ -1668,6 +1673,23 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     }
 
 
+    /**
+     * 计算当前分佣价格
+     * @param order order
+     * @return 当前分佣价格
+     */
+    public BigDecimal getCurrentRecievePrice(Order order) {
+
+        if (order.getBuyType().equals(BuyTypeEnum.FULL_PURCHASE)) {
+
+            return order.getTotalPrice();
+        }else {
+
+            return order.getGoodDeposit();
+        }
+    }
+
+
     @Override
     public Result<Object> insertOffLineOrder(OffLineOrderDto offLineOrderDto) {
 
@@ -1738,7 +1760,7 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
             Map<String, Object> map = new ArrayMap<>();
             map.put("id", order.getId());
-            map.put("totalPrice", order.getGoodDeposit());
+            map.put("totalPrice", order.getTotalPrice());
             return new ResultUtil<>().setData(map, "创建保证金订单成功!");
         }
 
