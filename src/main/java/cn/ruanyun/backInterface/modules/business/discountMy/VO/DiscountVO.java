@@ -35,9 +35,14 @@ public class DiscountVO {
     private String title;
 
     /**
-     * 优惠券类型  1全场满减 2商品满减
+     * 优惠券类型 ALL_SHOP全场满减 ALL_USE指定商家满减  ONE_PRODUCT商品满减
      */
     private DisCouponTypeEnum disCouponType;
+
+    /**
+     * 商品id
+     */
+    private String goodsPackageId;
 
     /**
      * 满多少

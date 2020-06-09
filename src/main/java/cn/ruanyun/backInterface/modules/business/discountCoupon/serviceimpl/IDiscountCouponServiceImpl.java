@@ -369,6 +369,7 @@ public class IDiscountCouponServiceImpl extends ServiceImpl<DiscountCouponMapper
         .map(discountCoupons -> discountCoupons.parallelStream().flatMap(discountCoupon -> {
             AppDiscountCouponListVO appDiscountCouponListVO = new AppDiscountCouponListVO();
 
+            ToolUtil.copyProperties(discountCoupon,appDiscountCouponListVO);
             return Stream.of(appDiscountCouponListVO);
         }).collect(Collectors.toList())).orElse(null);
     }
