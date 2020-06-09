@@ -37,11 +37,11 @@ public class Versions extends RuanyunBaseEntity {
      */
     private String updateDescription;
     /**
-     * 是否有更新
+     * 是否有更新 0否   1是
      */
     private Boolean isUpdate;
     /**
-     * 是否强制更新
+     * 是否强制更新  0否   1是
      */
     private Boolean forceUpdate;
 }

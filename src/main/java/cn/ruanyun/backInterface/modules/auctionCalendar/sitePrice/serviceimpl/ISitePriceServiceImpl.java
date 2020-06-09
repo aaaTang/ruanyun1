@@ -74,17 +74,18 @@ public class ISitePriceServiceImpl extends ServiceImpl<SitePriceMapper, SitePric
       @Override
       public void removeSitePrice(String siteId,String scheduleTime) {
 
-
           List<SitePrice> sitePrice1 = this.list(Wrappers.<SitePrice>lambdaQuery()
                   .eq(SitePrice::getScheduleTime,scheduleTime)
                   .eq(SitePrice::getSiteId,siteId)
                   .eq(SitePrice::getDelFlag,CommonConstant.STATUS_NORMAL));
 
           for (SitePrice o : sitePrice1) {
+
               o.setUpdateBy(securityUtil.getCurrUser().getId());
               o.setDelFlag(CommonConstant.DEL_FLAG);
-              this.updateById(o);
+                 super.removeById(o);
           }
+
       }
 
 
@@ -94,11 +95,17 @@ public class ISitePriceServiceImpl extends ServiceImpl<SitePriceMapper, SitePric
 
         return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<SitePrice>lambdaQuery()
 
-                .eq(SitePrice::getScheduleTime,sitePriceDTO.getScheduleTime())
+                .eq(ToolUtil.isNotEmpty(sitePriceDTO.getScheduleTime()),SitePrice::getScheduleTime,sitePriceDTO.getScheduleTime())
 
-                .eq(SitePrice::getSiteId,sitePriceDTO.getSiteId())
+                .eq(ToolUtil.isNotEmpty(sitePriceDTO.getSiteId()),SitePrice::getSiteId,sitePriceDTO.getSiteId())
 
-                .eq(SitePrice::getDelFlag, CommonConstant.STATUS_NORMAL))))
+                .eq(SitePrice::getDelFlag, CommonConstant.STATUS_NORMAL)
+
+                .orderByDesc(SitePrice::getScheduleTime)
+
+                .orderByAsc(SitePrice::getDayTimeType)
+
+        )))
 
                 .map(sitePrices -> sitePrices.parallelStream().flatMap(sitePrice -> {
 
