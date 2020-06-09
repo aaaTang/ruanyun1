@@ -57,10 +57,9 @@ public class AdvertisingController {
 
     @PostMapping("/getAppAdvertisingList")
     @ApiOperation("获取app广告数据")
-    @ApiImplicitParams(@ApiImplicitParam(name = "advertisingTypeEnum", value = "广告类型", dataType = "enum", paramType = "query"))
-    public Result<List<AppAdvertisingListVo>> getAppAdvertisingList(AdvertisingTypeEnum advertisingTypeEnum) {
+    public Result<List<AppAdvertisingListVo>> getAppAdvertisingList(Advertising advertising) {
 
-        return new ResultUtil<List<AppAdvertisingListVo>>().setData(iAdvertisingService.getAppAdvertisingList(advertisingTypeEnum)
+        return new ResultUtil<List<AppAdvertisingListVo>>().setData(iAdvertisingService.getAppAdvertisingList(advertising)
         , "获取app广告数据成功！");
     }
 

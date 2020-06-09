@@ -1,10 +1,10 @@
 package cn.ruanyun.backInterface.modules.business.bookingOrder.service;
 
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.modules.business.bookingOrder.DTO.BookingDTO;
-import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.BackBookingOrderListVO;
-import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.BookingOrderVO;
-import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.WhetherBookingOrderVO;
+import cn.ruanyun.backInterface.modules.business.bookingOrder.dto.BookingDTO;
+import cn.ruanyun.backInterface.modules.business.bookingOrder.vo.BackBookingOrderListVO;
+import cn.ruanyun.backInterface.modules.business.bookingOrder.vo.BookingOrderVO;
+import cn.ruanyun.backInterface.modules.business.bookingOrder.vo.WhetherBookingOrderVO;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.pojo.BookingOrder;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -17,43 +17,53 @@ import java.util.List;
 public interface IBookingOrderService extends IService<BookingOrder> {
 
 
-      /**
-        * 插入或者更新bookingOrder
-        * @param bookingOrder
-       */
-      Result<Object> insertOrderUpdatebookingOrder(BookingOrder bookingOrder);
+    /**
+     * 插入或者更新bookingOrder
+     * @param bookingOrder bookingOrder
+     */
+    Result<Object> insertOrderUpdatebookingOrder(BookingOrder bookingOrder);
 
 
+    /**
+     * 移除bookingOrder
+     * @param ids ids
+     */
+    void removebookingOrder(String ids);
 
-      /**
-       * 移除bookingOrder
-       * @param ids
-       */
-     void removebookingOrder(String ids);
 
     /**
      * 后端商家处理预约
-     * @return
+     * @return Object
      */
     Result<Object> checkBookingOrder(BookingDTO bookingDTO);
+
 
     /**
      * 获取预约订单列表
      */
-     List<BookingOrderVO> bookingOrderList(String classId);
+    List<BookingOrderVO> bookingOrderList(String classId);
+
 
     /**
      * 查詢我是否预约这个店铺
-     * @param storeId
-     * @param userid
-     * @return
+     * @param storeId 商家id
+     * @param userid 用户id
+     * @return WhetherBookingOrderVO
      */
-     WhetherBookingOrderVO  getWhetherBookingOrder(String storeId , String userid);
+    WhetherBookingOrderVO  getWhetherBookingOrder(String storeId , String userid);
 
 
     /**
      * 后端获取商家预约订单列表
-     * @return
+     * @return BackBookingOrderListVO
      */
-    List<BackBookingOrderListVO> BackBookingOrderList(BookingDTO bookingDTO);
+    List<BackBookingOrderListVO> backBookingOrderList(BookingDTO bookingDTO);
+
+
+    /**
+     * 获取待审核的预约订单数量
+     * @return Integer
+     */
+    Integer getPrePayBookingOrderListCount();
+
 }

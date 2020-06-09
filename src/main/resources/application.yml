@@ -265,6 +265,7 @@ ignored:
     - /ruanyun/shopWorks/AppGetShopWorksList  #App获取商家作品列表
     - /ruanyun/comment/getSecretContent #隐私协议
     - /ruanyun/discountCoupon/AppDiscountCouponList #App获取平台优惠券
+    - /ruanyun/advertising/getAppAdvertisingList #获取app广告数据
 
 
 # Actuator

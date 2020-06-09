@@ -29,7 +29,7 @@ public enum AdvertisingJumpTypeEnum {
     /**
      * H5网页链接
      */
-    H5_WEB(2,"H5网页链接");
+    H5_WEB(5,"H5网页链接");
 
 
     AdvertisingJumpTypeEnum(int code, String value) {

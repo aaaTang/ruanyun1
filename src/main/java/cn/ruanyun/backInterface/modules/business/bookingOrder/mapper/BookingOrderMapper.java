@@ -1,6 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.bookingOrder.mapper;
 
-import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.BookingOrderVO;
+import cn.ruanyun.backInterface.modules.business.bookingOrder.vo.BookingOrderVO;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.pojo.BookingOrder;
 

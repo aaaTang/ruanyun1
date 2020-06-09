@@ -34,7 +34,12 @@ public enum PushTypeEnum {
     /**
      * 作品
      */
-    PRODUCTION(5, "作品");
+    PRODUCTION(5, "作品"),
+
+    /**
+     * 预约订单
+     */
+    BOCKING_ORDER(6, "预约订单");
 
 
 

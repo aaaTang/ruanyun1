@@ -4,10 +4,11 @@ import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.modules.business.bookingOrder.DTO.BookingDTO;
+import cn.ruanyun.backInterface.modules.business.bookingOrder.dto.BookingDTO;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.pojo.BookingOrder;
 import cn.ruanyun.backInterface.modules.business.bookingOrder.service.IBookingOrderService;
 import com.google.common.collect.Maps;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -102,7 +103,7 @@ public class BookingOrderController {
     @PostMapping(value = "/BackBookingOrderList")
     public Result<Object> BackBookingOrderList(PageVo pageVo, BookingDTO bookingDTO){
 
-        return Optional.ofNullable(ibookingOrderService.BackBookingOrderList(bookingDTO))
+        return Optional.ofNullable(ibookingOrderService.backBookingOrderList(bookingDTO))
                 .map(bookingOrderList->{
                     Map<String,Object> result = Maps.newHashMap();
                     result.put("size",bookingOrderList.size());
@@ -110,6 +111,15 @@ public class BookingOrderController {
 
                     return new ResultUtil<>().setData(result,"后端获取商家预约订单列表成功！");
                 }).orElse(new ResultUtil<>().setErrorMsg(201,"暂无数据"));
+    }
+
+
+
+    @PostMapping("/getPrePayBookingOrderListCount")
+    @ApiOperation("待预约订单数量")
+    public Result<Object> getPrePayBookingOrderListCount() {
+
+        return new ResultUtil<>().setData(ibookingOrderService.getPrePayBookingOrderListCount(), "获取待处理预约订单数量");
     }
 
 

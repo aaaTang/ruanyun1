@@ -1,6 +1,6 @@
 package cn.ruanyun.backInterface.modules.business.goodsPackage.VO;
 
-import cn.ruanyun.backInterface.modules.business.bookingOrder.VO.WhetherBookingOrderVO;
+import cn.ruanyun.backInterface.modules.business.bookingOrder.vo.WhetherBookingOrderVO;
 import cn.ruanyun.backInterface.modules.business.goodsIntroduce.VO.GoodsIntroduceVO;
 import cn.ruanyun.backInterface.modules.business.storeAudit.vo.StoreAuditListVo;
 import io.swagger.annotations.ApiModelProperty;

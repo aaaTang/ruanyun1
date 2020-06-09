@@ -14,6 +14,7 @@ import cn.jpush.api.push.model.notification.Notification;
 import cn.jpush.api.push.model.notification.PlatformNotification;
 import cn.ruanyun.backInterface.common.enums.AudienceTypeEnum;
 import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
+import cn.ruanyun.backInterface.common.enums.PushTypeEnum;
 import cn.ruanyun.backInterface.common.utils.PageUtil;
 import cn.ruanyun.backInterface.common.utils.ResultUtil;
 import cn.ruanyun.backInterface.common.utils.SecurityUtil;
@@ -21,6 +22,8 @@ import cn.ruanyun.backInterface.common.utils.ToolUtil;
 import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
 import cn.ruanyun.backInterface.modules.jpush.dto.JpushDto;
 import cn.ruanyun.backInterface.modules.jpush.dto.JpushTypeDto;
 import cn.ruanyun.backInterface.modules.jpush.mapper.JpushMapper;
@@ -62,6 +65,12 @@ public class IJpushServiceImpl extends ServiceImpl<JpushMapper, Jpush> implement
 
     @Autowired
     private SecurityUtil securityUtil;
+
+    @Autowired
+    private IUserService userService;
+
+    @Autowired
+    private IGoodCategoryService goodCategoryService;
 
     /**
      * 添加或者修改内容创作
@@ -171,11 +180,15 @@ public class IJpushServiceImpl extends ServiceImpl<JpushMapper, Jpush> implement
 
         PushPayload.Builder builder = PushPayload.newBuilder();
 
-        //Gson gson = new Gson();
-
         Map<String, Object> paramMap = Maps.newHashMap();
         paramMap.put("pushType", jpushDto.getPushType());
         paramMap.put("pushValue", jpushDto.getPushValue());
+
+
+        Optional.ofNullable(this.getById(jpushDto.getId())).ifPresent(jpush -> {
+
+            paramMap.put("storeType", goodCategoryService.judgeStoreType(userService.getById(jpush.getCreateBy())));
+        });
 
 
         Message.Builder messageBuilder = Message.newBuilder();
@@ -295,7 +308,11 @@ public class IJpushServiceImpl extends ServiceImpl<JpushMapper, Jpush> implement
 
             jPushUtil.sendPush(builder.build());
 
-            updateJpushByAfterPush(jpushDto);
+            //不是预约订单就行
+            if (!jpushDto.getPushType().equals(PushTypeEnum.BOCKING_ORDER)) {
+
+                updateJpushByAfterPush(jpushDto);
+            }
             return new ResultUtil<>().setSuccessMsg("推送成功！");
         } catch (APIConnectionException | APIRequestException e) {
 

@@ -34,10 +34,10 @@ public interface IAdvertisingService extends IService<Advertising> {
 
     /**
      * App查询广告数据列表
-     * @param advertisingTypeEnum 广告类型
+     * @param advertising 广告类型
      * @return AppAdvertisingListVo
       */
-    List<AppAdvertisingListVo> getAppAdvertisingList(AdvertisingTypeEnum advertisingTypeEnum);
+    List<AppAdvertisingListVo> getAppAdvertisingList(Advertising advertising);
 
 
     /**

@@ -1,4 +1,4 @@
-package cn.ruanyun.backInterface.modules.business.bookingOrder.VO;
+package cn.ruanyun.backInterface.modules.business.bookingOrder.vo;
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import com.baomidou.mybatisplus.annotation.FieldFill;

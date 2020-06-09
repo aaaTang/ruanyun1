@@ -1,4 +1,4 @@
-package cn.ruanyun.backInterface.modules.business.bookingOrder.DTO;
+package cn.ruanyun.backInterface.modules.business.bookingOrder.dto;
 
 import lombok.Data;
 

@@ -96,14 +96,14 @@ public class IAdvertisingServiceImpl extends ServiceImpl<AdvertisingMapper, Adve
     /**
      * App查询广告数据列表
      *
-     * @param advertisingTypeEnum 广告类型
+     * @param advertisingUse 广告类型
      * @return AppAdvertisingListVo
      */
     @Override
-    public List<AppAdvertisingListVo> getAppAdvertisingList(AdvertisingTypeEnum advertisingTypeEnum) {
+    public List<AppAdvertisingListVo> getAppAdvertisingList(Advertising advertisingUse) {
 
         return Optional.ofNullable(ToolUtil.setListToNul(this.list(Wrappers.<Advertising>lambdaQuery()
-        .eq(Advertising::getAdvertisingType, advertisingTypeEnum)
+        .eq(Advertising::getAdvertisingType, advertisingUse.getAdvertisingType())
         .orderByDesc(Advertising::getCreateTime))))
         .map(advertisings -> advertisings.parallelStream().flatMap(advertising -> {
 
@@ -116,9 +116,10 @@ public class IAdvertisingServiceImpl extends ServiceImpl<AdvertisingMapper, Adve
             }
 
             appAdvertisingListVo.setAdvertisingJumpType(advertising.getAdvertisingJumpType().getCode())
-                    .setAdvertisingType(advertising.getAdvertisingType().getCode());
-
-            ToolUtil.copyProperties(advertising, appAdvertisingListVo);
+                    .setAdvertisingType(advertising.getAdvertisingType().getCode())
+                    .setId(advertising.getId())
+                    .setPic(advertising.getPic())
+                    .setUrl(advertising.getUrl());
 
             return Stream.of(appAdvertisingListVo);
         }).collect(Collectors.toList()))
