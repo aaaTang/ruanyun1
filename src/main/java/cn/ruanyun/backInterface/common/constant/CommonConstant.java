@@ -275,6 +275,22 @@ public interface CommonConstant {
 
     String APP_SECRET = "ad006bc22cf37b9ba7ef357347affbca";
 
+
+    /*-------------------法大大---------------------------*/
+
+    String F_APP_ID = "500355";
+
+
+    String F_APP_SECRET = "KQ2AKUzQWYeYD17hLxFAp6jp";
+
+
+
+    String F_HOST = "http://textapi.fadada.com:9999/api2/";
+
+
+    String F_VERSION= "2.0";
+
+
 }
 
 

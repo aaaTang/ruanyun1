@@ -25,13 +25,13 @@ public class RuanyunMPGenerator {
      * 实体类名
      * 建议仅需修改
      */
-    private static final String className = "KotlinDemo";
+    private static final String className = "ContractSigning";
 
     /**
      * 类说明描述
      * 建议仅需修改
      */
-    private static final String description = "kotlin栗子";
+    private static final String description = "合同签署";
 
     /**
      * 作者名
@@ -54,31 +54,31 @@ public class RuanyunMPGenerator {
      * 实体类对应包
      * (文件自动生成至该包下)
      */
-    private static final String entityPackage = "cn.ruanyun.backInterface.modules.business.kotlinDemo.pojo";
+    private static final String entityPackage = "cn.ruanyun.backInterface.modules.fadada.pojo";
 
     /**
      * dao对应包
      * (文件自动生成至该包下)
      */
-    private static final String daoPackage = "cn.ruanyun.backInterface.modules.business.kotlinDemo.mapper";
+    private static final String daoPackage = "cn.ruanyun.backInterface.modules.fadada.mapper";
 
     /**
      * service对应包
      * (文件自动生成至该包下)
      */
-    private static final String servicePackage = "cn.ruanyun.backInterface.modules.business.kotlinDemo.service";
+    private static final String servicePackage = "cn.ruanyun.backInterface.modules.fadada.service";
 
     /**
      * serviceImpl对应包
      * (文件自动生成至该包下)
      */
-    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.business.kotlinDemo.serviceimpl";
+    private static final String serviceImplPackage = "cn.ruanyun.backInterface.modules.fadada.serviceimpl";
 
     /**
      * controller对应包
      * (文件自动生成至该包下)
      */
-    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.business.kotlinDemo.controller";
+    private static final String controllerPackage = "cn.ruanyun.backInterface.modules.fadada.controller";
 
     /**
      * 运行该主函数即可生成代码

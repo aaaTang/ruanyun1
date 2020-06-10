@@ -1,23 +1,13 @@
 package cn.ruanyun.backInterface.modules.fadada.serviceimpl;
 
-import cn.ruanyun.backInterface.common.enums.BooleanTypeEnum;
 import cn.ruanyun.backInterface.common.utils.*;
-import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
-import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.fadada.dto.*;
-import cn.ruanyun.backInterface.modules.fadada.mapper.FadadaMapper;
-import cn.ruanyun.backInterface.modules.fadada.pojo.Fadada;
 import cn.ruanyun.backInterface.modules.fadada.service.IfadadaService;
-import cn.ruanyun.backInterface.modules.fadada.vo.FadadaVo;
 import com.alibaba.fastjson.JSONObject;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fadada.sdk.client.FddClientBase;
-import com.fadada.sdk.client.FddClientExtra;
 import com.fadada.sdk.client.authForfadada.ApplyCert;
 import com.fadada.sdk.client.authForfadada.GetCompanyVerifyUrl;
 import com.fadada.sdk.client.authForfadada.GetPersonVerifyUrl;
@@ -25,18 +15,10 @@ import com.fadada.sdk.client.authForfadada.model.AgentInfoINO;
 import com.fadada.sdk.client.authForfadada.model.BankInfoINO;
 import com.fadada.sdk.client.authForfadada.model.CompanyInfoINO;
 import com.fadada.sdk.client.authForfadada.model.LegalInfoINO;
-import com.fadada.sdk.client.request.ExtsignReq;
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 
 /**
@@ -45,8 +27,13 @@ import java.util.stream.Stream;
 @Slf4j
 @Service
 @Transactional
-public class IfadadaServiceImpl extends ServiceImpl<FadadaMapper, Fadada> implements IfadadaService {
+public class IfadadaServiceImpl implements IfadadaService {
 
+
+    /**
+     * 业务需求：1. 商家实名认证 -> 上传印章 -> 手动签署 -> 根据合同编号生成待审核合同列表 -> 审核同意商家会受到推送 -> 在我的电子合同可以看到
+     * 合同内容 -> 审核通过会出现平台手动签署合同，并且默认归档合同 -> 审核失败：也会有推送点击跳转到 手动签署页面 重新签署 提交 -> 闭环 -> 平台可以查看合同 以及下载合同
+     */
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -89,6 +76,9 @@ public class IfadadaServiceImpl extends ServiceImpl<FadadaMapper, Fadada> implem
 
         GetCompanyVerifyUrl companyVerifyUrl = new GetCompanyVerifyUrl(APP_ID, APP_SECRET, VERSION, HOST);
 
+
+        User user = userService.getById(securityUtil.getCurrUser().getId());
+
         //企业信息
         CompanyInfoINO companyInfo = new CompanyInfoINO();
         companyInfo.setCompany_name(companyVerifyDto.getCompanyName());
@@ -122,7 +112,18 @@ public class IfadadaServiceImpl extends ServiceImpl<FadadaMapper, Fadada> implem
                 companyVerifyDto.getVerifiedWay(), companyVerifyDto.getMVerifiedWay(), companyVerifyDto.getPageModify(), companyVerifyDto.getCompanyPrincipalType(), companyVerifyDto.getReturnUrl(),
                 companyVerifyDto.getNotifyUrl(), companyVerifyDto.getResultType(), companyVerifyDto.getCertFlag());
 
-        return new ResultUtil<>().setData(result, "获取企业使命认证地址成功！");
+        if (JSONObject.parseObject(result).getIntValue("code") == 1) {
+
+            String data = JSONObject.parseObject(result).getString("data");
+            user.setTransactionNo(JSONObject.parseObject(data).getString("transactionNo"))
+                    .setVerifyUrl(JSONObject.parseObject(data).getString("url"));
+            userService.updateById(user);
+
+            return new ResultUtil<>().setData(user.getVerifyUrl(), "申请成功！");
+        }else {
+
+            return new ResultUtil<>().setErrorMsg(204, JSONObject.parseObject(result).getString("msg"));
+        }
 
     }
 
@@ -135,6 +136,8 @@ public class IfadadaServiceImpl extends ServiceImpl<FadadaMapper, Fadada> implem
     @Override
     public Result<Object> getPersonVerifyUrl(PersonVerifyDto personVerifyDto) {
 
+        User user = userService.getById(securityUtil.getCurrUser().getId());
+
         GetPersonVerifyUrl personVerify = new GetPersonVerifyUrl(APP_ID, APP_SECRET, VERSION, HOST);
 
         String result = personVerify.invokePersonVerifyUrl(securityUtil.getCurrUser().getCustomerId(), personVerifyDto.getVerifiedWay(), personVerifyDto.getPageModify(),
@@ -143,13 +146,18 @@ public class IfadadaServiceImpl extends ServiceImpl<FadadaMapper, Fadada> implem
 
         log.info(result);
 
-        JSONObject jsonResult = JSONObject.parseObject(result);
-        User user = userService.getById(securityUtil.getCurrUser().getId());
-        user.setTransactionNo(jsonResult.getJSONObject("data").getString("transactionNo"));
+        if (JSONObject.parseObject(result).getIntValue("code") == 1) {
 
-        userService.updateById(user);
+            String data = JSONObject.parseObject(result).getString("data");
+            user.setTransactionNo(JSONObject.parseObject(data).getString("transactionNo"))
+                    .setVerifyUrl(JSONObject.parseObject(data).getString("url"));
+            userService.updateById(user);
 
-        return new ResultUtil<>().setSuccessMsg("实名认证成功！");
+            return new ResultUtil<>().setData(user.getVerifyUrl(), "申请个人实名认证成功！");
+        }else {
+
+            return new ResultUtil<>().setErrorMsg(204, JSONObject.parseObject(result).getString("msg"));
+        }
     }
 
 
@@ -178,230 +186,5 @@ public class IfadadaServiceImpl extends ServiceImpl<FadadaMapper, Fadada> implem
         String result = base.invokeaddSignature(securityUtil.getCurrUser().getCustomerId(), MultipartFileToFile.multipartFileToFile(signatureDto.getImageFile()), signatureDto.getImgUrl());
 
         return new ResultUtil<>().setData(JSONObject.parseObject(result), "上传签章成功！");
-    }
-
-    @Override
-    public Result<Object> uploadDocs(UploaddocsDto uploaddocsDto) {
-
-        FddClientBase base = new FddClientBase(APP_ID, APP_SECRET, VERSION, HOST );
-
-        List<UploaddocsDto> uploaddocsDtos = Lists.newArrayList();
-
-        for (int i = 0 ; i < uploaddocsDto.getUploadCount(); i++) {
-
-            uploaddocsDto.setContractId(CommonUtil.getRandomNum());
-            uploaddocsDtos.add(uploaddocsDto);
-
-        }
-
-        uploaddocsDtos.parallelStream().forEach(uploaddocsDtoUse -> {
-
-            try {
-
-               base.invokeUploadDocs(uploaddocsDtoUse.getContractId(), uploaddocsDtoUse.getDocTitle(),
-                        MultipartFileToFile.multipartFileToFile(uploaddocsDtoUse.getPdfFile()), uploaddocsDtoUse.getDocUrl(), uploaddocsDtoUse.getDocType());
-
-
-               //异步添加数据到数据库
-                CompletableFuture.runAsync(() -> {
-
-                    Fadada fadada = new Fadada();
-                    ToolUtil.copyProperties(uploaddocsDto, fadada);
-                    this.save(fadada);
-
-                }).join();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-
-        return new ResultUtil<>().setSuccessMsg("上传成功！");
-    }
-
-
-    @Override
-    public Result<Object> extSign(ExtSignDto extSignDto) {
-
-
-        FddClientBase base = new FddClientBase(APP_ID, APP_SECRET, VERSION, HOST);
-
-        ExtsignReq req = new ExtsignReq();
-
-        if (ToolUtil.isNotEmpty(extSignDto.getId())) {
-
-            return Optional.ofNullable(this.getById(extSignDto.getId())).map(fadada -> {
-
-                //客户编号
-                req.setCustomer_id(securityUtil.getCurrUser().getCustomerId());
-
-                //交易号
-                req.setTransaction_id(CommonUtil.getRandomNum());
-
-                //合同编号
-                req.setContract_id(fadada.getContractId());
-
-                //文档标题
-                req.setDoc_title(extSignDto.getDocTitle());
-
-                //页面跳转 URL（签署结果同步通知）
-                req.setReturn_url("");
-
-                //回调地址
-                String signUrl = base.invokeExtSign(req);
-
-
-                //修改信息
-                fadada.setPartOneDocTitle(extSignDto.getDocTitle());
-                this.updateById(fadada);
-
-                return new ResultUtil<>().setData(signUrl, "获取回调签署地址成功！");
-            }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无资源数据！"));
-
-        }
-
-        // 查询最近的一条没有被使用的合同
-        return Optional.ofNullable(this.getOne(Wrappers.<Fadada>lambdaQuery().eq(Fadada::getContractFiling, BooleanTypeEnum.NO)
-                .orderByDesc(Fadada::getCreateTime).last("limit 1")))
-                .map(fadada -> {
-
-                    User user = userService.getById(securityUtil.getCurrUser().getId());
-
-                    //客户编号
-                    req.setCustomer_id(securityUtil.getCurrUser().getCustomerId());
-
-                    //交易号
-                    req.setTransaction_id(CommonUtil.getRandomNum());
-
-                    //合同编号
-                    req.setContract_id(fadada.getContractId());
-
-                    //文档标题
-                    req.setDoc_title(extSignDto.getDocTitle());
-
-                    //页面跳转 URL（签署结果同步通知）
-                    req.setReturn_url("");
-
-                    //回调地址
-                    String signUrl = base.invokeExtSign(req);
-
-                    //更新法大大表
-                    fadada.setPartTwoDocTitle(extSignDto.getDocTitle());
-                    fadada.setPartTwoExtSignUserId(user.getId());
-                    this.updateById(fadada);
-
-                    //更新用户表
-                    user.setContractId(fadada.getContractId());
-                    userService.updateById(user);
-
-                    return new ResultUtil<>().setData(signUrl, "获取回调签署地址成功！");
-                }).orElse(new ResultUtil<>().setErrorMsg(203, "暂无可用合同资源"));
-    }
-
-    @Override
-    public Result<Object> viewContract(String id) {
-
-        FddClientExtra extra = new FddClientExtra(APP_ID, APP_SECRET, VERSION, HOST);
-
-        if (ToolUtil.isNotEmpty(id)) {
-
-           return Optional.ofNullable(this.getById(id)).map(fadada -> {
-
-                String viewUrl= extra.invokeViewPdfURL(fadada.getContractId());
-                return new ResultUtil<>().setData(viewUrl, "获取查看合同链接成功！");
-
-            }).orElse(new ResultUtil<>().setErrorMsg(201, "当前数据为空！"));
-        }else {
-
-            User user = userService.getById(id);
-
-            if (ToolUtil.isEmpty(user.getContractId())) {
-
-                return new ResultUtil<>().setErrorMsg(204, "暂未签署合同！");
-            }
-
-            return new ResultUtil<>().setData(extra.invokeViewPdfURL(user.getContractId()), "获取查看合同链接成功！");
-        }
-
-
-    }
-
-    @Override
-    public Result<Object> downLoadContract(String id) {
-
-        FddClientExtra extra = new FddClientExtra(APP_ID, APP_SECRET, VERSION, HOST);
-
-        if (ToolUtil.isNotEmpty(id)) {
-
-            return Optional.ofNullable(this.getById(id)).map(fadada -> {
-
-                String downloadUrl = extra.invokeDownloadPdf(fadada.getContractId());
-                return new ResultUtil<>().setData(downloadUrl, "获取下载合同链接成功！");
-
-            }).orElse(new ResultUtil<>().setErrorMsg(201, "当前数据为空！"));
-
-        }else {
-
-            User user = userService.getById(id);
-
-            if (ToolUtil.isEmpty(user.getContractId())) {
-
-                return new ResultUtil<>().setErrorMsg(204, "暂未签署合同！");
-            }
-
-            return new ResultUtil<>().setData(extra.invokeDownloadPdf(user.getContractId()), "获取下载合同链接成功！");
-        }
-    }
-
-    @Override
-    public Result<Object> contractFiling(String id) {
-
-        FddClientBase base = new FddClientBase(APP_ID, APP_SECRET, VERSION, HOST);
-
-       return Optional.ofNullable(this.getById(id)).map(fadada -> {
-
-            String result = base.invokeContractFilling(fadada.getContractId());
-
-            fadada.setContractFiling(BooleanTypeEnum.YES);
-            this.updateById(fadada);
-
-            return new ResultUtil<>().setData(JSONObject.parseObject(result));
-        }).orElse(new ResultUtil<>().setErrorMsg(201, "不存在数据！"));
-    }
-
-    /**
-     * 获取列表
-     *
-     * @param pageVo 分页参数
-     * @return Page<Fadada>
-     */
-    @Override
-    public Result<DataVo<FadadaVo>> getFadadaList(PageVo pageVo) {
-
-        Page<Fadada> fadadaPage = this.page(PageUtil.initMpPage(pageVo), Wrappers.<Fadada>lambdaQuery()
-        .orderByDesc(Fadada::getCreateTime));
-
-        if (ToolUtil.isEmpty(fadadaPage.getRecords())) {
-
-            return new ResultUtil<DataVo<FadadaVo>>().setErrorMsg(201, "暂无数据！");
-        }
-
-        DataVo<FadadaVo> result = new DataVo<>();
-
-        result.setDataResult(fadadaPage.getRecords().parallelStream().flatMap(fadada -> {
-
-            FadadaVo fadadaVo = new FadadaVo();
-
-            ToolUtil.copyProperties(fadada, fadadaVo);
-
-            fadadaVo.setPartTwoExtSignName( Optional.ofNullable(userService.getById(fadada.getPartTwoExtSignUserId()))
-                    .map(User::getNickName).orElse("-"));
-
-            return Stream.of(fadadaVo);
-
-        }).collect(Collectors.toList())).setTotalSize(fadadaPage.getSize())
-                .setCurrentPageNum(fadadaPage.getCurrent()).setTotalPage(fadadaPage.getTotal());
-
-        return new ResultUtil<DataVo<FadadaVo>>().setData(result, "获取合同数据成功！");
     }
 }

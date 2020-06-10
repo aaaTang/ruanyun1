@@ -16,6 +16,11 @@ import java.io.File;
 public class UploaddocsDto {
 
 
+    private String id;
+
+    @ApiModelProperty("服务分类")
+    private String goodCategoryId;
+
     @ApiModelProperty("合同标题")
     private String docTitle;
 

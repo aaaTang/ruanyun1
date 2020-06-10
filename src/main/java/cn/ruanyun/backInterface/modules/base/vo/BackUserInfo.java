@@ -110,6 +110,9 @@ public class BackUserInfo {
      */
     private String customerId;
 
+    @ApiModelProperty(value = "合同编号")
+    private String contractId;
+
     @ApiModelProperty("分类服务类型")
     private String classId;
 

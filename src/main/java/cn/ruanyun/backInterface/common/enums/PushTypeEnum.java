@@ -39,9 +39,12 @@ public enum PushTypeEnum {
     /**
      * 预约订单
      */
-    BOCKING_ORDER(6, "预约订单");
+    BOCKING_ORDER(6, "预约订单"),
 
-
+    /**
+     * 电子合同
+     */
+    ELECTRONIC_CONTRACT(7, "电子合同");
 
 
     PushTypeEnum(int code, String value) {

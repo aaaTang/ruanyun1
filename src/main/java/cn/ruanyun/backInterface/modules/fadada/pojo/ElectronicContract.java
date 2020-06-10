@@ -10,25 +10,22 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 
 /**
- * 法大大
+ * 电子合同
  * @author z
  */
 @Data
 @Entity
-@Table(name = "t_fadada")
-@TableName("t_fadada")
-public class Fadada extends RuanyunBaseEntity {
+@Table(name = "t_electronic_contract")
+@TableName("t_electronic_contract")
+public class ElectronicContract extends RuanyunBaseEntity {
 
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty("服务分类")
     private String goodCategoryId;
 
-    @ApiModelProperty("乙方合同标题")
-    private String partTwoDocTitle;
-
-    @ApiModelProperty("甲方合同标题")
-    private String partOneDocTitle;
+    @ApiModelProperty("合同标题")
+    private String docTitle;
 
     @ApiModelProperty(value = "合同编号")
     private String contractId;
@@ -39,6 +36,4 @@ public class Fadada extends RuanyunBaseEntity {
     @ApiModelProperty("是否归档")
     private BooleanTypeEnum contractFiling = BooleanTypeEnum.NO;
 
-    @ApiModelProperty(value = "乙方签署人")
-    private String partTwoExtSignUserId;
 }
