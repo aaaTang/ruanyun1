@@ -21,6 +21,9 @@ public class Fadada extends RuanyunBaseEntity {
 
     private static final long serialVersionUID = 1L;
 
+    @ApiModelProperty("服务分类")
+    private String goodCategoryId;
+
     @ApiModelProperty("乙方合同标题")
     private String partTwoDocTitle;
 

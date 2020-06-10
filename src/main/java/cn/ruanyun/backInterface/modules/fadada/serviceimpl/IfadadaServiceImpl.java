@@ -62,7 +62,7 @@ public class IfadadaServiceImpl extends ServiceImpl<FadadaMapper, Fadada> implem
 
 
 
-    public static final String HOST = "https://textapi.fadada.com/api2/";
+    public static final String HOST = "http://textapi.fadada.com:9999/api2/";
 
 
     public static final String VERSION= "2.0";
@@ -140,6 +140,8 @@ public class IfadadaServiceImpl extends ServiceImpl<FadadaMapper, Fadada> implem
         String result = personVerify.invokePersonVerifyUrl(securityUtil.getCurrUser().getCustomerId(), personVerifyDto.getVerifiedWay(), personVerifyDto.getPageModify(),
                 personVerifyDto.getNotifyUrl(), personVerifyDto.getReturnUrl(), personVerifyDto.getCustomerName(), personVerifyDto.getCustomerIdentType(),personVerifyDto.getCustomerIdentNo()
         ,personVerifyDto.getMobile(), personVerifyDto.getIdentFrontPath(), personVerifyDto.getResultType(), personVerifyDto.getCertFlag());
+
+        log.info(result);
 
         JSONObject jsonResult = JSONObject.parseObject(result);
         User user = userService.getById(securityUtil.getCurrUser().getId());

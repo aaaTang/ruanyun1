@@ -20,12 +20,12 @@ public enum OrderStatusEnum {
     /**
      * 已付款 app 展示待收货  后台显示待发货
      */
-    PRE_SEND(2,"待发货"),
+    PRE_SEND(2,"待处理"),
 
     /**
      * app 展示待收货  后台显示待评价
      */
-    DELIVER_SEND(3,"待收货"),
+    DELIVER_SEND(3,"待确认"),
 
     /**
      * APP租赁 用户待支付尾款      后台等待用户支付尾款
