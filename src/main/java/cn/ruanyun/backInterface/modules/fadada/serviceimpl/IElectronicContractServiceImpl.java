@@ -143,7 +143,7 @@ public class IElectronicContractServiceImpl extends ServiceImpl<ElectronicContra
 
             return Stream.of(electronicContractVo);
 
-        }).collect(Collectors.toList())).setTotalSize(electronicContractPage.getSize())
+        }).collect(Collectors.toList())).setTotalSize(electronicContractPage.getTotal())
                 .setCurrentPageNum(electronicContractPage.getCurrent())
                 .setTotalPage(electronicContractPage.getPages());
 
