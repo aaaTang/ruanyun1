@@ -54,4 +54,13 @@ public class ElectronicContractController {
 
         return iElectronicContractService.getElectronicContractList(pageVo);
     }
+
+
+    @PostMapping("/viewContract")
+    @ApiOperation("查看合同")
+    public Result<Object> viewContract(String id) {
+
+        return iElectronicContractService.viewContract(id);
+    }
+
 }

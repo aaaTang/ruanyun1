@@ -24,30 +24,6 @@ public interface IfadadaService {
      */
     String accountRegister(String openId, String accountType);
 
-
-    /**
-     * 获取企业实名认证地址
-     * @param companyVerifyDto 参数
-     * @return Object
-     */
-    Result<Object> getCompanyVerifyUrl(CompanyVerifyDto companyVerifyDto);
-
-
-    /**
-     * 获取个人实名认证地址
-     * @param personVerifyDto 参数
-     * @return Object
-     */
-    Result<Object> getPersonVerifyUrl(PersonVerifyDto personVerifyDto);
-
-
-    /**
-     * 实名证书申请
-     * @return Object
-     */
-    Result<Object> applyCert();
-
-
     /**
      * 印章上传
      * @param signatureDto 签章图片 base64

@@ -12,9 +12,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Accessors(chain = true)
 public class SignatureDto {
 
-    @ApiModelProperty(value = "图片file", dataType = "file")
-    private MultipartFile imageFile;
-
     @ApiModelProperty("图片路径")
     private String imgUrl;
 }

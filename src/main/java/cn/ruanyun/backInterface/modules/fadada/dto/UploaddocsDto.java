@@ -15,9 +15,6 @@ import java.io.File;
 @Accessors(chain = true)
 public class UploaddocsDto {
 
-
-    private String id;
-
     @ApiModelProperty("服务分类")
     private String goodCategoryId;
 
@@ -30,8 +27,8 @@ public class UploaddocsDto {
     @ApiModelProperty("合同公网下载地址")
     private String docUrl;
 
-    @ApiModelProperty(value = "PDF 文档", dataType = "file")
-    private MultipartFile pdfFile;
+    /*@ApiModelProperty(value = "PDF 文档", dataType = "file")
+    private MultipartFile pdfFile;*/
 
     @ApiModelProperty(value = "文档类型", hidden = true)
     private String docType = ".pdf";

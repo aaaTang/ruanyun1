@@ -25,13 +25,13 @@ public class RuanyunMPGenerator {
      * 实体类名
      * 建议仅需修改
      */
-    private static final String className = "ContractSigning";
+    private static final String className = "EnterpriseCertification";
 
     /**
      * 类说明描述
      * 建议仅需修改
      */
-    private static final String description = "合同签署";
+    private static final String description = "企业认证";
 
     /**
      * 作者名

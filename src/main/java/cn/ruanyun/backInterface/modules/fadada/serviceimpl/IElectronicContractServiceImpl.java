@@ -7,6 +7,7 @@ import cn.ruanyun.backInterface.common.vo.PageVo;
 import cn.ruanyun.backInterface.common.vo.Result;
 import cn.ruanyun.backInterface.modules.base.pojo.DataVo;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
+import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
 import cn.ruanyun.backInterface.modules.fadada.dto.ExtSignDto;
 import cn.ruanyun.backInterface.modules.fadada.dto.UploaddocsDto;
@@ -18,6 +19,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fadada.sdk.client.FddClientBase;
+import com.fadada.sdk.client.FddClientExtra;
 import com.fadada.sdk.client.request.ExtsignReq;
 import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
@@ -52,10 +54,16 @@ public class IElectronicContractServiceImpl extends ServiceImpl<ElectronicContra
     @Autowired
     private IGoodCategoryService goodCategoryService;
 
+    @Autowired
+    private IUserService userService;
+
     @Override
     public Result<Object> insertElectronicContract(UploaddocsDto uploaddocsDto) {
 
-        FddClientBase base = new FddClientBase(CommonConstant.F_APP_ID, CommonConstant.F_APP_SECRET, CommonConstant.F_HOST, CommonConstant.F_VERSION);
+
+        User user = userService.getById(securityUtil.getCurrUser().getId());
+
+        FddClientBase base = new FddClientBase(CommonConstant.F_APP_ID, CommonConstant.F_APP_SECRET, CommonConstant.F_VERSION, CommonConstant.F_HOST);
 
         List<UploaddocsDto> uploaddocsDtos = Lists.newArrayList();
 
@@ -71,7 +79,7 @@ public class IElectronicContractServiceImpl extends ServiceImpl<ElectronicContra
             try {
 
                 base.invokeUploadDocs(uploaddocsDtoUse.getContractId(), uploaddocsDtoUse.getDocTitle(),
-                        MultipartFileToFile.multipartFileToFile(uploaddocsDtoUse.getPdfFile()), uploaddocsDtoUse.getDocUrl(), uploaddocsDtoUse.getDocType());
+                        /*MultipartFileToFile.multipartFileToFile(uploaddocsDtoUse.getPdfFile())*/null, uploaddocsDtoUse.getDocUrl(), uploaddocsDtoUse.getDocType());
 
 
                 //异步添加数据到数据库
@@ -79,7 +87,7 @@ public class IElectronicContractServiceImpl extends ServiceImpl<ElectronicContra
 
                     ElectronicContract electronicContract = new ElectronicContract();
                     ToolUtil.copyProperties(uploaddocsDto, electronicContract);
-                    electronicContract.setCreateBy(securityUtil.getCurrUser().getId());
+                    electronicContract.setCreateBy(user.getId());
                     this.save(electronicContract);
 
                 }).join();
@@ -164,6 +172,20 @@ public class IElectronicContractServiceImpl extends ServiceImpl<ElectronicContra
             electronicContract.setContractFiling(BooleanTypeEnum.YES);
             this.updateById(electronicContract);
         });
+    }
+
+    @Override
+    public Result<Object> viewContract(String id) {
+
+        FddClientExtra extra = new FddClientExtra(CommonConstant.F_APP_ID,CommonConstant.F_APP_SECRET,CommonConstant.F_VERSION,CommonConstant.F_HOST);
+
+        return Optional.ofNullable(this.getById(id)).map(electronicContract -> {
+
+            String viewUrl= extra.invokeViewPdfURL(electronicContract.getContractId());
+            return new ResultUtil<>().setData(viewUrl, "获取查看合同链接成功！");
+
+        }).orElse(new ResultUtil<>().setErrorMsg(201, "不存在数据！"));
+
     }
 
 

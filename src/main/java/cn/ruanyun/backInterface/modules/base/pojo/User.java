@@ -94,11 +94,8 @@ public class User extends RuanyunBaseEntity {
     @ApiModelProperty("客户id")
     private String customerId;
 
-    @ApiModelProperty("交易号")
-    private String transactionNo;
-
-    @ApiModelProperty("实名认证地址")
-    private String verifyUrl;
+    @ApiModelProperty("认证类型 1:查询个人 2.查询企业")
+    private Integer authenticationType;
 
     @ApiModelProperty("是否缴纳保证金")
     private BooleanTypeEnum deposit = BooleanTypeEnum.NO;

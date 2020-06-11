@@ -38,9 +38,6 @@ public class IfadadaServiceImpl implements IfadadaService {
     @Autowired
     private SecurityUtil securityUtil;
 
-    @Autowired
-    private IUserService userService;
-
 
     public static final String APP_ID = "500355";
 
@@ -65,125 +62,13 @@ public class IfadadaServiceImpl implements IfadadaService {
         return JSONObject.parseObject(result).getString("data");
     }
 
-    /**
-     * 获取企业实名认证地址
-     *
-     * @param companyVerifyDto 参数
-     * @return Object
-     */
-    @Override
-    public Result<Object> getCompanyVerifyUrl(CompanyVerifyDto companyVerifyDto) {
-
-        GetCompanyVerifyUrl companyVerifyUrl = new GetCompanyVerifyUrl(APP_ID, APP_SECRET, VERSION, HOST);
-
-
-        User user = userService.getById(securityUtil.getCurrUser().getId());
-
-        //企业信息
-        CompanyInfoINO companyInfo = new CompanyInfoINO();
-        companyInfo.setCompany_name(companyVerifyDto.getCompanyName());
-        companyInfo.setCredit_image_path(companyVerifyDto.getCreditImagePath());
-        companyInfo.setCredit_no(companyVerifyDto.getCreditNo());
-
-
-        //对公账号信息
-        BankInfoINO bankInfoIno = new BankInfoINO();
-        bankInfoIno.setBank_name(companyVerifyDto.getBankName());
-        bankInfoIno.setBank_id(companyVerifyDto.getBankId());
-        bankInfoIno.setSubbranch_name(companyVerifyDto.getSubbranchName());
-
-        //法人信息
-        LegalInfoINO legalInfo = new LegalInfoINO();
-        legalInfo.setLegal_name(companyVerifyDto.getLegalName());
-        legalInfo.setLegal_id(companyVerifyDto.getLegalId());
-        legalInfo.setLegal_mobile(companyVerifyDto.getLegalMobile());
-        legalInfo.setLegal_id_front_path(companyVerifyDto.getLegalIdFrontPath());
-
-
-        //代理人信息
-        AgentInfoINO agentInfo = new AgentInfoINO();
-        agentInfo.setAgent_name(companyVerifyDto.getAgentName());
-        agentInfo.setAgent_id(companyVerifyDto.getAgentId());
-        agentInfo.setAgent_mobile(companyVerifyDto.getAgentMobile());
-        agentInfo.setAgent_id_front_path(companyVerifyDto.getAgentIdFrontPath());
-
-
-        String result = companyVerifyUrl.invokeCompanyVerifyUrl(companyInfo, bankInfoIno, legalInfo, agentInfo, securityUtil.getCurrUser().getCustomerId(),
-                companyVerifyDto.getVerifiedWay(), companyVerifyDto.getMVerifiedWay(), companyVerifyDto.getPageModify(), companyVerifyDto.getCompanyPrincipalType(), companyVerifyDto.getReturnUrl(),
-                companyVerifyDto.getNotifyUrl(), companyVerifyDto.getResultType(), companyVerifyDto.getCertFlag());
-
-        if (JSONObject.parseObject(result).getIntValue("code") == 1) {
-
-            String data = JSONObject.parseObject(result).getString("data");
-            user.setTransactionNo(JSONObject.parseObject(data).getString("transactionNo"))
-                    .setVerifyUrl(JSONObject.parseObject(data).getString("url"));
-            userService.updateById(user);
-
-            return new ResultUtil<>().setData(user.getVerifyUrl(), "申请成功！");
-        }else {
-
-            return new ResultUtil<>().setErrorMsg(204, JSONObject.parseObject(result).getString("msg"));
-        }
-
-    }
-
-    /**
-     * 获取个人实名认证地址
-     *
-     * @param personVerifyDto 参数
-     * @return Object
-     */
-    @Override
-    public Result<Object> getPersonVerifyUrl(PersonVerifyDto personVerifyDto) {
-
-        User user = userService.getById(securityUtil.getCurrUser().getId());
-
-        GetPersonVerifyUrl personVerify = new GetPersonVerifyUrl(APP_ID, APP_SECRET, VERSION, HOST);
-
-        String result = personVerify.invokePersonVerifyUrl(securityUtil.getCurrUser().getCustomerId(), personVerifyDto.getVerifiedWay(), personVerifyDto.getPageModify(),
-                personVerifyDto.getNotifyUrl(), personVerifyDto.getReturnUrl(), personVerifyDto.getCustomerName(), personVerifyDto.getCustomerIdentType(),personVerifyDto.getCustomerIdentNo()
-        ,personVerifyDto.getMobile(), personVerifyDto.getIdentFrontPath(), personVerifyDto.getResultType(), personVerifyDto.getCertFlag());
-
-        log.info(result);
-
-        if (JSONObject.parseObject(result).getIntValue("code") == 1) {
-
-            String data = JSONObject.parseObject(result).getString("data");
-            user.setTransactionNo(JSONObject.parseObject(data).getString("transactionNo"))
-                    .setVerifyUrl(JSONObject.parseObject(data).getString("url"));
-            userService.updateById(user);
-
-            return new ResultUtil<>().setData(user.getVerifyUrl(), "申请个人实名认证成功！");
-        }else {
-
-            return new ResultUtil<>().setErrorMsg(204, JSONObject.parseObject(result).getString("msg"));
-        }
-    }
-
-
-    /**
-     * 实名认证证书申请
-     * @return Object
-     */
-    @Override
-    public Result<Object> applyCert() {
-
-        ApplyCert applyCert = new ApplyCert(APP_ID, APP_SECRET, VERSION, HOST);
-
-        User user = userService.getById(securityUtil.getCurrUser().getId());
-
-        String result = applyCert.invokeApplyCert(user.getCustomerId(), user.getTransactionNo());
-
-        return new ResultUtil<>().setData(JSONObject.parseObject(result), "申请实名认证证书成功！");
-    }
-
 
     @Override
     public Result<Object> addSignature(SignatureDto signatureDto) throws Exception {
 
         FddClientBase base = new FddClientBase(APP_ID, APP_SECRET, VERSION, HOST );
 
-        String result = base.invokeaddSignature(securityUtil.getCurrUser().getCustomerId(), MultipartFileToFile.multipartFileToFile(signatureDto.getImageFile()), signatureDto.getImgUrl());
+        String result = base.invokeaddSignature(securityUtil.getCurrUser().getCustomerId(), /*MultipartFileToFile.multipartFileToFile(signatureDto.getImageFile())*/null, signatureDto.getImgUrl());
 
         return new ResultUtil<>().setData(JSONObject.parseObject(result), "上传签章成功！");
     }

@@ -64,7 +64,7 @@ public class ContractSigningController {
     }
 
 
-    @PostMapping("checkContractSigning/")
+    @PostMapping("checkContractSigning")
     @ApiOperation("后台审核手动签署合同(PC)")
     public Result<Object> checkContractSigning(ContractSigning contractSigning) {
 
@@ -72,23 +72,24 @@ public class ContractSigningController {
     }
 
     @PostMapping("/contractFiling")
-    @ApiModelProperty(value = "合同归档(PC)")
+    @ApiOperation(value = "合同归档(PC)")
     public Result<Object> contractFiling(String id) {
 
         return contractSigningService.contractFiling(id);
     }
 
     @PostMapping("/viewContract")
-    @ApiModelProperty("查看合同(pc)")
+    @ApiOperation("查看合同(pc)")
     public Result<Object> viewContract(String id) {
 
         return contractSigningService.viewContract(id);
     }
 
     @PostMapping("/downLoadContract")
-    @ApiModelProperty("下载合同(PC)")
+    @ApiOperation("下载合同(PC)")
     public Result<Object> downLoadContract(String id) {
 
         return contractSigningService.downLoadContract(id);
     }
+
 }

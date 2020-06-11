@@ -1,18 +1,27 @@
-package cn.ruanyun.backInterface.modules.fadada.dto;
+package cn.ruanyun.backInterface.modules.fadada.pojo;
 
+import cn.ruanyun.backInterface.base.RuanyunBaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import javax.persistence.Entity;
+import javax.persistence.Table;
+
 /**
- * @author Administrator
+ * 个人认证
+ * @author z
  */
 @Data
+@Entity
+@Table(name = "t_personal_certificate")
+@TableName("t_personal_certificate")
 @Accessors(chain = true)
-public class PersonVerifyDto {
+public class PersonalCertificate extends RuanyunBaseEntity {
 
+    private static final long serialVersionUID = 1L;
 
-    private String id;
 
     /*--------------公共参数--------------------*/
 

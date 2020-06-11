@@ -50,5 +50,12 @@ public interface IElectronicContractService extends IService<ElectronicContract>
      */
     void updateContractFiling(String contractId);
 
+    /**
+     * 查看合同
+     * @param id id
+     * @return Object
+     */
+    Result<Object> viewContract(String id);
+
 
 }
