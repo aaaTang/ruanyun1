@@ -101,4 +101,11 @@ public class Order extends RuanyunBaseEntity {
 
     @ApiModelProperty(value = "运费")
     private BigDecimal freight = new BigDecimal(0);
+
+    @ApiModelProperty(value = "支付完成的第几条")
+    private Integer size = 0;
+
+    @ApiModelProperty(value = "保险是否领取  1已领取   2不领取")
+    private Integer insurance = 0;
+
 }

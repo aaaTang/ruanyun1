@@ -224,4 +224,13 @@ public interface IOrderService extends IService<Order> {
      * @return Order
      */
     List<Order> getOrderListByStoreId(String storeId);
+
+    /**
+     * 领取保险
+     * @param orderOperateDto  订单id
+     * @return
+     */
+    Result<Object> updateInsurance(OrderOperateDto orderOperateDto);
+
+    Result<DataVo<BackOrderListVO>> getInsuranceList(PageVo pageVo, BackOrderListDto backOrderListDto);
 }

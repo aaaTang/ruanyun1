@@ -94,6 +94,10 @@ public class PcGoodListVO {
      */
     private Integer status;
 
+    /**
+     * 是否是推荐商品    0不是  1 是
+     */
+    private Integer recommend;
 
     @ApiModelProperty(value = "购买状态 1购买 2租赁 3购买和租赁")
     private Integer buyState;

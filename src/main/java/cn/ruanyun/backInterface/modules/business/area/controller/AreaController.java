@@ -104,26 +104,16 @@ public class AreaController {
 
     /**
      * 获取app区域数据
-     * @param pageNumber
-     * @param pageSize
      * @return
      */
     @PostMapping("/getAppAreaList")
-    public Result<Object> getAppAreaList(Integer pageNumber,Integer pageSize) {
+    public Result<Object> getAppAreaList(PageVo pageVo) {
 
         return Optional.ofNullable(iAreaService.getAppAreaList())
                 .map(appAreaList -> {
-
                     Map<String, Object> result = Maps.newHashMap();
                     result.put("size", appAreaList.size());
-                    if(EmptyUtil.isNotEmpty(pageNumber)||EmptyUtil.isNotEmpty(pageSize)){
-                        PageVo pageVo =new PageVo();
-                        pageVo.setPageNumber(pageNumber);
-                        pageVo.setPageSize(pageSize);
-                        result.put("data", PageUtil.listToPage(pageVo, appAreaList));
-                    }else {
-                        result.put("data", appAreaList);
-                    }
+                    result .put("data", PageUtil.listToPage(pageVo, appAreaList));
                     return new ResultUtil<>().setData(result, "获取app区域数据成功！");
                 }).orElse(new ResultUtil<>().setErrorMsg(201, "暂无数据！"));
     }

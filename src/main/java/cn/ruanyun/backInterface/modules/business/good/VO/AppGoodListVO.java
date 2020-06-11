@@ -1,6 +1,7 @@
 package cn.ruanyun.backInterface.modules.business.good.VO;
 
 import cn.ruanyun.backInterface.common.enums.GoodTypeEnum;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
@@ -77,5 +78,8 @@ public class AppGoodListVO {
      */
     private Integer SaleVolume = 0;
 
-
+    /**
+     * 店铺区域id
+     */
+    private String areaId;
 }

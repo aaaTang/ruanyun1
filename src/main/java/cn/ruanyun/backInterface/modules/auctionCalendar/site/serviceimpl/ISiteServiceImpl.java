@@ -251,11 +251,12 @@ public class ISiteServiceImpl extends ServiceImpl<SiteMapper, Site> implements I
             }
 
             //4.判断订单被购买
-            Optional.ofNullable(orderMapper.selectById(new QueryWrapper<Order>().lambda()
-                    .eq(Order::getSiteId,siteId)
+            Optional.ofNullable(orderMapper.selectOne(Wrappers.<Order>lambdaQuery()
                     .eq(Order::getDayTimeType,detailTimeVO.getDayTimeType())
+                    .eq(Order::getSiteId,siteId)
                     .eq(Order::getScheduleAppointment,scheduleTime)
                     .ge(Order::getOrderStatus, OrderStatusEnum.PRE_SEND)
+                    .last("limit 1")
             )).ifPresent(order -> { detailTimeVO.setStatus(0); });
 
 

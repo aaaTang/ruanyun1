@@ -293,7 +293,7 @@ public class IStoreAuditServiceImpl extends ServiceImpl<StoreAuditMapper, StoreA
             if (ToolUtil.isNotEmpty(storeAuditDTO.getUsername())) {
                 wrapper.and(w -> w.like(StoreAudit::getUsername, storeAuditDTO.getUsername()));
             }
-            wrapper.orderByDesc(StoreAudit::getCheckEnum).orderByDesc(StoreAudit::getCreateTime);
+            wrapper.orderByDesc(StoreAudit::getCreateTime);
             return super.list(wrapper);
 
         }).thenApplyAsync(storeAudit -> {

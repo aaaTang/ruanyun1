@@ -94,8 +94,8 @@ public class GoodController {
      * @return
      */
     @PostMapping("/getAppOneClassGoodList")
-    public Result<Object> getAppGoodAndPackageList(String classId, PageVo pageVo) {
-        return Optional.ofNullable(iGoodService.getAppOneClassGoodList(classId))
+    public Result<Object> getAppGoodAndPackageList(String classId,String areaId,PageVo pageVo) {
+        return Optional.ofNullable(iGoodService.getAppOneClassGoodList(classId,areaId))
                 .map(oneClassGoodList -> {
                     Map<String,Object> result = Maps.newHashMap();
                     result.put("size",oneClassGoodList.size());

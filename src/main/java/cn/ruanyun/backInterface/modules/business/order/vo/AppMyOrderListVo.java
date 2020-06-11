@@ -71,4 +71,11 @@ public class AppMyOrderListVo {
 
     @ApiModelProperty(value = "租赁尾款类型 1尾款线上支付  2尾款线下支付 ")
     private Integer leaseState;
+
+    @ApiModelProperty(value = "用户保险  1无  2有 ")
+    private Integer Insurance;
+
+    @ApiModelProperty(value = "支付完成的第几条")
+    private Integer size ;
+
 }

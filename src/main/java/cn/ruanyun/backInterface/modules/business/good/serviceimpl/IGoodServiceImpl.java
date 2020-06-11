@@ -38,6 +38,8 @@ import cn.ruanyun.backInterface.modules.business.myFavorite.service.IMyFavoriteS
 import cn.ruanyun.backInterface.modules.business.myFootprint.pojo.MyFootprint;
 import cn.ruanyun.backInterface.modules.business.myFootprint.serviceimpl.IMyFootprintServiceImpl;
 import cn.ruanyun.backInterface.modules.business.orderDetail.service.IOrderDetailService;
+import cn.ruanyun.backInterface.modules.business.recommendedPackage.pojo.RecommendedPackage;
+import cn.ruanyun.backInterface.modules.business.recommendedPackage.service.IRecommendedPackageService;
 import cn.ruanyun.backInterface.modules.business.searchHistory.pojo.SearchHistory;
 import cn.ruanyun.backInterface.modules.business.searchHistory.service.ISearchHistoryService;
 import cn.ruanyun.backInterface.modules.business.sizeAndRolor.mapper.SizeAndRolorMapper;
@@ -85,8 +87,6 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     @Resource
     private UserMapper userMapper;
     @Autowired
-    private IUserService iUserService;
-    @Autowired
     private IMyFootprintServiceImpl iMyFootprintService;
     @Resource
     private GoodCategoryMapper goodCategoryMapper;
@@ -104,8 +104,6 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     private IGoodsPackageService iGoodsPackageService;
     @Autowired
     private IItemAttrValService iItemAttrValService;
-    @Resource
-    private ItemAttrKeyMapper itemAttrKeyMapper;
     @Autowired
     private IOrderDetailService orderDetailService;
     @Autowired
@@ -125,12 +123,9 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     @Resource
     private IGoodsIntroduceService iGoodsIntroduceService;
     @Autowired
-    private IstoreFirstRateServiceService storeFirstRateServiceService;
-    @Autowired
-    private IStoreActivityService iStoreActivityService;
-
-    @Autowired
     private IGoodCategoryService goodCategoryService;
+    @Autowired
+    private IRecommendedPackageService iRecommendedPackageService;
 
     @Override
     public void insertOrderUpdateGood(Good good) {
@@ -176,9 +171,9 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
      * @return
      */
     @Override
-    public AppGoodListVO getAppGoodListVO(String id) {
+    public AppGoodListVO getAppGoodListVO(String id ,String goodCategoryId) {
 
-        return Optional.ofNullable(this.getById(id))
+        return Optional.ofNullable(this.getOne(new QueryWrapper<Good>().lambda().eq(Good::getId,id).eq(ToolUtil.isNotEmpty(goodCategoryId),Good::getGoodCategoryId,goodCategoryId)))
                 .map(good -> {
                     AppGoodListVO appGoodListVO = new AppGoodListVO();
 
@@ -223,7 +218,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
         //2.查询封装之后的类
         CompletableFuture<Optional<List<AppGoodListVO>>> goodsVOList = goodsList.thenApplyAsync(goods ->
-                goods.map(goods1 -> goods1.parallelStream().flatMap(good -> Stream.of(getAppGoodListVO(good.getId())))
+                goods.map(goods1 -> goods1.parallelStream().flatMap(good -> Stream.of(getAppGoodListVO(good.getId(),null)))
                         .collect(Collectors.toList())));
 
         //3.筛选条件
@@ -452,27 +447,73 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
      * @return
      */
     @Override
-    public List<AppOneClassGoodListVO> getAppOneClassGoodList(String classId) {
+    public List<AppOneClassGoodListVO> getAppOneClassGoodList(String classId,String areaId) {
 
 
-      List<GoodCategory> goodCategoryList = goodCategoryMapper.selectList(new QueryWrapper<GoodCategory>().lambda()
-              .eq(ToolUtil.isNotEmpty(classId),GoodCategory::getParentId,classId)
-      );
+      List<GoodCategory> goodCategoryList = goodCategoryMapper.selectList(new QueryWrapper<GoodCategory>().lambda().eq(GoodCategory::getStatus,0));
+
+      List<GoodCategory> goodCategories = getByMapCategory(classId,goodCategoryList);
 
       List<AppOneClassGoodListVO> list = new ArrayList<>();
 
-        for (GoodCategory goodCategory : goodCategoryList) {
-            List<Good> goods = goodMapper.selectList(new QueryWrapper<Good>().lambda().eq(Good::getGoodCategoryId,goodCategory.getId()).eq(Good::getDelFlag,0));
-            for (Good good : goods) {
-              AppGoodListVO appGoodListVO = getAppGoodListVO(good.getId());
-                AppOneClassGoodListVO oneClassGoodListVO = new AppOneClassGoodListVO();
-                ToolUtil.copyProperties(appGoodListVO,oneClassGoodListVO);
-                list.add(oneClassGoodListVO);
+        for (GoodCategory goodCategory : goodCategories) {
+
+            //查询套餐
+            List<RecommendedPackage> recommendedPackageList = iRecommendedPackageService.list();
+
+            for (RecommendedPackage recommendedPackage : recommendedPackageList) {
+
+                Optional.ofNullable(getAppGoodListVO(recommendedPackage.getGoodId(),goodCategory.getId())).ifPresent(appGoodListVO -> {
+
+                    if(ToolUtil.isNotEmpty(areaId)){
+                        if(appGoodListVO.getAreaId().equals(areaId)){
+                            AppOneClassGoodListVO oneClassGoodListVO = new AppOneClassGoodListVO();
+                            ToolUtil.copyProperties(appGoodListVO,oneClassGoodListVO);
+                            list.add(oneClassGoodListVO);
+                        }
+                    }else {
+                        AppOneClassGoodListVO oneClassGoodListVO = new AppOneClassGoodListVO();
+                        ToolUtil.copyProperties(appGoodListVO,oneClassGoodListVO);
+                        list.add(oneClassGoodListVO);
+                    }
+
+                });
+
             }
+
+
         }
 
         return list;
     }
+
+    //递归  cl
+    public static List<GoodCategory> getByMapCategory(String id, List<GoodCategory> categoryList) {
+
+        List<GoodCategory> list = new ArrayList<>();
+
+        //相等说明：该分类Pid是所查询分类id,所以是所查询分类的子分类fo
+
+        for (int i = 0; i < categoryList.size(); i++) {
+
+            if (categoryList.get(i).getParentId().equals(id)) {
+
+                list.add(categoryList.get(i));
+
+            }
+        }
+        //如果分类下没有分类，返回一个空List（递归退出）
+        if (list.size() == 0) {
+            return new ArrayList<GoodCategory>();
+        } else {
+            for (int i = 0; i < list.size(); i++) {
+                getByMapCategory(list.get(i).getId(), categoryList);
+            }
+        }
+        return list;
+    }
+
+
 
     /**
      * App模糊查询商品接口
@@ -746,6 +787,12 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                    pc.setShopName(Optional.ofNullable(userMapper.selectById(pcGoods.getCreateBy())).map(User::getShopName).orElse("暂无！"));
                }
                pc.setStatus(Optional.ofNullable(userMapper.selectById(pcGoods.getCreateBy())).map(User::getStatus).orElse(0));
+
+               //是否是推荐商品
+               pc.setRecommend(0);
+               Optional.ofNullable(iRecommendedPackageService.getOne(Wrappers.<RecommendedPackage>lambdaQuery().eq(RecommendedPackage::getGoodId,pc.getId())))
+                       .ifPresent(recommendedPackage -> {  pc.setRecommend(1);});
+
                    return  pc;
 
            })
@@ -844,6 +891,12 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
                         .setPurchaseNotes(iGoodsIntroduceService.goodsIntroduceList(null,pcGoodsPackage.getId(),2));//购买须知
 
                 pc.setStatus(Optional.ofNullable(userMapper.selectById(pcGoodsPackage.getCreateBy())).map(User::getStatus).orElse(0));
+
+                //是否是推荐商品
+                pc.setRecommend(0);
+                Optional.ofNullable(iRecommendedPackageService.getOne(Wrappers.<RecommendedPackage>lambdaQuery().eq(RecommendedPackage::getGoodId,pc.getId())))
+                        .ifPresent(recommendedPackage -> {  pc.setRecommend(1);});
+
                 return  pc;
             }).filter(pcGood-> pcGood.getGoodCategoryId().contains(ToolUtil.isNotEmpty(goodDTO.getGoodCategoryId())?goodDTO.getGoodCategoryId():pcGood.getGoodCategoryId()))
                     .filter(pcGood-> pcGood.getShopName().contains(ToolUtil.isNotEmpty(goodDTO.getShopName())?goodDTO.getShopName():pcGood.getShopName()))

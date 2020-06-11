@@ -119,6 +119,13 @@ public class OrderController {
         return iOrderService.sendGood(orderOperateDto);
     }
 
+    @PostMapping("/updateInsurance")
+    @ApiOperation(value = "领取保险")
+    public Result<Object> updateInsurance(OrderOperateDto orderOperateDto) {
+
+        return iOrderService.updateInsurance(orderOperateDto);
+    }
+
     @PostMapping("/confirmReceive")
     @ApiOperation(value = "确认收货")
     @ApiImplicitParams(@ApiImplicitParam(name = "orderId", value = "订单id", dataType = "string", paramType = "query"))
@@ -181,4 +188,13 @@ public class OrderController {
 
         return iOrderService.getBackOrderList(backOrderListDto, pageVo);
     }
+
+    @PostMapping("/getInsuranceList")
+    @ApiOperation(value = "后端获取保险订单列表")
+    public Result<DataVo<BackOrderListVO>> getInsuranceList(BackOrderListDto backOrderListDto, PageVo pageVo) {
+
+        return iOrderService.getInsuranceList(pageVo, backOrderListDto);
+    }
+
+
 }

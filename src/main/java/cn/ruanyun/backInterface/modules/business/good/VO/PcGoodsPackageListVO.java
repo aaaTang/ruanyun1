@@ -86,4 +86,9 @@ public class PcGoodsPackageListVO {
      * 商家状态 默认0正常 -1拉黑
      */
     private Integer status;
+
+    /**
+     * 是否是推荐商品    0不是  1 是
+     */
+    private Integer recommend;
 }

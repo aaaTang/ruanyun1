@@ -30,31 +30,28 @@ public class Area extends RuanyunBaseEntity{
      */
     private String title;
 
-
-    /**
-     * 父id
-     */
-    private String parentId;
-
-
     /**
      * 城市索引
      */
     private AreaIndexEnum areaIndex;
-
 
     /**
      * 排序值
      */
     private Integer sortOrder;
 
-
     /**
      * 是否启用 0开放 -1未开放
      */
     private Integer status = CommonConstant.STATUS_NORMAL;
+    /**
+     * 父id
+     */
+    private String parentId;
 
-
-
+    /**
+     * 城市编码
+     */
+    private String code;
 
 }

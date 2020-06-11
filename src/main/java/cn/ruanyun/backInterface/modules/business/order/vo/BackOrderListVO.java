@@ -58,9 +58,17 @@ public class  BackOrderListVO {
     @ApiModelProperty(value = "运费金额")
     private BigDecimal freightPrice;
 
-
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
+
+    @ApiModelProperty(value = "保险是否领取  1已领取   2不领取")
+    private Integer insurance = 0;
+
+    @ApiModelProperty(value = "用户名称")
+    private String nickName;
+
+
+
 }

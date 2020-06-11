@@ -2,6 +2,7 @@ package cn.ruanyun.backInterface.modules.business.order.serviceimpl;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONUtil;
+import cn.ruanyun.backInterface.common.constant.CommonConstant;
 import cn.ruanyun.backInterface.common.enums.*;
 import cn.ruanyun.backInterface.common.pay.common.alipay.AliPayUtilTool;
 import cn.ruanyun.backInterface.common.pay.common.wxpay.WeChatConfig;
@@ -30,7 +31,6 @@ import cn.ruanyun.backInterface.modules.business.discountMy.service.IDiscountMyS
 import cn.ruanyun.backInterface.modules.business.good.mapper.GoodMapper;
 import cn.ruanyun.backInterface.modules.business.good.pojo.Good;
 import cn.ruanyun.backInterface.modules.business.good.service.IGoodService;
-import cn.ruanyun.backInterface.modules.business.goodCategory.entity.GoodCategory;
 import cn.ruanyun.backInterface.modules.business.goodCategory.mapper.GoodCategoryMapper;
 import cn.ruanyun.backInterface.modules.business.goodCategory.service.IGoodCategoryService;
 import cn.ruanyun.backInterface.modules.business.goodsPackage.pojo.GoodsPackage;
@@ -154,9 +154,6 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
     private ICommentService iCommentService;
 
     @Resource
-    private GoodCategoryMapper goodCategoryMapper;
-
-    @Resource
     private OrderDetailMapper orderDetailMapper;
 
     @Resource
@@ -179,8 +176,6 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
 
     @Autowired
     private IGoodCategoryService goodCategoryService;
-
-
 
     @Override
     public Result<Object> insertOrder(OrderDto orderDTO) {
@@ -703,11 +698,25 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                                 return new ResultUtil<>().setErrorMsg(207, "余额不足！");
                             }
 
+                            //如果用戶是第一单就需要领保险  1可以领取   2不能领取
+                            Map<String,Object> result = com.google.common.collect.Maps.newHashMap();
+                            List<Order> order1 = this.list(new QueryWrapper<Order>().lambda().eq(Order::getCreateBy,securityUtil.getCurrUser().getId())
+                                    .ge(Order::getOrderStatus,OrderStatusEnum.PRE_SEND)
+                                    .ne(Order::getTypeEnum,OrderTypeEnum.DEPOSIT_ORDER)
+                            );
+                            if(order1.size()==2){
+                                result.put("insurance",1);
+                            }else {
+                                result.put("insurance",2);
+                            }
+
+
                             orders.forEach(order -> {
 
                                 //更新订单
                                 order.setPayTypeEnum(appPayOrder.getPayType());
                                 order.setOrderStatus(OrderStatusEnum.PRE_SEND);
+                                order.setSize(order1.size()+1);
                                 this.updateById(order);
 
                                 //2.减少用户余额,记录明细
@@ -789,7 +798,10 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
                                 storeIncomeService.save(storeIncome);
 
                             });
-                            return new ResultUtil<>().setData(200, "支付成功!");
+
+
+
+                            return new ResultUtil<>().setData(result, "支付成功!");
                         }else {
 
                             return new ResultUtil<>().setErrorMsg(208, "支付密码不一致！");
@@ -1800,6 +1812,96 @@ public class IOrderServiceImpl extends ServiceImpl<OrderMapper, Order> implement
         .eq(Order::getUserId, storeId)
         .orderByDesc(Order::getCreateTime))))
         .orElse(null);
+    }
+
+    @Override
+    public Result<Object> updateInsurance(OrderOperateDto orderOperateDto) {
+
+        return Optional.ofNullable(this.getById(orderOperateDto.getOrderId()))
+                .map(order -> {
+
+                    order.setInsurance(CommonConstant.DEL_FLAG);
+
+                    this.updateById(order);
+
+                    return new ResultUtil<>().setSuccessMsg("领取订单成功！");
+                }).orElse(new ResultUtil<>().setErrorMsg(201, "该订单不存在！"));
+    }
+
+    @Override
+    public Result<DataVo<BackOrderListVO>> getInsuranceList(PageVo pageVo, BackOrderListDto backOrderListDto) {
+        //根据筛选条件构建查询分页数据
+        Page<Order> orderPage = this.page(PageUtil.initMpPage(pageVo), Wrappers.<Order>lambdaQuery()
+
+                //根据手机号模糊查询
+                .like(ToolUtil.isNotEmpty(backOrderListDto.getPhone()), Order::getPhone, backOrderListDto.getPhone())
+
+                //根据订单状态查询
+                .eq(ToolUtil.isNotEmpty(backOrderListDto.getOrderStatus()), Order::getOrderStatus, backOrderListDto.getOrderStatus())
+
+                //根据购买状态
+                .eq(ToolUtil.isNotEmpty(backOrderListDto.getBuyState()), Order::getBuyType, backOrderListDto.getBuyState())
+
+                //大于支付开始时间
+                .ge(ToolUtil.isNotEmpty(backOrderListDto.getPayTimeBeginTime()), Order::getCreateTime, backOrderListDto.getPayTimeBeginTime())
+
+                //小于支付结束时间
+                .le(ToolUtil.isNotEmpty(backOrderListDto.getPayTimeEndTime()), Order::getCreateTime, backOrderListDto.getPayTimeEndTime())
+
+                //管理员和商家筛选查询
+                .eq(ToolUtil.isNotEmpty(backOrderListDto.getStoreId()), Order::getUserId, backOrderListDto.getStoreId())
+
+                //取前两条订单
+                .eq(Order::getSize,1).or().eq(Order::getSize,2)
+
+                //默认按照订单创建时间排序
+                .orderByDesc(Order::getCreateTime));
+
+
+        //封装数据
+
+        //1. 判断数据是否为空
+        if (ToolUtil.isEmpty(orderPage.getRecords())) {
+
+            return new ResultUtil<DataVo<BackOrderListVO>>().setErrorMsg(201, "暂无数据！");
+        }
+
+
+        //2. 封装数据
+        DataVo<BackOrderListVO> result = new DataVo<>();
+
+        result.setDataResult(orderPage.getRecords().parallelStream().flatMap(order -> {
+
+            BackOrderListVO backOrderListVO = new BackOrderListVO();
+
+            //2.1 所属店铺
+            backOrderListVO.setStoreName(Optional.ofNullable(userService.getById(order.getUserId()))
+                    .map(User::getShopName).orElse("-"));
+            //用户昵称
+            backOrderListVO.setNickName(Optional.ofNullable(userService.getById(order.getCreateBy()))
+                    .map(User::getNickName).orElse("-"));
+
+            // TODO: 2020/5/28 运费金额
+            backOrderListVO.setFreightPrice(new BigDecimal(0));
+
+            ToolUtil.copyProperties(order, backOrderListVO);
+
+            return Stream.of(backOrderListVO);
+        }).collect(Collectors.toList())).setTotalSize(orderPage.getSize())
+                .setCurrentPageNum(orderPage.getCurrent())
+                .setTotalPage(orderPage.getTotal());
+
+        //3. 筛选店铺
+        if (ToolUtil.isNotEmpty(backOrderListDto.getStoreName())) {
+
+            result.setDataResult(result.getDataResult().parallelStream().filter(backOrderListVO ->
+                    backOrderListVO.getStoreName().contains(backOrderListDto.getStoreName()))
+                    .filter(backOrderListVO ->
+                            backOrderListVO.getNickName().contains(backOrderListDto.getNickName()))
+                    .collect(Collectors.toList())).setTotalSize((long) result.getDataResult().size());
+        }
+
+        return new ResultUtil<DataVo<BackOrderListVO>>().setData(result, "获取订单列表数据成功！");
     }
 
 

@@ -37,7 +37,7 @@ public interface IGoodService extends IService<Good> {
      * @param id
      * @return
      */
-    AppGoodListVO getAppGoodListVO(String id);
+    AppGoodListVO getAppGoodListVO(String id,String goodCategoryId);
 
 
     /**
@@ -60,7 +60,7 @@ public interface IGoodService extends IService<Good> {
      * 获取首页一级分类下的所有商品
      * @return
      */
-    List<AppOneClassGoodListVO> getAppOneClassGoodList(String classId);
+    List<AppOneClassGoodListVO> getAppOneClassGoodList(String classId,String areaId);
 
 
     /**

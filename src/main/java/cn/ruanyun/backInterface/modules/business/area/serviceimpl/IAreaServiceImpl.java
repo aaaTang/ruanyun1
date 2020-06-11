@@ -1,23 +1,26 @@
 package cn.ruanyun.backInterface.modules.business.area.serviceimpl;
 
 import cn.ruanyun.backInterface.common.constant.CommonConstant;
+import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.business.area.VO.AppAreaListVO;
 import cn.ruanyun.backInterface.modules.business.area.VO.AppAreaVO;
 import cn.ruanyun.backInterface.modules.business.area.VO.BackAreaVO;
 import cn.ruanyun.backInterface.modules.business.area.mapper.AreaMapper;
 import cn.ruanyun.backInterface.modules.business.area.pojo.Area;
 import cn.ruanyun.backInterface.modules.business.area.service.IAreaService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.google.api.client.util.ArrayMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -121,36 +124,43 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
     @Override
     public List<AppAreaListVO> getAppAreaList() {
 
-        return Mono.fromCompletionStage(CompletableFuture.supplyAsync(() -> Optional.ofNullable(ToolUtil.setListToNul(super
-                .list(Wrappers.<Area>lambdaQuery()
-                        .isNotNull(Area::getAreaIndex)
-                        .eq(Area::getStatus, CommonConstant.STATUS_NORMAL)
-                        .orderByAsc(Area::getSortOrder)
-                        .orderByAsc(Area::getAreaIndex)))))
+        List<AppAreaListVO> appAreaListVOList= Optional.ofNullable(this.list(new QueryWrapper<Area>().lambda()
+                .isNotNull(Area::getAreaIndex)
+                .eq(Area::getStatus, CommonConstant.STATUS_NORMAL)
+                .ne(Area::getParentId, CommonConstant.STATUS_NORMAL)
+                .orderByAsc(Area::getAreaIndex)
+        )).map(areas -> areas.parallelStream().flatMap(area -> {
+            AppAreaListVO appAreaListVO = new AppAreaListVO();
+            ToolUtil.copyProperties(area,appAreaListVO);
 
-                .thenApplyAsync(areas -> areas.map(areaList -> areaList.stream()
-                        .collect(Collectors.groupingBy(Area::getAreaIndex))))
-                .thenApplyAsync(areaIndexEnumListMap -> areaIndexEnumListMap.map(areaIndexEnumList -> {
+            appAreaListVO.setAreaListVOS(Optional.ofNullable(this.list(new QueryWrapper<Area>().lambda()
+                    .isNotNull(Area::getAreaIndex)
+                    .eq(Area::getStatus, CommonConstant.STATUS_NORMAL)
+                    .eq(Area::getAreaIndex,area.getAreaIndex())
+                    .ne(Area::getParentId, CommonConstant.STATUS_NORMAL)
+                    .orderByAsc(Area::getAreaIndex)))
+                    .map(areas1 -> areas1.parallelStream().flatMap(area1 -> {
 
-                    List<AppAreaListVO> appAreaListVos = Lists.newArrayList();
+                        AppAreaVO areaVO = new AppAreaVO();
+                        ToolUtil.copyProperties(area1,areaVO);
 
-                    areaIndexEnumList.forEach((k, v) -> {
+                        return Stream.of(areaVO);
 
-                        AppAreaListVO appAreaListVO = new AppAreaListVO();
-                        appAreaListVO.setAreaIndex(k)
-                                .setAreaListVOS(v.parallelStream().flatMap(area -> {
+                    }).collect(Collectors.toList())).orElse(null));
 
-                                    AppAreaVO appAreaVO = new AppAreaVO();
-                                    ToolUtil.copyProperties(area, appAreaVO);
-                                    return Stream.of(appAreaVO);
-                                }).collect(Collectors.toList()));
+            return Stream.of(appAreaListVO);
+        }).collect(Collectors.toList())).orElse(null);
 
-                        appAreaListVos.add(appAreaListVO);
-                    });
+        Set<AppAreaListVO> h = Sets.newLinkedHashSet(appAreaListVOList);
+        appAreaListVOList.clear();
+        appAreaListVOList.addAll(h);
 
-                    return appAreaListVos;
-                }).orElse(null))).toFuture().join();
+        return appAreaListVOList;
     }
+
+
+
+
 
     @Override
     public List<AppAreaVO> getAppHotAreaList() {
