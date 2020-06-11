@@ -151,6 +151,11 @@ public class IPersonalCertificateServiceImpl extends ServiceImpl<PersonalCertifi
         FindCertInfo personCertInfo = new FindCertInfo(CommonConstant.F_APP_ID, CommonConstant.F_APP_SECRET, CommonConstant.F_VERSION, CommonConstant.F_HOST);
         User user = userService.getById(securityUtil.getCurrUser().getId());
 
+        if (ToolUtil.isEmpty(user.getAuthenticationType())) {
+
+            return new ResultUtil<>().setErrorMsg(204, "暂时没有申请认证");
+        }
+
         if (user.getAuthenticationType() == 1) {
 
            return Optional.ofNullable(this.getOne(Wrappers.<PersonalCertificate>lambdaQuery()
