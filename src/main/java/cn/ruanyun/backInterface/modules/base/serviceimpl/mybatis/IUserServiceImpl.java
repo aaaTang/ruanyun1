@@ -23,6 +23,7 @@ import cn.ruanyun.backInterface.modules.base.service.mybatis.IRoleService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserRoleService;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
 import cn.ruanyun.backInterface.modules.base.vo.*;
+import cn.ruanyun.backInterface.modules.business.area.pojo.Area;
 import cn.ruanyun.backInterface.modules.business.area.service.IAreaService;
 import cn.ruanyun.backInterface.modules.business.balance.service.IBalanceService;
 import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
@@ -243,17 +244,7 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                         }
                     }
 
-                }),
-
-                CompletableFuture.runAsync(() -> {
-
-                    //法大大的客户id
-                    user1.setCustomerId(fadadaService.accountRegister(user1.getId(), "1"));
-                    this.updateById(user1);
-
                 })
-
-                // TODO: 2020/3/13 处理分销
         ));
 
 
@@ -947,16 +938,8 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
                             return new ResultUtil<>().setErrorMsg(207, "内部错误！！！！");
                         }
-
-
-
                     });
         }
-
-
-
-
-
     }
 
     @Override
@@ -1065,8 +1048,6 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
 
                         ToolUtil.copyProperties(user, storeListVo);
 
-
-
                         return Stream.of(storeListVo);
                     })/*.sorted(Comparator.comparing(StoreListVo::getDistance).thenComparing(Comparator.comparing(StoreListVo::getStoreLevel)
                     .thenComparing(StoreListVo::getStoreStarLevel)))*/
@@ -1074,14 +1055,6 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                        .filter(storeListVo -> storeListVo.getStoreLevel().equals(ToolUtil.isNotEmpty(storeListDto.getStoreLevel())?storeListDto.getStoreLevel():storeListVo.getStoreLevel()))
                     .collect(Collectors.toList());
 
-                    /**
-                     * 销量升序 1，销量降序2
-                     * 价格升序3，价格降序4
-                     * 评论数升 序5，评论数降序6
-                     * 门店等级升序 7 门店等级降序8
-                     * 门店星级升序 9 门店星级降序10
-                     * 距离升序 11 距离降序12
-                     */
                     if(ToolUtil.isNotEmpty(storeListDto.getFilterCondition())){
 
                         //销量升序 1
@@ -1120,13 +1093,20 @@ public class IUserServiceImpl extends ServiceImpl<UserMapper, User> implements I
                             //距离降序12
                         }else if(CommonConstant.DISTANCE_DESC.equals(storeListDto.getFilterCondition())){
                             storeListVos = storeListVos.parallelStream().sorted(Comparator.comparing(StoreListVo::getDistance).reversed()).collect(Collectors.toList());
-                        }
+                        }else if (ToolUtil.isNotEmpty(storeListDto.getAreaName())) {
 
+                            Area area = iAreaService.getOne(Wrappers.<Area>lambdaQuery()
+                            .like(Area::getTitle, storeListDto.getAreaName()));
+
+                            if (ToolUtil.isNotEmpty(area)) {
+
+                                storeListVos = storeListVos.parallelStream().filter(storeListVo -> storeListVo.getAreaId().equals(area.getId()))
+                                        .collect(Collectors.toList());
+                            }
+                        }
                     }
 
                     DataVo<StoreListVo> result = new DataVo<>();
-
-
 
                     ToolUtil.copyProperties(storeListDto, result);
                     result.setTotalNumber(storeListVos.size())

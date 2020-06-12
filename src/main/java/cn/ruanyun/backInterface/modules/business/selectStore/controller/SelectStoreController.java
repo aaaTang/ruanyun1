@@ -74,9 +74,9 @@ public class SelectStoreController {
      * @return
      */
     @PostMapping("/getSelectStoreList")
-    public Result<Object> getSelectStoreList(PageVo pageVo) {
+    public Result<Object> getSelectStoreList(PageVo pageVo, String areaName) {
 
-        return Optional.ofNullable(iSelectStoreService.getSelectStoreList())
+        return Optional.ofNullable(iSelectStoreService.getSelectStoreList(areaName))
                 .map(selectStoreListVOS -> {
                     Map<String,Object> result = Maps.newHashMap();
                     result.put("size",selectStoreListVOS.size());

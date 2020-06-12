@@ -14,6 +14,7 @@ import cn.ruanyun.backInterface.modules.base.pojo.Role;
 import cn.ruanyun.backInterface.modules.base.pojo.User;
 import cn.ruanyun.backInterface.modules.base.pojo.UserRole;
 import cn.ruanyun.backInterface.modules.base.service.mybatis.IUserService;
+import cn.ruanyun.backInterface.modules.business.area.service.IAreaService;
 import cn.ruanyun.backInterface.modules.business.comment.service.ICommentService;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.VO.DiscountCouponListVO;
 import cn.ruanyun.backInterface.modules.business.discountCoupon.service.IDiscountCouponService;
@@ -126,6 +127,9 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
     private IGoodCategoryService goodCategoryService;
     @Autowired
     private IRecommendedPackageService iRecommendedPackageService;
+
+    @Autowired
+    private IAreaService areaService;
 
     @Override
     public void insertOrderUpdateGood(Good good) {
@@ -447,7 +451,7 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
      * @return
      */
     @Override
-    public List<AppOneClassGoodListVO> getAppOneClassGoodList(String classId,String areaId) {
+    public List<AppOneClassGoodListVO> getAppOneClassGoodList(String classId,String areaName) {
 
 
       List<GoodCategory> goodCategoryList = goodCategoryMapper.selectList(new QueryWrapper<GoodCategory>().lambda().eq(GoodCategory::getStatus,0));
@@ -465,11 +469,15 @@ public class IGoodServiceImpl extends ServiceImpl<GoodMapper, Good> implements I
 
                 Optional.ofNullable(getAppGoodListVO(recommendedPackage.getGoodId(),goodCategory.getId())).ifPresent(appGoodListVO -> {
 
-                    if(ToolUtil.isNotEmpty(areaId)){
-                        if(appGoodListVO.getAreaId().equals(areaId)){
-                            AppOneClassGoodListVO oneClassGoodListVO = new AppOneClassGoodListVO();
-                            ToolUtil.copyProperties(appGoodListVO,oneClassGoodListVO);
-                            list.add(oneClassGoodListVO);
+                    if(ToolUtil.isNotEmpty(areaName)){
+
+                        if (ToolUtil.isNotEmpty(areaService.getIdByAreaName(areaName))) {
+
+                            if (appGoodListVO.getAreaId().equals(areaService.getIdByAreaName(areaName))) {
+                                AppOneClassGoodListVO oneClassGoodListVO = new AppOneClassGoodListVO();
+                                ToolUtil.copyProperties(appGoodListVO, oneClassGoodListVO);
+                                list.add(oneClassGoodListVO);
+                            }
                         }
                     }else {
                         AppOneClassGoodListVO oneClassGoodListVO = new AppOneClassGoodListVO();

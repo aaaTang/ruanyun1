@@ -44,6 +44,9 @@ public class StoreListVo {
     @ApiModelProperty("距离")
     private Double distance;
 
+    @ApiModelProperty("区域id")
+    private String areaId;
+
     @ApiModelProperty("信任标识  0无  1有 ")
     private Integer trustIdentity = CommonConstant.USER_STATUS_NORMAL;
 
@@ -58,4 +61,5 @@ public class StoreListVo {
 
     @ApiModelProperty(value = "商家类型 （1，酒店 2.主持人 3.默认）")
     private Integer storeType;
+
 }

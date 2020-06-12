@@ -188,6 +188,15 @@ public class IAreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements I
         return Optional.ofNullable(this.getById(id)).map(Area::getTitle).orElse("暂无！");
     }
 
+    @Override
+    public String getIdByAreaName(String name) {
+
+        return Optional.ofNullable(this.getOne(Wrappers.<Area>lambdaQuery()
+        .like(Area::getTitle, name)))
+        .map(Area::getId)
+        .orElse(null);
+    }
+
     //拼接详细地址
     public String spliceAddress(String address, String id) {
         Area area = super.getById(id);

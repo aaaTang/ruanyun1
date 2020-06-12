@@ -10,6 +10,7 @@ import cn.ruanyun.backInterface.modules.fadada.mapper.EnterpriseCertificationMap
 import cn.ruanyun.backInterface.modules.fadada.pojo.EnterpriseCertification;
 import cn.ruanyun.backInterface.modules.fadada.pojo.PersonalCertificate;
 import cn.ruanyun.backInterface.modules.fadada.service.IEnterpriseCertificationService;
+import cn.ruanyun.backInterface.modules.fadada.service.IfadadaService;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fadada.sdk.client.authForfadada.GetCompanyVerifyUrl;
@@ -19,6 +20,7 @@ import com.fadada.sdk.client.authForfadada.model.BankInfoINO;
 import com.fadada.sdk.client.authForfadada.model.CompanyInfoINO;
 import com.fadada.sdk.client.authForfadada.model.LegalInfoINO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +48,9 @@ public class IEnterpriseCertificationServiceImpl extends ServiceImpl<EnterpriseC
     @Autowired
     private IUserService userService;
 
+    @Autowired
+    private IfadadaService ifadadaService;
+
     /**
      * 提交企业认证
      *
@@ -56,6 +61,12 @@ public class IEnterpriseCertificationServiceImpl extends ServiceImpl<EnterpriseC
     public Result<Object> commitOrUpdateEnterpriseCertification(CompanyVerifyDto companyVerifyDto) {
 
         User user = userService.getById(securityUtil.getCurrUser().getId());
+
+        if (StringUtils.isEmpty(user.getCustomerId())) {
+
+            user.setCustomerId(ifadadaService.accountRegister(user.getId(), "2"));
+        }
+
 
         GetCompanyVerifyUrl companyVerifyUrl = new GetCompanyVerifyUrl(CommonConstant.F_APP_ID, CommonConstant.F_APP_SECRET, CommonConstant.F_VERSION, CommonConstant.F_HOST);
 
@@ -93,7 +104,7 @@ public class IEnterpriseCertificationServiceImpl extends ServiceImpl<EnterpriseC
             agentInfo.setAgent_mobile(enterpriseCertificationNew.getAgentMobile());
             agentInfo.setAgent_id_front_path(enterpriseCertificationNew.getAgentIdFrontPath());
 
-            String result = companyVerifyUrl.invokeCompanyVerifyUrl(companyInfo, bankInfoIno, legalInfo, agentInfo, securityUtil.getCurrUser().getCustomerId(),
+            String result = companyVerifyUrl.invokeCompanyVerifyUrl(companyInfo, bankInfoIno, legalInfo, agentInfo, user.getCustomerId(),
                     enterpriseCertificationNew.getVerifiedWay(), enterpriseCertificationNew.getMVerifiedWay(), enterpriseCertificationNew.getPageModify(), enterpriseCertificationNew.getCompanyPrincipalType(), enterpriseCertificationNew.getReturnUrl(),
                     enterpriseCertificationNew.getNotifyUrl(), enterpriseCertificationNew.getResultType(), enterpriseCertificationNew.getCertFlag());
 

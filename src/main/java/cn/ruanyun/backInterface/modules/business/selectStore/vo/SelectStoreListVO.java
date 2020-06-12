@@ -27,6 +27,9 @@ public class SelectStoreListVO {
     @ApiModelProperty("店铺名称")
     private String username;
 
+    @ApiModelProperty("区域id")
+    private String areaId;
+
     @ApiModelProperty("店铺图片")
     private String avatar;
 

@@ -43,4 +43,7 @@ public class UserDTO {
     @ApiModelProperty(value = "用户地址", hidden = true)
     private String address;
 
+    @ApiModelProperty("类型 1.个人 2.商家")
+    private String accountType;
+
 }

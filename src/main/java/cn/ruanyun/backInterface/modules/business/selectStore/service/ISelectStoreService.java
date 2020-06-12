@@ -29,7 +29,7 @@ public interface ISelectStoreService extends IService<SelectStore> {
      * 获取严选商家分类列表
      * @return SelectStoreListVO
      */
-    List<SelectStoreListVO> getSelectStoreList();
+    List<SelectStoreListVO> getSelectStoreList(String areaName);
 
 
     /**

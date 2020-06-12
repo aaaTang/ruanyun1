@@ -11,6 +11,7 @@ import cn.ruanyun.backInterface.modules.fadada.pojo.EnterpriseCertification;
 import cn.ruanyun.backInterface.modules.fadada.pojo.PersonalCertificate;
 import cn.ruanyun.backInterface.modules.fadada.service.IEnterpriseCertificationService;
 import cn.ruanyun.backInterface.modules.fadada.service.IPersonalCertificateService;
+import cn.ruanyun.backInterface.modules.fadada.service.IfadadaService;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -18,6 +19,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fadada.sdk.client.authForfadada.FindCertInfo;
 import com.fadada.sdk.client.authForfadada.GetPersonVerifyUrl;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +51,9 @@ public class IPersonalCertificateServiceImpl extends ServiceImpl<PersonalCertifi
     @Autowired
     private IEnterpriseCertificationService enterpriseCertificationService;
 
+    @Autowired
+    private IfadadaService ifadadaService;
+
 
     /**
      * 提交个人认证信息
@@ -61,10 +66,15 @@ public class IPersonalCertificateServiceImpl extends ServiceImpl<PersonalCertifi
 
         User user = userService.getById(securityUtil.getCurrUser().getId());
 
+        if (StringUtils.isEmpty(user.getCustomerId())) {
+
+            user.setCustomerId(ifadadaService.accountRegister(user.getId(), "1"));
+        }
+
         GetPersonVerifyUrl personVerify = new GetPersonVerifyUrl(CommonConstant.F_APP_ID, CommonConstant.F_APP_SECRET, CommonConstant.F_VERSION, CommonConstant.F_HOST);
 
         //首次提交
-        if (ToolUtil.isEmpty(personVerifyDto.getId())) {
+        if (StringUtils.isEmpty(personVerifyDto.getId())) {
 
             //1.1 提交个人认证api
             PersonalCertificate personalCertificateNew = new PersonalCertificate();

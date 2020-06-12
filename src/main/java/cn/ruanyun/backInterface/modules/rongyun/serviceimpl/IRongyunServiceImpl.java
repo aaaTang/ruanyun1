@@ -526,7 +526,10 @@ public class IRongyunServiceImpl extends ServiceImpl<RongyunMapper, Rongyun> imp
 
             User platform_servicer = iUserService.getOne(Wrappers.<User>lambdaQuery()
                     .eq(User::getId, group.getPlatformServicerId()));
-            back.put("platform_servicer", new GroupUserVO(platform_servicer.getId(), platform_servicer.getAvatar(), platform_servicer.getNickName()));
+            if (ToolUtil.isNotEmpty(platform_servicer)) {
+
+                back.put("platform_servicer", new GroupUserVO(platform_servicer.getId(), platform_servicer.getAvatar(), platform_servicer.getNickName()));
+            }
 
             User store = iUserService.getOne(Wrappers.<User>lambdaQuery()
                     .eq(User::getId, group.getStoreId()));

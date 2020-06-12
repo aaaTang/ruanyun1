@@ -31,9 +31,9 @@ public class PersonalCertificateController {
 
     @PostMapping("/commitOrUpdatePersonalCertificate")
     @ApiOperation("提交或者更新个人认证申请(APP)")
-    public Result<Object> commitOrUpdatePersonalCertificate(PersonVerifyDto PersonVerifyDto) {
+    public Result<Object> commitOrUpdatePersonalCertificate(PersonVerifyDto personVerifyDto) {
 
-        return iPersonalCertificateService.commitOrUpdatePersonalCertificate(PersonVerifyDto);
+        return iPersonalCertificateService.commitOrUpdatePersonalCertificate(personVerifyDto);
     }
 
     @PostMapping("/getCertificate")
